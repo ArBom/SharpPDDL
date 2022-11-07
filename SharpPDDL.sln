@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.2092
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpPDDL", "SharpPDDL\SharpPDDL.csproj", "{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User", "User\User.csproj", "{82AB03E1-806B-4C50-A7D5-10EB357EF2CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82AB03E1-806B-4C50-A7D5-10EB357EF2CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82AB03E1-806B-4C50-A7D5-10EB357EF2CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82AB03E1-806B-4C50-A7D5-10EB357EF2CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82AB03E1-806B-4C50-A7D5-10EB357EF2CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E42E590E-401B-4B3B-B37C-7A51B8466AC7}
+	EndGlobalSection
+EndGlobal
