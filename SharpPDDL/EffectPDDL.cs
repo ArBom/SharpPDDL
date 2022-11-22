@@ -9,58 +9,19 @@ namespace SharpPDDL
     {
         //albo ustawia stala, albo z iinej klasy, albo zewn
 
-        internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ValueType TrigerValue = default) where T1 : class //przypisanie stałej wartosci
+        //public abstract Func<Parametr, Parametr, List<object>, bool?> ExecutePDDP { get; }
+
+        /*internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ValueType value) where T1 : class //przypisanie stałej wartosci
         {
-            PropertyInfo propInfo = obj1.GetType().GetProperty(Name);
-            bool? Prop = propInfo?.CanWrite;
-
-            FieldInfo fieldInfo = obj1.GetType().GetField(Name);
-            bool? Field = fieldInfo?.IsPublic;
-
-            if ((Prop | Field) == true)
-            {
-                Type TypeOfValue = TrigerValue.GetType();
-
-                Type TypeOfPredicate = null;
-
-                if (Prop == true)
-                {
-                    if (propInfo.GetType() != TypeOfValue) { } //todo
-
-
-                }
-
-                if (Field == true)
-                {
-                    if (fieldInfo.GetType() != TypeOfValue) { } //todo
-
-
-                }
-
-                if (!TypeOfPredicate.IsValueType)
-                {
-                    throw new Exception(""); //nie właściwy typ
-                }
-            }
-
-            if ((Prop & Field) == false)
-                throw new Exception(""); //dany typ istnieje, ale nie moze byc odczytany
-
-            if (TrigerValue is bool)
-            {
-
-            }
-
-            throw new Exception(""); //niby zewnątrzny, ale oczekiwana wartość nie jest bool
         }
 
-        internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ref ValueType TrigerValue) where T1 : class //przypisanie wartosci z innej klasy
+        internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ref ValueType value) where T1 : class //przypisanie wartosci z innej klasy
         {
         }
 
         internal static EffectPDDL Instance<T1, T2>(string Name, ref T1 obj1, ref T2 obj2, bool value) where T1 : class //przypisanie zewnętrzne
         {
-        }
+        }*/
 
         protected EffectPDDL(string Name) : base(Name) { }
     }
@@ -102,11 +63,36 @@ namespace SharpPDDL
 
     internal class EffectPDDL<T1, T2> : EffectPDDL<T1>
     {
-        protected EffectPDDL(string Name, ref T1 obj1) : base(Name, ref obj1) { }
+        readonly internal Type TypeOf2Class;
+        readonly internal Int32 Hash2Class;
+        readonly T2 t2;
 
-        internal override (int, int?) FindIndexesOnList(List<Parametr> listOfParams) //TODO
+        protected EffectPDDL(string Name, ref T1 obj1, ref T2 obj2) : base(Name, ref obj1)
         {
-            throw new NotImplementedException();
+            this.t2 = obj2;
+            TypeOf2Class = obj2.GetType();
+            Hash2Class = obj2.GetHashCode();
+        }
+
+        protected int IndexOf2OnList(List<Parametr> listOfParams)
+        {
+            for (int listPos = 0; listPos != listOfParams.Count; listPos++)
+            {
+                if (listOfParams[listPos].HashCode != this.Hash2Class)
+                    continue;
+
+                if (!object.ReferenceEquals(listOfParams[listPos], this.t2))
+                    continue;
+
+                return listPos;
+            }
+
+            throw new Exception(); //Brak na liście
+        }
+
+        internal override (int, int?) FindIndexesOnList(List<Parametr> listOfParams)
+        {
+            return (IndexOf1OnList(listOfParams), IndexOf2OnList(listOfParams));
         }
     }
 }

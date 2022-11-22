@@ -8,9 +8,11 @@ namespace SharpPDDL
 {
     abstract internal class PreconditionPDDL : ObjectPDDL
     {
-        public abstract (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
+        //internal abstract (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
 
-        ////
+        protected Func<Parametr, Parametr, bool?> CheckPDDP;
+        protected Func<dynamic, dynamic, List<ExternalValue>, bool?> Check;
+
         internal static PreconditionPDDL Instance<T1>(string Name, ref T1 obj1, ValueType TrigerValue = default) where T1 : class
         {
             PropertyInfo propInfo = obj1.GetType().GetProperty(Name);
@@ -48,7 +50,7 @@ namespace SharpPDDL
             throw new Exception(""); //niby zewnątrzny, ale oczekiwana wartość nie jest bool
         }
 
-        internal static PreconditionPDDL Instance<T1,T2>(string Name, ref T1 obj1, ref T2 obj2) where T1 : class
+        internal static PreconditionPDDL Instance<T1, T2>(string Name, ref T1 obj1, ref T2 obj2) where T1 : class
         {
             if (obj2.GetType().IsClass)
                 return new PreconditionExtPDDL<T1, T2>(Name, ref obj1, ref obj2);
@@ -56,24 +58,18 @@ namespace SharpPDDL
             if (obj2.GetType().IsValueType)
                 return PreconditionConstPDDL<T1, T2>.Instance(Name, ref obj1, ref obj2);
 
-              throw new Exception(""); //niewłaściwy typ obj2
+            throw new Exception(""); //niewłaściwy typ obj2
         }
 
-        /*internal static PreconditionPDDL Instance<T1, T2>(string Name, ref T1 obj1, ref T2 obj2, Func<T1,T2,bool> func) where T1 : class where T2 : class
-        {
-            return new PreconditionFuncPDDL<T1,T2>(Name, ref obj1, ref obj2, func);
-        }*/
-        ////
-
-        protected PreconditionPDDL(string Name) : base(Name) {}
+        protected PreconditionPDDL(string Name) : base(Name) { }
     }
 
     internal abstract class PreconditionPDDL<T1> : PreconditionPDDL
     {
         new readonly internal Type TypeOf1Class;
         new readonly internal Int32 Hash1Class;
-        readonly T1 t1;
-        
+        protected T1 t1;
+
         protected int IndexOf1OnList(List<Parametr> listOfParams)
         {
             for (int listPos = 0; listPos != listOfParams.Count; listPos++)
@@ -107,6 +103,22 @@ namespace SharpPDDL
     {
         internal readonly Type TypeOf2Class;
         internal readonly Int32 Hash2Class;
+        internal T2 t2;
+
+        internal bool? IsField2Class()
+        {
+            FieldInfo fieldInfo = TypeOf2Class.GetField(Name);
+            bool? Field = fieldInfo?.IsPublic;
+            if (Field == true)
+                return true;
+
+            PropertyInfo propInfo = TypeOf2Class.GetProperty(Name);
+            bool? Prop = propInfo?.CanRead;
+            if (Prop == true)
+                return false;
+
+            return null;
+        }
 
         protected int IndexOf2OnList(List<Parametr> listOfParams)
         {
@@ -131,37 +143,52 @@ namespace SharpPDDL
 
         protected PreconditionPDDL(string Name, ref T1 obj1, ref T2 obj2) : base(Name, ref obj1)
         {
+            t2 = obj2;
             TypeOf2Class = obj2.GetType();
             Hash2Class = obj2.GetHashCode();
-        }
-    }
 
-    internal abstract class PreconditionFuncPDDL<T1, T2> : PreconditionPDDL<T1, T2>
-    { 
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+                var V2null = Param2.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf2Class)?.value;
 
+                if (V1null == null || V2null == null)
+                    return null;
 
-        internal PreconditionFuncPDDL(string Name, ref T1 obj1, ref T2 obj2, Func<T1,T2,bool> func = null) : base( Name, ref obj1, ref obj2) { }
-
-        public override (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
-        {
-            throw new NotImplementedException();
+                return V1null == V2null;
+            };
         }
     }
 
     internal class PreconditionExtPDDL<T1, T2> : PreconditionPDDL<T1, T2>
     {
-
-        public override (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
-        {
-            throw new NotImplementedException();
-        }
-
         internal PreconditionExtPDDL(string Name, ref T1 obj1, ref T2 obj2) : base(Name, ref obj1, ref obj2)
-        { }
+        {
+            if (!TypeOf2Class.IsClass)
+            {
+                throw new Exception(); //2. obj nie jest klasą
+            }
+
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var Param2Hash = Param2.GetHashCode();
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.TheOtherClasses; //TODO ?ref ref?
+                var a = V1null.Where(p => p.HashCode == Param2Hash)?.First(p => Object.ReferenceEquals(p, Param2));
+
+                if (a == null)
+                    return false;
+                else
+                    return true;
+            };
+        }
     }
 
-    internal abstract class PreconditionConstPDDL<T1, T2> : PreconditionFuncPDDL<T1, T2>
+    internal abstract class PreconditionConstPDDL<T1, T2> : PreconditionPDDL<T1, T2> //T2 jest value type w innej klasie
+                                                                                     //todo rozgalęzienie na 2 argument
     {
+        protected string NameAt2class;
+        protected bool? Is2Field = null;
+
         internal static PreconditionPDDL Instance(string Name, ref T1 obj1, ref T2 obj2)
         {
             PropertyInfo propInfo = obj1.GetType().GetProperty(Name);
@@ -177,10 +204,29 @@ namespace SharpPDDL
             throw new Exception(); //Ani field ani property
         }
 
-        internal PreconditionConstPDDL(string name, ref T1 obj1, ref T2 obj2) : base(name, ref obj1, ref obj2) { }
+        internal PreconditionConstPDDL(string name, ref T1 obj1, ref T2 obj2) : base(name, ref obj1, ref obj2)
+        {
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name).First().value;
+                var V2null = Param2.predicates.Where(p => p.name == Name).First().value; //TODO druga nazwa raczej taka nie bedzie.
 
-        private (string, Type) InfoOf2;
-        private (int, (string, Type)) IndexOf2OnList(List<Parametr> listOfParams)
+                if (V1null == null || V2null == null)
+                    return false;
+
+                return V1null == V2null;
+            };
+        }
+
+        internal PreconditionConstPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2)
+        {
+            this.NameAt2class = NameAt2class;
+        }
+
+        internal abstract PreconditionPDDL FullInstance();
+
+        private (string, Type) InfoOf2; //TODO zobaczyć czy to jest na peno ok.
+        new private (int, (string, Type)) IndexOf2OnList(List<Parametr> listOfParams)
         {
             for (int listPos = 0; listPos != listOfParams.Count; listPos++)
             {
@@ -198,61 +244,220 @@ namespace SharpPDDL
 
             throw new Exception(); //Brak na liście
         }
-
-        bool? Check(Parametr parametr1, Parametr parametr2, List<object> list)
-        {
-            if (parametr1.Type != this.TypeOf1Class || parametr2.Type != this.TypeOf2Class)
-                return null;
-
-            ValueType a = parametr1.predicates.Where(p => p.name == this.Name)?.Where(p => p.type == TypeOf1Class)?.First().value;
-            ValueType b = parametr1.predicates.Where(p => p.name == InfoOf2.Item1).Where(p => p.type == InfoOf2.Item2)?.First().value;
-
-            if (a == null || b == null)
-                return null;
-
-            return (a == b);
-        }
-
-        public override (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
-        {
-            int IndexOf1 = IndexOf1OnList(listOfParams);
-            var Parametr2 = IndexOf2OnList(listOfParams);
-            InfoOf2 = Parametr2.Item2;
-
-            Func<Parametr, Parametr, List<object>, bool?> func = Check;
-
-            return (func, IndexOf1, Parametr2.Item1);
-        }
     }
 
     internal class PreconditionConstPropertyPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>
     {
-        internal PreconditionConstPropertyPDDL(string name, ref T1 obj1, ref T2 obj2) : base(name, ref obj1, ref obj2)
+        /*new internal PreconditionPDDL Instance(string Name, ref T1 obj1, ref T2 obj2)
         {
-            //Func<T1, T2, bool> func = func1;
+            PreconditionPDDL<T1, T2> p = new PreconditionConstPropertyPDDL<T1, T2>(Name, ref obj1, ref obj2);
+
+            /*FieldInfo fieldInfo = obj2.GetType().GetField(Name);
+            bool? Field = fieldInfo?.IsPublic;
+            if (Field == true)
+                return new PreconditionConstPropertyFieldPDDL<T1, T2>(Name, ref obj1, ref obj2);
+
+            PropertyInfo propInfo = obj2.GetType().GetProperty(Name);
+            bool? Prop = propInfo?.CanRead;
+            if (Prop == true)
+                return new PreconditionConstPropertyPropertyPDDL<T1, T2>(Name, ref obj1, ref obj2);
+
+            throw new Exception(); //brak odwołania w 2. arg.
+        }*/
+
+        override internal PreconditionPDDL FullInstance()
+        {
+            if (string.IsNullOrEmpty(this.NameAt2class) || Is2Field == null)
+                throw new Exception(); //najpierw należy wykonac inna f.
+
+            if (Is2Field.Value)
+                return new PreconditionConstPropertyFieldPDDL<T1, T2>(Name, ref t1, ref t2, NameAt2class);
+            else
+                return new PreconditionConstPropertyPropertyPDDL<T1, T2>(Name, ref t1, ref t2, NameAt2class);
+        }
+
+        internal PreconditionConstPropertyPDDL(string name, ref T1 obj1, ref T2 obj2) : base(name, ref obj1, ref obj2) { }
+        internal PreconditionConstPropertyPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class) { }
+    }
+
+    internal class PreconditionConstPropertyFieldPDDL<T1, T2> : PreconditionConstPropertyPDDL<T1, T2>
+    {
+        internal PreconditionConstPropertyFieldPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class)
+        {
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+                var V2null = Param2.predicates.First(p => p.name == NameAt2class)?.value;
+
+                return V1null == V2null;
+            };
+
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealProperty1 = RealObject1.GetType().GetProperty(Name)?.GetValue(RealObject1);
+
+                T2 RealObject2 = Param2;
+                var ValueOfRealField2 = RealObject2.GetType().GetField(NameAt2class)?.GetValue(RealObject2); //TODO to jebnie
+
+                return Equals(ValueOfRealProperty1, ValueOfRealField2);
+            };
+        }
+    }
+
+    internal class PreconditionConstPropertyPropertyPDDL<T1, T2> : PreconditionConstPropertyPDDL<T1, T2>
+    {
+        internal new PreconditionPDDL FullInstance()
+        {
+            return this;
+        }
+
+        internal PreconditionConstPropertyPropertyPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class)
+        {
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+                var V2null = Param2.predicates.First(p => p.name == NameAt2class)?.value;
+
+                return V1null == V2null;
+            };
+
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealProperty1 = RealObject1.GetType().GetProperty(Name).GetValue(RealObject1);
+
+                T2 RealObject2 = Param2;
+                var ValueOfRealProperty2 = RealObject2.GetType().GetProperty(NameAt2class).GetValue(RealObject2);
+
+                return Equals(ValueOfRealProperty1, ValueOfRealProperty2);
+            };
         }
     }
 
     internal class PreconditionConstFieldPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>
     {
+        new PreconditionConstFieldPDDL<T1, T2> Instance(string Name, ref T1 obj1, ref T2 obj2)
+        {
+            if (string.IsNullOrEmpty(this.NameAt2class) || Is2Field == null)
+                throw new Exception(); //najpierw należy wykonac inna f.
+
+            FieldInfo fieldInfo = obj2.GetType().GetField(Name);
+            bool? Field = fieldInfo?.IsPublic;
+            if (Field == true)
+                return new PreconditionConstFieldFieldPDDL<T1, T2>(Name, ref obj1, ref obj2, NameAt2class);
+
+            PropertyInfo propInfo = obj2.GetType().GetProperty(Name);
+            bool? Prop = propInfo?.CanRead;
+            if (Prop == true)
+                return new PreconditionConstFieldPropertyPDDL<T1, T2>(Name, ref obj1, ref obj2, NameAt2class);
+
+            throw new Exception(); //brak odwołania w 2. arg.
+        }
+
         internal PreconditionConstFieldPDDL(string name, ref T1 obj1, ref T2 obj2) : base(name, ref obj1, ref obj2)
         {
-            //Func<T1, T2, bool> func = func1;
+            //TODO checkPDDL zaimplementować w klasie rodzic
+        }
+        internal PreconditionConstFieldPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class) { }
+
+        override internal PreconditionPDDL FullInstance()
+        {
+            if (string.IsNullOrEmpty(this.NameAt2class) || Is2Field == null)
+                throw new Exception(); //najpierw należy wykonac inna f.
+
+            if (Is2Field.Value)
+                return new PreconditionConstPropertyFieldPDDL<T1, T2>(Name, ref t1, ref t2, NameAt2class);
+            else
+                return new PreconditionConstPropertyPropertyPDDL<T1, T2>(Name, ref t1, ref t2, NameAt2class);
+        }
+    }
+
+    internal class PreconditionConstFieldFieldPDDL<T1, T2> : PreconditionConstFieldPDDL<T1, T2>
+    {
+        internal new PreconditionPDDL FullInstance()
+        {
+            return this;
+        }
+
+        internal PreconditionConstFieldFieldPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class)
+        {
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+                var V2null = Param2.predicates.First(p => p.name == NameAt2class)?.value;
+
+                return V1null == V2null;
+            };
+
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealField1 = RealObject1.GetType().GetField(Name)?.GetValue(RealObject1);
+
+                T2 RealObject2 = Param2;
+                var ValueOfRealField2 = RealObject2.GetType().GetField(NameAt2class)?.GetValue(RealObject2); //TODO to jebnie
+
+                return Equals(ValueOfRealField1, ValueOfRealField2);
+            };
+        }
+    }
+    
+
+    internal class PreconditionConstFieldPropertyPDDL<T1, T2> : PreconditionConstFieldPDDL<T1, T2>
+    {
+        internal new PreconditionPDDL FullInstance()
+        {
+            return this;
+        }
+
+        internal PreconditionConstFieldPropertyPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class)
+        {
+            if (!obj2.GetType().IsClass) //TODO dorobić do podobnych
+                throw new Exception(""); //2. obiekt musi być klasą
+
+            CheckPDDP = (Param1, Param2) =>
+            {
+                var V1null = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+                var V2null = Param2.predicates.First(p => p.name == NameAt2class)?.value;
+
+                return V1null == V2null;
+            };
+
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealField1 = RealObject1.GetType().GetField(Name)?.GetValue(RealObject1);
+
+                T2 RealObject2 = Param2;
+                var ValueOfRealProp2 = RealObject2.GetType().GetProperty(NameAt2class)?.GetValue(RealObject2); //TODO to jebnie
+
+                return Equals(RealObject1, ValueOfRealProp2);
+            };
         }
     }
 
     internal class PreconditionExtPDDL<T1> : PreconditionPDDL<T1>
     {
-        readonly bool TrigerValue;
-
-        public override (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
-        {
-            throw new NotImplementedException();
-        }
+        readonly bool TrigerValue; //TODO brzydka nazwa
 
         internal PreconditionExtPDDL(string Name, ref T1 obj1, bool TrigerValue) : base(Name, ref obj1)
         {
+            //TODO dodanie zewnętrzności
+            //  internal Int32? Hash; //null dla external
+
             this.TrigerValue = TrigerValue;
+
+            CheckPDDP = (Param1, Param2) => //dodać zewnętrzność jako kolejny predicates
+            {
+                var Vnull = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+
+                if (Vnull == null)
+                    return null;
+
+                bool V = Convert.ToBoolean(Vnull);
+                return V == TrigerValue;
+            };
         }
     }
 
@@ -260,39 +465,52 @@ namespace SharpPDDL
     {
         ValueType CorrectValue;
 
-        bool? Check(Parametr parametr1, Parametr parametr2, List<object> list)
-        {
-            if (parametr1.Type != this.TypeOf1Class)
-                return null;
-
-            ValueType a = parametr1.predicates.Where(p => p.name == this.Name)?.Where(p => p.type == TypeOf1Class)?.First().value;
-
-            if (a == null)
-                return null;
-
-            return (a == CorrectValue);
-        }
-
-        public override (Func<Parametr, Parametr, List<object>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
-        {
-            int IndexOfParam = IndexOf1OnList(listOfParams);
-            Func<Parametr, Parametr, List<object>, bool?> func = Check;
-
-            return (func, IndexOfParam, null);
-        }
-
         internal PreconditionInternalPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1)
         {
-            this.CorrectValue = CorrectValue;
+            CheckPDDP = (Param1, Param2) => //TODO sprawdzić czy się poprawnie nadpisuje typ
+            {
+                ValueType V = Param1.predicates.Where(p => p.name == Name)?.First(p => p.type == TypeOf1Class)?.value;
+
+                if (V == null)
+                    return null;
+
+                return V == CorrectValue;
+            };
         }
     }
 
     internal class PreconditionInternalPropertyPDDL<T1> : PreconditionInternalPDDL<T1>
     {
-        internal PreconditionInternalPropertyPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1, CorrectValue) {}
+        internal PreconditionInternalPropertyPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1, CorrectValue)
+        {
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealProperty = RealObject1.GetType().GetProperty(Name)?.GetValue(RealObject1);
+
+                if (ValueOfRealProperty == null)
+                    return null;
+
+                return (ValueOfRealProperty == CorrectValue);
+            };
+        }
     }
+
     internal class PreconditionInternalFieldPDDL<T1> : PreconditionInternalPDDL<T1>
     {
-        internal PreconditionInternalFieldPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1, CorrectValue) {}
+        internal PreconditionInternalFieldPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1, CorrectValue)
+        {
+            Check = (Param1, Param2, List) =>
+            {
+                T1 RealObject1 = Param1;
+                var ValueOfRealField = RealObject1.GetType().GetField(Name)?.GetValue(RealObject1);
+
+                if (ValueOfRealField == null)
+                    return null;
+
+                return (ValueOfRealField == CorrectValue);
+            };
+        }
     }
+
 }

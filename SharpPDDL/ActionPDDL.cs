@@ -7,14 +7,39 @@ using System.Text;
 
 namespace SharpPDDL
 {
+    internal class ExternalValue
+    {
+        internal readonly string name;
+        //bool Value = false;
+
+        internal Int32 Hash1 { get { return class1.GetHashCode(); } }
+        internal readonly Type type1;
+        internal readonly object class1;
+
+        internal Int32 Hash2 { get { return class2.GetHashCode(); } }
+        internal readonly Type type2;
+        internal readonly object class2;
+
+        ExternalValue(string name, ref object class1, ref object class2) //TODO sprawdzić czy muszą być refy
+        {
+            this.name = name;
+
+            this.type1 = class1.GetType();
+            this.class1 = class1;
+
+            this.type2 = class2.GetType();
+            this.class2 = class1;
+        }
+    }
+
     internal class Value
     {
-        //bool External = false;
         internal string name;
         internal Int32? Hash; //null dla external
         internal Type type;
 
-        internal ValueTuple value;
+        internal List<Parametr> TheOtherClasses = null;
+        internal ValueType value;
     }
 
     internal class Parametr 
@@ -39,8 +64,8 @@ namespace SharpPDDL
         internal static List<KnotOfTree> allTypes; //przekopionawe wszystkie zdefiniowane typy
 
         private List<EffectPDDL> Effects;        //efekty
-        private Stopwatch stopwatch;
-        private TimeSpan ts;
+        //private Stopwatch stopwatch;
+        //private TimeSpan ts;
 
         protected void CheckThisAction()
         {
@@ -114,6 +139,7 @@ namespace SharpPDDL
 
             foreach(var precondition in Preconditions)
             {
+                //TODO utworzenie zewnętrznych w tym miejscu
                 precondition.FindIndexesOnList(Parameters);
             }
         }
