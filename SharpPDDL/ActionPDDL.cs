@@ -61,7 +61,7 @@ namespace SharpPDDL
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<Parametr> Parameters;         //typy wykorzystywane w tej akcji (patrz powyzej)
 
-        internal static List<KnotOfTree> allTypes; //przekopionawe wszystkie zdefiniowane typy
+        internal List<SingleType> allTypes; //przekopionawe wszystkie zdefiniowane typy
 
         private List<EffectPDDL> Effects;        //efekty
         //private Stopwatch stopwatch;
@@ -74,7 +74,7 @@ namespace SharpPDDL
 
             foreach (Parametr parametr in Parameters) //dla każdego obiektu (klasy)
             {
-                KnotOfTree thisType = allTypes.Find(KoT => KoT.type == parametr.Type); //we wszystkich typach znajdz o takim samym typie jak obecny parametr
+                SingleType thisType = allTypes.Find(KoT => KoT.type == parametr.Type); //we wszystkich typach znajdz o takim samym typie jak obecny parametr
 
                 if (thisType == null)
                 {
@@ -137,10 +137,16 @@ namespace SharpPDDL
         {
             CheckThisAction();
 
+
+
             foreach(var precondition in Preconditions)
             {
                 //TODO utworzenie zewnętrznych w tym miejscu
-                precondition.FindIndexesOnList(Parameters);
+
+                //TODO full instance
+                var a = precondition.BuildFunct(Parameters);
+
+
             }
         }
 

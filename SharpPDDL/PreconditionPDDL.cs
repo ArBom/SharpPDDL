@@ -7,7 +7,7 @@ namespace SharpPDDL
 {
     abstract internal class PreconditionPDDL : ObjectPDDL
     {
-        //internal abstract (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
+        internal abstract (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
         protected Func<Parametr, Parametr, bool?> CheckPDDP;
         protected Func<dynamic, dynamic, List<ExternalValue>, bool?> Check;
 
@@ -68,25 +68,22 @@ namespace SharpPDDL
         new readonly internal Int32 Hash1Class;
         protected T1 t1;
 
-        protected int IndexOf1OnList(List<Parametr> listOfParams)
+        protected int T1Index (List<Parametr> listOfParams)
         {
-            for (int listPos = 0; listPos != listOfParams.Count; listPos++)
+            for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (listOfParams[listPos].HashCode != this.Hash1Class)
+                if (listOfParams[index].HashCode != Hash1Class)
                     continue;
 
-                if (!object.ReferenceEquals(listOfParams[listPos], this.t1))
-                    continue;
-
-                return listPos;
+                if (ReferenceEquals(listOfParams[index], t1))
+                    return index;
             }
-
-            throw new Exception(); //Brak na liście
+            return -1;
         }
 
-        override internal (int, int?) FindIndexesOnList(List<Parametr> listOfParams)
+        override internal (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
         {
-            return (IndexOf1OnList(listOfParams), null);
+            return (CheckPDDP, Check, T1Index(listOfParams), null);
         }
 
         protected PreconditionPDDL(string Name, ref T1 obj1) : base(Name)
@@ -103,6 +100,27 @@ namespace SharpPDDL
         internal readonly Int32 Hash2Class;
         internal T2 t2;
 
+        private int T2Index(List<Parametr> listOfParams)
+        {
+            if (!TypeOf2Class.IsClass)
+                return -2;
+
+            for (int index = 0; index != listOfParams.Count; index++)
+            {
+                if (listOfParams[index].HashCode != Hash2Class)
+                    continue;
+
+                if (ReferenceEquals(listOfParams[index], t2))
+                    return index;
+            }
+            return -1;
+        }
+
+        new protected (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
+        {
+            return (CheckPDDP, Check, T1Index(listOfParams), T2Index(listOfParams));
+        }
+
         internal bool? IsField2Class()
         {
             FieldInfo fieldInfo = TypeOf2Class.GetField(Name);
@@ -116,27 +134,6 @@ namespace SharpPDDL
                 return false;
 
             return null;
-        }
-
-        protected int IndexOf2OnList(List<Parametr> listOfParams)
-        {
-            for (int listPos = 0; listPos != listOfParams.Count; listPos++)
-            {
-                if (listOfParams[listPos].HashCode != this.Hash2Class)
-                    continue;
-
-                if (!object.ReferenceEquals(listOfParams[listPos], this.Hash2Class))
-                    continue;
-
-                return listPos;
-            }
-
-            throw new Exception(); //Brak na liście
-        }
-
-        override internal (int, int?) FindIndexesOnList(List<Parametr> listOfParams)
-        {
-            return (IndexOf1OnList(listOfParams), IndexOf2OnList(listOfParams));
         }
 
         protected PreconditionPDDL(string Name, ref T1 obj1, ref T2 obj2) : base(Name, ref obj1)
@@ -258,10 +255,8 @@ namespace SharpPDDL
             };
         }
 
-        internal abstract PreconditionPDDL FullInstance();
-
         private (string, Type) InfoOf2; //TODO zobaczyć czy to jest na peno ok.
-        new private (int, (string, Type)) IndexOf2OnList(List<Parametr> listOfParams)
+        private (int, (string, Type)) IndexOf2OnList(List<Parametr> listOfParams)
         {
             for (int listPos = 0; listPos != listOfParams.Count; listPos++)
             {
@@ -281,12 +276,17 @@ namespace SharpPDDL
         }
     }
 
-    internal class PreconditionConstPropertyPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>
+    internal interface IFullInstance
     {
-        override internal PreconditionPDDL FullInstance()
+        PreconditionPDDL FullInstance();
+    }
+
+    internal class PreconditionConstPropertyPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>, IFullInstance
+    {
+        public PreconditionPDDL FullInstance()
         {
             if (string.IsNullOrEmpty(this.NameAt2class) || Is2Field == null)
-                throw new Exception(); //najpierw należy wykonac inna f.
+                throw new Exception(); //TODO najpierw należy wykonac inna f.
 
             if (Is2Field.Value)
                 return new PreconditionConstPropertyFieldPDDL<T1, T2>(Name, ref t1, ref t2, NameAt2class);
@@ -352,7 +352,7 @@ namespace SharpPDDL
         }
     }
 
-    internal class PreconditionConstFieldPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>
+    internal class PreconditionConstFieldPDDL<T1, T2> : PreconditionConstPDDL<T1, T2>, IFullInstance
     {
         new PreconditionConstFieldPDDL<T1, T2> Instance(string Name, ref T1 obj1, ref T2 obj2)
         {
@@ -378,7 +378,7 @@ namespace SharpPDDL
         }
         internal PreconditionConstFieldPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class) { }
 
-        override internal PreconditionPDDL FullInstance()
+        public PreconditionPDDL FullInstance()
         {
             if (string.IsNullOrEmpty(this.NameAt2class) || Is2Field == null)
                 throw new Exception(); //najpierw należy wykonac inna f.
@@ -435,7 +435,7 @@ namespace SharpPDDL
         internal PreconditionConstFieldPropertyPDDL(string name, ref T1 obj1, ref T2 obj2, string NameAt2class) : base(name, ref obj1, ref obj2, NameAt2class)
         {
             if (!obj2.GetType().IsClass) //TODO dorobić do podobnych
-                throw new Exception(""); //2. obiekt musi być klasą
+                throw new Exception(""); //2. obiekt musi być klasą,km
 
             CheckPDDP = (Param1, Param2) =>
             {
@@ -484,7 +484,7 @@ namespace SharpPDDL
 
     internal abstract class PreconditionInternalPDDL<T1> : PreconditionPDDL<T1>
     {
-        readonly ValueType CorrectValue;
+        private readonly ValueType CorrectValue;
 
         internal PreconditionInternalPDDL(string Name, ref T1 obj1, ValueType CorrectValue) : base(Name, ref obj1)
         {
@@ -533,5 +533,4 @@ namespace SharpPDDL
             };
         }
     }
-
 }

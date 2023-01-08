@@ -14,10 +14,9 @@ namespace SharpPDDL
 
         private void CheckActions()
         {
-            ActionPDDL.allTypes = this.types.allTypes;
-
             foreach (ActionPDDL act in actions)
             {
+                act.allTypes = this.types.allTypes;
                 act.BuildIt();
             }
         }
@@ -38,7 +37,7 @@ namespace SharpPDDL
             }
 
             bool exist = false;
-            foreach (KnotOfTree i in types.allTypes)
+            foreach (SingleType i in types.allTypes)
             {
                 if (i.predicates.Exists(p => p.Name == name))
                 {
@@ -54,7 +53,7 @@ namespace SharpPDDL
 
         public void AddTypes(Type baseType, Type classes1, params Type[] classesN)
         {
-            types.AddTypes(baseType, classes1, classesN);
+            types.AddTypes(classes1, classesN);
         }
 
         public void AddPredicate(string name, Type typeOfClass)

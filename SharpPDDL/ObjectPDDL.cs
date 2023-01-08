@@ -11,8 +11,6 @@ namespace SharpPDDL
         readonly internal Type TypeOf1Class;
         readonly internal Int32 Hash1Class;
 
-        internal abstract (int, int?) FindIndexesOnList(List<Parametr> listOfParams);
-
         internal ObjectPDDL(string Name)
         {
             if (String.IsNullOrEmpty(Name))
