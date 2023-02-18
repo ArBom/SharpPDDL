@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,15 +25,20 @@ namespace User
             D1 d1;
 
             c1 = default;
+            d1 = new D1();
 
             ActionPDDL actionPDDL = new ActionPDDL("first");
             
             actionPDDL.AddParameter(out B1 b1);
 
-            actionPDDL.AddPrecondiction("second", ref b1, ref c1.char2); 
+            //actionPDDL.AddPrecondiction("second", ref b1, ref c1.char2); 
 
             char c = 'b';
-            actionPDDL.AddPrecondiction("third", ref b1, c);
+            //actionPDDL.AddPrecondiction("third", ref b1, c);
+
+
+            Expression<Predicate<D1>> func = d => d.char2 == 'a';
+            actionPDDL.AddPrecondiction("fourth", ref d1, func);
 
             //var t = Tester.RunTheMethod(b1.inti);
 

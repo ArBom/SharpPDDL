@@ -57,7 +57,7 @@ namespace User
             //Func<C1, B2, bool> TheSame = (x, y) => x.v == y.v;
             newDomein.AddPredicate("thesame", typeof(C1), typeof(B2));
 
-            //Act.Tryp();           
+            Act.Tryp();           
         }
     }
 }

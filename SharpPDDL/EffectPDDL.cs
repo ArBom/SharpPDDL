@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -9,7 +10,10 @@ namespace SharpPDDL
     {
         //albo ustawia stala, albo z iinej klasy, albo zewn
 
-        //public abstract Func<Parametr, Parametr, List<object>, bool?> ExecutePDDP { get; }
+        public abstract Action<Parametr, Parametr> ExecutePDDP();
+
+        public abstract Func<dynamic, dynamic, EventHandler> Execute();
+
 
         /*internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ValueType value) where T1 : class //przypisanie stałej wartosci
         {
@@ -26,7 +30,7 @@ namespace SharpPDDL
         protected EffectPDDL(string Name) : base(Name) { }
     }
 
-    internal class EffectPDDL<T1> : EffectPDDL
+    /*internal class EffectPDDL<T1> : EffectPDDL
     {
         new readonly internal Type TypeOf1Class;
         new readonly internal Int32 Hash1Class;
@@ -52,5 +56,5 @@ namespace SharpPDDL
             TypeOf2Class = obj2.GetType();
             Hash2Class = obj2.GetHashCode();
         }
-    }
+    }*/
 }

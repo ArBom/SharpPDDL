@@ -2,14 +2,44 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace SharpPDDL
 {
     abstract internal class PreconditionPDDL : ObjectPDDL
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="listOfParams"></param>
+        /// <returns>
+        /// Function that checks the condition of the PDDL object(s)
+        /// Function that checks the condition of the object(s)
+        /// Position of the first parameter in the list
+        /// (Position of the second parameter in the list)
+        /// </returns>
         internal abstract (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, List<ExternalValue>, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
+
+        /// <summary>
+        /// It's check if PDDL object(s) fulfil requirement (of this precondition) to do action.
+        /// </summary>
+        /// <returns>
+        /// TRUE if so, FALSE if not, NULL if its incorrect
+        /// </returns>
         protected Func<Parametr, Parametr, bool?> CheckPDDP;
+
+        /// <summary>
+        /// It's check if object(s) fulfil requirement (of this precondition) to do action.
+        /// </summary>
+        /// <returns>
+        /// TRUE if so, FALSE if not, NULL if its incorrect
+        /// </returns>
         protected Func<dynamic, dynamic, List<ExternalValue>, bool?> Check;
+
+        internal static PreconditionPDDL Instance<T1>(string Name, ref T1 obj1, Expression<Predicate<T1>> func) where T1 : class
+        {
+            return new PreconditionffffffffPDDL<T1>(Name, ref obj1, func);
+        }
 
         internal static PreconditionPDDL Instance<T1>(string Name, ref T1 obj1, ValueType TrigerValue = default) where T1 : class
         {
@@ -457,6 +487,48 @@ namespace SharpPDDL
             };
         }
     }
+
+
+
+
+
+    internal class PreconditionffffffffPDDL<T1> : PreconditionPDDL<T1>
+    {
+
+        internal PreconditionffffffffPDDL(string Name, ref T1 obj1, Expression<Predicate<T1>> func) : base(Name, ref obj1)
+        {
+
+            Predicate<T1> inPredComp = func.Compile();
+            Check = (Param1, Param2, List) =>
+            {
+                if (Param1 == null)
+                    return null;
+
+                if (!(Param1 is T1))
+                    return null;
+
+                T1 t1 = Param1;
+                return inPredComp(t1);
+            };
+
+            var a = func.Body;
+
+            ParameterExpression Parameter = func.Parameters[0];
+
+            if(Parameter.Type != typeof(T1))
+            {
+                throw new Exception();
+            }
+
+            var aaa = Parameter.Name;
+            var t = func.ToString();
+
+        }
+    }
+
+
+
+
 
     internal class PreconditionExtPDDL<T1> : PreconditionPDDL<T1>
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -173,6 +174,13 @@ namespace SharpPDDL
         {
             CheckExistPreconditionName(Name);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, ref value);
+            Preconditions.Add(temp);
+        }
+
+        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class //warunek w postaci Predicate
+        {
+            CheckExistPreconditionName(Name);
+            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
             Preconditions.Add(temp);
         }
 
