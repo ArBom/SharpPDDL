@@ -511,7 +511,7 @@ namespace SharpPDDL
                 return inPredComp(t1);
             };
 
-            var a = func.Body;
+            var expression = func.Body;
 
             ParameterExpression Parameter = func.Parameters[0];
 
@@ -521,8 +521,18 @@ namespace SharpPDDL
             }
 
             var aaa = Parameter.Name;
+            var bbb = Parameter.Type;
+            if (typeof(T1) != bbb)
+            {
+
+            }
+
             var t = func.ToString();
 
+            ThumbnailObLambdaModif/*<T1>*/ thumbnailObLambdaModif = new ThumbnailObLambdaModif/*<T1>*/();
+            var funcprim = thumbnailObLambdaModif.Visit(func);
+
+            int AO = 1500100900;
         }
     }
 

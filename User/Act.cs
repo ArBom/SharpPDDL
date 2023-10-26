@@ -36,23 +36,21 @@ namespace User
             char c = 'b';
             //actionPDDL.AddPrecondiction("third", ref b1, c);
 
+            Expression<Predicate<D1>> funcX = (d =>  d.v != 65 );
+            Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
 
-            Expression<Predicate<D1>> func = d => d.char2 == 'a';
-            actionPDDL.AddPrecondiction("fourth", ref d1, func);
+            actionPDDL.AddPrecondiction("fourth", ref d1, funcX);
 
             //var t = Tester.RunTheMethod(b1.inti);
 
 
             //actionPDDL.Parameters = new List<object> {out b1, out c1, out d1};
+            
+            //var c = nameof(b1);
+
             /*
-            var c = nameof(b1);
-
-
-
-                /*
-
-                actionPDDL.Preconition = new List<PredicatePDDL>();
-                actionPDDL.Effects = new List<PredicatePDDL>();*/
+            actionPDDL.Preconition = new List<PredicatePDDL>();
+            actionPDDL.Effects = new List<PredicatePDDL>();*/
 
         }
     }

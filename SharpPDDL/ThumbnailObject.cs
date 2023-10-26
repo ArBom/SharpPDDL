@@ -7,7 +7,7 @@ namespace SharpPDDL
     abstract class ThumbnailObject
     {
         protected ThumbnailObject parent;
-        private Dictionary<string, ValueType> dict;
+        public Dictionary<string, ValueType> dict;
 
         protected ThumbnailObject()
         {
