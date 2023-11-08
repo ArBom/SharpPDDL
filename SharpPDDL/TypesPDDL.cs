@@ -16,12 +16,6 @@ namespace SharpPDDL
         }
     }
 
-    /*internal class Tree
-    {
-        public KnotOfTree root;
-        public List<KnotOfTree> list = new List<KnotOfTree>();
-    }*/
-
     public class TypesPDDL
     {
         internal List<SingleType> allTypes = new List<SingleType>();

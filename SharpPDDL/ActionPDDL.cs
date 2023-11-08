@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal class ExternalValue
+    /*internal class ExternalValue
     {
         internal readonly string name;
         //bool Value = false;
@@ -31,15 +31,37 @@ namespace SharpPDDL
             this.type2 = class2.GetType();
             this.class2 = class1;
         }
-    }
+    }*/
 
     internal class Value
     {
-        internal string name;
-        internal Int32? Hash; //null dla external
-        internal Type type;
+        readonly internal string name;
+        readonly Type type;
 
-        internal List<Parametr> TheOtherClasses = null;
+        //true for field, false for properties
+        readonly bool IsField;
+        Int32? Hash;
+
+        //In the beginning one premise it will be not in use
+        private bool IsInUse = false;
+
+        internal bool isInUse
+        {
+            get { return IsInUse; }
+            set
+            {
+                //It can be change only for true
+                if (value)
+                    IsInUse = true;
+            }
+        }
+
+        internal Value(string Name, Type type, bool IsField, Int32? Hash)
+        {
+            if (!type.IsValueType)
+                throw new InvalidOperationException();
+        }
+
         internal ValueType value;
     }
 
@@ -47,18 +69,20 @@ namespace SharpPDDL
     {
         public readonly Type Type;
         public readonly Int32 HashCode;
-        public List<Value> predicates;
+        public List<Value> values;
 
         public Parametr(Type Type, Int32 hashCode)
         {
             this.Type = Type;
             this.HashCode = hashCode;
+            //Zawartość listowana w ActionPDDL.CheckThisAction() dla elementów na liście
         }
     }
     
     public class ActionPDDL
     {
         public readonly string Name;
+        internal uint Id; //todo ist like name but smaller
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<Parametr> Parameters;         //typy wykorzystywane w tej akcji (patrz powyzej)
 
@@ -82,7 +106,7 @@ namespace SharpPDDL
                     throw new Exception(); //Wsród wcześniej zdefiniowanych typów nie ma podanego dla tej akcji
                 }
 
-                parametr.predicates = new List<Value>(); //utwórz nową listę predykatów dla obecnego typu
+                parametr.values = new List<Value>(); //utwórz nową listę predykatów dla obecnego typu
 
                 PropertyInfo[] allProperties = thisType.GetType().GetProperties(); //pobierz properties z odpowiednika we wszystkich typach
                 foreach (PropertyInfo propertyInfo in allProperties) //dla kazdego propertis...
@@ -96,14 +120,8 @@ namespace SharpPDDL
                         if (!thisType.predicates.Exists(p => p.Name == PropertyName)) //nie zdefioniowano wcześniej takiego predykatu
                             continue;
 
-                        Value newValue = new Value //...utworz nową wartość...
-                        {
-                            name = PropertyName,
-                            type = propertyInfo.GetType(),
-                            Hash = parametr.GetType().GetProperty(PropertyName).GetHashCode()
-                        };
-
-                        parametr.predicates.Add(newValue); //...i dodaj na listę
+                        Value newValue = new Value(PropertyName, propertyInfo.GetType(), false, parametr.GetType().GetProperty(PropertyName).GetHashCode());    //...utworz nową wartość...
+                        parametr.values.Add(newValue); //...i dodaj na listę
                     }
                 }
 
@@ -119,18 +137,10 @@ namespace SharpPDDL
                         if (!thisType.predicates.Exists(p => p.Name == fieldName)) //nie zdefioniowano wcześniej takiego predykatu
                             continue;
 
-                        Value newValue = new Value
-                        {
-                            name = fieldName,
-                            type = fieldInfo.GetType(),
-                            Hash = parametr.GetType().GetProperty(fieldName).GetHashCode()
-                        };
-
-                        parametr.predicates.Add(newValue);
+                        Value newValue = new Value(fieldName, fieldInfo.GetType(), true, parametr.GetType().GetProperty(fieldName).GetHashCode());
+                        parametr.values.Add(newValue);
                     }
                 }
-
-                //zewnetrzne i funkcje
             }
         }
 
@@ -138,16 +148,10 @@ namespace SharpPDDL
         {
             CheckThisAction();
 
-
-
             foreach(var precondition in Preconditions)
             {
-                //TODO utworzenie zewnętrznych w tym miejscu
-
                 //TODO full instance
                 var a = precondition.BuildFunct(Parameters);
-
-
             }
         }
 
@@ -170,12 +174,13 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
+        /*
         public void AddPrecondiction<T1, T2>(string Name, ref T1 obj, ref T2 value) where T1 : class //warunek poczatkowy z wartoscia w typie, lub 2 klasy i zewnatrzny
         {
             CheckExistPreconditionName(Name);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, ref value);
             Preconditions.Add(temp);
-        }
+        }*/
 
         public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class //warunek w postaci Predicate
         {
@@ -184,12 +189,20 @@ namespace SharpPDDL
             Preconditions.Add(temp);
         }
 
+        public void AddPrecondiction<T1, T2>(string Name, ref T1 obj1, ref T2 obj2, Expression<Predicate<T1, T2>> func) where T1 : class where T2 : class //warunek w postaci Predicate
+        {
+            CheckExistPreconditionName(Name);
+            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func);
+            Preconditions.Add(temp);
+        }
+
+        /*
         public void AddPrecondiction<T1>(string Name, ref T1 obj, System.ValueType value = default) where T1 : class //warunek poczatkowy ze stałą wartoscia
         {
             CheckExistPreconditionName(Name);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, value);
             Preconditions.Add(temp);
-        }
+        }*/
 
         public ActionPDDL(string Name)
         {

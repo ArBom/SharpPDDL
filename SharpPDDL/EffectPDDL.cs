@@ -8,17 +8,11 @@ namespace SharpPDDL
 {
     internal abstract class EffectPDDL : ObjectPDDL
     {
-        //albo ustawia stala, albo z iinej klasy, albo zewn
-
         public abstract Action<Parametr, Parametr> ExecutePDDP();
 
         public abstract Func<dynamic, dynamic, EventHandler> Execute();
 
-
-        /*internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ValueType value) where T1 : class //przypisanie stałej wartosci
-        {
-        }
-
+/*
         internal static EffectPDDL Instance<T1>(string Name, ref T1 obj1, ref ValueType value) where T1 : class //przypisanie wartosci z innej klasy
         {
         }
@@ -27,7 +21,7 @@ namespace SharpPDDL
         {
         }*/
 
-        protected EffectPDDL(string Name) : base(Name) { }
+        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class) : base(Name, TypeOf1Class, Hash1Class) { }
     }
 
     /*internal class EffectPDDL<T1> : EffectPDDL

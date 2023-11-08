@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +34,20 @@ namespace User
     { }
 
     class D1 : C1
-    { }
+    {
+        public bool LambdaF()
+        {
+            return true;
+        }
+
+        public Action<D1> ase = ((d) => 
+        {
+            d.char1 = 'a';
+            d.char2 = 'b';
+        });
+
+        public Expression<Predicate<D1>> expression = d => d.LambdaF();
+    }
 
     class E1 : D1
     { }

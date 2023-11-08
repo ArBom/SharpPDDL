@@ -37,9 +37,10 @@ namespace User
             //actionPDDL.AddPrecondiction("third", ref b1, c);
 
             Expression<Predicate<D1>> funcX = (d =>  d.v != 65 );
+            Expression<Predicate<D1>> funcY = (d => d.LambdaF());
             Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
 
-            actionPDDL.AddPrecondiction("fourth", ref d1, funcX);
+            actionPDDL.AddPrecondiction("fourth", ref d1, func);
 
             //var t = Tester.RunTheMethod(b1.inti);
 
