@@ -11,7 +11,23 @@ namespace SharpPDDL
         protected Dictionary<string, ValueType> Dict;
         //todo dictionary checksum
 
-        internal void setValue (string key, ValueType value)
+
+        public ValueType this[string key]
+        {
+            // returns value if exists
+            get
+            {
+                if (Dict.ContainsKey(key))
+                    return Dict[key];
+                else
+                    return parent[key];
+            }
+
+            // updates if exists, adds if doesn't exist
+            set { Dict[key] = value; }
+        }
+
+        /*internal void setValue (string key, ValueType value)
         {
             if (Dict.ContainsKey(key))
                 Dict[key] = value;
@@ -19,13 +35,13 @@ namespace SharpPDDL
                 Dict.Add(key, value);
         }
 
-        internal ValueType getValue (string key)
+        public ValueType getValue (string key)
         {
             if (Dict.ContainsKey(key))
                 return Dict[key];
 
             return parent.getValue(key);
-        }
+        }*/
 
         protected ThumbnailObject()
         {

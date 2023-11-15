@@ -18,7 +18,7 @@ namespace SharpPDDL
         /// Position of the first parameter in the list
         /// (Position of the second parameter in the list)
         /// </returns>
-        internal abstract (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams);
+        internal abstract (Func<ThumbnailObject, ThumbnailObject, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(/*List<Parametr> listOfParams*/);
 
         /// <summary>
         /// It's check if PDDL object(s) fulfil requirement (of this precondition) to do action.
@@ -26,7 +26,7 @@ namespace SharpPDDL
         /// <returns>
         /// TRUE if so, FALSE if not, NULL if its incorrect
         /// </returns>
-        protected Func<Parametr, Parametr, bool?> CheckPDDP;
+        protected Func<ThumbnailObject, ThumbnailObject, bool?> CheckPDDP;
 
         /// <summary>
         /// It's check if object(s) fulfil requirement (of this precondition) to do action.
@@ -109,6 +109,7 @@ namespace SharpPDDL
     internal class PreconditionPDDL<T1> : PreconditionPDDL
     {
         protected T1 t1;
+        Expression<Predicate<T1>> func;
 
         protected int T1Index (List<Parametr> listOfParams)
         {
@@ -123,9 +124,10 @@ namespace SharpPDDL
             return -1;
         }
 
-        internal override (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
+        internal override (Func<ThumbnailObject, ThumbnailObject, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(/*List<Parametr> listOfParams*/)
         {
-            return (CheckPDDP, Check, T1Index(listOfParams), null);
+            //this.CheckPDDP = a.ReduceAndCheck();
+            return (CheckPDDP, Check, 0/*T1Index(listOfParams)*/, null);
         }
 
         protected PreconditionPDDL(string Name, ref T1 obj1, Type TypeOf2Class, Int32 HashOf2Class) : base(Name, obj1.GetType(), obj1.GetHashCode(), TypeOf2Class, HashOf2Class)
@@ -135,7 +137,8 @@ namespace SharpPDDL
 
         internal PreconditionPDDL(string Name, ref T1 obj1, Expression<Predicate<T1>> func) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
-            //TODO func
+            this.func = func;
+
             this.t1 = obj1;
         }
     }
@@ -162,7 +165,7 @@ namespace SharpPDDL
             return -1;
         }
 
-        new protected (Func<Parametr, Parametr, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
+        new protected (Func<ThumbnailObject, ThumbnailObject, bool?>, Func<dynamic, dynamic, bool?>, int, int?) BuildFunct(List<Parametr> listOfParams)
         {
             return (CheckPDDP, Check, T1Index(listOfParams), T2Index(listOfParams));
         }

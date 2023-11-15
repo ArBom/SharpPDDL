@@ -42,11 +42,12 @@ namespace User
 
             actionPDDL.AddPrecondiction("fourth", ref d1, func);
 
+            Console.ReadKey();
             //var t = Tester.RunTheMethod(b1.inti);
 
 
             //actionPDDL.Parameters = new List<object> {out b1, out c1, out d1};
-            
+
             //var c = nameof(b1);
 
             /*

@@ -16,11 +16,15 @@ namespace SharpPDDL
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             used = new List<string>[2];
+            used[0] = new List<string>();
+            used[1] = new List<string>();
+
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
 
             if (_parameters.Count() == 0)
             {
-                //its no sens
+                //its no sens; its always true or always false
+                throw new Exception();
             }
 
             if (_parameters.Count() == 1)
@@ -32,6 +36,7 @@ namespace SharpPDDL
             }
 
             var ret = Expression.Lambda(Visit(node.Body), _parameters);
+            Func<ThumbnailObject, ThumbnailObject, bool> zwrotka = ret.Compile() as Func<ThumbnailObject, ThumbnailObject, bool>;
 
             return ret;
         }
@@ -51,20 +56,70 @@ namespace SharpPDDL
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example "Parameter" 
             ParameterExpression parameterExpression = Expression.Parameter(typeof(ThumbnailObject), node.Expression.ToString());
+
+            //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
 
-            //TODO adding expression in use to the list
+            //adding expression in use to the list using value
+            //check is it use in 0th parameter...
+            if (parameterExpression.Name == _parameters[0].Name)
+            {
+                //...if so check is it already added...
+                if (!used[0].Contains(MemberName))
+                    //...if not add it.
+                    used[0].Add(MemberName);
+            }
+            //check is it use in 1th parameter
+            else if (parameterExpression.Name == _parameters[1].Name)
+            {
+                //...if so check is it already added...
+                if (!used[1].Contains(MemberName))
+                    //...if not add it.
+                    used[1].Add(MemberName);
+            }
+            else
+                //there is no more arguments -> something went wrong
+                throw new Exception();
 
-            var dicti = MemberExpression.PropertyOrField(parameterExpression, "dict");
-            Type dictionaryType = typeof(ThumbnailObject).GetField("dict").FieldType;
+            //MethodInfo GetValue_from_ThumbnailObject_MethodInfo = typeof(ThumbnailObject).GetMethod("getValue"); //<- to jest nullem po wykonaniu
+            //var b = BindingFlags.NonPublic | BindingFlags.Instance;
+
+
+
+
+            ParameterModifier parameterModifier = new ParameterModifier(0);
+            
+
+            ConstantExpression dictKeyConstant = Expression.Constant(MemberName);
+
+
+
+
+            //var pok = Expression.MakeIndex(parameterExpression, typeof(ThumbnailObject).GetProperty(""), new[] { dictKeyConstant });
+
+            //var c = new Type[] { str };
+
+            //MethodInfo GetValue_from_ThumbnailObject_MethodInfo = typeof(ThumbnailObject).GetMethod("getValue", c);
+            //Expression constantExpression = Expression.Constant(MemberName);
+            //MethodCallExpression.Property()
+            //MethodCallExpression a = MethodCallExpression.Call(GetValue_from_ThumbnailObject_MethodInfo, constantExpression);
+
+            var dicti = MemberExpression.PropertyOrField(parameterExpression, "Dict");
+            Type dictionaryType = typeof(ThumbnailObject).GetField("Dict").FieldType;
 
             PropertyInfo indexerProp = dictionaryType.GetProperty("Item");
-            var dictKeyConstant = Expression.Constant(MemberName);
+            
             IndexExpression dictAccess = Expression.MakeIndex(dicti, indexerProp, new[] { dictKeyConstant });
             Expression dictAccess2 = Expression.Convert(dictAccess, node.Type);
 
+
+
             return dictAccess2;
+            //typeof(list<string>).getproperty("item")
+            //var dictKeyConstant = Expression.Constant(MemberName);
+           
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

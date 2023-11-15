@@ -92,7 +92,7 @@ namespace SharpPDDL
         //private Stopwatch stopwatch;
         //private TimeSpan ts;
 
-        protected void CheckThisAction()
+        public void CheckThisAction()
         {
             if (allTypes == null)
                 throw new Exception(); //nieprawidłowe wywołanie metody tj. bez wcześniejszego przepisania allTypes
@@ -151,7 +151,7 @@ namespace SharpPDDL
             foreach(var precondition in Preconditions)
             {
                 //TODO full instance
-                var a = precondition.BuildFunct(Parameters);
+                var a = precondition.BuildFunct(/*Parameters*/);
             }
         }
 
@@ -186,6 +186,9 @@ namespace SharpPDDL
         {
             CheckExistPreconditionName(Name);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
+
+            ThumbnailObLambdaModif thumbnailObLambdaModif = new ThumbnailObLambdaModif();
+            var a = thumbnailObLambdaModif.Visit(func);
             Preconditions.Add(temp);
         }
 

@@ -63,8 +63,6 @@ namespace User
             newDomein.types.AddTypes(typeof(A), typeof(B1), typeof(B2), typeof(C1));
             newDomein.AddTypes(typeof(D1), typeof(E1));
 
-            //newDomein.types.BuildTree();
-
             newDomein.AddPredicate("a", typeof(B2));
             newDomein.AddPredicate("second", typeof(B2));
 
