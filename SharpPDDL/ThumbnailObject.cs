@@ -12,7 +12,7 @@ namespace SharpPDDL
         //todo dictionary checksum
 
 
-        public ValueType this[string key]
+        internal ValueType this[string key]
         {
             // returns value if exists
             get

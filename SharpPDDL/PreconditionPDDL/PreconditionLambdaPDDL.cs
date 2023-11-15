@@ -83,43 +83,21 @@ namespace SharpPDDL
                 //there is no more arguments -> something went wrong
                 throw new Exception();
 
-            //MethodInfo GetValue_from_ThumbnailObject_MethodInfo = typeof(ThumbnailObject).GetMethod("getValue"); //<- to jest nullem po wykonaniu
-            //var b = BindingFlags.NonPublic | BindingFlags.Instance;
+            //One-element IEnumerable collection with name of member of parameter
+            Expression[] arguments = new[] { Expression.Constant(MemberName) };
 
+            //binging attributes of ThumbnailObject indexer
+            BindingFlags TO_bindingAttr = BindingFlags.NonPublic | BindingFlags.Instance;
 
+            //Property of ThumbnailObject.this[string key]
+            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item", TO_bindingAttr);
 
+            //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
+            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameterExpression, TO_indekser, arguments);
 
-            ParameterModifier parameterModifier = new ParameterModifier(0);
-            
-
-            ConstantExpression dictKeyConstant = Expression.Constant(MemberName);
-
-
-
-
-            //var pok = Expression.MakeIndex(parameterExpression, typeof(ThumbnailObject).GetProperty(""), new[] { dictKeyConstant });
-
-            //var c = new Type[] { str };
-
-            //MethodInfo GetValue_from_ThumbnailObject_MethodInfo = typeof(ThumbnailObject).GetMethod("getValue", c);
-            //Expression constantExpression = Expression.Constant(MemberName);
-            //MethodCallExpression.Property()
-            //MethodCallExpression a = MethodCallExpression.Call(GetValue_from_ThumbnailObject_MethodInfo, constantExpression);
-
-            var dicti = MemberExpression.PropertyOrField(parameterExpression, "Dict");
-            Type dictionaryType = typeof(ThumbnailObject).GetField("Dict").FieldType;
-
-            PropertyInfo indexerProp = dictionaryType.GetProperty("Item");
-            
-            IndexExpression dictAccess = Expression.MakeIndex(dicti, indexerProp, new[] { dictKeyConstant });
-            Expression dictAccess2 = Expression.Convert(dictAccess, node.Type);
-
-
-
-            return dictAccess2;
-            //typeof(list<string>).getproperty("item")
-            //var dictKeyConstant = Expression.Constant(MemberName);
-           
+            //Convert above expression from ValueType to particular type of frontal value
+            Expression expressionToReturn = Expression.Convert(IndexAccessExpr, node.Type);
+            return expressionToReturn;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
