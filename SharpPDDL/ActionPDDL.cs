@@ -174,14 +174,6 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
-        /*
-        public void AddPrecondiction<T1, T2>(string Name, ref T1 obj, ref T2 value) where T1 : class //warunek poczatkowy z wartoscia w typie, lub 2 klasy i zewnatrzny
-        {
-            CheckExistPreconditionName(Name);
-            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, ref value);
-            Preconditions.Add(temp);
-        }*/
-
         public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class //warunek w postaci Predicate
         {
             CheckExistPreconditionName(Name);

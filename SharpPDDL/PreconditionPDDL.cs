@@ -139,6 +139,9 @@ namespace SharpPDDL
         {
             this.func = func;
 
+            ThumbnailObLambdaModif thumbnailObLambdaModif = new ThumbnailObLambdaModif();
+            var a = thumbnailObLambdaModif.Visit(func);
+            
             this.t1 = obj1;
         }
     }
