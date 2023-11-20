@@ -9,7 +9,6 @@ using SharpPDDL;
 
 namespace User
 {
-
     public static class Act
     {
         public static void SetParameterValue<T>(out T destination)
@@ -39,6 +38,11 @@ namespace User
             Expression<Predicate<D1>> funcX = (d =>  d.v != 65 );
             Expression<Predicate<D1>> funcY = (d => d.LambdaF());
             Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
+
+            //Expression<Action<D1>> block = (R => R.char2 = R.char1); operator przypisania
+
+            EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL();
+            effectLambdaPDDL.Visit(func);
 
             actionPDDL.AddPrecondiction("fourth", ref d1, func);
 

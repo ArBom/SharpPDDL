@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace SharpPDDL
@@ -8,6 +9,7 @@ namespace SharpPDDL
     {
         protected ThumbnailObject parent;
         internal List<ThumbnailObject> child;
+        internal Type originalObjType;
         protected Dictionary<string, ValueType> Dict;
         //todo dictionary checksum
 
@@ -26,22 +28,6 @@ namespace SharpPDDL
             // updates if exists, adds if doesn't exist
             set { Dict[key] = value; }
         }
-
-        /*internal void setValue (string key, ValueType value)
-        {
-            if (Dict.ContainsKey(key))
-                Dict[key] = value;
-            else
-                Dict.Add(key, value);
-        }
-
-        public ValueType getValue (string key)
-        {
-            if (Dict.ContainsKey(key))
-                return Dict[key];
-
-            return parent.getValue(key);
-        }*/
 
         protected ThumbnailObject()
         {
@@ -65,10 +51,37 @@ namespace SharpPDDL
         {
             parent = null;
             this.OriginalObj = originalObj;
+            this.originalObjType = typeof(TOriginalObj);
 
-            foreach (var a in parametr.values)
+            if (this.originalObjType != parametr.Type)
+                //todo zobaczyć jeszcze na dziedziczenie
+                throw new Exception();
+
+            foreach (Value SomeValue in parametr.values)
             {
-                Dict.Add(a.name, a.value);
+                string ValueName = SomeValue.name;
+                ValueType value;
+
+                if (SomeValue.IsField)
+                {
+                    FieldInfo myFieldInfo = this.originalObjType.GetField(ValueName);
+
+                    if (myFieldInfo is null)
+                        myFieldInfo = this.originalObjType.GetField(ValueName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    value = (ValueType)myFieldInfo.GetValue(myFieldInfo);
+                }
+                else
+                {
+                    PropertyInfo propertyInfo = this.originalObjType.GetProperty(ValueName);
+
+                    if (propertyInfo is null)
+                        propertyInfo = this.originalObjType.GetProperty(ValueName, BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    value = (ValueType)propertyInfo.GetValue(propertyInfo);
+                }
+
+                Dict.Add(ValueName, value);
             }
         }
     }

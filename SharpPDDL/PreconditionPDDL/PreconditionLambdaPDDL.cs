@@ -12,6 +12,7 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         public List<string>[] used;
+        public Func<ThumbnailObject, ThumbnailObject, bool> ModifiedFunct;
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
@@ -43,7 +44,7 @@ namespace SharpPDDL
             }
 
             var ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(Visit(node.Body), _parameters);
-
+            ModifiedFunct = ModifeidLambda.Compile();
             return ModifeidLambda;
         }
 

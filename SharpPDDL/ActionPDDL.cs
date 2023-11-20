@@ -39,7 +39,7 @@ namespace SharpPDDL
         readonly Type type;
 
         //true for field, false for properties
-        readonly bool IsField;
+        readonly internal bool IsField;
         Int32? Hash;
 
         //In the beginning one premise it will be not in use
@@ -65,6 +65,9 @@ namespace SharpPDDL
         internal ValueType value;
     }
 
+    /// <summary>
+    /// Odzwierciedlenie klasy wykorzystywane w utworzeniu thumbnailObj
+    /// </summary>
     internal class Parametr 
     {
         public readonly Type Type;
@@ -76,6 +79,11 @@ namespace SharpPDDL
             this.Type = Type;
             this.HashCode = hashCode;
             //Zawartość listowana w ActionPDDL.CheckThisAction() dla elementów na liście
+        }
+
+        internal void RemoveUnuseValue()
+        {
+            values.RemoveAll(x => !x.isInUse);
         }
     }
     
@@ -178,9 +186,6 @@ namespace SharpPDDL
         {
             CheckExistPreconditionName(Name);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
-
-            ThumbnailObLambdaModif thumbnailObLambdaModif = new ThumbnailObLambdaModif();
-            var a = thumbnailObLambdaModif.Visit(func);
             Preconditions.Add(temp);
         }
 
@@ -190,14 +195,6 @@ namespace SharpPDDL
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func);
             Preconditions.Add(temp);
         }
-
-        /*
-        public void AddPrecondiction<T1>(string Name, ref T1 obj, System.ValueType value = default) where T1 : class //warunek poczatkowy ze stałą wartoscia
-        {
-            CheckExistPreconditionName(Name);
-            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, value);
-            Preconditions.Add(temp);
-        }*/
 
         public ActionPDDL(string Name)
         {
