@@ -4,11 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace SharpPDDL
 {
-    internal class ThumbnailObLambdaModif : ExpressionVisitor
+    internal class PreconditionLambdaModif : ExpressionVisitor
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         public List<string>[] used;
@@ -28,7 +27,7 @@ namespace SharpPDDL
                 throw new Exception();
             }
 
-            //the library use only 1- or 2-Parameter lambdas 
+            //the library use only 1- or 2-Parameter lambdas
             if (_parameters.Count() > 2)
             {
                 throw new Exception();

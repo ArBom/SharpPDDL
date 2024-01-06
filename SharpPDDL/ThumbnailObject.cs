@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using System.Text;
 
 namespace SharpPDDL
@@ -12,7 +13,6 @@ namespace SharpPDDL
         internal Type originalObjType;
         protected Dictionary<string, ValueType> Dict;
         //todo dictionary checksum
-
 
         public ValueType this[string key]
         {
@@ -35,31 +35,38 @@ namespace SharpPDDL
         }
     }
 
-    class ThumbnailObject<TOriginalObj> : ThumbnailObject
+    internal class ThumbnailObject<TOriginalObj> : ThumbnailObject where TOriginalObj  : class
     {
         readonly TOriginalObj OriginalObj;
 
-        new internal ValueType getValue(string key)
+        new public ValueType this[string key]
         {
-            if (Dict.ContainsKey(key))
-                return Dict[key];
+            get
+            {
+                ValueType ToRet;
+                ToRet = (ValueType)originalObjType.GetProperty(key)?.GetValue(OriginalObj);
 
-            return null; //TODO odwołanie do obiektu
+                if (ToRet is null)
+                    ToRet = (ValueType)originalObjType.GetField(key)?.GetValue(OriginalObj);
+
+                return ToRet;
+            }
         }
 
-        internal ThumbnailObject(TOriginalObj originalObj, Parametr parametr)
+        internal ThumbnailObject(TOriginalObj originalObj, List<SingleType> singleTypes)
         {
             parent = null;
             this.OriginalObj = originalObj;
             this.originalObjType = typeof(TOriginalObj);
+            SingleType singleType = singleTypes.Where(sT => sT.Type == this.originalObjType).First();
 
-            if (this.originalObjType != parametr.Type)
+            if (this.originalObjType != singleType.Type)
                 //todo zobaczyć jeszcze na dziedziczenie
                 throw new Exception();
 
-            foreach (Value SomeValue in parametr.values)
+            foreach (Value SomeValue in singleType.Values)
             {
-                string ValueName = SomeValue.name;
+                string ValueName = SomeValue.Name;
                 ValueType value;
 
                 if (SomeValue.IsField)

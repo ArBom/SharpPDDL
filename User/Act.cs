@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,13 +25,10 @@ namespace User
             D1 d1;
 
             c1 = default;
-            d1 = new D1();
+            //d1 = new D1();
+            d1 = null;
 
             ActionPDDL actionPDDL = new ActionPDDL("first");
-            
-            actionPDDL.AddParameter(out B1 b1);
-
-            //actionPDDL.AddPrecondiction("second", ref b1, ref c1.char2); 
 
             char c = 'b';
             //actionPDDL.AddPrecondiction("third", ref b1, c);
@@ -39,7 +37,7 @@ namespace User
             Expression<Predicate<D1>> funcY = (d => d.LambdaF());
             Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
 
-            //Expression<Action<D1>> block = (R => R.char2 = R.char1); operator przypisania
+            //Expression<Action<D1>> block = (R => R.char2 = R.char1); //operator przypisania
 
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL();
             effectLambdaPDDL.Visit(func);

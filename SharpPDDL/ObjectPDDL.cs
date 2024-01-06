@@ -10,11 +10,11 @@ namespace SharpPDDL
 
         readonly internal Type TypeOf1Class;
         readonly internal Int32 Hash1Class;
-        protected List<string> usedMembers1Class;
+        internal List<string> usedMembers1Class;
 
         internal readonly Type TypeOf2Class;
         internal readonly Int32? Hash2Class;
-        protected List<string> usedMembers2Class;
+        internal List<string> usedMembers2Class;
 
         internal ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)
         {

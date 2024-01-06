@@ -59,15 +59,9 @@ namespace User
             DomeinPDDL newDomein = new DomeinPDDL("nowa");
 
             newDomein.types.AddTypes(typeof(object), typeof(A));
-            newDomein.AddTypes(typeof(C1), typeof(D1));
             newDomein.types.AddTypes(typeof(A), typeof(B1), typeof(B2), typeof(C1));
-            newDomein.AddTypes(typeof(D1), typeof(E1));
-
-            newDomein.AddPredicate("a", typeof(B2));
-            newDomein.AddPredicate("second", typeof(B2));
 
             Func<C1, B2, bool> TheSame = (x, y) => x.v == y.v;
-            newDomein.AddPredicate("thesame", typeof(C1), typeof(B2));
 
             Act.Tryp();
 

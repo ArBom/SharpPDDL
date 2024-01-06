@@ -6,13 +6,28 @@ namespace SharpPDDL
 {
     internal class SingleType
     {
-        public readonly Type type;
-        public List<PredicatePDDL> predicates;
+        internal readonly Type Type;
+        public List<Value> Values;
 
         public SingleType(Type type)
         {
-            this.type = type;
-            this.predicates = new List<PredicatePDDL>();
+            this.Type = type;
+            //this.predicates = new List<PredicatePDDL>();
+        }
+
+        /// <returns>List of Interfaces and classes inherited</returns>
+        internal IReadOnlyList<Type> InheritedTypes()
+        {
+            List<Type> ToReturn = Type.GetInterfaces().ToList<Type>();
+
+            Type typeUp = Type;
+            while (typeUp != typeof(object))
+            {
+                ToReturn.Add(typeUp);
+                typeUp = typeUp.BaseType;
+            }
+
+            return ToReturn;
         }
     }
 

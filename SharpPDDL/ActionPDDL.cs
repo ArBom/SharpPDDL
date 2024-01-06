@@ -4,172 +4,75 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace SharpPDDL
-{
-    /*internal class ExternalValue
-    {
-        internal readonly string name;
-        //bool Value = false;
-
-        internal Int32 Hash1 { get { return class1.GetHashCode(); } }
-        internal readonly Type type1;
-        internal readonly object class1;
-
-        internal Int32 Hash2 { get { return class2.GetHashCode(); } }
-        internal readonly Type type2;
-        internal readonly object class2;
-
-        ExternalValue(string name, ref object class1, ref object class2) //TODO sprawdzić czy muszą być refy
-        {
-            this.name = name;
-
-            this.type1 = class1.GetType();
-            this.class1 = class1;
-
-            this.type2 = class2.GetType();
-            this.class2 = class1;
-        }
-    }*/
-
-    internal class Value
-    {
-        readonly internal string name;
-        readonly Type type;
-
-        //true for field, false for properties
-        readonly internal bool IsField;
-        Int32? Hash;
-
-        //In the beginning one premise it will be not in use
-        private bool IsInUse = false;
-
-        internal bool isInUse
-        {
-            get { return IsInUse; }
-            set
-            {
-                //It can be change only for true
-                if (value)
-                    IsInUse = true;
-            }
-        }
-
-        internal Value(string Name, Type type, bool IsField, Int32? Hash)
-        {
-            if (!type.IsValueType)
-                throw new InvalidOperationException();
-        }
-
-        internal ValueType value;
-    }
-
-    /// <summary>
-    /// Odzwierciedlenie klasy wykorzystywane w utworzeniu thumbnailObj
-    /// </summary>
-    internal class Parametr 
-    {
-        public readonly Type Type;
-        public readonly Int32 HashCode;
-        public List<Value> values;
-
-        public Parametr(Type Type, Int32 hashCode)
-        {
-            this.Type = Type;
-            this.HashCode = hashCode;
-            //Zawartość listowana w ActionPDDL.CheckThisAction() dla elementów na liście
-        }
-
-        internal void RemoveUnuseValue()
-        {
-            values.RemoveAll(x => !x.isInUse);
-        }
-    }
-    
+{    
     public class ActionPDDL
     {
         public readonly string Name;
-        internal uint Id; //todo ist like name but smaller
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<Parametr> Parameters;         //typy wykorzystywane w tej akcji (patrz powyzej)
-
-        internal List<SingleType> allTypes; //przekopionawe wszystkie zdefiniowane typy
-
         private List<EffectPDDL> Effects;        //efekty
-        //private Stopwatch stopwatch;
-        //private TimeSpan ts;
 
-        public void CheckThisAction()
+        internal List<SingleType> BuildIt()
         {
-            if (allTypes == null)
-                throw new Exception(); //nieprawidłowe wywołanie metody tj. bez wcześniejszego przepisania allTypes
+            List<SingleType> ToRet = new List<SingleType>();
 
-            foreach (Parametr parametr in Parameters) //dla każdego obiektu (klasy)
+            foreach (Parametr parametr in Parameters)
             {
-                SingleType thisType = allTypes.Find(KoT => KoT.type == parametr.Type); //we wszystkich typach znajdz o takim samym typie jak obecny parametr
+                SingleType singleType = ToRet.Where(sT => sT.Type == parametr.Type)?.First();
 
-                if (thisType == null)
+                if (singleType is null)
                 {
-                    throw new Exception(); //Wsród wcześniej zdefiniowanych typów nie ma podanego dla tej akcji
+                    singleType = new SingleType(parametr.Type);
+                    parametr.values.CopyTo(singleType.Values.ToArray());
+                    ToRet.Add(singleType);
                 }
-
-                parametr.values = new List<Value>(); //utwórz nową listę predykatów dla obecnego typu
-
-                PropertyInfo[] allProperties = thisType.GetType().GetProperties(); //pobierz properties z odpowiednika we wszystkich typach
-                foreach (PropertyInfo propertyInfo in allProperties) //dla kazdego propertis...
+                else
                 {
-                    Type typeOfPropertie = propertyInfo.GetType(); //...pobierz jego typ...
-
-                    if(typeOfPropertie.IsValueType && typeOfPropertie.IsPublic) //...jesli jest wartoscia i jest publiczny...
+                    foreach (Value value in parametr.values)
                     {
-                        string PropertyName = propertyInfo.Name;
-
-                        if (!thisType.predicates.Exists(p => p.Name == PropertyName)) //nie zdefioniowano wcześniej takiego predykatu
+                        if (singleType.Values.Exists(t => t.Name == value.Name))
                             continue;
 
-                        Value newValue = new Value(PropertyName, propertyInfo.GetType(), false, parametr.GetType().GetProperty(PropertyName).GetHashCode());    //...utworz nową wartość...
-                        parametr.values.Add(newValue); //...i dodaj na listę
-                    }
-                }
-
-                FieldInfo[] allFields = thisType.GetType().GetFields(); //pobierz fields z odpowiednika we wszystkich typach
-                foreach (FieldInfo fieldInfo in allFields) //dla kazdego field...
-                {
-                    Type typeOfValue = fieldInfo.GetType(); //...pobierz jego typ...
-
-                    if (typeOfValue.IsValueType && typeOfValue.IsPublic) //...jesli jest wartoscia i jest publiczny...
-                    {
-                        string fieldName = fieldInfo.Name;
-
-                        if (!thisType.predicates.Exists(p => p.Name == fieldName)) //nie zdefioniowano wcześniej takiego predykatu
-                            continue;
-
-                        Value newValue = new Value(fieldName, fieldInfo.GetType(), true, parametr.GetType().GetProperty(fieldName).GetHashCode());
-                        parametr.values.Add(newValue);
+                        singleType.Values.Add(value);
                     }
                 }
             }
+
+            return ToRet;
         }
 
-        internal void BuildIt()
+        public void AddUnassignedParametr<T>(out T destination) where T : class
         {
-            CheckThisAction();
-
-            foreach(var precondition in Preconditions)
-            {
-                //TODO full instance
-                var a = precondition.BuildFunct(/*Parameters*/);
-            }
+            destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
+            AddParameter(ref destination);
         }
 
-        public void AddParameter<T>(out T destination) where T : class
+        public void AddAssignedParametr<T>(ref T destination) where T : class
         {
-            destination = Activator.CreateInstance<T>();
-            Type Type = destination.GetType();
+            if (destination is null)
+                destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
+
+            AddParameter(ref destination);
+        }
+
+        internal void AddParameter<T>(ref T destination) where T : class
+        {
+            AddAssignedParametr<T>(ref destination);
             Int32 HashCode = destination.GetHashCode();
 
-            Parametr TempParametr = new Parametr(Type, HashCode);
+            if (Parameters.Any(t => t.HashCode == HashCode))
+            {
+                Parametr p = Parameters.Where(t => t.HashCode == HashCode).First();
+                if (p.Oryginal.Equals(destination))
+                    return;
+            }
+
+            Type Type = destination.GetType();
+            Parametr TempParametr = new Parametr(Type, HashCode, destination);
             Parameters.Add(TempParametr);
         }
 
@@ -182,17 +85,70 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
-        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class //warunek w postaci Predicate
-        {
+        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class
+        {   
             CheckExistPreconditionName(Name);
+            this.AddParameter(ref obj);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode == obj.GetHashCode())
+                {
+                    if (parametr.Oryginal.Equals(obj))
+                    {
+                        foreach (string valueName in temp.usedMembers1Class)
+                        {
+                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+                        }
+                        parametr.UsedInPrecondition = true;
+                        break;
+                    }
+                }
+            }
+
             Preconditions.Add(temp);
         }
 
         public void AddPrecondiction<T1, T2>(string Name, ref T1 obj1, ref T2 obj2, Expression<Predicate<T1, T2>> func) where T1 : class where T2 : class //warunek w postaci Predicate
         {
             CheckExistPreconditionName(Name);
+            this.AddAssignedParametr(ref obj1);
+            this.AddAssignedParametr(ref obj2);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func);
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode == obj1.GetHashCode())
+                {
+                    if (parametr.Oryginal.Equals(obj1))
+                    {
+                        foreach (string valueName in temp.usedMembers1Class)
+                        {
+                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+                        }
+                        parametr.UsedInPrecondition = true;
+                        break;
+                    }
+                }
+            }
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode == obj2.GetHashCode())
+                {
+                    if (parametr.Oryginal.Equals(obj2))
+                    {
+                        foreach (string valueName in temp.usedMembers2Class)
+                        {
+                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+                        }
+                        parametr.UsedInPrecondition = true;
+                        break;
+                    }
+                }
+            }
+
             Preconditions.Add(temp);
         }
 
