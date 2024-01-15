@@ -19,12 +19,12 @@ namespace SharpPDDL
 
         internal bool IsInUse
         {
-            get { return IsInUse; }
+            get { return _IsInUse; }
             set
             {
                 //It can be change only for true
                 if (value)
-                    IsInUse = true;
+                    _IsInUse = true;
             }
         }
 
@@ -37,7 +37,7 @@ namespace SharpPDDL
             this.Type = type;
             this.IsField = isField;
 
-            this.IsInUse = false;
+            this._IsInUse = false;
         }
     }
 }

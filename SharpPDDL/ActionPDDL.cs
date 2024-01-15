@@ -13,8 +13,8 @@ namespace SharpPDDL
     {
         public readonly string Name;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
-        private List<Parametr> Parameters;         //typy wykorzystywane w tej akcji (patrz powyzej)
-        private List<EffectPDDL> Effects;        //efekty
+        private List<EffectPDDL> Effects; //efekty
+        private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
 
         internal List<SingleType> BuildIt()
         {
@@ -26,8 +26,7 @@ namespace SharpPDDL
 
                 if (singleType is null)
                 {
-                    singleType = new SingleType(parametr.Type);
-                    parametr.values.CopyTo(singleType.Values.ToArray());
+                    singleType = new SingleType(parametr.Type, parametr.values);
                     ToRet.Add(singleType);
                 }
                 else
@@ -41,6 +40,8 @@ namespace SharpPDDL
                     }
                 }
             }
+
+            //TODO efekty
 
             return ToRet;
         }
@@ -56,12 +57,12 @@ namespace SharpPDDL
             if (destination is null)
                 destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
 
+            Int32 HashCode = destination.GetHashCode();
             AddParameter(ref destination);
         }
 
         internal void AddParameter<T>(ref T destination) where T : class
         {
-            AddAssignedParametr<T>(ref destination);
             Int32 HashCode = destination.GetHashCode();
 
             if (Parameters.Any(t => t.HashCode == HashCode))
@@ -72,7 +73,7 @@ namespace SharpPDDL
             }
 
             Type Type = destination.GetType();
-            Parametr TempParametr = new Parametr(Type, HashCode, destination);
+            Parametr TempParametr = new Parametr(HashCode, destination);
             Parameters.Add(TempParametr);
         }
 
@@ -88,7 +89,7 @@ namespace SharpPDDL
         public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class
         {   
             CheckExistPreconditionName(Name);
-            this.AddParameter(ref obj);
+            this.AddAssignedParametr(ref obj);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
 
             foreach (Parametr parametr in Parameters)

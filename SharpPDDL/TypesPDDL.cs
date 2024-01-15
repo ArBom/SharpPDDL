@@ -1,59 +1,66 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SharpPDDL
 {
     internal class SingleType
     {
         internal readonly Type Type;
-        public List<Value> Values;
+        internal List<Value> Values;
 
-        public SingleType(Type type)
+        public SingleType(Type type, IReadOnlyList<Value> values)
         {
             this.Type = type;
-            //this.predicates = new List<PredicatePDDL>();
+            this.Values =new List<Value>();
+
+            MemberInfo[] AllTypeMembers = type.GetMembers();
+
+            foreach (Value value in values)
+                if (AllTypeMembers.Any(allM => allM.Name == value.Name))
+                    this.Values.Add(value);
         }
 
-        /// <returns>List of Interfaces and classes inherited</returns>
-        internal IReadOnlyList<Type> InheritedTypes()
+        /// <returns>List of Interfaces, List of Base Type; from orygilal type to object</returns>
+        internal (IReadOnlyList<Type> Interfaces, IReadOnlyList<Type> Types) InheritedTypes()
         {
-            List<Type> ToReturn = Type.GetInterfaces().ToList<Type>();
-
+            List<Type> ToReturnInterfaces = Type.GetInterfaces().ToList<Type>();
+            List<Type> ToReturnBaseTypes = new List<Type>();
             Type typeUp = Type;
             while (typeUp != typeof(object))
             {
-                ToReturn.Add(typeUp);
+                ToReturnBaseTypes.Add(typeUp);
                 typeUp = typeUp.BaseType;
             }
 
-            return ToReturn;
+            return (ToReturnInterfaces, ToReturnBaseTypes);
         }
     }
 
-    public class TypesPDDL
+    internal class TreeNode<T> where T : class
     {
-        internal List<SingleType> allTypes = new List<SingleType>();
+        public T Value;
+        internal TreeNode<T> Root;
+        internal TreeNode<T> Littermate;
+        internal List<TreeNode<T>> Children;
 
-        public void AddTypes(Type classes1, params Type[] classesN)
+        internal TreeNode(T value)
         {
-            Type[] classes = new Type[classesN.Length + 1];
-            classes[0] = classes1;
-            classesN.CopyTo(classes, 1);
+            this.Root = null;
+            this.Littermate = null;
+            this.Children = new List<TreeNode<T>>();
 
-            foreach (var c in classes)
-            {
-                if (!c.IsClass)
-                {
-                    throw new Exception(""); //musi być klasa
-                }
+            this.Value = value;
+        }
 
-                if (allTypes.Exists(l => l.GetType() == c))
-                    throw new Exception(""); //Taki typ został już dodany
-
-                SingleType tempSingleType = new SingleType(c);
-                allTypes.Add(tempSingleType);
-            }
+        internal void ChangeParentIntoGrandpa(TreeNode<T> newParent)
+        {
+            //TODO przetestować czy OK
+            newParent.Root = this.Root;
+            newParent.Children.Add(newParent);
+            this.Root.Children.Remove(this);
+            this.Root = newParent;
         }
     }
 }

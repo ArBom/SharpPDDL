@@ -34,23 +34,25 @@ namespace SharpPDDL
 
         internal List<Value> values;
 
-        public Parametr(Type Type, Int32 hashCode, object oryginal)
+        public Parametr(Int32 hashCode, object oryginal)
         {
             this.Oryginal = oryginal;
-            this.Type = Type;
+            Type = this.Oryginal.GetType();
+
+            if (!Type.IsClass)
+                throw new Exception("Wrong object type - its not a class");
+
             this.HashCode = hashCode;
             values = new List<Value>();
 
             PropertyInfo[] allProperties = Type.GetProperties(); //pobierz properties z odpowiednika we wszystkich typach
             foreach (PropertyInfo propertyInfo in allProperties) //dla kazdego propertis...
             {
-                Type typeOfPropertie = propertyInfo.GetType(); //...pobierz jego typ...
-
-                if (typeOfPropertie.IsValueType && typeOfPropertie.IsPublic) //...jesli jest wartoscia i jest publiczny...
+                if (propertyInfo.PropertyType.IsValueType && propertyInfo.CanRead) //...jesli jest wartoscia i jest odczytywalny...
                 {
                     string PropertyName = propertyInfo.Name;
 
-                    Value newValue = new Value(PropertyName, propertyInfo.GetType(), false);    //...utworz nową wartość...
+                    Value newValue = new Value(PropertyName, propertyInfo.PropertyType, false); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }
@@ -58,14 +60,12 @@ namespace SharpPDDL
             FieldInfo[] allFields = Type.GetFields(); //pobierz fields z odpowiednika we wszystkich typach
             foreach (FieldInfo fieldInfo in allFields) //dla kazdego field...
             {
-                Type typeOfValue = fieldInfo.GetType(); //...pobierz jego typ...
-
-                if (typeOfValue.IsValueType && typeOfValue.IsPublic) //...jesli jest wartoscia i jest publiczny...
+                if (fieldInfo.FieldType.IsValueType && fieldInfo.IsPublic) //...jesli jest wartoscia i jest publiczny...
                 {
                     string fieldName = fieldInfo.Name;
 
-                    Value newValue = new Value(fieldName, fieldInfo.GetType(), true);
-                    this.values.Add(newValue);
+                    Value newValue = new Value(fieldName, fieldInfo.FieldType, true); //...utworz nową wartość...
+                    this.values.Add(newValue); //...i dodaj na listę
                 }
             }
         }

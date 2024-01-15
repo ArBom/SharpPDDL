@@ -58,9 +58,6 @@ namespace User
         {
             DomeinPDDL newDomein = new DomeinPDDL("nowa");
 
-            newDomein.types.AddTypes(typeof(object), typeof(A));
-            newDomein.types.AddTypes(typeof(A), typeof(B1), typeof(B2), typeof(C1));
-
             Func<C1, B2, bool> TheSame = (x, y) => x.v == y.v;
 
             Act.Tryp();
