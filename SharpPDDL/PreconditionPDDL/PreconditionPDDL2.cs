@@ -37,6 +37,7 @@ namespace SharpPDDL
             PreconditionLambdaModif preconditionLambdaModif = new PreconditionLambdaModif();
             preconditionLambdaModif.Visit(func);
             this.CheckPDDP = preconditionLambdaModif.ModifiedFunct;
+            //todo sprawdzenie czy 2 paramerty z funkcji
             this.usedMembers1Class = preconditionLambdaModif.used[0];
             this.usedMembers2Class = preconditionLambdaModif.used[1];
             this.t1 = obj1;

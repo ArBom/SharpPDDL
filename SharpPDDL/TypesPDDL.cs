@@ -17,50 +17,37 @@ namespace SharpPDDL
 
             MemberInfo[] AllTypeMembers = type.GetMembers();
 
+            if (values is null)
+                return;
+
             foreach (Value value in values)
                 if (AllTypeMembers.Any(allM => allM.Name == value.Name))
                     this.Values.Add(value);
         }
 
-        /// <returns>List of Interfaces, List of Base Type; from orygilal type to object</returns>
-        internal (IReadOnlyList<Type> Interfaces, IReadOnlyList<Type> Types) InheritedTypes()
-        {
-            List<Type> ToReturnInterfaces = Type.GetInterfaces().ToList<Type>();
-            List<Type> ToReturnBaseTypes = new List<Type>();
-            Type typeUp = Type;
-            while (typeUp != typeof(object))
-            {
-                ToReturnBaseTypes.Add(typeUp);
-                typeUp = typeUp.BaseType;
-            }
 
-            return (ToReturnInterfaces, ToReturnBaseTypes);
-        }
     }
 
     internal class TreeNode<T> where T : class
     {
-        public T Value;
+        public T Content;
         internal TreeNode<T> Root;
-        internal TreeNode<T> Littermate;
         internal List<TreeNode<T>> Children;
 
-        internal TreeNode(T value)
+        internal TreeNode(T Content)
         {
             this.Root = null;
-            this.Littermate = null;
             this.Children = new List<TreeNode<T>>();
 
-            this.Value = value;
+            this.Content = Content;
         }
 
-        internal void ChangeParentIntoGrandpa(TreeNode<T> newParent)
+        internal void ChangeParentIntoGrandpa(ref TreeNode<T> newParent)
         {
-            //TODO przetestować czy OK
+            int index = this.Root.Children.IndexOf(this);
             newParent.Root = this.Root;
-            newParent.Children.Add(newParent);
-            this.Root.Children.Remove(this);
-            this.Root = newParent;
+            newParent.Children.Add(this);
+            this.Root.Children[index] = newParent;
         }
     }
 }

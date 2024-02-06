@@ -60,7 +60,35 @@ namespace User
 
             Func<C1, B2, bool> TheSame = (x, y) => x.v == y.v;
 
-            Act.Tryp();
+            //Act.Tryp();
+
+            C1 c1;
+            D1 d1;
+
+            c1 = default;
+            //d1 = new D1();
+            d1 = null;
+
+            ActionPDDL actionPDDL = new ActionPDDL("first");
+
+            char c = 'b';
+            //actionPDDL.AddPrecondiction("third", ref b1, c);
+
+            Expression<Predicate<D1>> funcX = (d => d.v != 65);
+            Expression<Predicate<D1>> funcY = (d => d.LambdaF());
+            Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
+
+            //Expression<Action<D1>> block = R => R.char2 = R.char1; //operator przypisania
+            /*Expression<Action<D1>> blocko = Expression.Block
+            (
+                Expression.Assign(c1.char2, c1.char1),
+                Expression.PostIncrementAssign(c1.char2)
+            );*/
+
+            actionPDDL.AddPrecondiction("fourth", ref d1, func);
+
+            newDomein.actions.Add(actionPDDL);
+            newDomein.CheckActions();
 
             Console.ReadKey();
         }

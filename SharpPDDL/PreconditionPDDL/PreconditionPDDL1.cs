@@ -23,10 +23,10 @@ namespace SharpPDDL
             return -1;
         }
 
-        internal override (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool>) TakeFunct()
+        /*internal override (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool>) TakeFunct()
         {
             return (CheckPDDP, Check);
-        }
+        }*/
 
         protected PreconditionPDDL(string Name, ref T1 obj1, Type TypeOf2Class, Int32 HashOf2Class) : base(Name, obj1.GetType(), obj1.GetHashCode(), TypeOf2Class, HashOf2Class)
         {
@@ -40,7 +40,13 @@ namespace SharpPDDL
             PreconditionLambdaModif preconditionLambdaModif = new PreconditionLambdaModif();
             preconditionLambdaModif.Visit(func);
             this.CheckPDDP = preconditionLambdaModif.ModifiedFunct;
-            this.usedMembers1Class = preconditionLambdaModif.used[0];
+            //this.usedMembers1Class = preconditionLambdaModif.used[0];
+
+            MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
+            _ = memberofLambdaListerPDDL.Visit(func);
+            //todo sprawdzenie czy typy paramrtrów się zgadzają
+            this.usedMembers1Class = memberofLambdaListerPDDL.used[0];
+
             this.t1 = obj1;
         }
     }

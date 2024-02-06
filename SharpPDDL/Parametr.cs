@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace SharpPDDL
 {
@@ -52,7 +53,7 @@ namespace SharpPDDL
                 {
                     string PropertyName = propertyInfo.Name;
 
-                    Value newValue = new Value(PropertyName, propertyInfo.PropertyType, false); //...utworz nową wartość...
+                    Value newValue = new Value(PropertyName, propertyInfo.PropertyType, Type, false); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }
@@ -64,7 +65,7 @@ namespace SharpPDDL
                 {
                     string fieldName = fieldInfo.Name;
 
-                    Value newValue = new Value(fieldName, fieldInfo.FieldType, true); //...utworz nową wartość...
+                    Value newValue = new Value(fieldName, fieldInfo.FieldType, Type, true); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }

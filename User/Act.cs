@@ -12,12 +12,6 @@ namespace User
 {
     public static class Act
     {
-        public static void SetParameterValue<T>(out T destination)
-        {
-            Console.WriteLine("typeof(T)=" + typeof(T).FullName);
-            destination = Activator.CreateInstance<T>();
-            Int32 t = destination.GetHashCode();
-        }
 
         public static void Tryp()
         {
@@ -40,6 +34,7 @@ namespace User
             //Expres sion<Action<D1>> block = (R => R.char2 = R.char1); //operator przypisania
 
             actionPDDL.AddPrecondiction("fourth", ref d1, func);
+
 
             Console.ReadKey();
             //var t = Tester.RunTheMethod(b1.inti);

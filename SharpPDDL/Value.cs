@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SharpPDDL
 {
     internal class Value
     {
         readonly internal string Name;
-        readonly Type Type;
+        readonly internal Type Type;
+        internal Type OwnerType;
 
         //true for field, false for properties
         readonly internal bool IsField;
-
         internal ValueType value;
 
         //In the beginning one premise it will be not in use
@@ -28,16 +27,36 @@ namespace SharpPDDL
             }
         }
 
-        internal Value(string name, Type type, bool isField)
+        internal Value(string name, Type typeOfValue, Type typeOfOwner, bool isField)
         {
-            if (!type.IsValueType)
+            if (!typeOfValue.IsValueType)
                 throw new InvalidOperationException();
 
             this.Name = name;
-            this.Type = type;
+            this.Type = typeOfValue;
+            this.OwnerType = typeOfOwner;
             this.IsField = isField;
 
             this._IsInUse = false;
+        }
+    }
+
+    internal class ValueOfParametr : Value
+    {
+        readonly int OryginalMemberHash;
+
+        internal ValueOfParametr(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField)
+        {
+            
+        }
+    }
+
+    internal class ValueOfThumbnail : Value
+    {
+
+        internal ValueOfThumbnail(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField)
+        {
+
         }
     }
 }

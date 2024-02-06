@@ -16,13 +16,17 @@ namespace SharpPDDL
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
 
-        internal List<SingleType> BuildIt()
+        internal List<SingleType> TakeSingleTypes()
         {
             List<SingleType> ToRet = new List<SingleType>();
 
             foreach (Parametr parametr in Parameters)
             {
-                SingleType singleType = ToRet.Where(sT => sT.Type == parametr.Type)?.First();
+                parametr.RemoveUnuseValue();
+                SingleType singleType = null;
+
+                if (ToRet.Count != 0)
+                    singleType = ToRet.Where(sT => sT.Type == parametr.Type)?.First();
 
                 if (singleType is null)
                 {
@@ -161,9 +165,8 @@ namespace SharpPDDL
             //TODO zadbać o unikalność nazw
 
             this.Name = Name;
-
-            Parameters = new List<Parametr>();
-            Preconditions = new List<PreconditionPDDL>();
+            this.Parameters = new List<Parametr>();
+            this.Preconditions = new List<PreconditionPDDL>();
             //Effects = new List<PredicatePDDL>();
         }
     }

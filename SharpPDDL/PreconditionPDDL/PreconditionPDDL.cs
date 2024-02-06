@@ -16,7 +16,7 @@ namespace SharpPDDL
         /// Function that checks the condition of the PDDL object(s)
         /// Function that checks the condition of the object(s)
         /// </returns>
-        internal abstract (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool> ) TakeFunct();
+        //internal abstract (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool> ) TakeFunct();
 
         /// <summary>
         /// It's check if PDDL object(s) fulfil requirement (of this precondition) to do action.
@@ -34,10 +34,13 @@ namespace SharpPDDL
         /// </returns>
         protected Func<dynamic, dynamic, bool> Check;
 
-        internal PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        internal Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP (Dictionary<ushort, Value> keyValuePairs)
         {
 
+            return null;
         }
+
+        internal PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 
         internal static PreconditionPDDL Instance<T1>(string Name, ref T1 obj1, Expression<Predicate<T1>> func) where T1 : class
         {
