@@ -11,9 +11,9 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         public Func<ThumbnailObject, ThumbnailObject, bool> ModifiedFunct;
-        readonly Dictionary<ushort, Value> ValuesDict;
+        readonly Dictionary<ushort, ValueOfParametr> ValuesDict;
 
-        public PreconditionLambdaModifDict(Dictionary<ushort, Value> valuesDict)
+        public PreconditionLambdaModifDict(Dictionary<ushort, ValueOfParametr> valuesDict)
         {
             this.ValuesDict = valuesDict;
         }

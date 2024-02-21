@@ -35,12 +35,12 @@ namespace SharpPDDL
                 }
                 else
                 {
-                    foreach (Value value in parametr.values)
+                    foreach (ValueOfParametr valueP in parametr.values)
                     {
-                        if (singleType.Values.Exists(t => t.Name == value.Name))
+                        if (singleType.Values.Exists(t => t.Name == valueP.Name))
                             continue;
 
-                        singleType.Values.Add(value);
+                        singleType.Values.Add(valueP);
                     }
                 }
             }

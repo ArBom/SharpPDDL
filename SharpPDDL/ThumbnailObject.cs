@@ -6,15 +6,35 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal class ThumbnailObject
+    internal abstract class ThumbnailObject
     {
-        protected ThumbnailObject parent;
+        internal ThumbnailObject Parent;
         internal List<ThumbnailObject> child;
-        internal Type originalObjType;
-        protected Dictionary<string, ValueType> Dict;
-        //todo dictionary checksum
+        internal Type OriginalObjType;
+        protected Dictionary<ushort, ValueType> Dict;
+        internal string CheckSum;
 
-        public ValueType this[string key]
+        internal abstract ushort[] ValuesIndeksesKeys { get; }
+
+        internal void FigureCheckSum()
+        {
+            string MD5input = String.Empty;
+
+            for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
+            {
+                MD5input = MD5input + ValuesIndeksesKeys[arrayCounter].ToString() + ";";
+            }
+
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
+
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                CheckSum = Convert.ToBase64String(hashBytes);
+            }
+        }
+
+        public ValueType this[ushort key]
         {
             // returns value if exists
             get
@@ -22,74 +42,122 @@ namespace SharpPDDL
                 if (Dict.ContainsKey(key))
                     return Dict[key];
                 else
-                    return parent[key];
+                    return Parent[key];
             }
 
             // updates if exists, adds if doesn't exist
             set { Dict[key] = value; }
         }
 
-        protected ThumbnailObject()
+        abstract internal void CreateChild(Dictionary<ushort, ValueType> Changes);
+    }
+
+    internal class ThumbnailObject<TOriginalObj> : ThumbnailObject where TOriginalObj : class
+    {
+        ThumbnailObjectPrecursor<TOriginalObj> Precursor;
+        new internal ThumbnailObject<TOriginalObj> Parent;
+        new internal List<ThumbnailObject<TOriginalObj>> child;
+        new internal Type OriginalObjType => Precursor.OriginalObjType;
+
+        internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
+
+        internal override void CreateChild(Dictionary<ushort, ValueType> Changes)
         {
-            Dict = new Dictionary<string, ValueType>();
+            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
+            {
+                Precursor = this.Precursor,
+                Parent = this,
+                Dict = Changes,
+                child = new List<ThumbnailObject<TOriginalObj>>()
+            };
+
+            if (Changes.Count != 0)
+            {
+                foreach (var update in Changes)
+                    NewChild.Dict[update.Key] = update.Value;
+
+                NewChild.FigureCheckSum();
+            }
+            else
+                NewChild.CheckSum = this.CheckSum;
+
+            this.child.Add(NewChild);
         }
     }
 
-    internal class ThumbnailObject<TOriginalObj> : ThumbnailObject where TOriginalObj  : class
+    internal class ThumbnailObjectPrecursor<TOriginalObj> : ThumbnailObject where TOriginalObj : class
     {
-        readonly TOriginalObj OriginalObj;
-
-        new public ValueType this[string key]
+        readonly internal TOriginalObj OriginalObj;
+        new internal Type OriginalObjType => typeof(TOriginalObj);
+        readonly SingleType Model;
+        protected readonly ushort[] _ValuesIndeksesKeys;
+        internal override ushort[] ValuesIndeksesKeys
         {
-            get
-            {
-                ValueType ToRet;
-                ToRet = (ValueType)originalObjType.GetProperty(key)?.GetValue(OriginalObj);
-
-                if (ToRet is null)
-                    ToRet = (ValueType)originalObjType.GetField(key)?.GetValue(OriginalObj);
-
-                return ToRet;
-            }
+            get { return Model.ValuesKeys; }
         }
 
-        internal ThumbnailObject(TOriginalObj originalObj, List<SingleType> singleTypes)
+        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleType> allTypes)
         {
-            parent = null;
+            this.Parent = null;
             this.OriginalObj = originalObj;
-            this.originalObjType = typeof(TOriginalObj);
-            SingleType singleType = singleTypes.Where(sT => sT.Type == this.originalObjType).First();
 
-            if (this.originalObjType != singleType.Type)
-                //todo zobaczyć jeszcze na dziedziczenie
-                throw new Exception();
+            this.Model = allTypes.Where(t => t.Type == typeof(TOriginalObj)).First();
+            //todo co jak null
 
-            foreach (Value SomeValue in singleType.Values)
+            foreach (ValueOfThumbnail VOT in Model.Values)
             {
-                string ValueName = SomeValue.Name;
                 ValueType value;
 
-                if (SomeValue.IsField)
+                if (VOT.IsField)
                 {
-                    FieldInfo myFieldInfo = this.originalObjType.GetField(ValueName);
+                    FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
 
                     if (myFieldInfo is null)
-                        myFieldInfo = this.originalObjType.GetField(ValueName, BindingFlags.NonPublic | BindingFlags.Instance);
+                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Public | BindingFlags.Instance);
 
                     value = (ValueType)myFieldInfo.GetValue(myFieldInfo);
                 }
                 else
                 {
-                    PropertyInfo propertyInfo = this.originalObjType.GetProperty(ValueName);
+                    PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
 
                     if (propertyInfo is null)
-                        propertyInfo = this.originalObjType.GetProperty(ValueName, BindingFlags.NonPublic | BindingFlags.Instance);
+                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Public | BindingFlags.Instance);
 
                     value = (ValueType)propertyInfo.GetValue(propertyInfo);
                 }
 
-                Dict.Add(ValueName, value);
+                Dict.Add(VOT.ValueOfIndexesKey, value);
             }
+
+            FigureCheckSum();
+        }
+
+        new public ValueType this[ushort key]
+        {
+            get
+            {
+                ValueOfThumbnail TempVOT = null;
+
+                foreach(ValueOfThumbnail valueOfThumbnail in Model.Values)
+                {
+                    if (valueOfThumbnail.ValueOfIndexesKey == key)
+                    {
+                        TempVOT = valueOfThumbnail;
+                        break;
+                    }
+                }
+
+                if (TempVOT.IsField)
+                    return (ValueType)OriginalObjType.GetField(TempVOT.Name).GetValue(OriginalObj);
+                else
+                    return (ValueType)OriginalObjType.GetProperty(TempVOT.Name).GetValue(OriginalObj);
+            }
+        }
+
+        internal override void CreateChild(Dictionary<ushort, ValueType> Changes)
+        {
+            throw new NotImplementedException();
         }
     }
 }

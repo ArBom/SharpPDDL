@@ -33,7 +33,7 @@ namespace SharpPDDL
             }
         }
 
-        internal List<Value> values;
+        internal List<ValueOfParametr> values;
 
         public Parametr(Int32 hashCode, object oryginal)
         {
@@ -44,7 +44,7 @@ namespace SharpPDDL
                 throw new Exception("Wrong object type - its not a class");
 
             this.HashCode = hashCode;
-            values = new List<Value>();
+            values = new List<ValueOfParametr>();
 
             PropertyInfo[] allProperties = Type.GetProperties(); //pobierz properties z odpowiednika we wszystkich typach
             foreach (PropertyInfo propertyInfo in allProperties) //dla kazdego propertis...
@@ -53,7 +53,7 @@ namespace SharpPDDL
                 {
                     string PropertyName = propertyInfo.Name;
 
-                    Value newValue = new Value(PropertyName, propertyInfo.PropertyType, Type, false); //...utworz nową wartość...
+                    ValueOfParametr newValue = new ValueOfParametr(PropertyName, propertyInfo.PropertyType, Type, false); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }
@@ -65,7 +65,7 @@ namespace SharpPDDL
                 {
                     string fieldName = fieldInfo.Name;
 
-                    Value newValue = new Value(fieldName, fieldInfo.FieldType, Type, true); //...utworz nową wartość...
+                    ValueOfParametr newValue = new ValueOfParametr(fieldName, fieldInfo.FieldType, Type, true); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }

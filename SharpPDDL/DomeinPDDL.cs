@@ -34,7 +34,7 @@ namespace SharpPDDL
 
     public class TypesPDDL
     {
-        internal Dictionary<ushort, Value> ValuesIndekses;
+        internal Dictionary<ushort, ValueOfThumbnail> ValuesIndekses;
         private List<SingleType> allTypes = new List<SingleType>();
         internal TreeNode<SingleType> Root;
 
@@ -70,7 +70,7 @@ namespace SharpPDDL
             {
                 if (!(node.Content is null))
                 {
-                    foreach (Value childValue in node.Content.Values)
+                    foreach (ValueOfThumbnail childValue in node.Content.Values)
                     {
                         if (!ValuesIndekses.Values.Contains(childValue))
                         {
@@ -81,6 +81,7 @@ namespace SharpPDDL
                             else
                                 newKey = 1;
 
+                            childValue.ValueOfIndexesKey = newKey;
                             ValuesIndekses.Add(newKey, childValue);
                         }
                     }
@@ -94,7 +95,7 @@ namespace SharpPDDL
             if (this.Root is null)
                 throw new Exception();
 
-            ValuesIndekses = new Dictionary<ushort, Value>();
+            ValuesIndekses = new Dictionary<ushort, ValueOfThumbnail>();
 
             CompleteValues(this.Root);
         }
@@ -188,7 +189,7 @@ namespace SharpPDDL
                         Value tempChVal = node.Children[a].Content.Values[ValueCount];
 
                         //value znajduje się u child i w node
-                        if (node.Content.Values.Any(v => (v.Name == tempChVal.Name && v.Type == tempChVal.Type)))
+                        if (node.Content.Values.Any(v => (v.Name == tempChVal.Name && v.OwnerType == tempChVal.OwnerType)))
                         {
                             node.Children[a].Content.Values.Remove(tempChVal);
                             continue;
@@ -249,46 +250,5 @@ namespace SharpPDDL
             //RemoveTreeNodeBeyondList(Root, this.allTypes);
 
         }
-
-            /*internal void CreateTypesTree()
-            {
-                Root = new TreeNode<SingleType>(null); //utwórz korzeń drzewa
-
-                for(int allTypesCount = 0; allTypesCount != this.allTypes.Count(); allTypesCount++) //dla wszystkich SingleType na liście...
-                {
-                    bool AddedPreviesly = false;
-                    TreeNode<SingleType> ToAdd = new TreeNode<SingleType>(allTypes[allTypesCount]);
-                    var types = ToAdd.Value.InheritedTypes().Types; //...pobierz ich wszystkie typy bazowe pojedynczego SingleType...
-
-                    for(int InheritedTypesCoun = 0; InheritedTypesCoun != types.Count(); InheritedTypesCoun++) //...dla tych typów bazowych...
-                    {
-                        for (int CheckedTypesCoun = 0; CheckedTypesCoun != allTypesCount; CheckedTypesCoun++) //...sprawdź czy nie zostały już wczesniej dodane.
-                        {
-                            if(types[InheritedTypesCoun] == allTypes[CheckedTypesCoun].Type) //Jeśli tak...
-                            {
-                                //...to znajdz odpowiednie miejsce...
-
-
-                                //...i uzupełnij drzewko...
-
-
-
-                                AddedPreviesly = true;
-                                break;
-                            }                      
-                        }
-
-                        if (AddedPreviesly) //...potem przejdź do następnego...
-                            break;
-                    }
-
-                    if (AddedPreviesly) //..., tutaj przejdź do następnego.
-                        continue;
-
-                    //Jeśli nie to dodaj do korzenia
-                    ToAdd.Root = Root;
-                    Root.Children.Add(ToAdd);
-                }
-            }*/
-        }
+    }
 }

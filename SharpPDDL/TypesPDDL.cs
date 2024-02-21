@@ -9,6 +9,7 @@ namespace SharpPDDL
     {
         internal readonly Type Type;
         internal List<Value> Values;
+        internal ushort[] ValuesKeys;
 
         public SingleType(Type type, IReadOnlyList<Value> values)
         {
@@ -25,7 +26,16 @@ namespace SharpPDDL
                     this.Values.Add(value);
         }
 
+        internal void CreateValuesKeys()
+        {
+            List<ushort> TempList = new List<ushort>();
 
+            foreach (ValueOfThumbnail valueOfThumbnail in Values)
+                TempList.Add(valueOfThumbnail.ValueOfIndexesKey);
+
+            TempList.Sort();
+            ValuesKeys = TempList.ToArray();
+        }
     }
 
     internal class TreeNode<T> where T : class
