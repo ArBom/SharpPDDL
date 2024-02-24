@@ -157,6 +157,15 @@ namespace SharpPDDL
             Preconditions.Add(temp);
         }
 
+        internal void BuildAction(List<SingleTypeOfDomein> allTypes)
+        {
+            foreach (PreconditionPDDL Precondition in Preconditions)
+            {
+
+                //Precondition.BuildCheckPDDP(allTypes);
+            }
+        }
+
         public ActionPDDL(string Name)
         {
             if (String.IsNullOrEmpty(Name))

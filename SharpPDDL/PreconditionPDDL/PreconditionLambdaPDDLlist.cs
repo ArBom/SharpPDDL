@@ -7,20 +7,20 @@ using System.Reflection;
 
 namespace SharpPDDL
 {
-    internal class PreconditionLambdaModifDict : ExpressionVisitor
+    internal class PreconditionLambdaModifList : ExpressionVisitor
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         public Func<ThumbnailObject, ThumbnailObject, bool> ModifiedFunct;
-        readonly Dictionary<ushort, ValueOfParametr> ValuesDict;
+        readonly List<SingleTypeOfDomein> allTypes;
 
-        public PreconditionLambdaModifDict(Dictionary<ushort, ValueOfParametr> valuesDict)
+        public PreconditionLambdaModifList(List<SingleTypeOfDomein> allTypes)
         {
-            this.ValuesDict = valuesDict;
+            this.allTypes = allTypes;
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            if (ValuesDict is null)
+            if (allTypes is null)
                 throw new Exception();
 
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
@@ -75,9 +75,10 @@ namespace SharpPDDL
 
             ushort ValuesDictKey = 0;
             //intersect
-            var l = ValuesDict.Where(v => v.Value.Name == MemberName)?.Where(v => v.Value.Type == node.Member.ReflectedType)?.Select(p => (p, p.Value.OwnerType.InheritedTypes())).ToList();
+            SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type)?.First();
+            //var l = ValuesDict.Where(v => v.Value.Name == MemberName)?.Where(v => v.Value.Type == node.Member.ReflectedType)?.Select(p => (p, p.Value.OwnerType.InheritedTypes())).ToList();
 
-            if(l.Count() == 0)
+            if(ParameterModel is null)
             {
                 throw new Exception();
             }
@@ -90,7 +91,7 @@ namespace SharpPDDL
             }*/
             ///in next version
 
-            var Types = l.Select(el => (el, el.Item2.Types.Count()))?.Where(k => k.Item2 != 0)?.OrderBy(k => k.Item2).Select(k => k.el).ToList();
+            /*var Types = l.Select(el => (el, el.Item2.Types.Count()))?.Where(k => k.Item2 != 0)?.OrderBy(k => k.Item2).Select(k => k.el).ToList();
             for (int a = 0; a != Types.Count(); ++a)
             {
                 for (int b = Types[a].Item2.Types.Count(); b!=0 ;--b)
@@ -106,7 +107,9 @@ namespace SharpPDDL
 
                 if (ValuesDictKey != 0)
                     break;
-            }
+            }*/
+
+            ushort ValueOfIndexesKey = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey).First();
 
             ParameterExpression parameterExpression;
 
@@ -127,13 +130,14 @@ namespace SharpPDDL
 
             //One-element IEnumerable collection with name of member of parameter
             Expression[] arguments = new[] { Expression.Constant(ValuesDictKey) };
+            Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
             PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
             //PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item", TO_bindingAttr);
 
             //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
-            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameterExpression, TO_indekser, arguments);
+            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameterExpression, TO_indekser, argument);
 
             //Convert above expression from ValueType to particular type of frontal value
             return Expression.Convert(IndexAccessExpr, node.Type);

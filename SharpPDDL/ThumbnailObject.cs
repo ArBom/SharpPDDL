@@ -89,14 +89,14 @@ namespace SharpPDDL
     {
         readonly internal TOriginalObj OriginalObj;
         new internal Type OriginalObjType => typeof(TOriginalObj);
-        readonly SingleType Model;
+        readonly SingleTypeOfDomein Model;
         protected readonly ushort[] _ValuesIndeksesKeys;
         internal override ushort[] ValuesIndeksesKeys
         {
             get { return Model.ValuesKeys; }
         }
 
-        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleType> allTypes)
+        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes)
         {
             this.Parent = null;
             this.OriginalObj = originalObj;

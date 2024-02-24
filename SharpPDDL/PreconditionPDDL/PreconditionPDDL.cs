@@ -34,11 +34,7 @@ namespace SharpPDDL
         /// </returns>
         protected Func<dynamic, dynamic, bool> Check;
 
-        internal Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP (Dictionary<ushort, Value> keyValuePairs)
-        {
-
-            return null;
-        }
+        internal abstract Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes);
 
         internal PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 

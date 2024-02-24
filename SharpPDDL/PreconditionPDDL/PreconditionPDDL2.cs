@@ -33,14 +33,11 @@ namespace SharpPDDL
         internal PreconditionPDDL(string Name, ref T1 obj1, ref T2 obj2, Expression<Predicate<T1, T2>> func) : base(Name, ref obj1, obj2.GetType(), obj2.GetHashCode())
         {
             this.func = func;
-
-            PreconditionLambdaModif preconditionLambdaModif = new PreconditionLambdaModif();
-            preconditionLambdaModif.Visit(func);
-            this.CheckPDDP = preconditionLambdaModif.ModifiedFunct;
-            //todo sprawdzenie czy 2 paramerty z funkcji
-            this.usedMembers1Class = preconditionLambdaModif.used[0];
-            this.usedMembers2Class = preconditionLambdaModif.used[1];
-            this.t1 = obj1;
+            MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
+            _ = memberofLambdaListerPDDL.Visit(func);
+            //todo sprawdzenie czy typy paramrtrów się zgadzają
+            this.usedMembers1Class = memberofLambdaListerPDDL.used[0];
+            this.usedMembers2Class = memberofLambdaListerPDDL.used[1];
             this.t2 = obj2;
         }
     }
