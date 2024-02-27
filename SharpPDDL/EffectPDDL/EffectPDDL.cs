@@ -6,41 +6,39 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal class EffectPDDL
+    internal class EffectPDDL : ObjectPDDL
     {
-        readonly string Name; 
         internal Action<ThumbnailObject, ThumbnailObject> ExecutePDDP;
-        internal Func<dynamic, dynamic, EventHandler> Execute;
 
         //Hashes[0] - destination; Hashes[1] - source (if exist);
         readonly int[] Hashes;
         readonly Expression ConstantSource;
+        readonly protected string DestinationMemberName;
 
-        internal EffectPDDL(string Name, ValueType Source, ref ValueType Destination) //przypisanie wartosci ze stałej
+        internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
+
+        internal EffectPDDL Instance<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Func<T1, ValueType> destinationMember) where T1 : class //przypisanie wartosci ze stałej
         {
-            if (String.IsNullOrEmpty(Name))
-                throw new Exception();
+            if (newValue_Static.GetType() != destinationMember.GetMethodInfo().ReturnType)
+                throw new Exception("You cannot assign new value. Its another type.");
 
-            if (Source.GetType() != Destination.GetType())
-                throw new Exception();
-
-            this.Name = Name;
-            ConstantSource = Expression.Constant(Source);
-            Hashes = new int[] { Destination.GetHashCode() };
+            return new EffectPDDL1<T1>(Name, newValue_Static, ref destinationObj, CreateExpression(destinationMember));
         }
 
-        internal EffectPDDL(string Name, ref ValueType Source, ref ValueType Destination) //przypisanie zewnętrzne
+        internal static EffectPDDL Instance<T1,T2>(string Name, ref T1 sourceObj1, Func<T1, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> destinationMember) where T1 : class where T2 : class
         {
-            if (String.IsNullOrEmpty(Name))
-                throw new Exception();
+            if (Source.GetMethodInfo().ReturnType != destinationMember.GetMethodInfo().ReturnType)
+                throw new Exception("You cannot assign new value. Its another type.");
 
-            if (Source.GetType() != Destination.GetType())
-                throw new Exception();
-
-            this.Name = Name;
-            Hashes = new int[] { Destination.GetHashCode(), Source.GetHashCode() };
-            this.ConstantSource = null;
+            return new EffectPDDL2<T1, T2>(Name, ref sourceObj1, CreateExpression(Source), ref DestinationObj, CreateExpression(destinationMember));
         }
 
+        internal static EffectPDDL Instance<T1, T2>(string Name, ref T1 sourceObj1, Func<T1, T2, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> destinationMember) where T1 : class where T2 : class
+        {
+            if (Source.GetMethodInfo().ReturnType != destinationMember.GetMethodInfo().ReturnType)
+                throw new Exception("You cannot assign new value. Its another type.");
+
+            return new EffectPDDL2<T1, T2>(Name, ref sourceObj1, CreateExpression(Source), ref DestinationObj, CreateExpression(destinationMember));
+        }
     }
 }

@@ -76,7 +76,6 @@ namespace SharpPDDL
             ushort ValuesDictKey = 0;
             //intersect
             SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type)?.First();
-            //var l = ValuesDict.Where(v => v.Value.Name == MemberName)?.Where(v => v.Value.Type == node.Member.ReflectedType)?.Select(p => (p, p.Value.OwnerType.InheritedTypes())).ToList();
 
             if(ParameterModel is null)
             {
@@ -90,24 +89,6 @@ namespace SharpPDDL
                 Inter[a].p.Value
             }*/
             ///in next version
-
-            /*var Types = l.Select(el => (el, el.Item2.Types.Count()))?.Where(k => k.Item2 != 0)?.OrderBy(k => k.Item2).Select(k => k.el).ToList();
-            for (int a = 0; a != Types.Count(); ++a)
-            {
-                for (int b = Types[a].Item2.Types.Count(); b!=0 ;--b)
-                {
-                    MemberInfo[] tyu = Types[a].Item2.Types[b].GetMember(MemberName);
-
-                    if(tyu.Length != 0)
-                    {
-                        ValuesDictKey = Types[a].p.Key;
-                        break;
-                    }
-                }
-
-                if (ValuesDictKey != 0)
-                    break;
-            }*/
 
             ushort ValueOfIndexesKey = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey).First();
 

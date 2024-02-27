@@ -81,6 +81,15 @@ namespace SharpPDDL
             Parameters.Add(TempParametr);
         }
 
+        private void CheckExistEffectName(string Name)
+        {
+            if (String.IsNullOrEmpty(Name))
+                throw new Exception(); //is null or empty
+
+            if (this.Effects.Exists(effect => effect.Name == Name))
+                throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
+        }
+
         private void CheckExistPreconditionName(string Name)
         {
             if (String.IsNullOrEmpty(Name))
