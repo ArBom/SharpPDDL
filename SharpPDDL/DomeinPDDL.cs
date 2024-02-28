@@ -116,9 +116,10 @@ namespace SharpPDDL
                         if (tghu.Count() != 0)
                         {
                             SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[j], root.Content.Values);
-                            TreeNode<SingleTypeOfDomein> newType = new TreeNode<SingleTypeOfDomein>(singleType)
+                            TreeNode<SingleTypeOfDomein> newType = new TreeNode<SingleTypeOfDomein>()
                             {
                                 Root = root,
+                                Content = singleType,
                                 Children = tghu
                             };
                             //TODO czy nie sa gubione typy (konkretnie pierwszy)
@@ -165,8 +166,11 @@ namespace SharpPDDL
                         }
 
                         SingleTypeOfDomein newSingleType = new SingleTypeOfDomein(TypeUp, newSingleTypeMembers);
-                        TreeNode<SingleTypeOfDomein> NewTreeNode = new TreeNode<SingleTypeOfDomein>(newSingleType);
-                        AnalysedNode.ChangeParentIntoGrandpa(ref NewTreeNode);
+                        TreeNode<SingleTypeOfDomein> NewTreeNode = new TreeNode<SingleTypeOfDomein>()
+                        {
+                            Content = newSingleType
+                        };
+                        AnalysedNode.AddAbove(NewTreeNode);
                         AnalysedNode = NewTreeNode;
                         NumbofValueInherChildTypes--;
 
@@ -220,13 +224,14 @@ namespace SharpPDDL
             if (this.allTypes is null)
                 throw new Exception();
 
-            this.Root = new TreeNode<SingleTypeOfDomein>(null); //utwórz korzeń drzewa
+            this.Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
 
             foreach(SingleTypeOfDomein singleType in this.allTypes) //Podepnij wszystko pod ten korzeń
             {
-                TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>(singleType)
+                TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
                 {
-                    Root = this.Root
+                    Root = this.Root,
+                    Content = singleType
                 };
                 this.Root.Children.Add(ToAdd);
             }
