@@ -18,8 +18,6 @@ namespace SharpPDDL
             this.Content = null;
         }
 
-        #region ICollection
-
         public void Add(T item)
         {
             TreeNode<T> AddedItem = new TreeNode<T>()
@@ -77,8 +75,10 @@ namespace SharpPDDL
 
         public IEnumerator<T> GetEnumerator()
         {
-            TreeNodeEnum<T> ToRet = new TreeNodeEnum<T>(this);
-            return ToRet;
+            if (this.Root is null)
+                return new TreeNodeEnum<T>(this);
+
+            return new BrachNodeEnum<T>(this);
         }
 
         public bool IsReadOnly => false;
@@ -99,8 +99,6 @@ namespace SharpPDDL
         {
             return (IEnumerator)GetEnumerator();
         }
-
-        #endregion
 
         public TreeNode<T> this[int key]
         {
@@ -136,7 +134,6 @@ namespace SharpPDDL
             this.Root.Children[index] = newParent;
             this.Root = newParent;
         }
-
 
         private void MoveNodesToList(TreeNode<T> node, List<T> resultList)
         {
@@ -180,18 +177,22 @@ namespace SharpPDDL
 
     internal class TreeNodeEnum<T> : IEnumerator<T> where T : class
     {
-        private TreeNode<T> current;
+        protected TreeNode<T> current;
 
         internal TreeNodeEnum(TreeNode<T> creator)
         {
-            this.current = creator;
+            TreeNode<T> MinusOnePos = new TreeNode<T>
+            {
+                Children = new List<TreeNode<T>> { creator }
+            };
+            this.current = MinusOnePos;
         }
 
         public object Current => current;
 
         T IEnumerator<T>.Current => current.Content;
 
-        private bool MoveNextFromLine(TreeNode<T> e)
+        protected bool MoveNextFromLine(TreeNode<T> e)
         {
             if (!(e.Root is null))
             {
@@ -227,8 +228,54 @@ namespace SharpPDDL
             {
                 current = current.Root;
             }
+            TreeNode<T> MinusOnePos = new TreeNode<T>
+            {
+                Children = new List<TreeNode<T>> { current }
+            };
+            this.current = MinusOnePos;
         }
 
         void IDisposable.Dispose() { }
+    }
+
+    internal class BrachNodeEnum<T> : TreeNodeEnum<T> where T : class
+    {
+        private readonly TreeNode<T> creator;
+
+        internal BrachNodeEnum(TreeNode<T> creator) : base(creator)
+        {
+            this.creator = creator;
+        }
+
+        private new bool MoveNextFromLine(TreeNode<T> e)
+        {
+            if (!(e.Root is null))
+            {
+                int IndeksOfE = e.Root.Children.IndexOf(e);
+
+                if (e.Root.Children.Count != ++IndeksOfE)
+                {
+                    e = e.Root.Children[IndeksOfE];
+                    return true;
+                }
+                else
+                {
+                    if (e.Root.Equals(creator))
+                        return false;
+
+                    return MoveNextFromLine(e.Root);
+                }
+            }
+            return false;
+        }
+
+        new public void Reset()
+        {
+            TreeNode<T> MinusOnePos = new TreeNode<T>
+            {
+                Children = new List<TreeNode<T>> { creator }
+            };
+            this.current = MinusOnePos;
+        }
     }
 }
