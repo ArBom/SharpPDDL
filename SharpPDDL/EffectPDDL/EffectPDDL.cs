@@ -6,18 +6,18 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal class EffectPDDL : ObjectPDDL
+    internal abstract class EffectPDDL : ObjectPDDL
     {
-        internal Action<ThumbnailObject, ThumbnailObject> ExecutePDDP;
+        internal abstract Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes);
+        internal Action<object, object> Effect;
 
         //Hashes[0] - destination; Hashes[1] - source (if exist);
         readonly int[] Hashes;
-        readonly Expression ConstantSource;
-        readonly protected string DestinationMemberName;
+        readonly internal string DestinationMemberName;
 
         internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 
-        internal EffectPDDL Instance<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Func<T1, ValueType> destinationMember) where T1 : class //przypisanie wartosci ze stałej
+        internal static EffectPDDL Instance<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Func<T1, ValueType> destinationMember) where T1 : class //przypisanie wartosci ze stałej
         {
             if (newValue_Static.GetType() != destinationMember.GetMethodInfo().ReturnType)
                 throw new Exception("You cannot assign new value. Its another type.");

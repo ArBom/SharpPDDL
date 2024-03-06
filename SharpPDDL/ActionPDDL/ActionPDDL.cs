@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace SharpPDDL
 {    
@@ -76,7 +74,6 @@ namespace SharpPDDL
                     return;
             }
 
-            Type Type = destination.GetType();
             Parametr TempParametr = new Parametr(HashCode, destination);
             Parameters.Add(TempParametr);
         }
@@ -87,7 +84,7 @@ namespace SharpPDDL
                 throw new Exception(); //is null or empty
 
             if (this.Effects.Exists(effect => effect.Name == Name))
-                throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
+                throw new Exception(); //juz istnieje efekt o takiej nazwie
         }
 
         private void CheckExistPreconditionName(string Name)
@@ -166,11 +163,116 @@ namespace SharpPDDL
             Preconditions.Add(temp);
         }
 
+        public void AddEffect<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Func<T1, ValueType> destinationMember) where T1 : class 
+        {
+            CheckExistEffectName(Name);
+            this.AddAssignedParametr(ref destinationObj);
+            EffectPDDL temp = EffectPDDL.Instance(Name, newValue_Static, ref destinationObj, destinationMember);
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != destinationObj.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(destinationObj))
+                    continue;
+
+                parametr.values.First(v => v.Name == temp.DestinationMemberName).IsInUse = true;
+
+                break;
+            }
+
+            Effects.Add(temp);
+        }
+
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> DestinationMember) where T1 : class where T2 : class
+        {
+            CheckExistEffectName(Name);
+            this.AddAssignedParametr(ref SourceObj);
+            this.AddAssignedParametr(ref DestinationObj);
+            EffectPDDL temp = EffectPDDL.Instance(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
+
+            //Tag destination parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != DestinationObj.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(DestinationObj))
+                    continue;
+
+                parametr.values.First(v => v.Name == temp.DestinationMemberName).IsInUse = true;
+
+                break;
+            }
+
+            //Tak source parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != SourceObj.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(SourceObj))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers2Class)
+                    parametr.values.First(v => v.Name == valueName).IsInUse = true;
+
+                break;
+            }
+
+            Effects.Add(temp);
+        }
+
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, T2, ValueType> SourceFunct, ref T2 DestinationObj, Func<T2, ValueType> DestinationFunct) where T1 : class where T2 : class
+        {
+            CheckExistEffectName(Name);
+            this.AddAssignedParametr(ref SourceObj);
+            this.AddAssignedParametr(ref DestinationObj);
+            EffectPDDL temp = EffectPDDL.Instance(Name, ref SourceObj, SourceFunct, ref DestinationObj, DestinationFunct);
+
+            //Tag destination parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != DestinationObj.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(DestinationObj))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers1Class)
+                    parametr.values.First(v => v.Name == valueName).IsInUse = true;
+
+                break;
+            }
+
+            //Tak source parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != SourceObj.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(SourceObj))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers2Class)
+                    parametr.values.First(v => v.Name == valueName).IsInUse = true;
+
+                break;
+            }
+
+            Effects.Add(temp);
+        }
+
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
+                _ = Precondition.BuildCheckPDDP(allTypes);
+            }
 
+            foreach (EffectPDDL effect in Effects)
+            {
                 //Precondition.BuildCheckPDDP(allTypes);
             }
         }
@@ -185,7 +287,7 @@ namespace SharpPDDL
             this.Name = Name;
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
-            //Effects = new List<PredicatePDDL>();
+            this.Effects = new List<EffectPDDL>();
         }
     }
 }

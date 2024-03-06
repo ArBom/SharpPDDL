@@ -32,7 +32,10 @@ namespace SharpPDDL
         public void Clear()
         {
             foreach (var child in Children)
+            {
                 child.Root = null;
+                child.Clear();
+            }
 
             this.Children = null;
 
