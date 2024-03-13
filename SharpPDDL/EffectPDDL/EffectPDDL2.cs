@@ -60,14 +60,14 @@ namespace SharpPDDL
             return effectLambdaPDDL.ModifiedFunct;
         }
 
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
         {
-            for (int index = 0; index != Parameters.Count; index++)
+            for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (Parameters[index].HashCode != Hash1Class)
+                if (listOfParams[index].HashCode != Hash1Class)
                     continue;
 
-                if (ReferenceEquals(Parameters[index], t1))
+                if (t1.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct1ClassPos = index;
                     break;
@@ -77,12 +77,12 @@ namespace SharpPDDL
             if (AllParamsOfAct1ClassPos is null)
                 throw new Exception("There is no that param at list.");
 
-            for (int index = 0; index != Parameters.Count; index++)
+            for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (Parameters[index].HashCode != Hash2Class)
+                if (listOfParams[index].HashCode != Hash2Class)
                     continue;
 
-                if (ReferenceEquals(Parameters[index], t2))
+                if (t2.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct2ClassPos = index;
                     return;

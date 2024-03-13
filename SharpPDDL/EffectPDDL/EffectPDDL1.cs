@@ -45,14 +45,14 @@ namespace SharpPDDL
             return func2;
         }
 
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
         {
-            for (int index = 0; index != Parameters.Count; index++)
+            for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (Parameters[index].HashCode != Hash1Class)
+                if (listOfParams[index].HashCode != Hash1Class)
                     continue;
 
-                if (ReferenceEquals(Parameters[index], t1))
+                if (t1.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct1ClassPos = index;
                     return;

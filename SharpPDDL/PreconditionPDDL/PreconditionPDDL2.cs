@@ -19,7 +19,7 @@ namespace SharpPDDL
                 if (listOfParams[index].HashCode != Hash2Class)
                     continue;
 
-                if (ReferenceEquals(listOfParams[index], t2))
+                if (t2.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct2ClassPos = index;
                     return;

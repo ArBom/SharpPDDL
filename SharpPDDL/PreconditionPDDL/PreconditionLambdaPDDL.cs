@@ -96,7 +96,7 @@ namespace SharpPDDL
             string MemberName = node.Member.Name;
 
             //intersect
-            SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type)?.First();
+            SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type).First();
 
             if(ParameterModel is null)
             {

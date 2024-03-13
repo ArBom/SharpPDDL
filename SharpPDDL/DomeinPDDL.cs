@@ -23,7 +23,10 @@ namespace SharpPDDL
             types.CreateTypesTree();
             types.CompleteValuesIndekses();
 
-
+            foreach (ActionPDDL act in actions)
+            {
+                act.BuildAction(types.allTypes);
+            }
         }
 
         public DomeinPDDL (string name)
@@ -37,7 +40,7 @@ namespace SharpPDDL
     public class TypesPDDL
     {
         protected ushort ValuesIndeksCount = 0;
-        private List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
+        internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
         internal TreeNode<SingleTypeOfDomein> Root;
 
         internal void CompleteTypes(List<SingleType> singleTypes)
@@ -214,7 +217,8 @@ namespace SharpPDDL
 
             void MoveNodesToList(TreeNode<SingleTypeOfDomein> node, List<SingleTypeOfDomein> resultList)
             {
-                resultList.Add(node.Content);
+                if (node.Content != null)
+                    resultList.Add(node.Content);
 
                 foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                     MoveNodesToList(child, resultList);
