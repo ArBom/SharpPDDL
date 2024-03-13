@@ -10,7 +10,7 @@ namespace SharpPDDL
         protected T1 t1;
         readonly Expression<Predicate<T1>> func;
 
-        protected int T1Index(List<Parametr> listOfParams)
+        protected void T1Index(IReadOnlyList<Parametr> listOfParams)
         {
             for (int index = 0; index != listOfParams.Count; index++)
             {
@@ -18,23 +18,26 @@ namespace SharpPDDL
                     continue;
 
                 if (ReferenceEquals(listOfParams[index], t1))
-                    return index;
+                {
+                    AllParamsOfAct1ClassPos = index;
+                    return;
+                }
             }
-            return -1;
+
+            throw new Exception("There is no that param at list.");
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes)
+        internal override Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
-            PreconditionLambdaModifList preconditionLambdaModifList = new PreconditionLambdaModifList(allTypes);
+            CompleteClassPos(Parameters);
+            int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value };
+            PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
             preconditionLambdaModifList.Visit(this.func);
             CheckPDDP = preconditionLambdaModifList.ModifiedFunct;
             return CheckPDDP;
         }
 
-        /*internal override (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool>) TakeFunct()
-        {
-            return (CheckPDDP, Check);
-        }*/
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters) => T1Index(Parameters);
 
         protected PreconditionPDDL(string Name, ref T1 obj1, Type TypeOf2Class, Int32 HashOf2Class) : base(Name, obj1.GetType(), obj1.GetHashCode(), TypeOf2Class, HashOf2Class)
         {

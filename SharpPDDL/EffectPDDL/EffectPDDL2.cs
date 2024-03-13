@@ -50,12 +50,46 @@ namespace SharpPDDL
             return temp;
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes)
+        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
+            CompleteClassPos(Parameters);
+            int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value, AllParamsOfAct2ClassPos.Value };
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
-            EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, Key);
+            EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, ParamsIndexesInAction, Key);
             effectLambdaPDDL.Visit(SourceFunc);
             return effectLambdaPDDL.ModifiedFunct;
+        }
+
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
+        {
+            for (int index = 0; index != Parameters.Count; index++)
+            {
+                if (Parameters[index].HashCode != Hash1Class)
+                    continue;
+
+                if (ReferenceEquals(Parameters[index], t1))
+                {
+                    AllParamsOfAct1ClassPos = index;
+                    break;
+                }
+            }
+
+            if (AllParamsOfAct1ClassPos is null)
+                throw new Exception("There is no that param at list.");
+
+            for (int index = 0; index != Parameters.Count; index++)
+            {
+                if (Parameters[index].HashCode != Hash2Class)
+                    continue;
+
+                if (ReferenceEquals(Parameters[index], t2))
+                {
+                    AllParamsOfAct2ClassPos = index;
+                    return;
+                }
+            }
+
+            throw new Exception("There is no that param at list.");
         }
     }
 }

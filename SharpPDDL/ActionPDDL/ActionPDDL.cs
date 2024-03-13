@@ -268,12 +268,12 @@ namespace SharpPDDL
         {
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
-                _ = Precondition.BuildCheckPDDP(allTypes);
+                _ = Precondition.BuildCheckPDDP(allTypes, Parameters);
             }
 
-            foreach (EffectPDDL effect in Effects)
+            foreach (EffectPDDL Effect in Effects)
             {
-                //Precondition.BuildCheckPDDP(allTypes);
+                _ = Effect.BuildEffectPDDP(allTypes, Parameters);
             }
         }
 

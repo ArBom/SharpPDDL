@@ -27,12 +27,39 @@ namespace SharpPDDL
             this.t1 = obj1;
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes)
+        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
+            CompleteClassPos(Parameters); //TODO uwzględnić AllParamsOfAct1ClassPos w func
+            var ox = Expression.Parameter(typeof(ThumbnailObject), "o"+ AllParamsOfAct1ClassPos);
             KeyValuePair<ushort, ValueType> FuncOut = new KeyValuePair<ushort, ValueType>(Key, newValue);
-            Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> func = ((o1, o2) => FuncOut);
-            return func;
+
+            MethodInfo addMethod = typeof(KeyValuePair<ushort, ValueType>).GetMethod("KeyValuePair");
+            var elini = Expression.ElementInit(
+                addMethod,
+                Expression.Constant(Key),
+                Expression.Constant(newValue));
+
+            Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> func2 = (o1 ,o2) => FuncOut;
+
+            return func2;
+        }
+
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
+        {
+            for (int index = 0; index != Parameters.Count; index++)
+            {
+                if (Parameters[index].HashCode != Hash1Class)
+                    continue;
+
+                if (ReferenceEquals(Parameters[index], t1))
+                {
+                    AllParamsOfAct1ClassPos = index;
+                    return;
+                }
+            }
+
+            throw new Exception("There is no that param at list.");
         }
     }
 }

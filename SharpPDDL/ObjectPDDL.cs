@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq;
 using System.Text;
 
 namespace SharpPDDL
@@ -12,10 +13,12 @@ namespace SharpPDDL
         readonly internal Type TypeOf1Class;
         readonly internal Int32 Hash1Class;
         internal List<string> usedMembers1Class;
+        internal int? AllParamsOfAct1ClassPos = null;
 
-        internal readonly Type TypeOf2Class;
-        internal readonly Int32? Hash2Class;
+        internal readonly Type TypeOf2Class = null;
+        internal readonly Int32? Hash2Class = null;
         internal List<string> usedMembers2Class;
+        internal int? AllParamsOfAct2ClassPos = null;
 
         protected static Expression<Func<T1, ValueType>> CreateExpression<T1>(Func<T1, ValueType> func)
         {
@@ -26,6 +29,8 @@ namespace SharpPDDL
         {
             return (x,y) => func(x,y);
         }
+
+        internal abstract void CompleteClassPos(IReadOnlyList<Parametr> Parameters);
 
         internal ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)
         {
