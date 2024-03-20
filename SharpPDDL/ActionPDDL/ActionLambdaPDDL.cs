@@ -3,91 +3,103 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace SharpPDDL
 {
     class ActionLambdaPDDL : ExpressionVisitor
     {
-        private readonly IReadOnlyList<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
-        private readonly IReadOnlyList<EffectPDDL> Effects; //efekty
-        private readonly IReadOnlyList<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private IReadOnlyList<ParameterExpression> _parameters;
-        private readonly BinaryExpression AllConditions;
+        public readonly Delegate InstantFunct;
+        public readonly LambdaExpression WholeFunc;
 
-        public ActionLambdaPDDL(List<Parametr> parameters, List<PreconditionPDDL> preconditions, List<EffectPDDL> effects)
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
-#region Parameters
-            this.Parameters = parameters;
-            List<Expression> ParamsChecks = new List<Expression>();
+        // Parameters below
+            List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
             List<ParameterExpression> TempParams = new List<ParameterExpression>();
-            for (int i = 0; i!= parameters.Count; i++)
+            for (int i = 0; i != parameters.Count; i++)
             {
-                var CurrentPar = Expression.Parameter(typeof(ThumbnailObject), "o" + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString());
                 TempParams.Add(CurrentPar);
 
-                var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, typeof(ThumbnailObject).GetField("OriginalObjType"));
+                var key = typeof(ThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObjType");
+                var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, key);
                 var ConType = Expression.Constant(parameters[i].Type, typeof(Type));
-                var ISCorrectType = Expression.Equal(ConType, ThObOryginalType);                                                            //TODO dziedziczenie z drzewka trza uwzglednic kiedyś
-                ParamsChecks.Add(ISCorrectType);
+                var ISCorrectType = Expression.Equal(ThObOryginalType, ConType);                                                            //TODO dziedziczenie z drzewka trzeba uwzglednic kiedyś
+                ChecksParam.Add(ISCorrectType);
             }       
             _parameters = TempParams.AsReadOnly();
-#endregion
 
-#region Preconditions
-            this.Preconditions = preconditions;
-            foreach (PreconditionPDDL preconditionPDDL in Preconditions)
+            BinaryExpression CheckAllParam = ChecksParam[0];
+            for (int a = 1; a != ChecksParam.Count; a++)
+                CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
+
+        // Preconditions below
+            List<BinaryExpression> ChecksPrecondition = new List<BinaryExpression>();
+            foreach (var preconditionPDDL in preconditions)
             {
-
+                var preconditionWithNewParam = (BinaryExpression)VisitLambda(preconditionPDDL);
+                ChecksPrecondition.Add(preconditionWithNewParam);
             }
 
-#endregion
-            this.Effects = effects;
-        }
+            BinaryExpression CheckAllPreco = ChecksPrecondition[0];
+            for (int a = 1; a != ChecksParam.Count; a++)
+                CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
 
-        public static Expression ForEach(List<BinaryExpression> collection, ParameterExpression loopVar, Expression loopContent)
-        {
-            var colEx = Expression.Constant(collection, typeof(List<BinaryExpression>));
+        // Effects below
+            List<Expression>[] EffectsPais = new List<Expression>[parameters.Count];
+            for (int i = 0; i != parameters.Count; i++)
+            {
+                EffectsPais[i] = new List<Expression>();
+            }
 
-            // Creating an expression to hold a local variable.
-            ParameterExpression result = Expression.Variable(typeof(bool), "result");
+            foreach (var effect in effects)
+            {
+                string ParamNo = effect.Parameters[0].Name.Remove(0, ExtensionMethods.LamdbaParamPrefix.Length);
+                int ChangedParamNo = Int32.Parse(ParamNo);
 
-            var elementType = loopVar.Type;
-            var enumerableType = typeof(IEnumerable<>).MakeGenericType(elementType);
-            var enumeratorType = typeof(IEnumerator<>).MakeGenericType(elementType);
+                var result = VisitLambda(effect);
+                EffectsPais[ChangedParamNo].Add(result);
+            }
 
-            var enumeratorVar = Expression.Variable(enumeratorType, "enumerator");
-            var getEnumeratorCall = Expression.Call(colEx, enumerableType.GetMethod("GetEnumerator"));
-            var enumeratorAssign = Expression.Assign(enumeratorVar, getEnumeratorCall);
-            var PosResultAssign = Expression.Assign(result, Expression.Constant(true));
-            var NegResultAssign = Expression.Assign(result, Expression.Constant(false));
+            NewExpression newDictionaryExpression = Expression.New(typeof(List<KeyValuePair<ushort, ValueType>>));
+            Expression[] singleEffectsList = new Expression[parameters.Count];
 
-            // The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-            var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetMethod("MoveNext"));
+            for (int a = 0; a!= parameters.Count; a++)
+            {
+                singleEffectsList[a] = Expression.ListInit(newDictionaryExpression, EffectsPais[a]);
+            }
 
-            var breakLabel = Expression.Label("LoopBreak");
+            var arrayOfEfects = Expression.NewArrayInit(typeof(List<KeyValuePair<ushort, ValueType>>), singleEffectsList);
 
-            var loop = Expression.Block(new[] { enumeratorVar, result },
-                enumeratorAssign,
-                PosResultAssign,
-                Expression.Loop(
-                    Expression.IfThenElse(
-                        Expression.Equal(moveNextCall, Expression.Constant(true)),
-                        Expression.Block(new[] { loopVar },
-                            Expression.Assign(loopVar, Expression.Property(enumeratorVar, "Current")),
-                            loopContent
-                        ),
-                        Expression.Block( NegResultAssign, Expression.Break(breakLabel) )
-                    ),
-                breakLabel)
-            );
+        // Merge it all below
+            var LackOfEffects = Expression.Constant(null, typeof(List<KeyValuePair<ushort, ValueType>>));
+            var WholeParamBody = Expression.IfThenElse(CheckAllPreco, arrayOfEfects, LackOfEffects);
+            var WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, LackOfEffects);
 
-            return loop;
+            WholeFunc = Expression.Lambda(WholeFunctBody, _parameters);
+
+            try
+            {
+                InstantFunct = WholeFunc.Compile();
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            throw new NotImplementedException();
+            return Visit(node.Body);
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return _parameters.First(p => p.Name == node.Name);
         }
     }
 }

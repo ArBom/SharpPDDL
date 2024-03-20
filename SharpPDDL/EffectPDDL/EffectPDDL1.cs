@@ -10,7 +10,6 @@ namespace SharpPDDL
     class EffectPDDL1<T1> : EffectPDDL where T1 : class
     {
         readonly ValueType newValue;
-        new readonly internal string DestinationMemberName;
         protected T1 t1;
 
         internal EffectPDDL1(string Name, ValueType newValue, ref T1 obj1, Expression<Func<T1, ValueType>> Destination) : base(Name, obj1.GetType(), obj1.GetHashCode())
@@ -20,29 +19,20 @@ namespace SharpPDDL
             DestLambdaListerPDDL.Visit(Destination);
             this.usedMembers1Class = DestLambdaListerPDDL.used[0];
             this.DestinationMemberName = usedMembers1Class[0];
-
-            if (newValue.GetType() != typeof(T1).GetMember(DestinationMemberName).GetType())
-                throw new Exception("You cannot assign another type value.");
-
             this.t1 = obj1;
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             CompleteClassPos(Parameters); //TODO uwzględnić AllParamsOfAct1ClassPos w func
-            var ox = Expression.Parameter(typeof(ThumbnailObject), "o"+ AllParamsOfAct1ClassPos);
-            KeyValuePair<ushort, ValueType> FuncOut = new KeyValuePair<ushort, ValueType>(Key, newValue);
+            Expression<Func<ValueType>> toRet = () => newValue;
+            int[] paramss = { AllParamsOfAct1ClassPos.Value };
+            EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, paramss, Key);
+            _ = (Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.Visit(toRet);
+            var modifed = (Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.ModifiedFunct;
 
-            MethodInfo addMethod = typeof(KeyValuePair<ushort, ValueType>).GetMethod("KeyValuePair");
-            var elini = Expression.ElementInit(
-                addMethod,
-                Expression.Constant(Key),
-                Expression.Constant(newValue));
-
-            Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> func2 = (o1 ,o2) => FuncOut;
-
-            return func2;
+            return modifed;
         }
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)

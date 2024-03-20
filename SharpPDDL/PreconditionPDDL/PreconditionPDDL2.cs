@@ -35,17 +35,16 @@ namespace SharpPDDL
             T2Index(Parameters);
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value, AllParamsOfAct2ClassPos.Value };
             PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
-            preconditionLambdaModifList.Visit(this.func);
-            CheckPDDP = preconditionLambdaModifList.ModifiedFunct;
+            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModifList.Visit(this.func);
             return CheckPDDP;
         }
 
-        new protected (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool>, int, int?) BuildFunct(List<Parametr> listOfParams)
+        protected (Expression, Func<dynamic, dynamic, bool>, int, int?) BuildFunct(List<Parametr> listOfParams)
         {
             return (CheckPDDP, Check, AllParamsOfAct1ClassPos.Value, AllParamsOfAct1ClassPos);
         }

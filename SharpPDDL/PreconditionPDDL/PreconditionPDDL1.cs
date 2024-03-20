@@ -27,13 +27,12 @@ namespace SharpPDDL
             throw new Exception("There is no that param at list.");
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value };
-            PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
-            preconditionLambdaModifList.Visit(this.func);
-            CheckPDDP = preconditionLambdaModifList.ModifiedFunct;
+            PreconditionLambdaModif preconditionLambdaModif = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
+            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModif.Visit(this.func);
             return CheckPDDP;
         }
 

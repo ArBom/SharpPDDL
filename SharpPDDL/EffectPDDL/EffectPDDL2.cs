@@ -8,7 +8,7 @@ namespace SharpPDDL
 {
     class EffectPDDL2<T1, T2> : EffectPDDL where T1 : class where T2 : class
     {
-        new protected readonly string DestinationMemberName;
+        //new protected readonly string DestinationMemberName;
         readonly Expression SourceFunc = null;
         protected T1 t1;
         protected T2 t2;
@@ -50,14 +50,15 @@ namespace SharpPDDL
             return temp;
         }
 
-        internal override Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value, AllParamsOfAct2ClassPos.Value };
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, ParamsIndexesInAction, Key);
             effectLambdaPDDL.Visit(SourceFunc);
-            return effectLambdaPDDL.ModifiedFunct;
+            return null;
+            //return CreateExpression(effectLambdaPDDL.ModifiedFunct);
         }
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)

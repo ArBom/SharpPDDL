@@ -12,12 +12,12 @@ namespace SharpPDDL
 
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        public Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>> ModifiedFunct;
+        public Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ModifiedFunct;
         private readonly int[] ParamsIndexesInAction;
         readonly List<SingleTypeOfDomein> allTypes;
         readonly Expression FuncOutKey = null;
 
-        public EffectLambdaPDDL(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction, uint funcOutKey)
+        public EffectLambdaPDDL(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction, ushort funcOutKey)
         {
             if (allTypes is null)
                 throw new Exception();
@@ -33,7 +33,7 @@ namespace SharpPDDL
 
             this.allTypes = allTypes;
             this.ParamsIndexesInAction = paramsIndexesInAction;
-            this.FuncOutKey = Expression.Constant(funcOutKey, typeof(uint));
+            this.FuncOutKey = Expression.Constant(funcOutKey, typeof(ushort));
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -43,8 +43,8 @@ namespace SharpPDDL
 
             if (_parameters.Count() == 0)
             {
-                //its no sens; its always true or always false
-                throw new Exception();
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>{ Expression.Parameter(typeof(ThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]) };
+                _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 
             //the library use only 1- or 2-Parameter lambdas
@@ -62,24 +62,28 @@ namespace SharpPDDL
                 _parameters = parameters.AsReadOnly();
             }
 
-            Type ResultType = typeof(KeyValuePair<uint, ValueType>);
-            NewExpression expectedTypeExpression = Expression.New(ResultType);
-            PropertyInfo ValuePropertyInfo = ResultType.GetProperty("Value");
-            PropertyInfo KeyPropertyInfo = ResultType.GetProperty("Key");
-            MemberAssignment KeyAssignment = Expression.Bind(KeyPropertyInfo, FuncOutKey);
-            MemberAssignment ValueAssignment = Expression.Bind(ValuePropertyInfo, Visit(node.Body));
-            MemberInitExpression memberInit = Expression.MemberInit(expectedTypeExpression, KeyAssignment, ValueAssignment);
+            var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
+            Expression[] param = { FuncOutKey, Visit(node.Body) };
+            NewExpression expectedTypeExpression = Expression.New(ResultType, param);
+            ModifiedFunct = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, _parameters);
 
-            var ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>(memberInit, _parameters);
-            ModifiedFunct = ModifeidLambda.Compile();
-            return ModifeidLambda;
+            try
+            {
+                _ = ModifiedFunct.Compile();
+            }
+            catch
+            {
+                throw new Exception("New func cannot be compilated.");
+            }
+
+            return ModifiedFunct;
         }
 
         private string NewParamName(string OldNodeName)
         {
             var param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
-            return "o" + index;
+            return ExtensionMethods.LamdbaParamPrefix + index;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
@@ -97,6 +101,9 @@ namespace SharpPDDL
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            if (node.Expression.NodeType == ExpressionType.Constant)
+                return node;
+
             //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example string("Parameter") 
             string memberExpressionName = node.Expression.ToString();
 

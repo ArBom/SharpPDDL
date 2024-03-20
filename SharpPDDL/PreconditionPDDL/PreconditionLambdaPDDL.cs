@@ -11,7 +11,6 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        public Func<ThumbnailObject, ThumbnailObject, bool> ModifiedFunct;
         private readonly List<SingleTypeOfDomein> allTypes;
         private readonly int[] ParamsIndexesInAction;
 
@@ -59,8 +58,17 @@ namespace SharpPDDL
                 _parameters = parameters.AsReadOnly();
             }
 
-            var ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(Visit(node.Body), _parameters);
-            ModifiedFunct = ModifeidLambda.Compile();
+            Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(Visit(node.Body), _parameters);
+
+            try
+            {
+                _ = ModifeidLambda.Compile();
+            }
+            catch
+            {
+                throw new Exception("New func cannot be compilated.");
+            }
+
             return ModifeidLambda;
         }
 
@@ -68,7 +76,7 @@ namespace SharpPDDL
         {
             var param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
-            return "o" + index;
+            return ExtensionMethods.LamdbaParamPrefix + index;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
@@ -86,6 +94,9 @@ namespace SharpPDDL
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            if (node.Expression.NodeType == ExpressionType.Constant)
+                return node;
+
             //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example string("Parameter") 
             string memberExpressionName = node.Expression.ToString();
 

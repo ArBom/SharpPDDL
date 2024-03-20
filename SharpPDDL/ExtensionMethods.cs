@@ -25,5 +25,7 @@ namespace SharpPDDL
 
             return (ToReturnInterfaces, ToReturnBaseTypes, ToReturnAllTypes);
         }
+
+        internal static string LamdbaParamPrefix => "o";
     }
 }

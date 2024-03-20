@@ -78,6 +78,8 @@ namespace User
             Expression<Predicate<D1>> funcY = (d => d.LambdaF());
             Expression<Predicate<D1>> func = (d => d.char2 > 'a' && d.char2 < 'p');
 
+            Expression<Func<D1, ValueType>> ef = (d => d.char1);
+
             //Expression<Action<D1>> block = R => R.char2 = R.char1; //operator przypisania
             /*Expression<Action<D1>> blocko = Expression.Block
             (
@@ -86,6 +88,7 @@ namespace User
             );*/
 
             actionPDDL.AddPrecondiction("fourth", ref d1, func);
+            actionPDDL.AddEffect("Przypisanie", 'v', ref d1, ef);
 
             newDomein.actions.Add(actionPDDL);
             newDomein.CheckActions();

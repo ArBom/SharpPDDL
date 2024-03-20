@@ -24,7 +24,7 @@ namespace SharpPDDL
         /// <returns>
         /// TRUE if so, FALSE if not, NULL if its incorrect
         /// </returns>
-        protected Func<ThumbnailObject, ThumbnailObject, bool> CheckPDDP;
+        protected Expression<Func<ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
 
         /// <summary>
         /// It's check if object(s) fulfil requirement (of this precondition) to do action.
@@ -34,7 +34,7 @@ namespace SharpPDDL
         /// </returns>
         protected Func<dynamic, dynamic, bool> Check;
 
-        internal abstract Func<ThumbnailObject, ThumbnailObject, bool> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
+        internal abstract Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
 
         internal PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 

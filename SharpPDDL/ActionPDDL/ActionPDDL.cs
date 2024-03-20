@@ -13,6 +13,7 @@ namespace SharpPDDL
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
+        internal Delegate InstantActionPDDL { get; private set; }
 
         internal List<SingleType> TakeSingleTypes()
         {
@@ -42,8 +43,6 @@ namespace SharpPDDL
                     }
                 }
             }
-
-            //TODO efekty
 
             return ToRet;
         }
@@ -163,7 +162,7 @@ namespace SharpPDDL
             Preconditions.Add(temp);
         }
 
-        public void AddEffect<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Func<T1, ValueType> destinationMember) where T1 : class 
+        public void AddEffect<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember) where T1 : class 
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
@@ -266,15 +265,22 @@ namespace SharpPDDL
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
+            List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
-                _ = Precondition.BuildCheckPDDP(allTypes, Parameters);
+                Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
+                PrecondidionExpressions.Add(ExpressionOfPrecondition);
             }
 
+            List<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> EffectExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
             foreach (EffectPDDL Effect in Effects)
             {
-                _ = Effect.BuildEffectPDDP(allTypes, Parameters);
+                Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
+                EffectExpressions.Add(ExpressionOfEffect);
             }
+
+            ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
+            InstantActionPDDL = actionLambdaPDDL.InstantFunct;
         }
 
         public ActionPDDL(string Name)

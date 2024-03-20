@@ -125,7 +125,6 @@ namespace SharpPDDL
                                 Content = singleType,
                                 Children = tghu
                             };
-                            //TODO czy nie sa gubione typy (konkretnie pierwszy)
                             foreach (TreeNode<SingleTypeOfDomein> newTypeCh in tghu)
                             {
                                 newTypeCh.Root = newType;
