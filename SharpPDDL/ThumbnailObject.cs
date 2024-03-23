@@ -8,13 +8,21 @@ namespace SharpPDDL
 {
     internal abstract class ThumbnailObject
     {
-        internal ThumbnailObject Parent;
-        internal List<ThumbnailObject> child;
         internal Type OriginalObjType;
         protected Dictionary<ushort, ValueType> Dict;
-        internal string CheckSum;
 
         internal abstract ushort[] ValuesIndeksesKeys { get; }
+
+        public abstract ValueType this[ushort key] { get; }
+    }
+
+    internal abstract class PossibleStateThumbnailObject : ThumbnailObject
+    {
+        internal Type OriginalObjType;
+        internal ThumbnailObject Precursor;
+        internal PossibleStateThumbnailObject Parent;
+        internal List<PossibleStateThumbnailObject> child;
+        internal string CheckSum;
 
         internal void FigureCheckSum()
         {
@@ -34,7 +42,9 @@ namespace SharpPDDL
             }
         }
 
-        public ValueType this[ushort key]
+        //TODO konstructor ze zmianami w słowniku
+
+        public override ValueType this[ushort key]
         {
             // returns value if exists
             get
@@ -44,17 +54,14 @@ namespace SharpPDDL
                 else
                     return Parent[key];
             }
-
-            // updates if exists, adds if doesn't exist
-            set { Dict[key] = value; }
         }
 
         abstract internal void CreateChild(Dictionary<ushort, ValueType> Changes);
     }
 
-    internal class ThumbnailObject<TOriginalObj> : ThumbnailObject where TOriginalObj : class
+    internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {
-        ThumbnailObjectPrecursor<TOriginalObj> Precursor;
+        new ThumbnailObject<TOriginalObj> Precursor;
         new internal ThumbnailObject<TOriginalObj> Parent;
         new internal List<ThumbnailObject<TOriginalObj>> child;
         new internal Type OriginalObjType => Precursor.OriginalObjType;
@@ -85,11 +92,12 @@ namespace SharpPDDL
         }
     }
 
-    internal class ThumbnailObjectPrecursor<TOriginalObj> : ThumbnailObject where TOriginalObj : class
-    {
+    internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
+    {       
         readonly internal TOriginalObj OriginalObj;
         new internal Type OriginalObjType => typeof(TOriginalObj);
         readonly SingleTypeOfDomein Model;
+        new ThumbnailObjectPrecursor<TOriginalObj> Precursor => this;
         protected readonly ushort[] _ValuesIndeksesKeys;
         internal override ushort[] ValuesIndeksesKeys
         {
@@ -101,8 +109,16 @@ namespace SharpPDDL
             this.Parent = null;
             this.OriginalObj = originalObj;
 
-            this.Model = allTypes.Where(t => t.Type == typeof(TOriginalObj)).First();
-            //todo co jak null
+            Type originalObjTypeCand = typeof(TOriginalObj);
+            do
+            {
+                this.Model = allTypes.Where(t => t.Type == originalObjTypeCand).First();
+                originalObjTypeCand = originalObjTypeCand.BaseType;
+            }
+            while (this.Model is null && !(originalObjTypeCand is null));
+
+            if (this.Model is null)
+                throw new Exception();
 
             foreach (ValueOfThumbnail VOT in Model.Values)
             {

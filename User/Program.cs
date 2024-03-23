@@ -90,7 +90,8 @@ namespace User
             actionPDDL.AddPrecondiction("fourth", ref d1, func);
             actionPDDL.AddEffect("Przypisanie", 'v', ref d1, ef);
 
-            newDomein.actions.Add(actionPDDL);
+            newDomein.AddAction(actionPDDL);
+            //newDomein.actions.Add(actionPDDL);
             newDomein.CheckActions();
 
             Console.ReadKey();

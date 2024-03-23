@@ -54,11 +54,11 @@ namespace SharpPDDL
             {
                 string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
                 List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
-                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), NameOfNewOne));
+                parameters.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), NameOfNewOne));
                 _parameters = parameters.AsReadOnly();
             }
 
-            Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(Visit(node.Body), _parameters);
+            Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ModifeidLambda = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>(Visit(node.Body), _parameters);
 
             try
             {
@@ -82,7 +82,7 @@ namespace SharpPDDL
         protected override Expression VisitParameter(ParameterExpression node)
         {
             string NewParamname = NewParamName(node.Name);
-            return Expression.Parameter(typeof(ThumbnailObject), NewParamname);
+            return Expression.Parameter(typeof(PossibleStateThumbnailObject), NewParamname);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -127,7 +127,7 @@ namespace SharpPDDL
             Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
-            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
+            PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
 
             //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
             IndexExpression IndexAccessExpr = Expression.MakeIndex(newParam, TO_indekser, argument);

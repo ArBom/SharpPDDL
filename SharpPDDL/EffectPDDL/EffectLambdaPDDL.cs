@@ -12,7 +12,7 @@ namespace SharpPDDL
 
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        public Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ModifiedFunct;
+        public Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ModifiedFunct;
         private readonly int[] ParamsIndexesInAction;
         readonly List<SingleTypeOfDomein> allTypes;
         readonly Expression FuncOutKey = null;
@@ -43,7 +43,7 @@ namespace SharpPDDL
 
             if (_parameters.Count() == 0)
             {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>{ Expression.Parameter(typeof(ThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]) };
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>{ Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]) };
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 
@@ -58,14 +58,14 @@ namespace SharpPDDL
             {
                 string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
                 List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
-                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), NameOfNewOne));
+                parameters.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), NameOfNewOne));
                 _parameters = parameters.AsReadOnly();
             }
 
             var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
             Expression[] param = { FuncOutKey, Visit(node.Body) };
             NewExpression expectedTypeExpression = Expression.New(ResultType, param);
-            ModifiedFunct = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, _parameters);
+            ModifiedFunct = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, _parameters);
 
             try
             {
@@ -89,7 +89,7 @@ namespace SharpPDDL
         protected override Expression VisitParameter(ParameterExpression node)
         {
             string NewParamname = NewParamName(node.Name);
-            return Expression.Parameter(typeof(ThumbnailObject), NewParamname);
+            return Expression.Parameter(typeof(PossibleStateThumbnailObject), NewParamname);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -134,7 +134,7 @@ namespace SharpPDDL
             Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
-            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
+            PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
 
             //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
             IndexExpression IndexAccessExpr = Expression.MakeIndex(newParam, TO_indekser, argument);

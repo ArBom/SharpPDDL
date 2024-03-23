@@ -265,17 +265,17 @@ namespace SharpPDDL
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
-            List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>>();
+            List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>> PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
-                Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
+                Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
                 PrecondidionExpressions.Add(ExpressionOfPrecondition);
             }
 
-            List<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> EffectExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
+            List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>> EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
             foreach (EffectPDDL Effect in Effects)
             {
-                Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
+                Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
             }
 

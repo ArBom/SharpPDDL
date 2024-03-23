@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace SharpPDDL
 {
@@ -10,7 +12,9 @@ namespace SharpPDDL
     {
         public readonly string Name;
         public TypesPDDL types;
-        public List<ActionPDDL> actions;
+        private List<ActionPDDL> actions;
+        public ObservableCollection<object> domainObjects;
+        internal ObservableCollection<GoalPDDL> domainGoals;
 
         public void CheckActions()
         {
@@ -29,11 +33,38 @@ namespace SharpPDDL
             }
         }
 
-        public DomeinPDDL (string name)
+        private void CheckExistActionName(string Name)
+        {
+            if (String.IsNullOrEmpty(Name))
+                throw new Exception(); //is null or empty
+
+            if (this.actions.Exists(action => action.Name == Name))
+                throw new Exception(); //juz istnieje efekt o takiej nazwie
+        }
+
+        public void AddAction(ActionPDDL newAction)
+        {
+            CheckExistActionName(newAction.Name);
+            this.actions.Add(newAction);
+        }
+
+        public DomeinPDDL (string name, ICollection<ActionPDDL> actions = null)
         {
             this.Name = name;
             this.types = new TypesPDDL();
             this.actions = new List<ActionPDDL>();
+
+            this.domainObjects = new ObservableCollection<object>();
+            this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
+
+            if (!(actions is null))
+                foreach (ActionPDDL actionPDDL in actions)
+                    this.AddAction(actionPDDL);
+        }
+
+        private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)
+        {
+            //Console.WriteLine("You cannot change the object collection at this verson.");
         }
     }
 

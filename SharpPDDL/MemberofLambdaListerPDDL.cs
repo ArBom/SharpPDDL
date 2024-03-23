@@ -58,6 +58,23 @@ namespace SharpPDDL
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
 
+            //Find parameter with memberExpressionName name...
+            ParameterExpression t = _parameters.First(p => p.Name == memberExpressionName);
+
+            if (t is null)
+                //there is no argument -> something went wrong
+                throw new Exception();
+
+            //...take index of it from all _parameters list...
+            int index = _parameters.IndexOf(t);
+
+            //...check is it already added...
+            if (!used[index].Contains(MemberName))
+                //...if not add it.
+                used[index].Add(MemberName);
+
+            return node;
+
             //adding expression in use to the list using value and take new parameter
             //check is it use in 0th parameter...
             if (memberExpressionName == _parameters[0].Name)
@@ -76,10 +93,9 @@ namespace SharpPDDL
                     used[1].Add(MemberName);
             }
             else
-                //there is no more arguments -> something went wrong
-                throw new Exception();
+                return node;
 
-            return node;
+
         }
     }
 }

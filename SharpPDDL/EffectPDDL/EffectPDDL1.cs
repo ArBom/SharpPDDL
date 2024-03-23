@@ -22,15 +22,15 @@ namespace SharpPDDL
             this.t1 = obj1;
         }
 
-        internal override Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             CompleteClassPos(Parameters); //TODO uwzględnić AllParamsOfAct1ClassPos w func
             Expression<Func<ValueType>> toRet = () => newValue;
             int[] paramss = { AllParamsOfAct1ClassPos.Value };
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, paramss, Key);
-            _ = (Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.Visit(toRet);
-            var modifed = (Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.ModifiedFunct;
+            _ = (Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.Visit(toRet);
+            var modifed = (Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>)effectLambdaPDDL.ModifiedFunct;
 
             return modifed;
         }

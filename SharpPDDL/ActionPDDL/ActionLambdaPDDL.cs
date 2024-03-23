@@ -15,17 +15,17 @@ namespace SharpPDDL
         public readonly Delegate InstantFunct;
         public readonly LambdaExpression WholeFunc;
 
-        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
         // Parameters below
             List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
             List<ParameterExpression> TempParams = new List<ParameterExpression>();
             for (int i = 0; i != parameters.Count; i++)
             {
-                ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString());
                 TempParams.Add(CurrentPar);
 
-                var key = typeof(ThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObjType");
+                var key = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObjType");
                 var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, key);
                 var ConType = Expression.Constant(parameters[i].Type, typeof(Type));
                 var ISCorrectType = Expression.Equal(ThObOryginalType, ConType);                                                            //TODO dziedziczenie z drzewka trzeba uwzglednic kiedyś
