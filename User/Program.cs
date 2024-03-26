@@ -56,6 +56,8 @@ namespace User
     {
         static void Main(string[] args)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             DomeinPDDL newDomein = new DomeinPDDL("nowa");
 
             Func<C1, B2, bool> TheSame = (x, y) => x.v == y.v;
@@ -93,6 +95,10 @@ namespace User
             newDomein.AddAction(actionPDDL);
             //newDomein.actions.Add(actionPDDL);
             newDomein.CheckActions();
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("Time in millis: "+ elapsedMs);
 
             Console.ReadKey();
         }
