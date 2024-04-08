@@ -14,6 +14,7 @@ namespace SharpPDDL
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         internal Delegate InstantActionPDDL { get; private set; }
+        internal int InstantActionParamCount { get; private set; }
 
         internal List<SingleType> TakeSingleTypes()
         {
@@ -25,7 +26,11 @@ namespace SharpPDDL
                 SingleType singleType = null;
 
                 if (ToRet.Count != 0)
-                    singleType = ToRet.Where(sT => sT.Type == parametr.Type)?.First();
+                {
+                    var singleTypes = ToRet.Where(sT => sT.Type == parametr.Type);
+                    if (singleTypes.Count() != 0)
+                        singleType = singleTypes.First();
+                }
 
                 if (singleType is null)
                 {
@@ -177,14 +182,14 @@ namespace SharpPDDL
                     continue;
 
                 parametr.values.First(v => v.Name == temp.DestinationMemberName).IsInUse = true;
-
+                parametr.UsedInEffect = true;
                 break;
             }
 
             Effects.Add(temp);
         }
 
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> DestinationMember) where T1 : class where T2 : class
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember) where T1 : class where T2 : class
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
@@ -201,7 +206,7 @@ namespace SharpPDDL
                     continue;
 
                 parametr.values.First(v => v.Name == temp.DestinationMemberName).IsInUse = true;
-
+                parametr.UsedInEffect = true;
                 break;
             }
 
@@ -217,6 +222,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers2Class)
                     parametr.values.First(v => v.Name == valueName).IsInUse = true;
 
+                parametr.UsedInEffect = true;
                 break;
             }
 
@@ -242,6 +248,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                     parametr.values.First(v => v.Name == valueName).IsInUse = true;
 
+                parametr.UsedInEffect = true;
                 break;
             }
 
@@ -257,6 +264,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers2Class)
                     parametr.values.First(v => v.Name == valueName).IsInUse = true;
 
+                parametr.UsedInEffect = true;
                 break;
             }
 
@@ -281,6 +289,7 @@ namespace SharpPDDL
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
+            InstantActionParamCount = Parameters.Count;
         }
 
         public ActionPDDL(string Name)

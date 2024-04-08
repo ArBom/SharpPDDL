@@ -6,7 +6,13 @@ namespace SharpPDDL
 {
     internal class PossibleState
     {
-        List<ThumbnailObject> ThumbnailObjects;
-        List<ThumbnailObject> ChangedThumbnailObjects;
+        internal List<PossibleStateThumbnailObject> ThumbnailObjects;
+        internal List<PossibleStateThumbnailObject> ChangedThumbnailObjects;
+
+        internal PossibleState()
+        {
+            ThumbnailObjects = new List<PossibleStateThumbnailObject>();
+        }
+
     }
 }

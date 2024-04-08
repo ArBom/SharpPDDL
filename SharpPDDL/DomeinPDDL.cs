@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace SharpPDDL
 {
-    public class DomeinPDDL
+    public partial class DomeinPDDL
     {
         public readonly string Name;
         public TypesPDDL types;
         private List<ActionPDDL> actions;
+        internal Crisscross<PossibleState> states;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
+        private Task TaskRealization;
 
-        public void CheckActions()
+        internal void CheckActions()
         {
-            //taking types from actions to types
+            this.types = new TypesPDDL();
             foreach (ActionPDDL act in actions)
             {
                 types.CompleteTypes(act.TakeSingleTypes());
             }
 
             types.CreateTypesTree();
-            types.CompleteValuesIndekses();
 
             foreach (ActionPDDL act in actions)
             {
@@ -51,8 +53,8 @@ namespace SharpPDDL
         public DomeinPDDL (string name, ICollection<ActionPDDL> actions = null)
         {
             this.Name = name;
-            this.types = new TypesPDDL();
             this.actions = new List<ActionPDDL>();
+            this.TaskRealizationCTS = new CancellationTokenSource();
 
             this.domainObjects = new ObservableCollection<object>();
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
@@ -64,7 +66,12 @@ namespace SharpPDDL
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)
         {
-            //Console.WriteLine("You cannot change the object collection at this verson.");
+            foreach (dynamic Obj in eventType.NewItems)
+            {
+                if (!(Obj.GetType().IsClass))
+                    throw new Exception();
+            }
+
         }
     }
 
@@ -81,7 +88,12 @@ namespace SharpPDDL
                 SingleTypeOfDomein SingleTypeInList = null;
 
                 if (allTypes.Count != 0)
-                    SingleTypeInList = allTypes.First(st => st.Type == singleType.Type);
+                {
+                    var SingleTypeInLists = allTypes.Where(st => st.Type == singleType.Type);
+                    if (SingleTypeInLists.Count() != 0)
+                        SingleTypeInList = SingleTypeInLists.First();
+
+                }
 
                 if (SingleTypeInList is null)
                 {
@@ -102,14 +114,28 @@ namespace SharpPDDL
         internal void CompleteValuesIndekses()
         {
             #region NestedVoid
+            void ChangeAtChildren(TreeNode<SingleTypeOfDomein> node, ValueOfThumbnail childValue, ushort ValuesIndeksCount)
+            {
+                node.Content.CumulativeValues.First(v => v.Name == childValue.Name).ValueOfIndexesKey = ValuesIndeksCount;
+
+                foreach (var ch in node.Children)
+                {
+                    ChangeAtChildren(ch, childValue, ValuesIndeksCount);
+                }
+            }
+
             void CompleteValues(TreeNode<SingleTypeOfDomein> node)
             {
                 if (!(node.Content is null))
                 {
                     foreach (ValueOfThumbnail childValue in node.Content.Values)
                     {
+                        if (node.Content.CumulativeValues.Any(cv => cv.Name == childValue.Name && cv.ValueOfIndexesKey != 0))
+                            continue;
+
                         ValuesIndeksCount++;
                         childValue.ValueOfIndexesKey = ValuesIndeksCount;
+                        ChangeAtChildren(node, childValue, ValuesIndeksCount);
                     }
                 }
 
@@ -129,44 +155,61 @@ namespace SharpPDDL
             #region NestedVoids
             void GetBranchRight(TreeNode<SingleTypeOfDomein> root)
             {
-                for (int i = 0; i < root.Children.Count(); i++) //dla kazdego el. na liscie korzenia
+                for (int i = 0; i < root.Children.Count(); i++) //for every element at root's list...
                 {
-                    var types = root.Children[i].Content.Type.InheritedTypes().Types; //pobierz typy
-                    int j = types.Count()-1;
+                    var types = root.Children[i].Content.Type.InheritedTypes().Types; //...take inherited types
+                    int currentTypesArg = 0;
+                    int maxTypesArg = types.Count()-1; //Create argument for read the list
 
-                    if (!(root.Content is null))
-                        while(types[j] != root.Content.Type)
+                    if (!(root.Content is null)) //find argument for last mutual ancistor (with root)
+                        while(types[currentTypesArg] != root.Content.Type)
                         {
-                            --j;
-                            if (j<0)
-                                new Exception();
+                            currentTypesArg++;
+                            if (types[currentTypesArg] == typeof(object))
+                                break;
                         }
 
-                    List<TreeNode<SingleTypeOfDomein>> ty = root.Children.GetRange(i, root.Children.Count() - i);
+                    List<TreeNode<SingleTypeOfDomein>> UncheckedYetRootCh = root.Children.GetRange(i, root.Children.Count() - i); //every else elements from root's list put to new list
 
-                    while (j != 0)
+                    for (currentTypesArg++; currentTypesArg <= maxTypesArg; currentTypesArg++)
                     {
-                        List<TreeNode<SingleTypeOfDomein>> tghu = ty.Where(t => t.Content.Type == types[j])?.ToList();
-                        if (tghu.Count() != 0)
+                        Type findedType = types[currentTypesArg];
+                        List<TreeNode<SingleTypeOfDomein>> littermate = UncheckedYetRootCh.Where(U => U.Content.Type.InheritedTypes().Types.Contains(findedType)).ToList();
+
+                        if (littermate.Count() > 1)
                         {
-                            SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[j], root.Content.Values);
-                            TreeNode<SingleTypeOfDomein> newType = new TreeNode<SingleTypeOfDomein>()
+                            TreeNode<SingleTypeOfDomein> newType;
+
+                            if (littermate.Any(l=>l.Content.Type == types[currentTypesArg]))
                             {
-                                Root = root,
-                                Content = singleType,
-                                Children = tghu
-                            };
-                            foreach (TreeNode<SingleTypeOfDomein> newTypeCh in tghu)
-                            {
-                                newTypeCh.Root = newType;
-                                ty.Remove(newTypeCh);
+                                newType = littermate.First(l => l.Content.Type == types[currentTypesArg]);
                             }
-                           
-                            root.Children[i] = newType;
+                            else
+                            {
+                                SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<ValueOfThumbnail>()); //TODO lista
+
+                                newType = new TreeNode<SingleTypeOfDomein>()
+                                {
+                                    Root = root,
+                                    Content = singleType,
+                                };
+
+                                root.Children.Add(newType);
+                            }
+
+                            foreach (var l in littermate)
+                            {
+                                if (l == newType)
+                                    continue;
+
+                                l.Root = newType;
+                                newType.Children.Add(l);
+                                root.Children.Remove(l);
+                            }
+
                             GetBranchRight(newType);
                             break;
                         }
-                        --j;
                     }
                 }
             }
@@ -176,19 +219,21 @@ namespace SharpPDDL
                 if (node.Children.Count == 0)
                     return;
 
+                //take number of node's content inhered types
                 int NumbofValueInherNodeTypes = node.Content is null ? 0 : node.Content.Type.InheritedTypes().Types.Count;
+                //take members of node's content
                 var NodeMembers = node.Content?.Type.GetMembers().Where(memb => (memb.MemberType == MemberTypes.Field || memb.MemberType == MemberTypes.Property));
 
                 for (int a = 0; a < node.Children.Count; ++a)
                 {
-                    PopulateInheritedTypes(node.Children[a]);
-
+                    //take number of child's content inhered types
                     int NumbofValueInherChildTypes = node.Children[a].Content.Type.InheritedTypes().Types.Count;
                     TreeNode<SingleTypeOfDomein> AnalysedNode = node.Children[a];
 
-                    while (NumbofValueInherNodeTypes != NumbofValueInherChildTypes + 1)
+                    while (NumbofValueInherNodeTypes + 1 != NumbofValueInherChildTypes)
                     {
-                        Type TypeUp = AnalysedNode.Content.Type.BaseType;
+                        Type TypeUp = AnalysedNode.Content is null? null : AnalysedNode.Content.Type.BaseType;
+                        Type TypeUp2 = AnalysedNode.Content.Type.BaseType;
                         List<(ValueOfThumbnail m, string Name)> AnalysedNodeValuesTuple = AnalysedNode.Content.Values.Select(m => (m, m.Name)).ToList();
                         List<ValueOfThumbnail> newSingleTypeMembers = TypeUp.GetMembers().Select(mtmember => AnalysedNodeValuesTuple.FirstOrDefault(anvt => (anvt.Name == mtmember.Name && (mtmember.MemberType == MemberTypes.Field || mtmember.MemberType == MemberTypes.Property ))))?.Where(el => !(el.m is null)).Select(el => el.m).ToList();
 
@@ -210,6 +255,9 @@ namespace SharpPDDL
                         if (NumbofValueInherChildTypes == 0)
                             break;
                     }
+
+                    if (node.Content is null)
+                        continue;
 
                     for(int ValueCount = node.Children[a].Content.Values.Count - 1; ValueCount >= 0; --ValueCount )
                     {
@@ -239,7 +287,11 @@ namespace SharpPDDL
                     node.Content.CumulativeValues = new List<ValueOfThumbnail>(node.Content.Values);
 
                 if (node.Root?.Content != null)
-                    node.Content.CumulativeValues.AddRange(node.Root.Content.CumulativeValues);
+                {
+                    node.Content.CumulativeValues = new List<ValueOfThumbnail>(node.Root.Content.CumulativeValues);
+                    var newValues = node.Content.Values.Where(v => !node.Content.CumulativeValues.Any(cv => cv.Name == v.Name));
+                    node.Content.CumulativeValues.AddRange(newValues);
+                }
 
                 foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                     CumulateValues(child);
@@ -273,9 +325,13 @@ namespace SharpPDDL
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);
             CumulateValues(Root);
+            CompleteValuesIndekses();
 
             this.allTypes = new List<SingleTypeOfDomein>();
             MoveNodesToList(Root, allTypes);
+
+            foreach (var elem in allTypes)
+                elem.CreateValuesKeys();
         }
     }
 }

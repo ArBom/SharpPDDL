@@ -19,7 +19,7 @@ namespace SharpPDDL
         public SingleType(Type type, IReadOnlyList<Value> values)
         {
             this.Type = type;
-            this.Values =new List<Value>();
+            this.Values = new List<Value>();
 
             MemberInfo[] AllTypeMembers = type.GetMembers();
 

@@ -9,7 +9,7 @@ namespace SharpPDDL
     internal abstract class ThumbnailObject
     {
         internal Type OriginalObjType;
-        protected Dictionary<ushort, ValueType> Dict;
+        internal Dictionary<ushort, ValueType> Dict;
 
         internal abstract ushort[] ValuesIndeksesKeys { get; }
 
@@ -17,7 +17,7 @@ namespace SharpPDDL
     }
 
     internal abstract class PossibleStateThumbnailObject : ThumbnailObject
-    {
+    {     
         internal Type OriginalObjType;
         internal ThumbnailObject Precursor;
         internal PossibleStateThumbnailObject Parent;
@@ -26,8 +26,9 @@ namespace SharpPDDL
 
         internal void FigureCheckSum()
         {
-            string MD5input = String.Empty;
+            string MD5input = "";
 
+            //TODO
             for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
             {
                 MD5input = MD5input + ValuesIndeksesKeys[arrayCounter].ToString() + ";";
@@ -38,11 +39,9 @@ namespace SharpPDDL
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
-                CheckSum = Convert.ToBase64String(hashBytes);
+                CheckSum = Convert.ToBase64String(hashBytes).Substring(0,4);
             }
         }
-
-        //TODO konstructor ze zmianami w słowniku
 
         public override ValueType this[ushort key]
         {
@@ -62,7 +61,6 @@ namespace SharpPDDL
     internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {
         new ThumbnailObject<TOriginalObj> Precursor;
-        new internal ThumbnailObject<TOriginalObj> Parent;
         new internal List<ThumbnailObject<TOriginalObj>> child;
         new internal Type OriginalObjType => Precursor.OriginalObjType;
 
@@ -95,7 +93,7 @@ namespace SharpPDDL
     internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {       
         readonly internal TOriginalObj OriginalObj;
-        new internal Type OriginalObjType => typeof(TOriginalObj);
+        new internal Type OriginalObjType => OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
         new ThumbnailObjectPrecursor<TOriginalObj> Precursor => this;
         protected readonly ushort[] _ValuesIndeksesKeys;
@@ -104,12 +102,13 @@ namespace SharpPDDL
             get { return Model.ValuesKeys; }
         }
 
-        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes)
+        public ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
             this.OriginalObj = originalObj;
+            this.Dict = new Dictionary<ushort, ValueType>();
 
-            Type originalObjTypeCand = typeof(TOriginalObj);
+            Type originalObjTypeCand = originalObj.GetType();
             do
             {
                 this.Model = allTypes.Where(t => t.Type == originalObjTypeCand).First();
@@ -120,7 +119,7 @@ namespace SharpPDDL
             if (this.Model is null)
                 throw new Exception();
 
-            foreach (ValueOfThumbnail VOT in Model.Values)
+            foreach (ValueOfThumbnail VOT in Model.CumulativeValues)
             {
                 ValueType value;
 
@@ -129,18 +128,18 @@ namespace SharpPDDL
                     FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
 
                     if (myFieldInfo is null)
-                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Public | BindingFlags.Instance);
+                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
 
-                    value = (ValueType)myFieldInfo.GetValue(myFieldInfo);
+                    value = (ValueType)myFieldInfo.GetValue(OriginalObj);
                 }
                 else
                 {
                     PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
 
                     if (propertyInfo is null)
-                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Public | BindingFlags.Instance);
+                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
 
-                    value = (ValueType)propertyInfo.GetValue(propertyInfo);
+                    value = (ValueType)propertyInfo.GetValue(OriginalObj);
                 }
 
                 Dict.Add(VOT.ValueOfIndexesKey, value);
@@ -173,7 +172,25 @@ namespace SharpPDDL
 
         internal override void CreateChild(Dictionary<ushort, ValueType> Changes)
         {
-            throw new NotImplementedException();
+            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
+            {
+                Precursor = this.Precursor,
+                Parent = this,
+                Dict = Changes,
+                child = new List<ThumbnailObject<TOriginalObj>>()
+            };
+
+            if (Changes.Count != 0)
+            {
+                foreach (var update in Changes)
+                    NewChild.Dict[update.Key] = update.Value;
+
+                NewChild.FigureCheckSum();
+            }
+            else
+                NewChild.CheckSum = this.CheckSum;
+
+            this.child.Add(NewChild);
         }
     }
 }

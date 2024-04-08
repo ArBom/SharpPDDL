@@ -38,14 +38,14 @@ namespace SharpPDDL
                 CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
 
         // Preconditions below
-            List<BinaryExpression> ChecksPrecondition = new List<BinaryExpression>();
+            List<Expression> ChecksPrecondition = new List<Expression>();
             foreach (var preconditionPDDL in preconditions)
             {
-                var preconditionWithNewParam = (BinaryExpression)VisitLambda(preconditionPDDL);
+                var preconditionWithNewParam = VisitLambda(preconditionPDDL);
                 ChecksPrecondition.Add(preconditionWithNewParam);
             }
 
-            BinaryExpression CheckAllPreco = ChecksPrecondition[0];
+            Expression CheckAllPreco = ChecksPrecondition[0];
             for (int a = 1; a != ChecksParam.Count; a++)
                 CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
 

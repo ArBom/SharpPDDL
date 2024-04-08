@@ -19,7 +19,7 @@ namespace User
         public char char1;
         public int char2;
 
-        public int Inti (string a)
+        public int Inti(string a)
         {
             return 100;
         }
@@ -40,7 +40,7 @@ namespace User
             return true;
         }
 
-        public Action<D1> ase = ((d) => 
+        public Action<D1> ase = ((d) =>
         {
             d.char1 = 'a';
             d.char2 = 'b';
@@ -51,7 +51,6 @@ namespace User
 
     class E1 : D1
     { }
-
     class Program
     {
         static void Main(string[] args)
@@ -94,11 +93,15 @@ namespace User
 
             newDomein.AddAction(actionPDDL);
             //newDomein.actions.Add(actionPDDL);
-            newDomein.CheckActions();
+            //newDomein.CheckActions();
 
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine("Time in millis: "+ elapsedMs);
+            Console.WriteLine("Time in millis: " + elapsedMs);
+
+            C1 testC1 = new C1();
+            newDomein.domainObjects.Add(testC1);
+            newDomein.Start();
 
             Console.ReadKey();
         }

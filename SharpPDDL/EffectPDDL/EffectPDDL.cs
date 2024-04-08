@@ -22,9 +22,9 @@ namespace SharpPDDL
             return new EffectPDDL1<T1>(Name, newValue_Static, ref destinationObj, destinationMember);
         }
 
-        internal static EffectPDDL Instance<T1,T2>(string Name, ref T1 sourceObj1, Func<T1, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> destinationMember) where T1 : class where T2 : class
+        internal static EffectPDDL Instance<T1,T2>(string Name, ref T1 sourceObj1, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> destinationMember) where T1 : class where T2 : class
         {
-            return new EffectPDDL2<T1, T2>(Name, ref sourceObj1, CreateExpression(Source), ref DestinationObj, CreateExpression(destinationMember));
+            return new EffectPDDL2<T1, T2>(Name, ref sourceObj1, Source, ref DestinationObj, destinationMember);
         }
 
         internal static EffectPDDL Instance<T1, T2>(string Name, ref T1 sourceObj1, Func<T1, T2, ValueType> Source, ref T2 DestinationObj, Func<T2, ValueType> destinationMember) where T1 : class where T2 : class

@@ -74,28 +74,6 @@ namespace SharpPDDL
                 used[index].Add(MemberName);
 
             return node;
-
-            //adding expression in use to the list using value and take new parameter
-            //check is it use in 0th parameter...
-            if (memberExpressionName == _parameters[0].Name)
-            {
-                //...if so check is it already added...
-                if (!used[0].Contains(MemberName))
-                    //...if not add it.
-                    used[0].Add(MemberName);
-            }
-            //check is it use in 1th parameter
-            else if (memberExpressionName == _parameters[1].Name)                                                           //TODO tutaj może się odwoływać poza tablice!!!!
-            {
-                //...if so check is it already added...
-                if (!used[1].Contains(MemberName))
-                    //...if not add it.
-                    used[1].Add(MemberName);
-            }
-            else
-                return node;
-
-
         }
     }
 }
