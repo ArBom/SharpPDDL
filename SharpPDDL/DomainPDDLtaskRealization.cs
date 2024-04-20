@@ -23,7 +23,7 @@ namespace SharpPDDL
 
             PossibleState possibleState = new PossibleState();
             var locker = new object();
-            Parallel.ForEach
+            /*Parallel.ForEach
             (
                 domainObjects,
                 options,
@@ -41,18 +41,18 @@ namespace SharpPDDL
                         possibleState.ThumbnailObjects.AddRange(Sublist);
                     }
                 }
-            );
+            );*/
 
-            /*foreach (var ob in domainObjects)
+            foreach (var ob in domainObjects)
             {
                 ThumbnailObjectPrecursor<dynamic> k = new ThumbnailObjectPrecursor<dynamic>(ob, types.allTypes);
                 possibleState.ThumbnailObjects.Add(k);
-            }*/
+            }
 
             states = new Crisscross<PossibleState>();
             states.Content = possibleState;
 
-
+            TryAction(states.Content, 1);
 
             //Realizationpp.Start();
         }
@@ -66,18 +66,19 @@ namespace SharpPDDL
             #region nestedVoid
             void CheckVariationsNoRepetitions(int index)
             {
+                List<PossibleStateThumbnailObject> temperaryList = new List<PossibleStateThumbnailObject>(stateToCheck.ThumbnailObjects);
                 if (index >= ActParCount)
                 {
-                    var poi = actions[actionPos].InstantActionPDDL.Method.Invoke(null, arr);
+                    var iop = actions[actionPos].InstantActionPDDL.DynamicInvoke(arr);
                 }
                 else
                 {
                     for (int i = index; i < ThObjCount; i++)
                     {
-                        arr[index] = stateToCheck.ThumbnailObjects[i];
-                        Swap(stateToCheck.ThumbnailObjects[i], stateToCheck.ThumbnailObjects[index]);
+                        arr[index] = temperaryList[i];
+                        Swap(temperaryList[i], temperaryList[index]);
                         CheckVariationsNoRepetitions(index + 1);
-                        Swap(stateToCheck.ThumbnailObjects[i], stateToCheck.ThumbnailObjects[index]);
+                        Swap(temperaryList[i], temperaryList[index]);
                     }
                 }
             }
@@ -96,10 +97,6 @@ namespace SharpPDDL
             CheckVariationsNoRepetitions(0);
         }
 
-        private Task Realizationpp = Task.Run(() =>
-        {
-
-        });
 
     }
 }

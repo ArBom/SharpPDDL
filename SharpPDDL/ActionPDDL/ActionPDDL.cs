@@ -60,6 +60,9 @@ namespace SharpPDDL
 
         public void AddAssignedParametr<T>(ref T destination) where T : class
         {
+            //if (typeof(T).IsAbstract)
+              //  destination = new object();
+
             if (destination is null)
                 destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
 

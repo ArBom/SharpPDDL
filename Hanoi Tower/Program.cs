@@ -13,17 +13,7 @@ namespace Hanoi_Tower
             public class HanoiObj //Sorry it cannot be abstract
             {
                 public int HanoiObjSizeUpSide = 0;
-                private bool _IsEmptyUpSide = false;
-                public bool IsEmptyUpSide
-                {
-                    get { return _IsEmptyUpSide; }
-                    set
-                    {
-                        _IsEmptyUpSide = value;
-                        if (!value)
-                            HanoiObjSizeUpSide = 0;
-                    }
-                }
+                public bool IsEmptyUpSide;
             }
 
             public class HanoiBrick : HanoiObj
@@ -89,7 +79,7 @@ namespace Hanoi_Tower
 
                 List<HanoiBrick> HanoiBricks = new List<HanoiBrick>();
 
-                int MaxBriSize = 5;
+                int MaxBriSize = 1;
                 for (int Bri = 1; Bri <= MaxBriSize; Bri++)
                 {
                     HanoiBrick newOne = new HanoiBrick(Bri);

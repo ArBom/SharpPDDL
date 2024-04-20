@@ -16,6 +16,7 @@ namespace SharpPDDL
         }
 
         GoalPriority goalPriority;
+        Type OriginalObjType;
         internal override ushort[] ValuesIndeksesKeys => throw new NotImplementedException();
         Expression<Predicate<PossibleStateThumbnailObject>> CheckGoal;
 

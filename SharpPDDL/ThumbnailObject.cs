@@ -17,8 +17,9 @@ namespace SharpPDDL
     }
 
     internal abstract class PossibleStateThumbnailObject : ThumbnailObject
-    {     
-        internal Type OriginalObjType;
+    {
+        internal abstract object OriginalObj { get; }
+        internal abstract Type OriginalObjType { get; }
         internal ThumbnailObject Precursor;
         internal PossibleStateThumbnailObject Parent;
         internal List<PossibleStateThumbnailObject> child;
@@ -60,9 +61,10 @@ namespace SharpPDDL
 
     internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {
+        internal override object OriginalObj { get { return Precursor.OriginalObj; } }
         new ThumbnailObject<TOriginalObj> Precursor;
         new internal List<ThumbnailObject<TOriginalObj>> child;
-        new internal Type OriginalObjType => Precursor.OriginalObjType;
+        internal override Type OriginalObjType { get { return Precursor.OriginalObjType; } }
 
         internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
 
@@ -92,8 +94,8 @@ namespace SharpPDDL
 
     internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {       
-        readonly internal TOriginalObj OriginalObj;
-        new internal Type OriginalObjType => OriginalObj.GetType();
+        new readonly internal TOriginalObj _OriginalObj;
+        internal override Type OriginalObjType => _OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
         new ThumbnailObjectPrecursor<TOriginalObj> Precursor => this;
         protected readonly ushort[] _ValuesIndeksesKeys;
@@ -102,10 +104,12 @@ namespace SharpPDDL
             get { return Model.ValuesKeys; }
         }
 
+        internal override object OriginalObj { get { return this._OriginalObj; } }
+
         public ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
-            this.OriginalObj = originalObj;
+            this._OriginalObj = originalObj;
             this.Dict = new Dictionary<ushort, ValueType>();
 
             Type originalObjTypeCand = originalObj.GetType();
