@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SharpPDDL
 {
@@ -52,24 +53,49 @@ namespace SharpPDDL
             states = new Crisscross<PossibleState>();
             states.Content = possibleState;
 
-            TryAction(states.Content, 1);
+            TryAction(states, 1);
 
             //Realizationpp.Start();
         }
 
-        private void TryAction(PossibleState stateToCheck, int actionPos)
+        private void TryAction(Crisscross<PossibleState> stateToCheck, int actionPos)
         {
-            int ThObjCount = stateToCheck.ThumbnailObjects.Count;
+            if (stateToCheck.CheckedAction is null)
+                return;
+
+            if (stateToCheck.CheckedAction.Contains(actionPos))
+                return;
+
+            int ThObjCount = stateToCheck.Content.ThumbnailObjects.Count;
             int ActParCount = actions[actionPos].InstantActionParamCount;
             PossibleStateThumbnailObject[] arr = new PossibleStateThumbnailObject[ActParCount];
 
             #region nestedVoid
             void CheckVariationsNoRepetitions(int index)
             {
-                List<PossibleStateThumbnailObject> temperaryList = new List<PossibleStateThumbnailObject>(stateToCheck.ThumbnailObjects);
+                List<PossibleStateThumbnailObject> temperaryList = new List<PossibleStateThumbnailObject>(stateToCheck.Content.ThumbnailObjects);
                 if (index >= ActParCount)
                 {
-                    var iop = actions[actionPos].InstantActionPDDL.DynamicInvoke(arr);
+                    var result = (List<List<KeyValuePair<ushort, ValueType>>>)actions[actionPos].InstantActionPDDL.DynamicInvoke(arr);
+
+                    //Check is it create new Possible State
+                    if (result.Count == 0)
+                        return;
+
+                    List<PossibleStateThumbnailObject> UpdatedPossStThOb = new List<PossibleStateThumbnailObject>();
+                    int[] ActionArg = new int[ActParCount];
+                    for(int ArgPosFinder = 0; ArgPosFinder != ActParCount; ArgPosFinder++)
+                    {
+                        int indexOfEl = stateToCheck.Content.ThumbnailObjects.IndexOf(arr[ArgPosFinder]);
+                        ActionArg[ArgPosFinder] = indexOfEl;
+                        PossibleStateThumbnailObject UpdatedOb = stateToCheck.Content.ThumbnailObjects[indexOfEl].CreateChild(result[ArgPosFinder].ToDictionary(x => x.Key, x => x.Value));
+                        UpdatedPossStThOb.Add(UpdatedOb);
+                    }
+
+                    PossibleState newPossibleState = new PossibleState();
+                    newPossibleState.ChangedThumbnailObjects = UpdatedPossStThOb;
+
+                    stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost);                  
                 }
                 else
                 {
@@ -95,8 +121,7 @@ namespace SharpPDDL
                 return;
 
             CheckVariationsNoRepetitions(0);
+            stateToCheck.CheckedAction.Add(actionPos);
         }
-
-
     }
 }

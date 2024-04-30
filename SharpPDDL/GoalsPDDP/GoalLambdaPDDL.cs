@@ -8,40 +8,45 @@ namespace SharpPDDL
 {
     class GoalLambdaPDDL<T1> : ExpressionVisitor where T1 : class
     {
-        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "PossibleThumbnailObject");
+        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "ToCheckParam");
         readonly Type OryginalObjectType;
         readonly T1 OryginalObject;
         private readonly List<SingleTypeOfDomein> allTypes;
         Expression CheckingTheParametr;
-        Expression<Predicate<PossibleStateThumbnailObject>> ModifeidLambda;
+        internal LambdaExpression ModifeidLambda; //TODO to skończyć
+        List<Expression<Predicate<T1>>> GoalExpectations;
 
-        public GoalLambdaPDDL(T1 oryginalObject, List<SingleTypeOfDomein> allTypes)
+        public GoalLambdaPDDL(List<Expression<Predicate<T1>>> GoalExpectations, T1 oryginalObject, List<SingleTypeOfDomein> allTypes)
         {
             this.allTypes = allTypes;
             this.OryginalObjectType = typeof(T1);
             this.OryginalObject = oryginalObject;
+            this.GoalExpectations = GoalExpectations;
             CheckConstructorParam();
             CheckingTheParametr = CheckingTheParametrsEquals();
+            CheckPredicates(GoalExpectations);
         }
 
         protected Expression CheckingTheParametrsEquals()
         {
             FieldInfo keyOfPrecursor = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "Precursor");
             MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfPrecursor);
-
             FieldInfo keyOfOriginalObj = typeof(ThumbnailObjectPrecursor<T1>).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObj");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(ThObPrecursor, keyOfOriginalObj);
+            MemberExpression ThObOryginal = Expression.MakeMemberAccess(ThObPrecursor, keyOfOriginalObj);
 
             ConstantExpression ConType = Expression.Constant(OryginalObject, typeof(T1));
-            return Expression.Equal(ThObOryginalType, ConType);
+
+            return Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConType, ThObOryginal);
         }
 
-        public GoalLambdaPDDL(Type oryginalObjectType, List<SingleTypeOfDomein> allTypes)
+        public GoalLambdaPDDL(List<Expression<Predicate<T1>>> GoalExpectations, List<SingleTypeOfDomein> allTypes)
         {
             this.allTypes = allTypes;
-            this.OryginalObjectType = oryginalObjectType;
+            this.OryginalObjectType = typeof(T1);
+            this.GoalExpectations = GoalExpectations;
             CheckConstructorParam();
             CheckingTheParametr = CheckingTheParametrType();
+            CheckPredicates(GoalExpectations);
         }
 
         protected Expression CheckingTheParametrType()
@@ -49,7 +54,7 @@ namespace SharpPDDL
             FieldInfo key = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObjType");
             MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, key);
             ConstantExpression ConType = Expression.Constant(OryginalObjectType, typeof(Type));
-            return Expression.Equal(ThObOryginalType, ConType);
+            return Expression.Call(ThObOryginalType, typeof(Type).GetMethod("IsAssignableFrom", new Type[] { typeof(Type) }), ConType);
         }
 
         protected void CheckConstructorParam()
@@ -67,16 +72,34 @@ namespace SharpPDDL
                 throw new Exception();
         }
 
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        Expression CheckPredicates(List<Expression<Predicate<T1>>> GoalExpectations)
         {
-            if (typeof(Predicate<T1>) != typeof(T))
+            if (GoalExpectations is null)
                 throw new Exception();
 
+            int GoalExpectationsCount = GoalExpectations.Count;
+
+            if (GoalExpectationsCount == 0)
+                throw new Exception();
+
+            Expression CheckAllPreco = VisitLambda(GoalExpectations[0]);
+
+            if (GoalExpectationsCount == 1)
+                return CheckAllPreco;
+
+            for (int i = 1; i!= GoalExpectationsCount; i++)
+                CheckAllPreco = Expression.AndAlso(CheckAllPreco, VisitLambda(GoalExpectations[i]));
+
+            return CheckAllPreco;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
             if (node.Parameters.Count != 1)
                 throw new Exception();
 
             var ModefNode = Visit(node.Body);
-            var PPModifeidLambda = Expression.AndAlso(CheckingTheParametr, ModefNode);
+            ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, ModefNode), _parameter);
 
             try
             {
@@ -129,7 +152,7 @@ namespace SharpPDDL
                 if (!memberInfo.ReflectedType.IsValueType)
                     throw new Exception();
 
-                //...and chech the type of it...
+                //...and check the type of it...
                 switch (memberInfo.MemberType)
                 {
                     case MemberTypes.Field:
@@ -159,8 +182,8 @@ namespace SharpPDDL
                 Expression staticExValue = Expression.Constant(staticValue);
                 return Expression.Convert(staticExValue, node.Type);
             }
-
-            throw new Exception();
+            else
+                throw new Exception();
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

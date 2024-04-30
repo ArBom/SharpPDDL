@@ -11,21 +11,23 @@ namespace SharpPDDL
         public T Content;
         public Crisscross<T> Root;
         public List<Crisscross<T>> AlternativeRoots;
-        public List<Crisscross<T>> Children;
+        public List<(Crisscross<T> Child, int ActionNr, int[] ActionArg)> Children;
+        public List<int> CheckedAction;
         public UInt32 CumulativedTransitionCharge { get; private set; }
 
         internal Crisscross()
         {
             this.Root = null;
             this.AlternativeRoots = new List<Crisscross<T>>();
-            this.Children = new List<Crisscross<T>>();
+            this.Children = new List<(Crisscross<T>, int, int[])>();
+            this.CheckedAction = new List<int>();
             this.Content = null;
             this.CumulativedTransitionCharge = 0;
         }
 
-        public void Add(T item) => this.Add(item, 1);
+        public void Add(T item) => this.Add(item, 0, new int[0], 1);
 
-        public void Add(T item, UInt32 AddedTransitionCharge)
+        public void Add(T item, int ActionNr, int[] ActionArg, UInt32 AddedTransitionCharge)
         {
             if (AddedTransitionCharge == 0)
                 AddedTransitionCharge = 1;
@@ -37,13 +39,12 @@ namespace SharpPDDL
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
-            this.Children.Add(AddedItem);
+            this.Children.Add((AddedItem, ActionNr, ActionArg));
         }
 
         public Crisscross<T> this[int key]
         {
-            get { return this.Children[key]; }
-            set { this.Children[key] = value; }
+            get { return this.Children[key].Child; }
         }
 
         public bool Contains(T item)
@@ -52,7 +53,7 @@ namespace SharpPDDL
                 return true;
 
             foreach (var child in this.Children)
-                if (child.Contains(item))
+                if (child.Child.Contains(item))
                     return true;
 
             return false;
@@ -88,7 +89,8 @@ namespace SharpPDDL
             if (this.Root == null)
                 return previesly;
 
-            List<int> current = new List<int>(this.Root.Children.IndexOf(this));
+            var thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            List<int> current = new List<int>(this.Root.Children.IndexOf(thisOfRoot));
             current.AddRange(previesly);
             return this.Root.Position(current);
         }
@@ -98,7 +100,8 @@ namespace SharpPDDL
             if (this.Root == null)
                 return null;
 
-            List<int> ToRet = new List<int>(this.Root.Children.IndexOf(this));
+            var thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            List<int> ToRet = new List<int>(this.Root.Children.IndexOf(thisOfRoot));
 
             return Position(ToRet);
         }
@@ -107,8 +110,8 @@ namespace SharpPDDL
         {
             resultList.Add(node.Content);
 
-            foreach (Crisscross<T> child in node.Children)
-                MoveNodesToList(child, resultList);
+            foreach (var child in node.Children)
+                MoveNodesToList(child.Child, resultList);
         }
 
         public T[] ToArray()

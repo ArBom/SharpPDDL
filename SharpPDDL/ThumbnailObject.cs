@@ -20,7 +20,7 @@ namespace SharpPDDL
     {
         internal abstract object OriginalObj { get; }
         internal abstract Type OriginalObjType { get; }
-        internal ThumbnailObject Precursor;
+        internal abstract PossibleStateThumbnailObject Precursor { get; }
         internal PossibleStateThumbnailObject Parent;
         internal List<PossibleStateThumbnailObject> child;
         internal string CheckSum;
@@ -56,23 +56,24 @@ namespace SharpPDDL
             }
         }
 
-        abstract internal void CreateChild(Dictionary<ushort, ValueType> Changes);
+        abstract internal PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes);
     }
 
     internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {
-        internal override object OriginalObj { get { return Precursor.OriginalObj; } }
-        new ThumbnailObject<TOriginalObj> Precursor;
+        internal override object OriginalObj { get { return _Precursor.OriginalObj; } }
+        internal PossibleStateThumbnailObject _Precursor;
+        internal override PossibleStateThumbnailObject Precursor { get { return _Precursor; } }
         new internal List<ThumbnailObject<TOriginalObj>> child;
-        internal override Type OriginalObjType { get { return Precursor.OriginalObjType; } }
+        internal override Type OriginalObjType { get { return _Precursor.OriginalObjType; } }
 
         internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
 
-        internal override void CreateChild(Dictionary<ushort, ValueType> Changes)
+        internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
             {
-                Precursor = this.Precursor,
+                _Precursor = this._Precursor,
                 Parent = this,
                 Dict = Changes,
                 child = new List<ThumbnailObject<TOriginalObj>>()
@@ -89,6 +90,7 @@ namespace SharpPDDL
                 NewChild.CheckSum = this.CheckSum;
 
             this.child.Add(NewChild);
+            return NewChild;
         }
     }
 
@@ -97,7 +99,7 @@ namespace SharpPDDL
         new readonly internal TOriginalObj _OriginalObj;
         internal override Type OriginalObjType => _OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
-        new ThumbnailObjectPrecursor<TOriginalObj> Precursor => this;
+        internal override PossibleStateThumbnailObject Precursor { get { return this; } }
         protected readonly ushort[] _ValuesIndeksesKeys;
         internal override ushort[] ValuesIndeksesKeys
         {
@@ -106,11 +108,13 @@ namespace SharpPDDL
 
         internal override object OriginalObj { get { return this._OriginalObj; } }
 
+
         public ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
             this._OriginalObj = originalObj;
             this.Dict = new Dictionary<ushort, ValueType>();
+            this.child = new List<PossibleStateThumbnailObject>();
 
             Type originalObjTypeCand = originalObj.GetType();
             do
@@ -174,11 +178,11 @@ namespace SharpPDDL
             }
         }
 
-        internal override void CreateChild(Dictionary<ushort, ValueType> Changes)
+        internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
             {
-                Precursor = this.Precursor,
+                _Precursor = this,
                 Parent = this,
                 Dict = Changes,
                 child = new List<ThumbnailObject<TOriginalObj>>()
@@ -186,8 +190,8 @@ namespace SharpPDDL
 
             if (Changes.Count != 0)
             {
-                foreach (var update in Changes)
-                    NewChild.Dict[update.Key] = update.Value;
+                //foreach (KeyValuePair<ushort, ValueType> update in Changes)
+                 //   NewChild.Dict[update.Key] = update.Value;
 
                 NewChild.FigureCheckSum();
             }
@@ -195,6 +199,7 @@ namespace SharpPDDL
                 NewChild.CheckSum = this.CheckSum;
 
             this.child.Add(NewChild);
+            return NewChild;
         }
     }
 }

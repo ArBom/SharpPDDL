@@ -10,6 +10,7 @@ namespace SharpPDDL
     public class ActionPDDL
     {
         public readonly string Name;
+        internal uint ActionCost;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
@@ -295,13 +296,14 @@ namespace SharpPDDL
             InstantActionParamCount = Parameters.Count;
         }
 
-        public ActionPDDL(string Name)
+        public ActionPDDL(string Name, uint ActionCost = 1)
         {
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or emty
 
             //TODO zadbać o unikalność nazw
 
+            this.ActionCost = ActionCost;
             this.Name = Name;
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();

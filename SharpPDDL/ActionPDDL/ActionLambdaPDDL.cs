@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace SharpPDDL
@@ -85,19 +82,19 @@ namespace SharpPDDL
             {
                 if (EffectsPais[a].Count != 0)
                     singleEffectsList[a] = Expression.ListInit(newDictionaryExpression, EffectsPais[a]);
-
-                //TODO Important: List init without initializers
+                else
+                    singleEffectsList[a] = Expression.Constant(new List<KeyValuePair<ushort, ValueType>>());
             }
 
             NewExpression newListDictionaryExpression = Expression.New(typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             ListInitExpression ListOfEfects = Expression.ListInit(newListDictionaryExpression, singleEffectsList);
 
         // Merge it all below
-            var empty = Expression.Constant(new List<List<KeyValuePair<ushort, ValueType>>>());
+            ConstantExpression empty = Expression.Constant(new List<List<KeyValuePair<ushort, ValueType>>>());
             LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
             ConditionalExpression WholeParamBody = Expression.IfThenElse(CheckAllPreco, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
-            ConditionalExpression WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));      
-            var FBlock = Expression.Block(WholeFunctBody, Expression.Label(retLabelTarget, empty));
+            ConditionalExpression WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));
+            BlockExpression FBlock = Expression.Block(WholeFunctBody, Expression.Label(retLabelTarget, empty));
 
             WholeFunc = Expression.Lambda(FBlock, _parameters);
 

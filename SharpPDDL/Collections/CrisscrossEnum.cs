@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -42,11 +43,11 @@ namespace SharpPDDL
             if (TempRoot is null)
                 TempRoot = e.Root;
 
-            int IndeksOfE = TempRoot.Children.IndexOf(e);
+            int IndeksOfE = TempRoot.Children.FindIndex(c => c.Child == e);
 
             if (TempRoot.Children.Count != ++IndeksOfE)
             {
-                e = TempRoot.Children[IndeksOfE];
+                e = TempRoot.Children[IndeksOfE].Child;
                 return true;
             }
             else
@@ -59,13 +60,13 @@ namespace SharpPDDL
         {
             if (current.Children.Count != 0)
             {
-                if (current.Children[0].Root != current)
+                if (current.Children[0].Child.Root != current)
                 {
-                    var AlternativeRootEntrance = new KeyValuePair<Crisscross<T>, Crisscross<T>>(current.Children[0], current);
+                    var AlternativeRootEntrance = new KeyValuePair<Crisscross<T>, Crisscross<T>>(current.Children[0].Child, current);
                     UsedAlternativeRoots.Insert(0, AlternativeRootEntrance);
                 }
 
-                current = current.Children[0];
+                current = current.Children[0].Child;
                 return true;
             }
 
@@ -76,7 +77,7 @@ namespace SharpPDDL
         {
             Crisscross<T> MinusOnePos = new Crisscross<T>
             {
-                Children = new List<Crisscross<T>> { creator }
+                Children = new List<(Crisscross<T>,int ,int[])> {( creator, 0, null )}
             };
             this.current = MinusOnePos;
             this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross<T>, Crisscross<T>>>();

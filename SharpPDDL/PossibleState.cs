@@ -13,6 +13,5 @@ namespace SharpPDDL
         {
             ThumbnailObjects = new List<PossibleStateThumbnailObject>();
         }
-
     }
 }

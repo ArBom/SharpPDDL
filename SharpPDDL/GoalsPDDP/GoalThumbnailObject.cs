@@ -16,9 +16,9 @@ namespace SharpPDDL
         }
 
         GoalPriority goalPriority;
-        Type OriginalObjType;
+        abstract internal Type OriginalObjType {get; set; }
         internal override ushort[] ValuesIndeksesKeys => throw new NotImplementedException();
-        Expression<Predicate<PossibleStateThumbnailObject>> CheckGoal;
+        internal abstract Expression<Predicate<PossibleStateThumbnailObject>> BuildGoalPDDP(List<SingleTypeOfDomein> allTypes);
 
         public override ValueType this[ushort key]
         {
@@ -28,21 +28,39 @@ namespace SharpPDDL
 
     internal class GoalThumbnailObject<TOriginalObj> : GoalThumbnailObject where TOriginalObj : class
     {
-        internal GoalThumbnailObject(TOriginalObj originalObj, Expression<Predicate<TOriginalObj>> goalExpectation, IReadOnlyList<SingleTypeOfDomein> allTypes, GoalPriority goalPriority = GoalPriority.MediumPriority) : base(typeof(TOriginalObj), allTypes, goalPriority)
+        //Use this constructor if you want effect of particular object
+        internal GoalThumbnailObject(TOriginalObj originalObj, List<Expression<Predicate<TOriginalObj>>> goalExpectations, IReadOnlyList<SingleTypeOfDomein> allTypes, GoalPriority goalPriority = GoalPriority.MediumPriority) : base(typeof(TOriginalObj), allTypes, goalPriority)
         {
             this.OriginalObj = originalObj;
-            this.GoalExpectation = goalExpectation;
+            this.OriginalObjType = typeof(TOriginalObj);
+            this.GoalExpectations = goalExpectations;
         }
 
-        internal GoalThumbnailObject(Type type, Expression<Predicate<TOriginalObj>> goalExpectation, IReadOnlyList<SingleTypeOfDomein> allTypes, GoalPriority goalPriority = GoalPriority.MediumPriority) : base(type, allTypes, goalPriority)
+        //Use this constuctor if you want effect of any object of known type
+        internal GoalThumbnailObject(Type type, List<Expression<Predicate<TOriginalObj>>> goalExpectations, IReadOnlyList<SingleTypeOfDomein> allTypes, GoalPriority goalPriority = GoalPriority.MediumPriority) : base(type, allTypes, goalPriority)
         {
             this.OriginalObj = null;
-            this.GoalExpectation = goalExpectation;
+            this.OriginalObjType = typeof(TOriginalObj);
+            this.GoalExpectations = goalExpectations;
         }
 
         readonly TOriginalObj OriginalObj;
-        Expression<Predicate<TOriginalObj>> GoalExpectation;
+        List<Expression<Predicate<TOriginalObj>>> GoalExpectations;
 
         internal override ushort[] ValuesIndeksesKeys => throw new NotImplementedException();
+
+        internal override Type OriginalObjType { get; set; }
+
+        internal override Expression<Predicate<PossibleStateThumbnailObject>> BuildGoalPDDP(List<SingleTypeOfDomein> allTypes)
+        {
+            GoalLambdaPDDL<TOriginalObj> goalLambdaPDDL;
+
+            if (OriginalObj is null)
+                goalLambdaPDDL = new GoalLambdaPDDL<TOriginalObj>(GoalExpectations, allTypes);
+            else
+                goalLambdaPDDL = new GoalLambdaPDDL<TOriginalObj>(GoalExpectations, OriginalObj, allTypes);
+
+            return (Expression<Predicate<PossibleStateThumbnailObject>>)goalLambdaPDDL.ModifeidLambda;
+        }
     }
 }
