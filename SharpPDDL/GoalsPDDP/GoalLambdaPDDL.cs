@@ -6,20 +6,20 @@ using System.Reflection;
 
 namespace SharpPDDL
 {
-    class GoalLambdaPDDL<T1> : ExpressionVisitor where T1 : class
+    internal class GoalLambdaPDDL<T> : ExpressionVisitor where T : class
     {
         private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "ToCheckParam");
         readonly Type OryginalObjectType;
-        readonly T1 OryginalObject;
+        readonly T OryginalObject;
         private readonly List<SingleTypeOfDomein> allTypes;
         Expression CheckingTheParametr;
         internal LambdaExpression ModifeidLambda; //TODO to skończyć
-        List<Expression<Predicate<T1>>> GoalExpectations;
+        List<Expression<Predicate<T>>> GoalExpectations;
 
-        public GoalLambdaPDDL(List<Expression<Predicate<T1>>> GoalExpectations, T1 oryginalObject, List<SingleTypeOfDomein> allTypes)
+        public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, Type oryginalObjectType, List<SingleTypeOfDomein> allTypes, T oryginalObject = null)
         {
             this.allTypes = allTypes;
-            this.OryginalObjectType = typeof(T1);
+            this.OryginalObjectType = typeof(T);
             this.OryginalObject = oryginalObject;
             this.GoalExpectations = GoalExpectations;
             CheckConstructorParam();
@@ -31,18 +31,18 @@ namespace SharpPDDL
         {
             FieldInfo keyOfPrecursor = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredFields.First(df => df.Name == "Precursor");
             MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfPrecursor);
-            FieldInfo keyOfOriginalObj = typeof(ThumbnailObjectPrecursor<T1>).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObj");
+            FieldInfo keyOfOriginalObj = typeof(ThumbnailObjectPrecursor<T>).GetTypeInfo().DeclaredFields.First(df => df.Name == "OriginalObj");
             MemberExpression ThObOryginal = Expression.MakeMemberAccess(ThObPrecursor, keyOfOriginalObj);
 
-            ConstantExpression ConType = Expression.Constant(OryginalObject, typeof(T1));
+            ConstantExpression ConType = Expression.Constant(OryginalObject, typeof(T));
 
             return Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConType, ThObOryginal);
         }
 
-        public GoalLambdaPDDL(List<Expression<Predicate<T1>>> GoalExpectations, List<SingleTypeOfDomein> allTypes)
+        public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes)
         {
             this.allTypes = allTypes;
-            this.OryginalObjectType = typeof(T1);
+            this.OryginalObjectType = typeof(T);
             this.GoalExpectations = GoalExpectations;
             CheckConstructorParam();
             CheckingTheParametr = CheckingTheParametrType();
@@ -72,7 +72,7 @@ namespace SharpPDDL
                 throw new Exception();
         }
 
-        Expression CheckPredicates(List<Expression<Predicate<T1>>> GoalExpectations)
+        Expression CheckPredicates(List<Expression<Predicate<T>>> GoalExpectations)
         {
             if (GoalExpectations is null)
                 throw new Exception();
@@ -148,7 +148,7 @@ namespace SharpPDDL
                 ValueType staticValue;
 
                 //get the member...
-                MemberInfo memberInfo = typeof(T1).GetMember(MemberName).First();
+                MemberInfo memberInfo = typeof(T).GetMember(MemberName).First();
                 if (!memberInfo.ReflectedType.IsValueType)
                     throw new Exception();
 
@@ -157,20 +157,20 @@ namespace SharpPDDL
                 {
                     case MemberTypes.Field:
                         {
-                            staticValue = (ValueType)typeof(T1).GetField(MemberName).GetValue(OryginalObject);
+                            staticValue = (ValueType)typeof(T).GetField(MemberName).GetValue(OryginalObject);
                             break;
                         }
                     case MemberTypes.Property:
                         {
-                            staticValue = (ValueType)typeof(T1).GetProperty(MemberName).GetValue(OryginalObject);
+                            staticValue = (ValueType)typeof(T).GetProperty(MemberName).GetValue(OryginalObject);
                             break;
                         }
                     case MemberTypes.Method:
                         {
-                            if (typeof(T1).GetMethod(MemberName).GetParameters().Count() != 0)
+                            if (typeof(T).GetMethod(MemberName).GetParameters().Count() != 0)
                                 throw new Exception();
 
-                            staticValue = (ValueType)typeof(T1).GetMethod(MemberName).Invoke(OryginalObject, null);
+                            staticValue = (ValueType)typeof(T).GetMethod(MemberName).Invoke(OryginalObject, null);
                             break;
                         }
                     default:
