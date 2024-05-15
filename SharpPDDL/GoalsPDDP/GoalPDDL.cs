@@ -10,13 +10,19 @@ namespace SharpPDDL
     {
         public readonly string Name;
         public readonly GoalPriority goalPriority;
-        List<IGoalObject> GoalObjects;
+        internal List<IGoalObject> GoalObjects;
 
         public GoalPDDL(string Name, GoalPriority goalPriority = GoalPriority.MediumPriority)
         {
             this.Name = Name;
             this.goalPriority = goalPriority;
             this.GoalObjects = new List<IGoalObject>();
+        }
+
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, T originalObj, DomeinPDDL newPDDLdomain = null) where T : class
+        {
+            List<Expression<Predicate<T>>> goalExpectations = new List<Expression<Predicate<T>>>() { goalExpectation };
+            AddExpectedObjectState<T>(new List<Expression<Predicate<T>>>(goalExpectations), originalObj, newPDDLdomain);
         }
 
         public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, T originalObj, DomeinPDDL newPDDLdomain = null) where T : class
@@ -42,6 +48,17 @@ namespace SharpPDDL
         public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
         {
             AddExpectedObjectState(goalExpectations, typeof(T), newPDDLdomain);
+        }
+
+        internal void BUILDIT(List<SingleTypeOfDomein> allTypes)
+        {
+            if (GoalObjects.Count == 0)
+                throw new Exception();
+
+            foreach (IGoalObject GoalObjects in GoalObjects)
+            {
+                _ = GoalObjects.BuildGoalPDDP(allTypes);
+            }
         }
     }
 }

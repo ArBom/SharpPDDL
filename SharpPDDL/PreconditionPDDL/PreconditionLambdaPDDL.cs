@@ -11,8 +11,9 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        private readonly List<SingleTypeOfDomein> allTypes;
+        public Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ModifeidLambda;
         private readonly int[] ParamsIndexesInAction;
+        private readonly List<SingleTypeOfDomein> allTypes;
 
         public PreconditionLambdaModif(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction)
         {
@@ -58,7 +59,8 @@ namespace SharpPDDL
                 _parameters = parameters.AsReadOnly();
             }
 
-            Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ModifeidLambda = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>(Visit(node.Body), _parameters);
+            Expression PrecoLambdaBody = Visit(node.Body);
+            ModifeidLambda = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
 
             try
             {
@@ -72,11 +74,11 @@ namespace SharpPDDL
             return ModifeidLambda;
         }
 
-        private string NewParamName (string OldNodeName)
+        private string NewParamName(string OldNodeName)
         {
             var param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
-            return ExtensionMethods.LamdbaParamPrefix + index;
+            return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

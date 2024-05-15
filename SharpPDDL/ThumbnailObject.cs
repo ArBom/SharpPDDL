@@ -9,7 +9,7 @@ namespace SharpPDDL
     internal abstract class ThumbnailObject
     {
         internal Type OriginalObjType;
-        internal Dictionary<ushort, ValueType> Dict;
+        protected Dictionary<ushort, ValueType> Dict;
 
         internal abstract ushort[] ValuesIndeksesKeys { get; }
 
@@ -19,7 +19,7 @@ namespace SharpPDDL
     internal abstract class PossibleStateThumbnailObject : ThumbnailObject
     {
         internal abstract object OriginalObj { get; }
-        internal abstract Type OriginalObjType { get; }
+        internal abstract new Type OriginalObjType { get; }
         internal abstract PossibleStateThumbnailObject Precursor { get; }
         internal PossibleStateThumbnailObject Parent;
         internal List<PossibleStateThumbnailObject> child;
@@ -69,15 +69,23 @@ namespace SharpPDDL
 
         internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
 
+        internal ThumbnailObject(PossibleStateThumbnailObject Precursor, PossibleStateThumbnailObject parent, Dictionary<ushort, ValueType> changes)
+        {
+            this._Precursor = Precursor;
+            this.Parent = parent;
+            this.Dict = changes;
+            child = new List<ThumbnailObject<TOriginalObj>>();
+        }
+
         internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
         {
-            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
-            {
+            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(_Precursor, this, Changes);
+            /*{
                 _Precursor = this._Precursor,
                 Parent = this,
                 Dict = Changes,
                 child = new List<ThumbnailObject<TOriginalObj>>()
-            };
+            };*/
 
             if (Changes.Count != 0)
             {
@@ -96,7 +104,7 @@ namespace SharpPDDL
 
     internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
     {       
-        new readonly internal TOriginalObj _OriginalObj;
+        readonly internal TOriginalObj _OriginalObj;
         internal override Type OriginalObjType => _OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
         internal override PossibleStateThumbnailObject Precursor { get { return this; } }
@@ -180,13 +188,13 @@ namespace SharpPDDL
 
         internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
         {
-            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>()
-            {
+            ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(this, this, Changes);
+            /*{
                 _Precursor = this,
                 Parent = this,
                 Dict = Changes,
                 child = new List<ThumbnailObject<TOriginalObj>>()
-            };
+            };*/
 
             if (Changes.Count != 0)
             {

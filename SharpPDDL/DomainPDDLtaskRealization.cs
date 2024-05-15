@@ -46,8 +46,13 @@ namespace SharpPDDL
 
             foreach (var ob in domainObjects)
             {
-                ThumbnailObjectPrecursor<dynamic> k = new ThumbnailObjectPrecursor<dynamic>(ob, types.allTypes);
+                ThumbnailObjectPrecursor<object> k = new ThumbnailObjectPrecursor<object>(ob, types.allTypes);
                 possibleState.ThumbnailObjects.Add(k);
+            }
+
+            foreach (var goal in domainGoals)
+            {
+                goal.BUILDIT(this.types.allTypes);
             }
 
             states = new Crisscross<PossibleState>();
@@ -79,16 +84,23 @@ namespace SharpPDDL
                     var result = (List<List<KeyValuePair<ushort, ValueType>>>)actions[actionPos].InstantActionPDDL.DynamicInvoke(arr);
 
                     //Check is it create new Possible State
-                    if (result.Count == 0)
+                    //if (result.Count == 0)
+                    if (result is null)
                         return;
 
                     List<PossibleStateThumbnailObject> UpdatedPossStThOb = new List<PossibleStateThumbnailObject>();
                     int[] ActionArg = new int[ActParCount];
                     for(int ArgPosFinder = 0; ArgPosFinder != ActParCount; ArgPosFinder++)
                     {
-                        int indexOfEl = stateToCheck.Content.ThumbnailObjects.IndexOf(arr[ArgPosFinder]);
+                        int indexOfEl = stateToCheck.Content.ThumbnailObjects.FindIndex(ThO => ThO.OriginalObj == arr[ArgPosFinder].OriginalObj);
                         ActionArg[ArgPosFinder] = indexOfEl;
                         PossibleStateThumbnailObject UpdatedOb = stateToCheck.Content.ThumbnailObjects[indexOfEl].CreateChild(result[ArgPosFinder].ToDictionary(x => x.Key, x => x.Value));
+
+
+
+                        CheckChangedOb(UpdatedOb);
+
+
                         UpdatedPossStThOb.Add(UpdatedOb);
                     }
 
@@ -122,6 +134,32 @@ namespace SharpPDDL
 
             CheckVariationsNoRepetitions(0);
             stateToCheck.CheckedAction.Add(actionPos);
+        }
+
+        internal List<int> CheckChangedOb(PossibleStateThumbnailObject updatedOb)
+        {
+            List<int> ToCheck = new List<int>();
+            bool Possible = false;
+
+            foreach (GoalPDDL Goal in domainGoals)
+                foreach(IGoalObject goalObject in Goal.GoalObjects)
+                {
+                    if (updatedOb.OriginalObj == goalObject.OriginalObj)
+                    {
+                        int b = 100;
+                    }
+
+                    var a = (bool)goalObject.GoalPDDL.DynamicInvoke(updatedOb);
+                    if (a == true)
+                    {
+                        int AO = 1500;
+                    }
+                }
+
+            if (Possible)
+                return ToCheck;
+            else
+                return null;
         }
     }
 }

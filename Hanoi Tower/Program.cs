@@ -28,8 +28,10 @@ namespace Hanoi_Tower
 
         public class HanoiTable : HanoiObj
         {
-            public HanoiTable(int HanoiObjSizeUpSide = 0, bool isEmpty = true)
+            public int no;
+            public HanoiTable(int no, int HanoiObjSizeUpSide = 0, bool isEmpty = true)
             {
+                this.no = no;
                 this.HanoiObjSizeUpSide = HanoiObjSizeUpSide;
                 this.IsEmptyUpSide = isEmpty;
             }
@@ -66,10 +68,13 @@ namespace Hanoi_Tower
 
             ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
 
+            //moveBrickOnTable.AddPrecondiction("rubbish", ref NewStandT, (HT => HT.no != -10));
+
             moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
             moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, NewStandTableIsEmpty);
             moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
-            moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide);
+
+            moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide); //bierze stąt bo tak
             moveBrickOnTable.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide);
             moveBrickOnTable.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide);
             moveBrickOnTable.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandT, NST => NST.HanoiObjSizeUpSide);
@@ -91,13 +96,14 @@ namespace Hanoi_Tower
                 newDomein.domainObjects.Add(newOne);
             }
 
-            List<HanoiTable> HanoiTables = new List<HanoiTable> { new HanoiTable(MaxBriSize, false), new HanoiTable(), new HanoiTable() };
+            List<HanoiTable> HanoiTables = new List<HanoiTable> { new HanoiTable(0, MaxBriSize, false), new HanoiTable(1), new HanoiTable(2) };
 
             foreach (var HT in HanoiTables)
                 newDomein.domainObjects.Add(HT);
 
-            GoalPDDL movedBrick = new GoalPDDL("Move the Brick", GoalPriority.MediumPriority);
-
+            GoalPDDL movedBrick = new GoalPDDL("Moved the Brick");
+            //movedBrick.AddExpectedObjectState(new List<Expression<Predicate<HanoiTable>>> { HT => HT.IsEmptyUpSide });
+            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0]);
             newDomein.AddGoal(movedBrick);
 
             newDomein.Start();

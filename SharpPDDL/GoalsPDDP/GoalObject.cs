@@ -9,7 +9,7 @@ namespace SharpPDDL
     {
         object OriginalObj { get; }
         Type OriginalObjType { get; }
-        LambdaExpression GoalPDDL { get; }
+        Delegate GoalPDDL { get; }
         LambdaExpression BuildGoalPDDP(List<SingleTypeOfDomein> allTypes);
         DomeinPDDL newPDDLdomain { get; }
     }
@@ -25,8 +25,8 @@ namespace SharpPDDL
         private readonly DomeinPDDL _newPDDLdomain;
         public DomeinPDDL newPDDLdomain { get { return _newPDDLdomain; } }
 
-        private LambdaExpression _GoalPDDL = null;
-        public LambdaExpression GoalPDDL { get { return _GoalPDDL ?? throw new Exception(); } }
+        private Delegate _GoalPDDL = null;
+        public Delegate GoalPDDL { get { return _GoalPDDL ?? throw new Exception(); } }
 
         private List<Expression<Predicate<T>>> Expectations;
 
@@ -46,8 +46,16 @@ namespace SharpPDDL
 
         public LambdaExpression BuildGoalPDDP(List<SingleTypeOfDomein> allTypes)
         {
-            //_GoalPDDL =
-            throw new NotImplementedException();
+            GoalLambdaPDDL<T> goalLambdaPDDL;
+
+            if (_OriginalObj is null)
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, allTypes, _OriginalObjType);
+            else
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, allTypes, _OriginalObj);
+
+            LambdaExpression ToRet = goalLambdaPDDL.ModifeidLambda;
+            _GoalPDDL = ToRet.Compile();
+            return ToRet;
         }
     }
 }

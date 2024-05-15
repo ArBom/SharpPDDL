@@ -41,25 +41,27 @@ namespace SharpPDDL
             OldParameters = node.Parameters;
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
 
-            if (_parameters.Count() == 0)
+            if (OldParameters.Count() == 0)
             {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>{ Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]) };
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>();
+                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]));
+                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty"));
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 
             //the library use only 1- or 2-Parameter lambdas
-            if (_parameters.Count() > 2)
+            if (OldParameters.Count() > 2)
             {
                 throw new Exception();
             }
 
             //make 2-Parameters lambda
-            if (_parameters.Count() == 1)
+            if (OldParameters.Count() == 1)
             {
-                string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
-                List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
-                parameters.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), NameOfNewOne));
-                _parameters = parameters.AsReadOnly();
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>();
+                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]));
+                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[1]));
+                _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 
             var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
@@ -82,8 +84,8 @@ namespace SharpPDDL
         private string NewParamName(string OldNodeName)
         {
             var param = OldParameters.First(p => p.Name == OldNodeName);
-            int index = OldParameters.IndexOf(param);
-            return ExtensionMethods.LamdbaParamPrefix + index;
+            int index = OldParameters.IndexOf(param)+1;
+            return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

@@ -57,7 +57,6 @@ namespace SharpPDDL
             ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, ParamsIndexesInAction, Key);
             effectLambdaPDDL.Visit(SourceFunc);
-            //return null;
             return effectLambdaPDDL.ModifiedFunct;
         }
 
