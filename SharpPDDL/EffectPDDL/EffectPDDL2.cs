@@ -64,10 +64,10 @@ namespace SharpPDDL
         {
             for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (listOfParams[index].HashCode != Hash1Class)
+                if (listOfParams[index].HashCode != Hash2Class)
                     continue;
 
-                if (t1.Equals(listOfParams[index].Oryginal))
+                if (t2.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct1ClassPos = index;
                     break;
@@ -79,10 +79,10 @@ namespace SharpPDDL
 
             for (int index = 0; index != listOfParams.Count; index++)
             {
-                if (listOfParams[index].HashCode != Hash2Class)
+                if (listOfParams[index].HashCode != Hash1Class)
                     continue;
 
-                if (t2.Equals(listOfParams[index].Oryginal))
+                if (t1.Equals(listOfParams[index].Oryginal))
                 {
                     AllParamsOfAct2ClassPos = index;
                     return;

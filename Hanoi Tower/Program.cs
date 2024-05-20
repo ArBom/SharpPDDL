@@ -68,13 +68,11 @@ namespace Hanoi_Tower
 
             ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
 
-            //moveBrickOnTable.AddPrecondiction("rubbish", ref NewStandT, (HT => HT.no != -10));
-
             moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
             moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, NewStandTableIsEmpty);
             moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
-            moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide); //bierze stąt bo tak
+            moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide);
             moveBrickOnTable.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide);
             moveBrickOnTable.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide);
             moveBrickOnTable.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandT, NST => NST.HanoiObjSizeUpSide);

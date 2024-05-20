@@ -48,7 +48,6 @@ namespace SharpPDDL
             this.func = func;
             MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
             _ = memberofLambdaListerPDDL.Visit(func);
-            //todo sprawdzenie czy typy paramrtrów się zgadzają
             this.usedMembers1Class = memberofLambdaListerPDDL.used[0];
             this.t1 = obj1;
         }

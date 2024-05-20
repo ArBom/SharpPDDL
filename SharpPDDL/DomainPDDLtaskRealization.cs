@@ -65,6 +65,27 @@ namespace SharpPDDL
 
         private void TryAction(Crisscross<PossibleState> stateToCheck, int actionPos)
         {
+            void Permute<T>(List<T> Source, List<T> s, int n)
+            {
+                for (int i = 0; i < Source.Count; i++)
+                {
+                    List<T> head = new List<T>(s);
+                    head.Add(Source[i]);
+                    var tail = new List<T>();
+                    tail.AddRange(Source);
+                    tail.RemoveAt(i);
+
+                    if (head.Count == n)
+                    {
+                        var resulti = actions[actionPos].InstantActionPDDL.DynamicInvoke(head.Cast<PossibleStateThumbnailObject>().ToArray());            
+                        int AO = 1500;
+                        continue;
+                    }
+
+                    Permute<T>(tail, head, n);
+                }
+            }
+
             if (stateToCheck.CheckedAction is null)
                 return;
 
@@ -75,64 +96,11 @@ namespace SharpPDDL
             int ActParCount = actions[actionPos].InstantActionParamCount;
             PossibleStateThumbnailObject[] arr = new PossibleStateThumbnailObject[ActParCount];
 
-            #region nestedVoid
-            void CheckVariationsNoRepetitions(int index)
-            {
-                List<PossibleStateThumbnailObject> temperaryList = new List<PossibleStateThumbnailObject>(stateToCheck.Content.ThumbnailObjects);
-                if (index >= ActParCount)
-                {
-                    var result = (List<List<KeyValuePair<ushort, ValueType>>>)actions[actionPos].InstantActionPDDL.DynamicInvoke(arr);
-
-                    //Check is it create new Possible State
-                    //if (result.Count == 0)
-                    if (result is null)
-                        return;
-
-                    List<PossibleStateThumbnailObject> UpdatedPossStThOb = new List<PossibleStateThumbnailObject>();
-                    int[] ActionArg = new int[ActParCount];
-                    for(int ArgPosFinder = 0; ArgPosFinder != ActParCount; ArgPosFinder++)
-                    {
-                        int indexOfEl = stateToCheck.Content.ThumbnailObjects.FindIndex(ThO => ThO.OriginalObj == arr[ArgPosFinder].OriginalObj);
-                        ActionArg[ArgPosFinder] = indexOfEl;
-                        PossibleStateThumbnailObject UpdatedOb = stateToCheck.Content.ThumbnailObjects[indexOfEl].CreateChild(result[ArgPosFinder].ToDictionary(x => x.Key, x => x.Value));
-
-
-
-                        CheckChangedOb(UpdatedOb);
-
-
-                        UpdatedPossStThOb.Add(UpdatedOb);
-                    }
-
-                    PossibleState newPossibleState = new PossibleState();
-                    newPossibleState.ChangedThumbnailObjects = UpdatedPossStThOb;
-
-                    stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost);                  
-                }
-                else
-                {
-                    for (int i = index; i < ThObjCount; i++)
-                    {
-                        arr[index] = temperaryList[i];
-                        Swap(temperaryList[i], temperaryList[index]);
-                        CheckVariationsNoRepetitions(index + 1);
-                        Swap(temperaryList[i], temperaryList[index]);
-                    }
-                }
-            }
-
-            void Swap<T>(T v1, T v2)
-            {
-                T old = v1;
-                v1 = v2;
-                v2 = old;
-            }
-            #endregion
-
             if (ThObjCount < ActParCount)
                 return;
 
-            CheckVariationsNoRepetitions(0);
+            Permute<PossibleStateThumbnailObject>(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), actions[actionPos].InstantActionParamCount);
+
             stateToCheck.CheckedAction.Add(actionPos);
         }
 
