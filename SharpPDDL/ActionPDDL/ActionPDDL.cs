@@ -59,13 +59,13 @@ namespace SharpPDDL
             AddParameter(ref destination);
         }
 
-        public void AddAssignedParametr<T>(ref T destination) where T : class
+        public void AddAssignedParametr<T1c>(ref T1c destination) where T1c : class
         {
-            //if (typeof(T).IsAbstract)
-              //  destination = new object();
+            if (typeof(T1c).IsAbstract)
+                throw new Exception("Sorry, You cannot to use abstract parameter at this version");
 
             if (destination is null)
-                destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
+                destination = (T1c)FormatterServices.GetUninitializedObject(typeof(T1c));
 
             Int32 HashCode = destination.GetHashCode();
             AddParameter(ref destination);
@@ -104,8 +104,11 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
-        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class
-        {   
+        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class => AddPrecondiction<T1, T1>(Name, ref obj, func);
+
+        public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func) 
+            where T1p : class where T1c : class, T1p
+        {
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj);
             PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
@@ -129,7 +132,8 @@ namespace SharpPDDL
             Preconditions.Add(temp);
         }
 
-        public void AddPrecondiction<T1, T2>(string Name, ref T1 obj1, ref T2 obj2, Expression<Predicate<T1, T2>> func) where T1 : class where T2 : class //warunek w postaci Predicate
+        public void AddPrecondiction<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
+            where T1p : class where T2p : class where T1c : class, T1p where T2c : class, T2p
         {
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj1);

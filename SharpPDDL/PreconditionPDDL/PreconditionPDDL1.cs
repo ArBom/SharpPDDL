@@ -5,10 +5,10 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal class PreconditionPDDL<T1> : PreconditionPDDL where T1 : class
+    internal class PreconditionPDDL<T1c, T1p> : PreconditionPDDL where T1p : class where T1c : T1p
     {
-        protected T1 t1;
-        readonly Expression<Predicate<T1>> func;
+        protected T1c t1;
+        readonly Expression<Predicate<T1p>> func;
 
         protected void T1Index(IReadOnlyList<Parametr> listOfParams)
         {
@@ -38,12 +38,12 @@ namespace SharpPDDL
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters) => T1Index(Parameters);
 
-        protected PreconditionPDDL(string Name, ref T1 obj1, Type TypeOf2Class, Int32 HashOf2Class) : base(Name, obj1.GetType(), obj1.GetHashCode(), TypeOf2Class, HashOf2Class)
+        protected PreconditionPDDL(string Name, ref T1c obj1, Type TypeOf2Class, Int32 HashOf2Class) : base(Name, obj1.GetType(), obj1.GetHashCode(), TypeOf2Class, HashOf2Class)
         {
             this.t1 = obj1;
         }
 
-        internal PreconditionPDDL(string Name, ref T1 obj1, Expression<Predicate<T1>> func) : base(Name, obj1.GetType(), obj1.GetHashCode())
+        internal PreconditionPDDL(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
             this.func = func;
             MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();

@@ -46,16 +46,13 @@ namespace Hanoi_Tower
             HanoiBrick NewStandB = null;
             HanoiTable NewStandT = null;
 
-            Expression<Predicate<HanoiBrick>> MovedBrickIsNoUp = (HB => HB.IsEmptyUpSide);
-            Expression<Predicate<HanoiBrick>> NewStandBrickIsEmpty = (HO => HO.IsEmptyUpSide);
-            Expression<Predicate<HanoiTable>> NewStandTableIsEmpty = (HO => HO.IsEmptyUpSide);
+            Expression<Predicate<HanoiObj>> MovedBrickIsNoUp = (HO => HO.IsEmptyUpSide);
             Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size));
             Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
 
             ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick on another brick");
-
             moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-            moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, NewStandBrickIsEmpty);
+            moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, MovedBrickIsNoUp);
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
             moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
@@ -69,7 +66,7 @@ namespace Hanoi_Tower
             ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
 
             moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-            moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, NewStandTableIsEmpty);
+            moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, MovedBrickIsNoUp);
             moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
             moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide);
