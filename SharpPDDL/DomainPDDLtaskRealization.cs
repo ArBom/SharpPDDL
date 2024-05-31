@@ -22,7 +22,7 @@ namespace SharpPDDL
                 MaxDegreeOfParallelism = Environment.ProcessorCount
             };
 
-            PossibleState possibleState = new PossibleState();
+            PossibleState possibleState = new PossibleState(null);
             var locker = new object();
             /*Parallel.ForEach
             (
@@ -58,31 +58,47 @@ namespace SharpPDDL
             states = new Crisscross<PossibleState>();
             states.Content = possibleState;
 
-            TryAction(states, 1);
+            CheckAction(states, 1);
 
             //Realizationpp.Start();
         }
 
-        private void TryAction(Crisscross<PossibleState> stateToCheck, int actionPos)
+        private void CheckAction(Crisscross<PossibleState> stateToCheck, int actionPos)
         {
-            void Permute<T>(List<T> Source, List<T> s, int n)
+            void TryActionPossibility (PossibleStateThumbnailObject[] SetToCheck)
+            {
+                object ResultOfCheck = actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
+
+                if (ResultOfCheck is null)
+                    return;
+
+                var ResultOfCheckasList = (List<List<KeyValuePair<ushort, ValueType>>>)ResultOfCheck;
+                PossibleState newPossibleState = new PossibleState(stateToCheck.Content);
+
+                for (int j = 0; j < SetToCheck.Length; j++)
+                {
+                    var ChangedThumbnailObject = SetToCheck[j].CreateChild(ResultOfCheckasList[j]);
+                    newPossibleState.ChangedThumbnailObjects.Add(ChangedThumbnailObject);
+                }     
+            }
+
+            void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
             {
                 for (int i = 0; i < Source.Count; i++)
                 {
-                    List<T> head = new List<T>(s);
+                    List<PossibleStateThumbnailObject> head = new List<PossibleStateThumbnailObject>(s);
                     head.Add(Source[i]);
-                    var tail = new List<T>();
+                    var tail = new List<PossibleStateThumbnailObject>();
                     tail.AddRange(Source);
                     tail.RemoveAt(i);
 
-                    if (head.Count == n)
+                    if (head.Count != n)
                     {
-                        var resulti = actions[actionPos].InstantActionPDDL.DynamicInvoke(head.Cast<PossibleStateThumbnailObject>().ToArray());            
-                        int AO = 1500;
+                        Permute(tail, head, n);
                         continue;
                     }
 
-                    Permute<T>(tail, head, n);
+                    TryActionPossibility(head.ToArray());
                 }
             }
 
@@ -94,12 +110,11 @@ namespace SharpPDDL
 
             int ThObjCount = stateToCheck.Content.ThumbnailObjects.Count;
             int ActParCount = actions[actionPos].InstantActionParamCount;
-            PossibleStateThumbnailObject[] arr = new PossibleStateThumbnailObject[ActParCount];
 
             if (ThObjCount < ActParCount)
                 return;
 
-            Permute<PossibleStateThumbnailObject>(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), actions[actionPos].InstantActionParamCount);
+            Permute(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), actions[actionPos].InstantActionParamCount);
 
             stateToCheck.CheckedAction.Add(actionPos);
         }
@@ -120,7 +135,7 @@ namespace SharpPDDL
                     var a = (bool)goalObject.GoalPDDL.DynamicInvoke(updatedOb);
                     if (a == true)
                     {
-                        int AO = 1500;
+                        int ĄĘ = 1500;
                     }
                 }
 

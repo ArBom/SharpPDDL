@@ -10,7 +10,7 @@ namespace SharpPDDL
     public class ActionPDDL
     {
         public readonly string Name;
-        internal uint ActionCost;
+        internal readonly uint ActionCost;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
@@ -37,16 +37,15 @@ namespace SharpPDDL
                 {
                     singleType = new SingleType(parametr.Type, parametr.values);
                     ToRet.Add(singleType);
+                    continue;
                 }
-                else
-                {
-                    foreach (ValueOfParametr valueP in parametr.values)
-                    {
-                        if (singleType.Values.Exists(t => t.Name == valueP.Name))
-                            continue;
 
-                        singleType.Values.Add(valueP);
-                    }
+                foreach (ValueOfParametr valueP in parametr.values)
+                {
+                    if (singleType.Values.Exists(t => t.Name == valueP.Name))
+                        continue;
+
+                    singleType.Values.Add(valueP);
                 }
             }
 
@@ -71,8 +70,10 @@ namespace SharpPDDL
             AddParameter(ref destination);
         }
 
-        internal void AddParameter<T>(ref T destination) where T : class
+        internal void AddParameter<T>(ref T destination, string SentenceBegin = "", Expression<Func<T, object>> SentenceEnd = null) where T : class
         {
+            //TODO sentence
+
             Int32 HashCode = destination.GetHashCode();
 
             if (Parameters.Any(t => t.HashCode == HashCode))
@@ -104,10 +105,50 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
+        #region Adding Precondictions
+
+        /// <summary>
+        /// This method adds a condition whose fulfillment is necessary to perform the action.
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// using System.Linq.Expressions;<br/>
+        /// ⋮<br/>
+        /// Foo foo = null;<br/>
+        /// actionPDDL.AddPrecondiction("FooMemberInt big enough", ref foo, f => f.FooMemberInt > 100);
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <typeparam name="T1">Non-abstract class of precondition param object</typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
+        /// <param name="obj">Instance of T1 class (could be null) which representant parameter of action</param>
+        /// <param name="func">Predicate uses member(s) of T1 class to check possibility of action ececute</param>
         public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class => AddPrecondiction<T1, T1>(Name, ref obj, func);
 
+        /// <summary>
+        /// This method adds a condition whose fulfillment is necessary to perform the action.
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// using System.Linq.Expressions;<br/>
+        /// ⋮<br/>
+        /// public class Container { public bool IsOpen; }<br/>
+        /// public class Carton : Container {…}<br/>
+        /// ⋮<br/>
+        /// Expression<Predicate<Conteiner>> IsContainerOpen = (c => c.IsOpen);<br/>
+        /// Carton carton = null;<br/>
+        /// actionPDDL.AddPrecondiction("Carton is open", ref carton, IsContainerOpen);<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <typeparam name="T1c">Non-abstract class inheriting from T1p</typeparam>
+        /// <typeparam name="T1p">Non-abstract class inherited by T1c</typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
+        /// <param name="obj">Instance of T1c class (could be null) which representant parameter of action</param>
+        /// <param name="func">Predicate uses member(s) of T1p class to check possibility of action ececute</param>
         public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func) 
-            where T1p : class where T1c : class, T1p
+            where T1p : class 
+            where T1c : class, T1p
         {
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj);
@@ -115,25 +156,52 @@ namespace SharpPDDL
 
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode == obj.GetHashCode())
-                {
-                    if (parametr.Oryginal.Equals(obj))
-                    {
-                        foreach (string valueName in temp.usedMembers1Class)
-                        {
-                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
-                        }
-                        parametr.UsedInPrecondition = true;
-                        break;
-                    }
-                }
+                if (parametr.HashCode != obj.GetHashCode())
+                    continue;
+
+                if (!(parametr.Oryginal.Equals(obj)))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers1Class)
+                    parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+
+                parametr.UsedInPrecondition = true;
+                break;
             }
 
             Preconditions.Add(temp);
         }
 
-        public void AddPrecondiction<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
-            where T1p : class where T2p : class where T1c : class, T1p where T2c : class, T2p
+        /// <summary>
+        /// This method adds a condition (of 2 params) whose fulfillment is necessary to perform the action.
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// using System.Linq.Expressions;<br/>
+        /// ⋮<br/>
+        /// public class Container { public int capacity; }<br/>
+        /// public class Carton : Container {…}<br/>
+        /// public class Foo { public int size; }<br/>
+        /// public class Moo : Foo {…}<br/>
+        /// ⋮<br/>
+        /// Expression<Predicate<Container, Moo>> capa = ((Co, Mo) => (Co.capacity >= Mo.size));
+        /// actionPDDL.AddPrecondiction("Carton capacity enouh for Moo", ref carton, ref moo, capa);<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <typeparam name="T1c">Non-abstract class of 1st param inheriting from T1p</typeparam>
+        /// <typeparam name="T1p">Non-abstract class of 1st param inherited by T1c</typeparam>
+        /// <typeparam name="T2c">Non-abstract class of 1st param inheriting from T2p</typeparam>
+        /// <typeparam name="T2p">Non-abstract class of 1st param inherited by T2c</typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
+        /// <param name="obj1">Instance of T1c class (could be null) which representant 1st parameter of action</param>
+        /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
+        /// <param name="func">Predicate uses member(s) of T1p and T2p classes to check possibility of action ececute</param>
+        public void AddPrecondiction<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func)
+            where T1p : class 
+            where T2p : class 
+            where T1c : class, T1p 
+            where T2c : class, T2p
         {
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj1);
@@ -142,40 +210,60 @@ namespace SharpPDDL
 
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode == obj1.GetHashCode())
-                {
-                    if (parametr.Oryginal.Equals(obj1))
-                    {
-                        foreach (string valueName in temp.usedMembers1Class)
-                        {
-                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
-                        }
-                        parametr.UsedInPrecondition = true;
-                        break;
-                    }
-                }
+                if (parametr.HashCode != obj1.GetHashCode())
+                    continue;
+
+                if (!(parametr.Oryginal.Equals(obj1)))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers1Class)
+                    parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+
+                parametr.UsedInPrecondition = true;
+                break;
+                    
             }
 
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode == obj2.GetHashCode())
-                {
-                    if (parametr.Oryginal.Equals(obj2))
-                    {
-                        foreach (string valueName in temp.usedMembers2Class)
-                        {
-                            parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
-                        }
-                        parametr.UsedInPrecondition = true;
-                        break;
-                    }
-                }
+                if (parametr.HashCode != obj2.GetHashCode())
+                    continue;
+
+                if (!(parametr.Oryginal.Equals(obj2)))
+                    continue;
+
+                foreach (string valueName in temp.usedMembers2Class)
+                    parametr.values.Where(v => v.Name == valueName).First().IsInUse = true;
+
+                parametr.UsedInPrecondition = true;
+                    break;
+
             }
 
             Preconditions.Add(temp);
         }
-
-        public void AddEffect<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember) where T1 : class 
+        #endregion
+        #region Adding Effects
+        /// <summary>
+        /// This method adds the effect of assigning a constant value to a parameter's member after the action is performed
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// using System.Linq.Expressions;<br/>
+        /// ⋮<br/>
+        /// public class Container { public bool IsOpen = false; }<br/>
+        /// ⋮<br/>
+        /// actionPDDL.AddEffect("Open Container", true, ref container, C => C.IsOpen);<br/>
+        /// </code>
+        /// results in <c>container</c>'s next simulation state IsOpen member having the value "true"
+        /// </para></example>
+        /// </summary>
+        /// <typeparam name="T">Non-abstract class of effect param object</typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="newValue_Static">New value assigning to <c>destinationObj</c>>'s member</param>
+        /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
+        /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
+        public void AddEffect<T>(string Name, ValueType newValue_Static, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember) where T : class 
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
@@ -197,6 +285,25 @@ namespace SharpPDDL
             Effects.Add(temp);
         }
 
+        public void AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
+            where T1p : class
+            where T2p : class
+            where T1c : class, T1p
+            where T2c : class, T2p
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method uses one object to assigning new value to another parameter's member after the action is performed
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="SourceObj"></param>
+        /// <param name="Source"></param>
+        /// <param name="DestinationObj"></param>
+        /// <param name="DestinationMember"></param>
         public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember) where T1 : class where T2 : class
         {
             CheckExistEffectName(Name);
@@ -237,7 +344,9 @@ namespace SharpPDDL
             Effects.Add(temp);
         }
 
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, T2, ValueType> SourceFunct, ref T2 DestinationObj, Func<T2, ValueType> DestinationFunct) where T1 : class where T2 : class
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, T2, ValueType> SourceFunct, ref T2 DestinationObj, Func<T2, ValueType> DestinationFunct) 
+            where T1 : class 
+            where T2 : class
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
@@ -278,17 +387,18 @@ namespace SharpPDDL
 
             Effects.Add(temp);
         }
+        #endregion
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
-            List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>> PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();
+            var PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
                 Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
                 PrecondidionExpressions.Add(ExpressionOfPrecondition);
             }
 
-            List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>> EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
+            var EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
             foreach (EffectPDDL Effect in Effects)
             {
                 Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
@@ -300,6 +410,22 @@ namespace SharpPDDL
             InstantActionParamCount = Parameters.Count;
         }
 
+        /// <summary>
+        /// A class representing a possible action within the domain.<br/>
+        /// Conditions necessary for its execution and effects must be added to the action. Then join to the domain.<br/>
+        /// <example><para>
+        /// For example:
+        /// <code>
+        /// DomeinPDDL domeinPDDL = new DomeinPDDL("domein name");<br/>
+        /// ActionPDDL actionPDDL = new ActionPDDL("action name");<br/>
+        /// actionPDDL.AddPrecondiction(...);<br/>
+        /// actionPDDL.AddEffect(...);<br/>
+        /// domeinPDDL.AddAction(actionPDDL);<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <param name="Name">Unique, non-empty action name</param>
+        /// <param name="ActionCost">Resource consumption of the action, for example execution time. The smaller it is, the better it is to trigger the action</param>
         public ActionPDDL(string Name, uint ActionCost = 1)
         {
             if (String.IsNullOrEmpty(Name))

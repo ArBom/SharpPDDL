@@ -51,6 +51,7 @@ namespace Hanoi_Tower
             Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
 
             ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick on another brick");
+
             moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
             moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, MovedBrickIsNoUp);
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);

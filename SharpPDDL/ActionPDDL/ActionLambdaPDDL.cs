@@ -90,7 +90,6 @@ namespace SharpPDDL
             ListInitExpression ListOfEfects = Expression.ListInit(newListDictionaryExpression, singleEffectsList);
 
             // Merge it all below
-            //ConstantExpression empty = Expression.Constant(new List<List<KeyValuePair<ushort, ValueType>>>());
             ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
             ConditionalExpression WholeParamBody = Expression.IfThenElse(CheckAllPreco, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));

@@ -11,7 +11,7 @@ namespace SharpPDDL
     public partial class DomeinPDDL
     {
         public readonly string Name;
-        public TypesPDDL types;
+        private TypesPDDL types;
         private List<ActionPDDL> actions;
         internal Crisscross<PossibleState> states;
         public ObservableCollection<object> domainObjects;
@@ -43,6 +43,19 @@ namespace SharpPDDL
                 throw new Exception(); //juz istnieje efekt o takiej nazwie
         }
 
+        /// <summary>
+        /// Method adds <see cref="ActionPDDL">Action</see> to domein
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// DomeinPDDL domeinPDDL = ...;<br/>
+        /// ActionPDDL actionPDDL = new ActionPDDL("Action name");<br/>
+        /// ⋮<br/>
+        /// domeinPDDL.AddAction(actionPDDL);<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <param name="newAction"><see cref="ActionPDDL"/> to add</param>
         public void AddAction(ActionPDDL newAction)
         {
             CheckExistActionName(newAction.Name);
@@ -61,10 +74,24 @@ namespace SharpPDDL
         public void AddGoal(GoalPDDL newGoal)
         {
             CheckExistGoalName(newGoal.Name);
-
             this.domainGoals.Add(newGoal);
         }
 
+        /// <summary>
+        /// Class containing "universal" definitions of an aspect of the problem. These assumptions do not change over time, and regardless of the specific situation we are trying to solve.
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// DomeinPDDL domeinPDDL = new DomeinPDDL("domein name");<br/>
+        /// domeinPDDL.AddAction(...);<br/>
+        /// domeinPDDL.domainObjects.Add(...);<br/>
+        /// domeinPDDL.AddGoal(...);<br/>
+        /// domeinPDDL.Start();<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <param name="name">Name of Domein</param>
+        /// <param name="actions">Action of domein, you can add it later</param>
         public DomeinPDDL (string name, ICollection<ActionPDDL> actions = null)
         {
             this.Name = name;
@@ -87,7 +114,6 @@ namespace SharpPDDL
                 if (!(Obj.GetType().IsClass))
                     throw new Exception();
             }
-
         }
     }
 }

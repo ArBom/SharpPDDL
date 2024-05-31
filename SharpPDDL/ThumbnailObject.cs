@@ -56,7 +56,7 @@ namespace SharpPDDL
             }
         }
 
-        abstract internal PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes);
+        abstract internal PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes);
     }
 
     internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
@@ -69,15 +69,15 @@ namespace SharpPDDL
 
         internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
 
-        internal ThumbnailObject(PossibleStateThumbnailObject Precursor, PossibleStateThumbnailObject parent, Dictionary<ushort, ValueType> changes)
+        internal ThumbnailObject(PossibleStateThumbnailObject Precursor, PossibleStateThumbnailObject parent, List<KeyValuePair<ushort, ValueType>> changes)
         {
             this._Precursor = Precursor;
             this.Parent = parent;
-            this.Dict = changes;
+            this.Dict = changes.ToDictionary(c => c.Key, c => c.Value);
             child = new List<ThumbnailObject<TOriginalObj>>();
         }
 
-        internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
+        internal override PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(_Precursor, this, Changes);
             /*{
@@ -186,7 +186,7 @@ namespace SharpPDDL
             }
         }
 
-        internal override PossibleStateThumbnailObject CreateChild(Dictionary<ushort, ValueType> Changes)
+        internal override PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(this, this, Changes);
             /*{
