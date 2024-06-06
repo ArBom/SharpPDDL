@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace SharpPDDL
 {
@@ -27,17 +28,17 @@ namespace SharpPDDL
 
         internal void FigureCheckSum()
         {
-            string MD5input = "";
 
-            //TODO
+            string MD5input = Precursor.GetHashCode().ToString();
+
             for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
             {
-                MD5input = MD5input + ValuesIndeksesKeys[arrayCounter].ToString() + ";";
+                MD5input = MD5input + ";" + Dict[ValuesIndeksesKeys[arrayCounter]].ToString();
             }
 
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
 
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
                 CheckSum = Convert.ToBase64String(hashBytes).Substring(0,4);

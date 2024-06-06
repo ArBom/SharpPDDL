@@ -60,7 +60,7 @@ namespace SharpPDDL
         {
             List<ushort> TempList = new List<ushort>();
 
-            foreach (ValueOfThumbnail valueOfThumbnail in Values)
+            foreach (ValueOfThumbnail valueOfThumbnail in CumulativeValues)
                 TempList.Add(valueOfThumbnail.ValueOfIndexesKey);
 
             TempList.Sort();

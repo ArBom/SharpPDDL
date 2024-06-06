@@ -4,11 +4,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace SharpPDDL
 {
     public partial class DomeinPDDL
     {
+        ConcurrentQueue<Crisscross<PossibleState>> PossibleGoalRealization = new ConcurrentQueue<Crisscross<PossibleState>>();
+        ConcurrentQueue<Crisscross<PossibleState>> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross<PossibleState>>();
         CancellationTokenSource TaskRealizationCTS;
         ParallelOptions options;
 
@@ -22,7 +25,8 @@ namespace SharpPDDL
                 MaxDegreeOfParallelism = Environment.ProcessorCount
             };
 
-            PossibleState possibleState = new PossibleState(null);
+            List<PossibleStateThumbnailObject> allObjects = new List<PossibleStateThumbnailObject>();
+
             var locker = new object();
             /*Parallel.ForEach
             (
@@ -44,11 +48,13 @@ namespace SharpPDDL
                 }
             );*/
 
-            foreach (var ob in domainObjects)
+            foreach (var domainObject in domainObjects)
             {
-                ThumbnailObjectPrecursor<object> k = new ThumbnailObjectPrecursor<object>(ob, types.allTypes);
-                possibleState.ThumbnailObjects.Add(k);
+                ThumbnailObjectPrecursor<object> ObjectPrecursor = new ThumbnailObjectPrecursor<object>(domainObject, types.allTypes);
+                allObjects.Add(ObjectPrecursor);
             }
+
+            PossibleState possibleState = new PossibleState(allObjects);
 
             foreach (var goal in domainGoals)
             {
@@ -57,9 +63,21 @@ namespace SharpPDDL
 
             states = new Crisscross<PossibleState>();
             states.Content = possibleState;
+            PossibleGoalRealization.Enqueue(states);
+
+            Thread thread = new Thread(CheckGoalProces);
+            thread.Start();
 
             CheckAction(states, 1);
+            CheckAction(states, 0);
 
+            if (thread.ThreadState == ThreadState.Stopped)
+            {
+                thread = new Thread(CheckGoalProces);
+                thread.Start();
+            }
+
+            //CheckGoalProces();
             //Realizationpp.Start();
         }
 
@@ -73,13 +91,19 @@ namespace SharpPDDL
                     return;
 
                 var ResultOfCheckasList = (List<List<KeyValuePair<ushort, ValueType>>>)ResultOfCheck;
-                PossibleState newPossibleState = new PossibleState(stateToCheck.Content);
+                var ChangedThObs = new List<PossibleStateThumbnailObject>();
+                object[] ActionArg = new object[SetToCheck.Length];
 
                 for (int j = 0; j < SetToCheck.Length; j++)
                 {
                     var ChangedThumbnailObject = SetToCheck[j].CreateChild(ResultOfCheckasList[j]);
-                    newPossibleState.ChangedThumbnailObjects.Add(ChangedThumbnailObject);
-                }     
+                    ChangedThObs.Add(ChangedThumbnailObject);
+                    ActionArg[j] = SetToCheck[j].OriginalObj;
+                }
+
+                PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
+                var addedCh = stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost);
+                PossibleGoalRealization.Enqueue(addedCh);
             }
 
             void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
@@ -119,30 +143,78 @@ namespace SharpPDDL
             stateToCheck.CheckedAction.Add(actionPos);
         }
 
-        internal List<int> CheckChangedOb(PossibleStateThumbnailObject updatedOb)
+        internal bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
         {
-            List<int> ToCheck = new List<int>();
-            bool Possible = false;
+            foreach(var state in possibleState.ChangedThumbnailObjects)
+                foreach (var goalObj in possibleGoal.GoalObjects)
+                    if ((bool)goalObj.GoalPDDL.DynamicInvoke(state))
+                        return true;
+
+            return false;
+        }
+
+        internal List<GoalPDDL> CheckNewGoalsReach(Crisscross<PossibleState> updatedOb)
+        {
+            List<GoalPDDL> RealizatedList = new List<GoalPDDL>();
 
             foreach (GoalPDDL Goal in domainGoals)
-                foreach(IGoalObject goalObject in Goal.GoalObjects)
-                {
-                    if (updatedOb.OriginalObj == goalObject.OriginalObj)
-                    {
-                        int b = 100;
-                    }
+            {
+                if (!CheckNewGoalsReachPossibility(updatedOb.Content, Goal))
+                    continue;
 
-                    var a = (bool)goalObject.GoalPDDL.DynamicInvoke(updatedOb);
-                    if (a == true)
-                    {
-                        int ĄĘ = 1500;
-                    }
+                if (Goal.GoalObjects.Count() == 1)
+                {
+                    RealizatedList.Add(Goal);
+                    continue;
                 }
 
-            if (Possible)
-                return ToCheck;
-            else
-                return null;
+                bool goalObjCorrect = false;
+
+                foreach (IGoalObject goalObject in Goal.GoalObjects)
+                {
+                    foreach (var a in updatedOb.Content.ThumbnailObjects)
+                    {
+                        if ((bool)goalObject.GoalPDDL.DynamicInvoke(a))
+                        {
+                            goalObjCorrect = true;
+                            break;
+                        }
+                    }
+
+                    if (!goalObjCorrect)
+                        break;
+
+                    goalObjCorrect = false;
+                }
+
+                if (goalObjCorrect)
+                    RealizatedList.Add(Goal);
+            }
+
+            return RealizatedList;
+        }
+
+        internal void CheckGoalProces()
+        {           
+            while (!PossibleGoalRealization.IsEmpty)
+            {
+                Crisscross<PossibleState> possibleStatesCrisscross;
+                if (!PossibleGoalRealization.TryDequeue(out possibleStatesCrisscross))
+                    continue;
+
+                var a = CheckNewGoalsReach(possibleStatesCrisscross);
+                PossibleToCrisscrossReduce.Enqueue(possibleStatesCrisscross);
+                int AE = 1500100;
+            }
+        }
+
+        internal void TryMargeCrisscross()
+        {
+            while (!PossibleToCrisscrossReduce.IsEmpty)
+            {
+                Crisscross<PossibleState> possibleToCrisscrossReduce;
+                PossibleToCrisscrossReduce.TryDequeue(out possibleToCrisscrossReduce);
+            }
         }
     }
 }
