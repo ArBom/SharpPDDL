@@ -13,7 +13,7 @@ namespace SharpPDDL
         public readonly string Name;
         private TypesPDDL types;
         private List<ActionPDDL> actions;
-        internal Crisscross<PossibleState> states;
+        internal Crisscross states;
         public ObservableCollection<object> domainObjects;
         private ObservableCollection<GoalPDDL> domainGoals;
         private Task TaskRealization;

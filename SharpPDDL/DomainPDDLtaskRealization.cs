@@ -10,8 +10,8 @@ namespace SharpPDDL
 {
     public partial class DomeinPDDL
     {
-        ConcurrentQueue<Crisscross<PossibleState>> PossibleGoalRealization = new ConcurrentQueue<Crisscross<PossibleState>>();
-        ConcurrentQueue<Crisscross<PossibleState>> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross<PossibleState>>();
+        ConcurrentQueue<Crisscross> PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
+        ConcurrentQueue<Crisscross> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross>();
         CancellationTokenSource TaskRealizationCTS;
         ParallelOptions options;
 
@@ -61,7 +61,7 @@ namespace SharpPDDL
                 goal.BUILDIT(this.types.allTypes);
             }
 
-            states = new Crisscross<PossibleState>();
+            states = new Crisscross();
             states.Content = possibleState;
             PossibleGoalRealization.Enqueue(states);
 
@@ -81,7 +81,7 @@ namespace SharpPDDL
             //Realizationpp.Start();
         }
 
-        private void CheckAction(Crisscross<PossibleState> stateToCheck, int actionPos)
+        private void CheckAction(Crisscross stateToCheck, int actionPos)
         {
             void TryActionPossibility (PossibleStateThumbnailObject[] SetToCheck)
             {
@@ -153,7 +153,7 @@ namespace SharpPDDL
             return false;
         }
 
-        internal List<GoalPDDL> CheckNewGoalsReach(Crisscross<PossibleState> updatedOb)
+        internal List<GoalPDDL> CheckNewGoalsReach(Crisscross updatedOb)
         {
             List<GoalPDDL> RealizatedList = new List<GoalPDDL>();
 
@@ -198,22 +198,12 @@ namespace SharpPDDL
         {           
             while (!PossibleGoalRealization.IsEmpty)
             {
-                Crisscross<PossibleState> possibleStatesCrisscross;
+                Crisscross possibleStatesCrisscross;
                 if (!PossibleGoalRealization.TryDequeue(out possibleStatesCrisscross))
                     continue;
 
                 var a = CheckNewGoalsReach(possibleStatesCrisscross);
                 PossibleToCrisscrossReduce.Enqueue(possibleStatesCrisscross);
-                int AE = 1500100;
-            }
-        }
-
-        internal void TryMargeCrisscross()
-        {
-            while (!PossibleToCrisscrossReduce.IsEmpty)
-            {
-                Crisscross<PossibleState> possibleToCrisscrossReduce;
-                PossibleToCrisscrossReduce.TryDequeue(out possibleToCrisscrossReduce);
             }
         }
     }

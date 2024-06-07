@@ -6,30 +6,28 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    class CrisscrossEnum<T> : IEnumerator<T> where T : class
+    class CrisscrossEnum : IEnumerator
     {
-        private Crisscross<T> current;
-        private readonly Crisscross<T> creator;
-        private List<KeyValuePair<Crisscross<T>, Crisscross<T>>> UsedAlternativeRoots;
+        private Crisscross current;
+        private readonly Crisscross creator;
+        private List<KeyValuePair<Crisscross, Crisscross>> UsedAlternativeRoots;
 
-        internal CrisscrossEnum(Crisscross<T> creator)
+        internal CrisscrossEnum(Crisscross creator)
         {
             this.creator = creator;
-            this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross<T>, Crisscross<T>>>();
+            this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross, Crisscross>>();
         }
 
-        T IEnumerator<T>.Current => current.Content;
+        Crisscross Current => current;
 
         object IEnumerator.Current => throw new NotImplementedException();
 
-        void IDisposable.Dispose() { }
-
-        protected bool MoveNextFromLine(Crisscross<T> e)
+        protected bool MoveNextFromLine(Crisscross e)
         {
             if (e.Root is null)
                 return false;
 
-            Crisscross<T> TempRoot = null;
+            Crisscross TempRoot = null;
 
             if (UsedAlternativeRoots.Count != 0)
             {
@@ -62,7 +60,7 @@ namespace SharpPDDL
             {
                 if (current.Children[0].Child.Root != current)
                 {
-                    var AlternativeRootEntrance = new KeyValuePair<Crisscross<T>, Crisscross<T>>(current.Children[0].Child, current);
+                    var AlternativeRootEntrance = new KeyValuePair<Crisscross, Crisscross>(current.Children[0].Child, current);
                     UsedAlternativeRoots.Insert(0, AlternativeRootEntrance);
                 }
 
@@ -75,12 +73,12 @@ namespace SharpPDDL
 
         void IEnumerator.Reset()
         {
-            Crisscross<T> MinusOnePos = new Crisscross<T>
+            Crisscross MinusOnePos = new Crisscross
             {
-                Children = new List<CrisscrossChildrenCon<T>> {new CrisscrossChildrenCon<T>(creator, 0, null)}
+                Children = new List<CrisscrossChildrenCon> {new CrisscrossChildrenCon(creator, 0, null)}
             };
             this.current = MinusOnePos;
-            this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross<T>, Crisscross<T>>>();
+            this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross, Crisscross>>();
         }
     }
 }

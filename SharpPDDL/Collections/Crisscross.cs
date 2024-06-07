@@ -6,13 +6,13 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    internal struct CrisscrossChildrenCon<T> where T : class
-    {
-        internal Crisscross<T> Child;
+    internal struct CrisscrossChildrenCon
+    { 
+        internal Crisscross Child;
         internal int ActionNr;
         internal object[] ActionArgOryg;
 
-        internal CrisscrossChildrenCon(Crisscross<T> Child, int ActionNr, object[] ActionArgOryg)
+        internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, object[] ActionArgOryg)
         {
             this.Child = Child;
             this.ActionNr = ActionNr;
@@ -20,49 +20,49 @@ namespace SharpPDDL
         }
     }
 
-    internal class Crisscross<T> : ICollection<T> where T : class
+    internal class Crisscross : ICollection
     {
-        public T Content;
-        public Crisscross<T> Root;
-        public List<Crisscross<T>> AlternativeRoots;
-        public List<CrisscrossChildrenCon<T>> Children;
+        public PossibleState Content;
+        public Crisscross Root;
+        public List<Crisscross> AlternativeRoots;
+        public List<CrisscrossChildrenCon> Children;
         public List<int> CheckedAction;
         public UInt32 CumulativedTransitionCharge { get; private set; }
 
         internal Crisscross()
         {
             this.Root = null;
-            this.AlternativeRoots = new List<Crisscross<T>>();
-            this.Children = new List<CrisscrossChildrenCon<T>>();
+            this.AlternativeRoots = new List<Crisscross>();
+            this.Children = new List<CrisscrossChildrenCon>();
             this.CheckedAction = new List<int>();
             this.Content = null;
             this.CumulativedTransitionCharge = 0;
         }
 
-        public void Add(T item) => this.Add(item, 0, new object[0], 1);
+        public void Add(PossibleState item) => this.Add(item, 0, new object[0], 1);
 
-        public Crisscross<T> Add(T item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge)
+        public Crisscross Add(PossibleState item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge)
         {
             if (AddedTransitionCharge == 0)
                 AddedTransitionCharge = 1;
 
-            Crisscross<T> AddedItem = new Crisscross<T>()
+            Crisscross AddedItem = new Crisscross()
             {
                 Root = this,
                 Content = item,
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
-            this.Children.Add(new CrisscrossChildrenCon<T>(AddedItem, ActionNr, ActionArg));
+            this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg));
             return AddedItem;
         }
 
-        public Crisscross<T> this[int key]
+        public Crisscross this[int key]
         {
             get { return this.Children[key].Child; }
         }
 
-        public bool Contains(T item)
+        public bool Contains(PossibleState item)
         {
             if (this.Content.Equals(item))
                 return true;
@@ -82,22 +82,21 @@ namespace SharpPDDL
             }
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            ToArray().CopyTo(array, arrayIndex);
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return (IEnumerator)GetEnumerator();
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator GetEnumerator()
         {
-            return new CrisscrossEnum<T>(this);
+            return new CrisscrossEnum(this);
         }
 
         public bool IsReadOnly => false;
+
+        public bool IsSynchronized => throw new NotImplementedException();
+
+        public object SyncRoot => throw new NotImplementedException();
 
         private List<int> Position(List<int> previesly)
         {
@@ -121,7 +120,7 @@ namespace SharpPDDL
             return Position(ToRet);
         }
 
-        private void MoveNodesToList(Crisscross<T> node, List<T> resultList)
+        private void MoveNodesToList(Crisscross node, List<PossibleState> resultList)
         {
             resultList.Add(node.Content);
 
@@ -129,16 +128,16 @@ namespace SharpPDDL
                 MoveNodesToList(child.Child, resultList);
         }
 
-        public T[] ToArray()
+        public PossibleState[] ToArray()
         {
-            List<T> resultList = new List<T>();
+            List<PossibleState> resultList = new List<PossibleState>();
             MoveNodesToList(this, resultList);
             return resultList.ToArray();
         }
 
-        public List<T> ToList()
+        public List<PossibleState> ToList()
         {
-            List<T> resultList = new List<T>();
+            List<PossibleState> resultList = new List<PossibleState>();
             MoveNodesToList(this, resultList);
             resultList = resultList.Distinct().ToList();
             return resultList;
@@ -149,17 +148,24 @@ namespace SharpPDDL
             throw new NotImplementedException();
         }
 
-        public bool Remove(T item)
+        public bool Remove(PossibleState item)
         {
             throw new NotImplementedException();
         }
 
-        public void Merge(Crisscross<T> MergeWith)
+        public void Merge(Crisscross MergeWith)
         {
+            throw new NotImplementedException();
+
             if (MergeWith.CumulativedTransitionCharge < this.CumulativedTransitionCharge)
             {
 
             }
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            ToArray().CopyTo(array, index);
         }
     }
 }
