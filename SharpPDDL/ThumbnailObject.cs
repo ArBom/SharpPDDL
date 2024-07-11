@@ -28,12 +28,11 @@ namespace SharpPDDL
 
         internal void FigureCheckSum()
         {
-
             string MD5input = Precursor.GetHashCode().ToString();
 
             for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
             {
-                MD5input = MD5input + ";" + Dict[ValuesIndeksesKeys[arrayCounter]].ToString();
+                MD5input = MD5input + ";" + this[ValuesIndeksesKeys[arrayCounter]].ToString();
             }
 
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
@@ -58,6 +57,21 @@ namespace SharpPDDL
         }
 
         abstract internal PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes);
+
+        internal bool Compare(PossibleStateThumbnailObject With)
+        {
+            if (!this.OriginalObj.Equals(With.OriginalObj))
+                return false;
+
+            for (ushort arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
+            {
+                if (this[ValuesIndeksesKeys[arrayCounter]] != With[ValuesIndeksesKeys[arrayCounter]])
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 
     internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class

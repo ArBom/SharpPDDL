@@ -100,10 +100,12 @@ namespace Hanoi_Tower
             GoalPDDL movedBrick = new GoalPDDL("Moved the Brick");
             //movedBrick.AddExpectedObjectState(new List<Expression<Predicate<HanoiTable>>> { HT => HT.IsEmptyUpSide });
             movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0]);
+            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1]);
             newDomein.AddGoal(movedBrick);
 
             newDomein.Start();
 
+            Console.ReadKey();
             int AO = 1500;
         }
     }

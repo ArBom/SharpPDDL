@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -57,6 +58,44 @@ namespace SharpPDDL
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
                 CheckSum = Convert.ToBase64String(hashBytes).Substring(0, 6);
             }
+        }
+
+        internal bool Compare(ref PossibleState With)
+        {
+            if (this.CheckSum != With.CheckSum)
+                return false;
+
+            //You cannot merge PossibleState with themself
+            if (this.Equals(With))
+                return false;
+
+            //TODO przyjrzeć się temu
+            /*for (ushort ListCounter = 0; ListCounter != this.ThumbnailObjects.Count; ++ListCounter)
+            {
+                if (this.ThumbnailObjects[ListCounter] != (With.ThumbnailObjects[ListCounter]))
+                    return false;
+            }*/
+
+            return true;
+        }
+
+        /// <summary>
+        /// Merges two <see cref="PossibleState"s/> PreviousPossibleState from function arg becomes forgotten here
+        /// </summary>
+        /// <param name="Annexed"></param>
+        internal void Incorporate(ref PossibleState Annexed)
+        {
+            foreach (var ChThOh in Annexed.ChangedThumbnailObjects)
+            {
+                if (this.ChangedThumbnailObjects.Any(ChThOb => ChThOb.OriginalObj.Equals(ChThOh.OriginalObj)))
+                    continue;
+
+                this.ChangedThumbnailObjects.Add(ChThOh);
+                int rIndex = this.ThumbnailObjects.FindIndex(TO => TO.OriginalObj.Equals(ChThOh.OriginalObj));
+                this.ThumbnailObjects[rIndex] = ChThOh;
+            }
+
+            Annexed = this;
         }
     }
 }

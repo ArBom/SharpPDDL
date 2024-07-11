@@ -8,10 +8,38 @@ using System.Collections.Concurrent;
 
 namespace SharpPDDL
 {
+    internal class Referencer<T>
+    {
+        internal Referencer(ref T content)
+        {
+            _Content = content;
+        }
+
+        protected T _Content;
+        internal ref T Content
+        {
+            get {return ref _Content; }
+        }
+
+        internal void ContentOut (out T content)
+        {
+            content = _Content;
+        }
+    }
+
     public partial class DomeinPDDL
     {
+        object PossibleNewSrisscrossCreLocker = new object();
+        List<Crisscross> PossibleNewSrisscrossCre = new List<Crisscross>();
+        Thread BuildingNewCrisscross = null;
+
+        //BlockingCollection<Crisscross> PossibleGoalRealization = new BlockingCollection<Crisscross>(new ConcurrentQueue<Crisscross>(), 10000);
         ConcurrentQueue<Crisscross> PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-        ConcurrentQueue<Crisscross> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross>();
+        Thread CheckingGoalRealization = null;
+
+        ConcurrentQueue<Referencer<Crisscross>> PossibleToCrisscrossReduce = new ConcurrentQueue<Referencer<Crisscross>>();
+        Thread ReducingCrisscross = null;
+
         CancellationTokenSource TaskRealizationCTS;
         ParallelOptions options;
 
@@ -65,20 +93,8 @@ namespace SharpPDDL
             states.Content = possibleState;
             PossibleGoalRealization.Enqueue(states);
 
-            Thread thread = new Thread(CheckGoalProces);
-            thread.Start();
-
-            CheckAction(states, 1);
-            CheckAction(states, 0);
-
-            if (thread.ThreadState == ThreadState.Stopped)
-            {
-                thread = new Thread(CheckGoalProces);
-                thread.Start();
-            }
-
-            //CheckGoalProces();
-            //Realizationpp.Start();
+            CheckingGoalRealization = new Thread(CheckGoalProces);
+            CheckingGoalRealization.Start();
         }
 
         private void CheckAction(Crisscross stateToCheck, int actionPos)
@@ -102,8 +118,9 @@ namespace SharpPDDL
                 }
 
                 PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
-                var addedCh = stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost);
-                PossibleGoalRealization.Enqueue(addedCh);
+                stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost, out Crisscross AddedItem);
+                Referencer<Crisscross> Ref = new Referencer<Crisscross>(ref AddedItem);
+                PossibleToCrisscrossReduce.Enqueue(Ref);
             }
 
             void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
@@ -126,12 +143,6 @@ namespace SharpPDDL
                 }
             }
 
-            if (stateToCheck.CheckedAction is null)
-                return;
-
-            if (stateToCheck.CheckedAction.Contains(actionPos))
-                return;
-
             int ThObjCount = stateToCheck.Content.ThumbnailObjects.Count;
             int ActParCount = actions[actionPos].InstantActionParamCount;
 
@@ -139,8 +150,6 @@ namespace SharpPDDL
                 return;
 
             Permute(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), actions[actionPos].InstantActionParamCount);
-
-            stateToCheck.CheckedAction.Add(actionPos);
         }
 
         internal bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
@@ -195,15 +204,125 @@ namespace SharpPDDL
         }
 
         internal void CheckGoalProces()
-        {           
+        {
+            Console.WriteLine("Check Goal Proces Run");
             while (!PossibleGoalRealization.IsEmpty)
             {
-                Crisscross possibleStatesCrisscross;
-                if (!PossibleGoalRealization.TryDequeue(out possibleStatesCrisscross))
+                if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                     continue;
 
-                var a = CheckNewGoalsReach(possibleStatesCrisscross);
-                PossibleToCrisscrossReduce.Enqueue(possibleStatesCrisscross);
+                if(possibleStatesCrisscross.Children.Count == 0)
+                    PossibleNewSrisscrossCre.Add(possibleStatesCrisscross);
+            }
+
+            Console.WriteLine("Check Goal Proces Finished");
+
+            if (PossibleNewSrisscrossCre.Count == 0)
+                return;
+
+            if (BuildingNewCrisscross is null)
+            {
+                BuildingNewCrisscross = new Thread(BuildNewState);
+                BuildingNewCrisscross.Start();
+                return;
+            }
+
+            if (BuildingNewCrisscross.ThreadState != ThreadState.Running)
+            {
+                BuildingNewCrisscross = new Thread(BuildNewState);
+                //TODO sortowanie
+                BuildingNewCrisscross.Start();
+            }
+        }
+
+        internal void TryMergeCrisscross()
+        {
+            Console.WriteLine("Try Merge Crisscross Run");
+            while (!PossibleToCrisscrossReduce.IsEmpty)
+            {
+                if (!PossibleToCrisscrossReduce.TryDequeue(out Referencer<Crisscross> Dequeued))
+                    continue;
+
+                bool Merged = false;
+                Crisscross possibleToCrisscrossReduce = Dequeued.Content;
+
+                CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);                   
+                while (crisscrossRefEnum.MoveNext())
+                //foreach (ref Crisscross s in states) it throw cs1510
+                {
+                    var s = crisscrossRefEnum.Current;
+                    Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
+                    if (s.Content.Compare(ref possibleToCrisscrossReduce.Content))
+                    {
+                        if (s.Root is null)
+                            Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
+                        else
+                        {
+                            if (s.Equals(possibleToCrisscrossReduce))
+                                throw new Exception();
+
+                            Crisscross.Merge(ref s, ref possibleToCrisscrossReduce);
+                        }
+                        
+                        Merged = true;
+                        break;
+                    }
+                }
+
+                Console.WriteLine();
+
+                if (Merged)
+                    continue;
+
+                PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
+            }
+            Console.WriteLine("Try Merge Crisscross Finished");
+
+            if (CheckingGoalRealization.ThreadState != ThreadState.Running)
+            {
+                CheckingGoalRealization = new Thread(CheckGoalProces);
+                CheckingGoalRealization.Start();
+            }
+        }
+
+        internal void BuildNewState()
+        {
+            Console.WriteLine("Build New State Run");
+            while (PossibleNewSrisscrossCre.Count != 0)
+            {
+                Crisscross Temp;
+                lock (PossibleNewSrisscrossCreLocker)
+                {
+                    try
+                    {
+                        Temp = PossibleNewSrisscrossCre[0];                       
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    PossibleNewSrisscrossCre.RemoveAt(0);
+                }
+
+                for (int a = 0; a != actions.Count; ++a)
+                    CheckAction(Temp, a);
+            }
+            Console.WriteLine("Build New State Finished");
+
+            if (PossibleToCrisscrossReduce.Count == 0)
+                return;
+
+            if (ReducingCrisscross is null)
+            {
+                ReducingCrisscross = new Thread(TryMergeCrisscross);
+                ReducingCrisscross.Start();
+                return;
+            }
+
+            if (ReducingCrisscross.ThreadState != ThreadState.Running)
+            {
+                ReducingCrisscross = new Thread(TryMergeCrisscross);
+                ReducingCrisscross.Start();
             }
         }
     }

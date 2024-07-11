@@ -2,15 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SharpPDDL
 {
-    internal struct CrisscrossChildrenCon
+    internal class CrisscrossChildrenCon
     { 
         internal Crisscross Child;
-        internal int ActionNr;
-        internal object[] ActionArgOryg;
+        internal readonly int ActionNr;
+        internal readonly object[] ActionArgOryg;
 
         internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, object[] ActionArgOryg)
         {
@@ -26,7 +25,6 @@ namespace SharpPDDL
         public Crisscross Root;
         public List<Crisscross> AlternativeRoots;
         public List<CrisscrossChildrenCon> Children;
-        public List<int> CheckedAction;
         public UInt32 CumulativedTransitionCharge { get; private set; }
 
         internal Crisscross()
@@ -34,19 +32,18 @@ namespace SharpPDDL
             this.Root = null;
             this.AlternativeRoots = new List<Crisscross>();
             this.Children = new List<CrisscrossChildrenCon>();
-            this.CheckedAction = new List<int>();
             this.Content = null;
             this.CumulativedTransitionCharge = 0;
         }
 
-        public void Add(PossibleState item) => this.Add(item, 0, new object[0], 1);
+        public void Add(PossibleState item) => this.Add(item, 0, new object[0], 1, out Crisscross C);
 
-        public Crisscross Add(PossibleState item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge)
+        public void Add(PossibleState item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge, out Crisscross AddedItem)
         {
             if (AddedTransitionCharge == 0)
                 AddedTransitionCharge = 1;
 
-            Crisscross AddedItem = new Crisscross()
+            AddedItem = new Crisscross()
             {
                 Root = this,
                 Content = item,
@@ -54,7 +51,7 @@ namespace SharpPDDL
             };
 
             this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg));
-            return AddedItem;
+            Children.Sort((a, b) => a.Child.Content.GetHashCode().CompareTo(b.Child.Content.GetHashCode()));
         }
 
         public Crisscross this[int key]
@@ -104,7 +101,8 @@ namespace SharpPDDL
                 return previesly;
 
             var thisOfRoot = this.Root.Children.First(c => c.Child == this);
-            List<int> current = new List<int>(this.Root.Children.IndexOf(thisOfRoot));
+            List<int> current = new List<int>();
+            current.Add(this.Root.Children.IndexOf(thisOfRoot));
             current.AddRange(previesly);
             return this.Root.Position(current);
         }
@@ -115,7 +113,8 @@ namespace SharpPDDL
                 return null;
 
             var thisOfRoot = this.Root.Children.First(c => c.Child == this);
-            List<int> ToRet = new List<int>(this.Root.Children.IndexOf(thisOfRoot));
+            List<int> ToRet = new List<int>();
+            ToRet.Add(this.Root.Children.IndexOf(thisOfRoot));
 
             return Position(ToRet);
         }
@@ -125,7 +124,9 @@ namespace SharpPDDL
             resultList.Add(node.Content);
 
             foreach (var child in node.Children)
-                MoveNodesToList(child.Child, resultList);
+                if (!(child.Child.Root is null))
+                    if (child.Child.Root.Equals(node))
+                        MoveNodesToList(child.Child, resultList);
         }
 
         public PossibleState[] ToArray()
@@ -153,14 +154,54 @@ namespace SharpPDDL
             throw new NotImplementedException();
         }
 
-        public void Merge(Crisscross MergeWith)
+        internal static void MergeK(ref Crisscross Incorporating, ref Crisscross Annexed)
         {
-            throw new NotImplementedException();
+            //uint costDiff = Annexed.CumulativedTransitionCharge - Incorporating.CumulativedTransitionCharge;
+            Annexed.AlternativeRoots.Add(Annexed.Root);
 
-            if (MergeWith.CumulativedTransitionCharge < this.CumulativedTransitionCharge)
+            //for every Alternative root of Annexed...
+            for (int AnnAltRootI = 0; AnnAltRootI != Annexed.AlternativeRoots.Count; AnnAltRootI++)
             {
+                //Zmiana childrena
+                for (int i = 0; i != Annexed.AlternativeRoots[AnnAltRootI].Children.Count; i++)
+                {
+                    if (Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child.Equals(Annexed))
+                    {
+                        Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child = Incorporating;
+                    }
+                }
 
+                //...add it to Incorporated AlternativeRoots
+                Incorporating.AlternativeRoots.Add(Annexed.AlternativeRoots[AnnAltRootI]);
             }
+                       
+            foreach (var child in Annexed.Children)
+            {
+                if (child.Child.Root.Equals(Annexed))
+                    child.Child.Root = Incorporating;
+                else
+                    for (int i = 0; i != child.Child.AlternativeRoots.Count; i++)
+                    {
+                        if (child.Child.AlternativeRoots[i].Equals(Annexed))
+                            child.Child.AlternativeRoots[i] = Incorporating;
+                    }
+
+                Incorporating.Children.Add(child);
+            }
+
+            Incorporating.Content.Incorporate(ref Annexed.Content);
+            Annexed = Incorporating;
+        }
+
+        internal static void Merge(ref Crisscross Merge1, ref Crisscross Merge2)
+        {
+            if (Merge1.CumulativedTransitionCharge < Merge2.CumulativedTransitionCharge)
+                MergeK(ref Merge1, ref Merge2);
+            else
+                MergeK(ref Merge2, ref Merge1);
+
+            if (!Merge1.Equals(Merge2))
+                throw new Exception();
         }
 
         public void CopyTo(Array array, int index)
