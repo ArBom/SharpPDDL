@@ -52,6 +52,9 @@ namespace Hanoi_Tower
 
             ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick on another brick");
 
+            moveBrickOnBrick.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
+            moveBrickOnBrick.AddAssignedParametr(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
+
             moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
             moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, MovedBrickIsNoUp);
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
@@ -65,6 +68,9 @@ namespace Hanoi_Tower
             newDomein.AddAction(moveBrickOnBrick);
 
             ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
+
+            moveBrickOnTable.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
+            moveBrickOnTable.AddAssignedParametr(ref NewStandT, "onto table no {0}.", NS => NS.no);
 
             moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
             moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, MovedBrickIsNoUp);
@@ -98,7 +104,6 @@ namespace Hanoi_Tower
                 newDomein.domainObjects.Add(HT);
 
             GoalPDDL movedBrick = new GoalPDDL("Moved the Brick");
-            //movedBrick.AddExpectedObjectState(new List<Expression<Predicate<HanoiTable>>> { HT => HT.IsEmptyUpSide });
             movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0]);
             movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1]);
             newDomein.AddGoal(movedBrick);

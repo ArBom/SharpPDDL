@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace SharpPDDL
 {    
@@ -14,7 +15,9 @@ namespace SharpPDDL
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
+        private List<(int, string, Expression[])> ActionSententia;
         internal Delegate InstantActionPDDL { get; private set; }
+        internal Delegate InstantActionSententia { get; private set; }
         internal int InstantActionParamCount { get; private set; }
 
         internal List<SingleType> TakeSingleTypes()
@@ -52,28 +55,26 @@ namespace SharpPDDL
             return ToRet;
         }
 
-        public void AddUnassignedParametr<T>(out T destination) where T : class
+        public void AddUnassignedParametr<T>(out T destination, string Text = null, params Expression<Func<T, object>>[] TextParams) where T : class
         {
             destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
-            AddParameter(ref destination);
+            AddParameter(ref destination, Text, TextParams);
         }
 
-        public void AddAssignedParametr<T1c>(ref T1c destination) where T1c : class
+        public void AddAssignedParametr<T>(ref T destination, string Text = null, params Expression<Func<T, object>>[] TextParams) where T : class
         {
-            if (typeof(T1c).IsAbstract)
+            if (typeof(T).IsAbstract)
                 throw new Exception("Sorry, You cannot to use abstract parameter at this version");
 
             if (destination is null)
-                destination = (T1c)FormatterServices.GetUninitializedObject(typeof(T1c));
+                destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
 
             Int32 HashCode = destination.GetHashCode();
-            AddParameter(ref destination);
+            AddParameter(ref destination, Text, TextParams);
         }
 
-        internal void AddParameter<T>(ref T destination, string SentenceBegin = "", Expression<Func<T, object>> SentenceEnd = null) where T : class
+        internal void AddParameter<T>(ref T destination, string Text, Expression<Func<T, object>>[] TextParams) where T : class
         {
-            //TODO sentence
-
             Int32 HashCode = destination.GetHashCode();
 
             if (Parameters.Any(t => t.HashCode == HashCode))
@@ -82,6 +83,9 @@ namespace SharpPDDL
                 if (p.Oryginal.Equals(destination))
                     return;
             }
+
+            if (!String.IsNullOrEmpty(Text))
+                ActionSententia.Add((Parameters.Count, Text, TextParams));
 
             Parametr TempParametr = new Parametr(HashCode, destination);
             Parameters.Add(TempParametr);
@@ -405,9 +409,13 @@ namespace SharpPDDL
                 EffectExpressions.Add(ExpressionOfEffect);
             }
 
+            InstantActionParamCount = Parameters.Count;
+
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
-            InstantActionParamCount = Parameters.Count;
+
+            ActionSententiaLamdba actionSententiaLamdba = new ActionSententiaLamdba(allTypes, Parameters, ActionSententia);
+            InstantActionSententia = actionSententiaLamdba.InstantFunct;
         }
 
         /// <summary>
@@ -438,6 +446,7 @@ namespace SharpPDDL
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
             this.Effects = new List<EffectPDDL>();
+            this.ActionSententia = new List<(int, string, Expression[])>();
         }
     }
 }
