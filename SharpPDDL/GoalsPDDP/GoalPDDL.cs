@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -42,7 +43,7 @@ namespace SharpPDDL
         public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, T originalObj, DomeinPDDL newPDDLdomain = null) where T : class
         {
             List<Expression<Predicate<T>>> goalExpectations = new List<Expression<Predicate<T>>>() { goalExpectation };
-            AddExpectedObjectState<T>(new List<Expression<Predicate<T>>>(goalExpectations), originalObj, newPDDLdomain);
+            AddExpectedObjectState(new List<Expression<Predicate<T>>>(goalExpectations), originalObj, newPDDLdomain);
         }
 
         /// <summary>
@@ -57,10 +58,7 @@ namespace SharpPDDL
             if (originalObj is null)
                 throw new Exception();
 
-            if (GoalObjects.Exists(g => g.OriginalObj.Equals(originalObj)))
-                throw new Exception();
-
-            GoalObject<T> temp = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, (List<Expression<Predicate<T>>>)goalExpectations);
+            GoalObject<T> temp = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, goalExpectations.ToList());
             GoalObjects.Add(temp);
         }
 
@@ -68,7 +66,7 @@ namespace SharpPDDL
         {
             //todo sprawdzenie dziedziczenia typów
 
-            GoalObject<T> temp = new GoalObject<T>(null, originalObjType, newPDDLdomain, (List<Expression<Predicate<T>>>)goalExpectations);
+            GoalObject<T> temp = new GoalObject<T>(null, originalObjType, newPDDLdomain, goalExpectations.ToList());
             GoalObjects.Add(temp);
         }
 

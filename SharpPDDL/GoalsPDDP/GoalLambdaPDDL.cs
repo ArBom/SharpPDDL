@@ -32,15 +32,19 @@ namespace SharpPDDL
 
         protected Expression CheckingTheParametrsEquals()
         {
-            PropertyInfo keyOfPrecursor = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj"); //Precursor
-            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfPrecursor);
-            //PropertyInfo keyOfOriginalObj = typeof(ThumbnailObjectPrecursor<T>).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
-            //MemberExpression ThObOryginal = Expression.MakeMemberAccess(ThObPrecursor, keyOfOriginalObj);
+            //Checking Oryginal Object Type
+            PropertyInfo keyOfOriginalObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOfOriginalObjType);
+            Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
 
-            ConstantExpression ConType = Expression.Constant(OryginalObject, typeof(T));
+            //Checking equals of objects
+            PropertyInfo keyOfOriginalObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
+            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfOriginalObj);
+            ConstantExpression ConOrygObj = Expression.Constant(OryginalObject, typeof(T));
+            Expression Equals = Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConOrygObj, ThObPrecursor);
 
-            //return Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConType, ThObOryginal);
-            return Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConType, ThObPrecursor);
+            //Return top connected as andalso expression
+            return Expression.AndAlso(TypeIs, Equals);
         }
 
         public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, Type oryginalObjectType)
@@ -56,10 +60,17 @@ namespace SharpPDDL
 
         protected Expression CheckingTheParametrType()
         {
-            PropertyInfo key = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, key);
-            ConstantExpression ConType = Expression.Constant(OryginalObjectType, typeof(Type));
-            return Expression.Call(ConType, typeof(Type).GetMethod("IsAssignableFrom", new Type[] { typeof(Type) }), ThObOryginalType);
+            //Checking the Oryginal Object Type of _parameter is like expected
+            PropertyInfo keyOriginalObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOriginalObjType);
+            Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
+
+            //Checking is the Oryginal Object Type of _parameter is assignable from expected
+            ConstantExpression ConstTypeExpr = Expression.Constant(OryginalObjectType, typeof(Type));
+            Expression IsAssignableFromExpression = Expression.Call(ConstTypeExpr, typeof(Type).GetMethod("IsAssignableFrom", new Type[] { typeof(Type) }), ThObOryginalType);
+
+            //return top connected as OrEle expression
+            return Expression.OrElse(TypeIs, IsAssignableFromExpression);
         }
 
         protected void CheckConstructorParam()
@@ -106,8 +117,6 @@ namespace SharpPDDL
             }
 
             return ModifeidLambda;
-
-            return CheckAllPreco;
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -130,9 +139,8 @@ namespace SharpPDDL
 
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
-            //ushort? ValueOfIndexesKey = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName)?.Select(v => v.ValueOfIndexesKey).First();
 
-            var Values = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey);//.First();
+            IEnumerable<ushort> Values = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey);
 
             //thumbnailObj allows for it already
             if (Values.Count() != 0)
@@ -149,13 +157,17 @@ namespace SharpPDDL
                 return Expression.Convert(IndexAccessExpr, node.Type);
             }
             //thumbnailObj ignoring it, but we check particular obj.
-            else if (OryginalObject != null)
+            else
             {
                 //it will be check constant value of it
-                ValueType staticValue;
+                MemberInfo keyOrygObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
+                Expression OrygObj = Expression.MakeMemberAccess(_parameter, keyOrygObj);
+                Expression Converted = Expression.Convert(OrygObj, ParameterModel.Type);
 
                 //get the member...
                 MemberInfo memberInfo = typeof(T).GetMember(MemberName).First();
+
+                Expression staticExValue;
 
                 //...and check the type of it...
                 switch (memberInfo.MemberType)
@@ -163,25 +175,32 @@ namespace SharpPDDL
                     case MemberTypes.Field:
                         {
                             FieldInfo FieldType = typeof(T).GetField(MemberName);
-                            if (!FieldType.FieldType.IsValueType)
-                                throw new Exception();
 
-                            staticValue = (ValueType)typeof(T).GetField(MemberName).GetValue(OryginalObject);
+                            if(!FieldType.IsInitOnly)
+                                throw new Exception(MemberName + " have to be: constant / readonly / used as action argument");
+
+                            if (!FieldType.FieldType.IsValueType && FieldType.FieldType != typeof(string))
+                                throw new Exception("Variable used in goal checking have to be string or ValueType");
+
+                            Expression FieldAccess = Expression.Field(Converted, FieldType);
+
+                            staticExValue = FieldAccess;
                             break;
                         }
                     case MemberTypes.Property:
                         {
-                            throw new NotImplementedException();
+                            PropertyInfo PropertyType = typeof(T).GetProperty(MemberName);
 
-                            staticValue = (ValueType)typeof(T).GetProperty(MemberName).GetValue(OryginalObject);
-                            break;
-                        }
-                    case MemberTypes.Method:
-                        {
-                            if (typeof(T).GetMethod(MemberName).GetParameters().Count() != 0)
-                                throw new Exception();
+                            if (PropertyType.CanWrite || !PropertyType.CanRead)
+                                throw new Exception(MemberName + " cannot be changed in time of programm run or have to be used as action argument");
 
-                            staticValue = (ValueType)typeof(T).GetMethod(MemberName).Invoke(OryginalObject, null);
+                            if (!PropertyType.PropertyType.IsValueType && PropertyType.PropertyType != typeof(string))
+                                throw new Exception("Variable used in goal checking have to be string or ValueType");
+
+                            Expression PropertyAccess = Expression.Property(Converted, PropertyType);
+
+                            object value = (ValueType)PropertyType.GetValue(OryginalObject);
+                            staticExValue = Expression.Constant(value, PropertyType.PropertyType);
                             break;
                         }
                     default:
@@ -190,11 +209,8 @@ namespace SharpPDDL
                         }
                 }
 
-                Expression staticExValue = Expression.Constant(staticValue);
                 return Expression.Convert(staticExValue, node.Type);
             }
-            else
-                throw new Exception();
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

@@ -28,7 +28,7 @@ namespace Hanoi_Tower
 
         public class HanoiTable : HanoiObj
         {
-            public int no;
+            public readonly int no;
             public HanoiTable(int no, int HanoiObjSizeUpSide = 0, bool isEmpty = true)
             {
                 this.no = no;
@@ -104,7 +104,8 @@ namespace Hanoi_Tower
                 newDomein.domainObjects.Add(HT);
 
             GoalPDDL movedBrick = new GoalPDDL("Moved the Brick");
-            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0]);
+            Expression<Predicate<HanoiTable>> expression = (HT => (HT.IsEmptyUpSide && HT.no == 0));
+            movedBrick.AddExpectedObjectState(new Expression<Predicate<HanoiTable>>[] { HT => HT.IsEmptyUpSide, HT => HT.no == 0 }, typeof(HanoiTable) );
             movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1]);
             newDomein.AddGoal(movedBrick);
 
