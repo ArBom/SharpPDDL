@@ -56,7 +56,7 @@ namespace SharpPDDL
             }
 
             Expression CheckAllPreco = ChecksPrecondition[0];
-            for (int a = 1; a != ChecksParam.Count; a++)
+            for (int a = 1; a != ChecksPrecondition.Count; a++)
                 CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
 
         // Effects below

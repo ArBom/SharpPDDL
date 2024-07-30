@@ -33,6 +33,9 @@ namespace SharpPDDL
 
                 for (int i = 0; i != chain[chainInd].Children.Count - 1; i++)
                 {
+                    if (chain[chainInd].Children[i].Child.Root is null)
+                        continue;
+
                     if (chain[chainInd].Children[i].Child.Root.Equals(chain[chainInd]))
                     {
                         if (chain.Length == chainInd + 1)

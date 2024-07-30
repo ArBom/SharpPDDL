@@ -177,23 +177,17 @@ namespace SharpPDDL
                     continue;
                 }
 
-                bool goalObjCorrect = false;
+                bool goalObjCorrect = true;
 
                 foreach (IGoalObject goalObject in Goal.GoalObjects)
                 {
-                    foreach (var a in updatedOb.Content.ThumbnailObjects)
+                    if (updatedOb.Content.ThumbnailObjects.Any(ThOb => (bool)goalObject.GoalPDDL.DynamicInvoke(ThOb)))
+                        continue;
+                    else
                     {
-                        if ((bool)goalObject.GoalPDDL.DynamicInvoke(a))
-                        {
-                            goalObjCorrect = true;
-                            break;
-                        }
-                    }
-
-                    if (!goalObjCorrect)
+                        goalObjCorrect = false;
                         break;
-
-                    goalObjCorrect = false;
+                    }
                 }
 
                 if (goalObjCorrect)
@@ -211,7 +205,39 @@ namespace SharpPDDL
                 if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                     continue;
 
-                if(possibleStatesCrisscross.Children.Count == 0)
+                List<GoalPDDL> GoalsReach = CheckNewGoalsReach(possibleStatesCrisscross);
+
+                if (GoalsReach.Count != 0)
+                {
+                    Console.WriteLine(GoalsReach[0].Name + " determined!!!");
+                    Crisscross state = states;
+                    List<CrisscrossChildrenCon> r = possibleStatesCrisscross.Position();
+
+                    if (!(r is null))
+                    {
+                        List<List<string>> Plan = new List<List<string>>();
+
+                        for (int i = 0; i != r.Count; i++)
+                        {
+                            PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[actions[r[i].ActionNr].InstantActionParamCount];
+
+                            for (int j = 0; j != arg.Length; j++)
+                            {
+                                arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
+                            }
+
+                            Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg) });
+
+                            state = r[i].Child;
+                        }
+
+                        PlanGenerated?.Invoke(Plan);
+
+                    Console.ReadKey();
+                    }
+                }
+
+                if (possibleStatesCrisscross.Children.Count == 0)
                     PossibleNewSrisscrossCre.Add(possibleStatesCrisscross);
             }
 
@@ -251,7 +277,7 @@ namespace SharpPDDL
                 //foreach (ref Crisscross s in states) it throw cs1510
                 {
                     var s = crisscrossRefEnum.Current;
-                    Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
+                    //Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
                     if (s.Content.Compare(ref possibleToCrisscrossReduce.Content))
                     {
                         if (s.Root is null)
@@ -269,7 +295,7 @@ namespace SharpPDDL
                     }
                 }
 
-                Console.WriteLine();
+                //Console.WriteLine();
 
                 if (Merged)
                     continue;

@@ -35,7 +35,7 @@ namespace SharpPDDL
             //Checking Oryginal Object Type
             PropertyInfo keyOfOriginalObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
             MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOfOriginalObjType);
-            Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
+            Expression TypeIs = Expression.Equal(ThObOryginalType, Expression.Constant(OryginalObjectType));
 
             //Checking equals of objects
             PropertyInfo keyOfOriginalObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");

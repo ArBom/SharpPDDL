@@ -10,6 +10,12 @@ namespace Hanoi_Tower
 {
     class Program
     {
+        static void printPlan(List<List<string>> plan)
+        {
+            for (int i = 0; i != plan.Count; i++)
+                Console.WriteLine(plan[i][0] + plan[i][1]);
+        }
+
         public class HanoiObj //Sorry it cannot be abstract
         {
             public int HanoiObjSizeUpSide = 0;
@@ -50,7 +56,7 @@ namespace Hanoi_Tower
             Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size));
             Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
 
-            ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick on another brick");
+            ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick");
 
             moveBrickOnBrick.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnBrick.AddAssignedParametr(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
@@ -83,9 +89,7 @@ namespace Hanoi_Tower
 
             newDomein.AddAction(moveBrickOnTable);
 
-            List<HanoiBrick> HanoiBricks = new List<HanoiBrick>();
-
-            int MaxBriSize = 1;
+            int MaxBriSize = 3;
             for (int Bri = 1; Bri <= MaxBriSize; Bri++)
             {
                 HanoiBrick newOne = new HanoiBrick(Bri);
@@ -94,7 +98,6 @@ namespace Hanoi_Tower
                 else
                     newOne.IsEmptyUpSide = true;
 
-                HanoiBricks.Add(newOne);
                 newDomein.domainObjects.Add(newOne);
             }
 
@@ -103,12 +106,12 @@ namespace Hanoi_Tower
             foreach (var HT in HanoiTables)
                 newDomein.domainObjects.Add(HT);
 
-            GoalPDDL movedBrick = new GoalPDDL("Moved the Brick");
-            Expression<Predicate<HanoiTable>> expression = (HT => (HT.IsEmptyUpSide && HT.no == 0));
-            movedBrick.AddExpectedObjectState(new Expression<Predicate<HanoiTable>>[] { HT => HT.IsEmptyUpSide, HT => HT.no == 0 }, typeof(HanoiTable) );
-            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1]);
+            GoalPDDL movedBrick = new GoalPDDL("Transfer bricks onto table no. 3");
+            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0] );
+            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1] );
             newDomein.AddGoal(movedBrick);
 
+            newDomein.PlanGenerated += printPlan;
             newDomein.Start();
 
             Console.ReadKey();

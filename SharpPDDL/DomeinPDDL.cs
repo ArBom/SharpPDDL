@@ -8,6 +8,8 @@ using System.Threading;
 
 namespace SharpPDDL
 {
+    public delegate void ListOfString(List<List<string>> planGenerated);
+
     public partial class DomeinPDDL
     {
         public readonly string Name;
@@ -17,6 +19,8 @@ namespace SharpPDDL
         public ObservableCollection<object> domainObjects;
         private ObservableCollection<GoalPDDL> domainGoals;
         private Task TaskRealization;
+
+        public ListOfString PlanGenerated;
 
         internal void CheckActions()
         {

@@ -95,26 +95,25 @@ namespace SharpPDDL
 
         public object SyncRoot => throw new NotImplementedException();
 
-        private List<int> Position(List<int> previesly)
+        private List<CrisscrossChildrenCon> Position(List<CrisscrossChildrenCon> previesly)
         {
             if (this.Root == null)
                 return previesly;
 
-            var thisOfRoot = this.Root.Children.First(c => c.Child == this);
-            List<int> current = new List<int>();
-            current.Add(this.Root.Children.IndexOf(thisOfRoot));
+            CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            List<CrisscrossChildrenCon> current = new List<CrisscrossChildrenCon>();
+            current.Add(thisOfRoot);
             current.AddRange(previesly);
             return this.Root.Position(current);
         }
 
-        public List<int> Position()
+        public List<CrisscrossChildrenCon> Position()
         {
             if (this.Root == null)
                 return null;
 
             var thisOfRoot = this.Root.Children.First(c => c.Child == this);
-            List<int> ToRet = new List<int>();
-            ToRet.Add(this.Root.Children.IndexOf(thisOfRoot));
+            List<CrisscrossChildrenCon> ToRet = new List<CrisscrossChildrenCon>();
 
             return Position(ToRet);
         }
