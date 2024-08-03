@@ -10,7 +10,7 @@ namespace Hanoi_Tower
 {
     class Program
     {
-        static void printPlan(List<List<string>> plan)
+        static void PrintPlan(List<List<string>> plan)
         {
             for (int i = 0; i != plan.Count; i++)
                 Console.WriteLine(plan[i][0] + plan[i][1]);
@@ -52,7 +52,7 @@ namespace Hanoi_Tower
             HanoiBrick NewStandB = null;
             HanoiTable NewStandT = null;
 
-            Expression<Predicate<HanoiObj>> MovedBrickIsNoUp = (HO => HO.IsEmptyUpSide);
+            Expression<Predicate<HanoiObj>> ObjectIsNoUp = (HO => HO.IsEmptyUpSide);
             Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size));
             Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
 
@@ -61,8 +61,8 @@ namespace Hanoi_Tower
             moveBrickOnBrick.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnBrick.AddAssignedParametr(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
 
-            moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-            moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, MovedBrickIsNoUp);
+            moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp);
+            moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, ObjectIsNoUp);
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
             moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
@@ -78,8 +78,8 @@ namespace Hanoi_Tower
             moveBrickOnTable.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnTable.AddAssignedParametr(ref NewStandT, "onto table no {0}.", NS => NS.no);
 
-            moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-            moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, MovedBrickIsNoUp);
+            moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp);
+            moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, ObjectIsNoUp);
             moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
             moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide);
@@ -111,7 +111,7 @@ namespace Hanoi_Tower
             movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1] );
             newDomein.AddGoal(movedBrick);
 
-            newDomein.PlanGenerated += printPlan;
+            newDomein.PlanGenerated += PrintPlan;
             newDomein.Start();
 
             Console.ReadKey();

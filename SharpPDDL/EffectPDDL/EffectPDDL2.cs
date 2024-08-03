@@ -2,18 +2,20 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SharpPDDL
 {
-    class EffectPDDL2<T1, T2> : EffectPDDL where T1 : class where T2 : class
+    class EffectPDDL2<T1c, T1p, T2c, T2p> : EffectPDDL
+        where T1p : class
+        where T2p : class
+        where T1c : class, T1p
+        where T2c : class, T2p
     {
-        //new protected readonly string DestinationMemberName;
         readonly Expression SourceFunc = null;
-        protected T1 t1;
-        protected T2 t2;
+        protected T1c t1;
+        protected T2c t2;
 
-        internal EffectPDDL2(string Name, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) :
+        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct) :
         base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
         {
             MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
@@ -24,7 +26,7 @@ namespace SharpPDDL
             this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
         }
 
-        internal EffectPDDL2(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) : 
+        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1c, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2c, ValueType>> DestinationFunct) :
         base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
         {
             MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
@@ -35,7 +37,21 @@ namespace SharpPDDL
             this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
         }
 
-        private string MutualPartOfConstructors(ref T1 SourceObj, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct)
+        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct) : 
+        base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
+        {
+            MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
+            SourceLambdaListerPDDL.Visit(SourceFunct);
+            this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
+            this.usedMembers2Class = new List<string>();
+            this.SourceFunc = SourceFunct;
+            this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+        }
+
+        private string MutualPartOfConstructors(ref T1c SourceObj, ref T2c DestinationObj, Expression<Func<T2c, ValueType>> DestinationFunct) => 
+            MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+
+        private string MutualPartOfConstructors(ref T1c SourceObj, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct)
         {
             this.t1 = SourceObj;
             this.t2 = DestinationObj;

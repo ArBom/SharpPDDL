@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7</LangVersion>
+    <ApplicationIcon>SharpPDDL.ico</ApplicationIcon>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode</PackageLicenseUrl>
+    <Company />
+    <Authors>Arkadiusz Bomba</Authors>
+    <PackageReleaseNotes>α</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/ArBom/SharpPDDL</RepositoryUrl>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

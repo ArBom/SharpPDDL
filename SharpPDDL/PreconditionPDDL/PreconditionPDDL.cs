@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace SharpPDDL
@@ -26,24 +24,22 @@ namespace SharpPDDL
         /// </returns>
         protected Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> CheckPDDP;
 
-        /// <summary>
-        /// It's check if object(s) fulfil requirement (of this precondition) to do action.
-        /// </summary>
-        /// <returns>
-        /// TRUE if so, FALSE if not, NULL if its incorrect
-        /// </returns>
-        protected Func<dynamic, dynamic, bool> Check;
-
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
 
         internal PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 
-        internal static PreconditionPDDL Instance<T1c, T1p>(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) where T1p : class where T1c : T1p
+        internal static PreconditionPDDL Instance<T1c, T1p>(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) 
+            where T1p : class 
+            where T1c : T1p
         {
             return new PreconditionPDDL<T1c, T1p>(Name, ref obj1, func);
         }
 
-        internal static PreconditionPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) where T1p : class where T2p : class where T1c : T1p where T2c : T2p
+        internal static PreconditionPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
+            where T1p : class 
+            where T2p : class 
+            where T1c : T1p 
+            where T2c : T2p
         {
             return new PreconditionPDDL<T1c, T1p, T2c, T2p>(Name, ref obj1, ref obj2, func);
         }

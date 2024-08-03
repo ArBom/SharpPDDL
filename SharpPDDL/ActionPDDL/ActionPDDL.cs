@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace SharpPDDL
 {    
@@ -289,26 +287,21 @@ namespace SharpPDDL
             Effects.Add(temp);
         }
 
-        public void AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
-            where T1p : class
-            where T2p : class
-            where T1c : class, T1p
-            where T2c : class, T2p
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
-        /// <param name="SourceObj"></param>
-        /// <param name="Source"></param>
-        /// <param name="DestinationObj"></param>
-        /// <param name="DestinationMember"></param>
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember) where T1 : class where T2 : class
+        /// <param name="SourceObj">One of action parametr from which is taken value</param>
+        /// <param name="Source">Point of source value to take</param>
+        /// <param name="DestinationObj">One of action parametr to which is moved value</param>
+        /// <param name="DestinationMember">Point of destination value to move</param>
+        public void AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
+            where T1p : class
+            where T2p : class
+            where T1c : class, T1p
+            where T2c : class, T2p
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
@@ -329,7 +322,7 @@ namespace SharpPDDL
                 break;
             }
 
-            //Tak source parameter value as "IsInUse"
+            //Tag source parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
             {
                 if (parametr.HashCode != SourceObj.GetHashCode())
@@ -347,6 +340,22 @@ namespace SharpPDDL
 
             Effects.Add(temp);
         }
+
+        /// <summary>
+        /// This method uses one object to assigning new value to another parameter's member after the action is performed
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="SourceObj">One of action parametr from which is taken value</param>
+        /// <param name="Source">Point of source value to take</param>
+        /// <param name="DestinationObj">One of action parametr to which is moved value</param>
+        /// <param name="DestinationMember">Point of destination value to move</param>
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember)
+            where T1 : class
+            where T2 : class
+            =>
+            AddEffect<T1, T1, T2, T2>(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
 
         public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, T2, ValueType> SourceFunct, ref T2 DestinationObj, Func<T2, ValueType> DestinationFunct) 
             where T1 : class 
