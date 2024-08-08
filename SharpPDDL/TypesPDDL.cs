@@ -11,32 +11,46 @@ namespace SharpPDDL
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
         internal TreeNode<SingleTypeOfDomein> Root;
 
+        //method is call for every Action
         internal void CompleteTypes(List<SingleType> singleTypes)
         {
             foreach (SingleType singleType in singleTypes)
             {
-                SingleTypeOfDomein SingleTypeInList = null;
+                int? ToTagAllTypesIndex = null;
 
+                //If its some type was added before...
                 if (allTypes.Count != 0)
                 {
-                    var SingleTypeInLists = allTypes.Where(st => st.Type == singleType.Type);
-                    if (SingleTypeInLists.Count() != 0)
-                        SingleTypeInList = SingleTypeInLists.First();
+                    ///...try to find the same type added before
+                    var SingleTypeInLists = allTypes.Any(st => st.Type == singleType.Type);
+                    if (SingleTypeInLists)
+                        //SingleTypeInList = SingleTypeInLists.First();
+                        ToTagAllTypesIndex = allTypes.FindIndex(st => st.Type == singleType.Type);
 
                 }
 
-                if (SingleTypeInList is null)
+                //if it didnt find the same type added before...
+                if (ToTagAllTypesIndex is null)
                 {
+                    //...add it now...
                     allTypes.Add(new SingleTypeOfDomein(singleType));
+                    //...and work with another
                     continue;
                 }
 
+                //in the other case update values of Parameter
                 foreach (ValueOfParametr value in singleType.Values)
                 {
-                    if (SingleTypeInList.Values.Any(v => v.Name == value.Name))
+                    if (allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name))
+                    {
+                        int ToTagIndex = allTypes[ToTagAllTypesIndex.Value].Values.FindIndex(v => v.Name == value.Name);
+                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_EffectIn = value.IsInUse_EffectIn;
+                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_EffectOut = value.IsInUse_EffectOut;
+                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_PreconditionIn = value.IsInUse_PreconditionIn;
                         continue;
+                    }
 
-                    SingleTypeInList.Values.Add(new ValueOfThumbnail(value));
+                    allTypes[ToTagAllTypesIndex.Value].Values.Add(new ValueOfThumbnail(value));
                 }
             }
         }
@@ -162,7 +176,7 @@ namespace SharpPDDL
 
                     while (NumbofValueInherNodeTypes + 1 != NumbofValueInherChildTypes)
                     {
-                        Type TypeUp = AnalysedNode.Content is null ? null : AnalysedNode.Content.Type.BaseType;
+                        Type TypeUp = AnalysedNode.Content?.Type.BaseType;
                         Type TypeUp2 = AnalysedNode.Content.Type.BaseType;
                         List<(ValueOfThumbnail m, string Name)> AnalysedNodeValuesTuple = AnalysedNode.Content.Values.Select(m => (m, m.Name)).ToList();
                         List<ValueOfThumbnail> newSingleTypeMembers = TypeUp.GetMembers().Select(mtmember => AnalysedNodeValuesTuple.FirstOrDefault(anvt => (anvt.Name == mtmember.Name && (mtmember.MemberType == MemberTypes.Field || mtmember.MemberType == MemberTypes.Property))))?.Where(el => !(el.m is null)).Select(el => el.m).ToList();
@@ -211,6 +225,39 @@ namespace SharpPDDL
                 }
             }
 
+            void TagValues(TreeNode<SingleTypeOfDomein> node)
+            {
+                if (node.Children.Count != 0)
+                    foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
+                        TagValues(child);
+
+                if (node.Content != null)
+                {
+                    TreeNode<SingleTypeOfDomein> tempNode = node;
+                    while (tempNode.Root != null)
+                    {
+                        if (tempNode.Root.Content is null)
+                        {
+                            tempNode = tempNode.Root;
+                            continue;
+                        }
+
+                        foreach (ValueOfThumbnail v in tempNode.Content.Values)
+                        {
+                            if (tempNode.Root.Content.Values.Any(aV => aV.Name == v.Name))
+                            {
+                                int ToTagIndex = tempNode.Root.Content.Values.FindIndex(aV => aV.Name == v.Name);
+                                tempNode.Root.Content.Values[ToTagIndex].IsInUse_EffectIn = v.IsInUse_EffectIn;
+                                tempNode.Root.Content.Values[ToTagIndex].IsInUse_EffectOut = v.IsInUse_EffectOut;
+                                tempNode.Root.Content.Values[ToTagIndex].IsInUse_PreconditionIn = v.IsInUse_PreconditionIn;
+                            }
+                        }
+
+                        tempNode = tempNode.Root;
+                    }
+                }
+            }
+
             void CumulateValues(TreeNode<SingleTypeOfDomein> node)
             {
                 if (node.Content != null)
@@ -254,6 +301,7 @@ namespace SharpPDDL
 
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);
+            TagValues(Root);
             CumulateValues(Root);
             CompleteValuesIndekses();
 

@@ -20,11 +20,49 @@ namespace SharpPDDL
             this.OwnerType = typeOfOwner;
             this.IsField = isField;
         }
+
+        //In the beginning one premise it will be not in use
+        protected bool _IsInUse_PreconditionIn;
+        internal bool IsInUse_PreconditionIn
+        {
+            get { return _IsInUse_PreconditionIn; }
+            set
+            {
+                //It can be change only for true
+                if (value)
+                    _IsInUse_PreconditionIn = true;
+            }
+        }
+
+        //In the beginning one premise it will be not in use
+        protected bool _IsInUse_EffectIn;
+        internal bool IsInUse_EffectIn
+        {
+            get { return _IsInUse_EffectIn; }
+            set
+            {
+                //It can be change only for true
+                if (value)
+                    _IsInUse_EffectIn = true;
+            }
+        }
+
+        //In the beginning one premise it will be not in use
+        protected bool _IsInUse_EffectOut;
+        internal bool IsInUse_EffectOut
+        {
+            get { return _IsInUse_EffectOut; }
+            set
+            {
+                //It can be change only for true
+                if (value)
+                    _IsInUse_EffectOut = true;
+            }
+        }
     }
 
     internal class ValueOfParametr : Value
     {
-        readonly int OryginalMemberHash;
         readonly internal Type Type;
 
         //In the beginning one premise it will be not in use
@@ -52,9 +90,12 @@ namespace SharpPDDL
     {
         protected ushort _ValueOfIndexesKey = 0;
 
-        //internal ValueOfThumbnail(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField) {}
-
-        internal ValueOfThumbnail(ValueOfParametr valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField) { }
+        internal ValueOfThumbnail(ValueOfParametr valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField)
+        {
+            IsInUse_PreconditionIn = valueOfParametr.IsInUse_PreconditionIn;
+            IsInUse_EffectIn = valueOfParametr.IsInUse_EffectIn;
+            IsInUse_EffectOut = valueOfParametr.IsInUse_EffectOut;
+        }
 
         internal ushort ValueOfIndexesKey
         {

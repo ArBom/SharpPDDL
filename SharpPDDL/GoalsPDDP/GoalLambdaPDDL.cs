@@ -12,9 +12,9 @@ namespace SharpPDDL
         readonly Type OryginalObjectType;
         readonly T OryginalObject;
         private readonly List<SingleTypeOfDomein> allTypes;
-        Expression CheckingTheParametr;
+        readonly Expression CheckingTheParametr;
         internal LambdaExpression ModifeidLambda;
-        List<Expression<Predicate<T>>> GoalExpectations;
+        readonly List<Expression<Predicate<T>>> GoalExpectations;
 
         public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, T oryginalObject)
         {

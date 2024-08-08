@@ -2,25 +2,16 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Text;
 using System.Security.Cryptography;
 
 namespace SharpPDDL
 {
-    internal abstract class ThumbnailObject
-    {
-        internal Type OriginalObjType;
-        protected Dictionary<ushort, ValueType> Dict;
-
-        internal abstract ushort[] ValuesIndeksesKeys { get; }
-
-        public abstract ValueType this[ushort key] { get; }
-    }
-
-    internal abstract class PossibleStateThumbnailObject : ThumbnailObject
+    internal abstract class PossibleStateThumbnailObject
     {
         internal abstract object OriginalObj { get; }
-        internal abstract new Type OriginalObjType { get; }
+        internal abstract Type OriginalObjType { get; }
+        protected Dictionary<ushort, ValueType> Dict;
+        internal abstract ushort[] ValuesIndeksesKeys { get; }
         internal abstract PossibleStateThumbnailObject Precursor { get; }
         internal PossibleStateThumbnailObject Parent;
         internal List<PossibleStateThumbnailObject> child;
@@ -44,7 +35,7 @@ namespace SharpPDDL
             }
         }
 
-        public override ValueType this[ushort key]
+        public ValueType this[ushort key]
         {
             // returns value if exists
             get
@@ -95,12 +86,6 @@ namespace SharpPDDL
         internal override PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(_Precursor, this, Changes);
-            /*{
-                _Precursor = this._Precursor,
-                Parent = this,
-                Dict = Changes,
-                child = new List<ThumbnailObject<TOriginalObj>>()
-            };*/
 
             if (Changes.Count != 0)
             {
@@ -123,7 +108,6 @@ namespace SharpPDDL
         internal override Type OriginalObjType => _OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
         internal override PossibleStateThumbnailObject Precursor { get { return this; } }
-        protected readonly ushort[] _ValuesIndeksesKeys;
         internal override ushort[] ValuesIndeksesKeys
         {
             get { return Model.ValuesKeys; }
@@ -204,18 +188,9 @@ namespace SharpPDDL
         internal override PossibleStateThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(this, this, Changes);
-            /*{
-                _Precursor = this,
-                Parent = this,
-                Dict = Changes,
-                child = new List<ThumbnailObject<TOriginalObj>>()
-            };*/
 
             if (Changes.Count != 0)
             {
-                //foreach (KeyValuePair<ushort, ValueType> update in Changes)
-                 //   NewChild.Dict[update.Key] = update.Value;
-
                 NewChild.FigureCheckSum();
             }
             else
