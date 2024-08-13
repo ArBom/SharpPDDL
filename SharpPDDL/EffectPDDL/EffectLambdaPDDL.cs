@@ -43,9 +43,11 @@ namespace SharpPDDL
 
             if (OldParameters.Count() == 0)
             {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>();
-                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]));
-                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty"));
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
+                {
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]),
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty")
+                };
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 
@@ -58,9 +60,11 @@ namespace SharpPDDL
             //make 2-Parameters lambda
             if (OldParameters.Count() == 1)
             {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>();
-                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]));
-                parameterExpressions.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[1]));
+                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
+                {
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]),
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[1])
+                };
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
             }
 

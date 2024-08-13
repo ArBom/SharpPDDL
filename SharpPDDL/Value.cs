@@ -7,6 +7,7 @@ namespace SharpPDDL
     {
         readonly internal string Name;
         internal Type OwnerType;
+        readonly internal Type Type;
 
         //true for field, false for properties
         internal bool IsField;
@@ -18,11 +19,17 @@ namespace SharpPDDL
 
             this.Name = name;
             this.OwnerType = typeOfOwner;
+            this.Type = typeOfValue;
             this.IsField = isField;
         }
 
+        internal bool IsInUse
+        {
+            get { return ( _IsInUse_EffectIn || _IsInUse_EffectOut || _IsInUse_PreconditionIn); }
+        }
+
         //In the beginning one premise it will be not in use
-        protected bool _IsInUse_PreconditionIn;
+        protected bool _IsInUse_PreconditionIn = false;
         internal bool IsInUse_PreconditionIn
         {
             get { return _IsInUse_PreconditionIn; }
@@ -35,7 +42,7 @@ namespace SharpPDDL
         }
 
         //In the beginning one premise it will be not in use
-        protected bool _IsInUse_EffectIn;
+        protected bool _IsInUse_EffectIn = false;
         internal bool IsInUse_EffectIn
         {
             get { return _IsInUse_EffectIn; }
@@ -48,7 +55,7 @@ namespace SharpPDDL
         }
 
         //In the beginning one premise it will be not in use
-        protected bool _IsInUse_EffectOut;
+        protected bool _IsInUse_EffectOut = false;
         internal bool IsInUse_EffectOut
         {
             get { return _IsInUse_EffectOut; }
@@ -63,12 +70,10 @@ namespace SharpPDDL
 
     internal class ValueOfParametr : Value
     {
-        readonly internal Type Type;
-
         //In the beginning one premise it will be not in use
-        private bool _IsInUse;
+        private bool _IsInUse = false;
 
-        internal bool IsInUse
+        internal new bool IsInUse
         {
             get { return _IsInUse; }
             set
@@ -79,11 +84,7 @@ namespace SharpPDDL
             }
         }
 
-        internal ValueOfParametr(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField)
-        {
-            this._IsInUse = false;
-            this.Type = typeOfValue;
-        }
+        internal ValueOfParametr(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField) { }
     }
 
     internal class ValueOfThumbnail : Value

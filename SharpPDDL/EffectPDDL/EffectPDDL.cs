@@ -25,13 +25,13 @@ namespace SharpPDDL
             return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref sourceObj1, Source, ref DestinationObj, destinationMember);
         }
 
-        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c sourceObj1, Func<T1p, T2p, ValueType> Source, ref T2c DestinationObj, Func<T2p, ValueType> destinationMember)
+        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> destinationMember)
             where T1p : class
             where T1c : class, T1p
             where T2p : class
             where T2c : class, T2p
         {
-            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref sourceObj1, CreateExpression(Source), ref DestinationObj, CreateExpression(destinationMember));
+            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref sourceObj1, Source, ref DestinationObj, destinationMember);
         }
     }
 }

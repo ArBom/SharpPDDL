@@ -69,12 +69,13 @@ namespace SharpPDDL
             if (this.Equals(With))
                 return false;
 
-            //TODO przyjrzeć się temu
-            /*for (ushort ListCounter = 0; ListCounter != this.ThumbnailObjects.Count; ++ListCounter)
+            for (ushort ListCounter = 0; ListCounter != this.ThumbnailObjects.Count; ++ListCounter)
             {
-                if (this.ThumbnailObjects[ListCounter] != (With.ThumbnailObjects[ListCounter]))
+                if (this.ThumbnailObjects[ListCounter].Compare(With.ThumbnailObjects[ListCounter]))
+                    continue;
+                else
                     return false;
-            }*/
+            }
 
             return true;
         }

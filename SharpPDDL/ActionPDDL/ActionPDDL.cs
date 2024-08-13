@@ -387,7 +387,7 @@ namespace SharpPDDL
             =>
             AddEffect<T1, T1, T2, T2>(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
 
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Func<T1, T2, ValueType> SourceFunct, ref T2 DestinationObj, Func<T2, ValueType> DestinationFunct) 
+        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) 
             where T1 : class 
             where T2 : class
         {

@@ -20,16 +20,6 @@ namespace SharpPDDL
         internal List<string> usedMembers2Class;
         internal int? AllParamsOfAct2ClassPos = null;
 
-        protected static Expression<Func<T1, T2>> CreateExpression<T1, T2>(Func<T1, T2> func)
-        {
-            return x => func(x);
-        }
-
-        protected static Expression<Func<T1, T2, T3>> CreateExpression<T1, T2, T3>(Func<T1, T2, T3> func)
-        {
-            return (x,y) => func(x,y);
-        }
-
         internal abstract void CompleteClassPos(IReadOnlyList<Parametr> Parameters);
 
         internal ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)

@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace SharpPDDL
 {
-    internal class Referencer<T>
+    /*internal class Referencer<T>
     {
         internal Referencer(ref T content)
         {
@@ -25,7 +25,7 @@ namespace SharpPDDL
         {
             content = _Content;
         }
-    }
+    }*/
 
     public partial class DomeinPDDL
     {
@@ -37,7 +37,7 @@ namespace SharpPDDL
         ConcurrentQueue<Crisscross> PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
         Thread CheckingGoalRealization = null;
 
-        ConcurrentQueue<Referencer<Crisscross>> PossibleToCrisscrossReduce = new ConcurrentQueue<Referencer<Crisscross>>();
+        ConcurrentQueue<Crisscross> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross>();
         Thread ReducingCrisscross = null;
 
         CancellationTokenSource TaskRealizationCTS;
@@ -119,8 +119,8 @@ namespace SharpPDDL
 
                 PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
                 stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost, out Crisscross AddedItem);
-                Referencer<Crisscross> Ref = new Referencer<Crisscross>(ref AddedItem);
-                PossibleToCrisscrossReduce.Enqueue(Ref);
+                //Referencer<Crisscross> Ref = new Referencer<Crisscross>(ref AddedItem);
+                PossibleToCrisscrossReduce.Enqueue(AddedItem);
             }
 
             void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
@@ -266,18 +266,18 @@ namespace SharpPDDL
             Console.WriteLine("Try Merge Crisscross Run");
             while (!PossibleToCrisscrossReduce.IsEmpty)
             {
-                if (!PossibleToCrisscrossReduce.TryDequeue(out Referencer<Crisscross> Dequeued))
+                if (!PossibleToCrisscrossReduce.TryDequeue(out Crisscross possibleToCrisscrossReduce))
                     continue;
 
                 bool Merged = false;
-                Crisscross possibleToCrisscrossReduce = Dequeued.Content;
+                //Crisscross possibleToCrisscrossReduce = Dequeued;//.Content;
 
                 CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);                   
                 while (crisscrossRefEnum.MoveNext())
                 //foreach (ref Crisscross s in states) it throw cs1510
                 {
                     var s = crisscrossRefEnum.Current;
-                    //Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
+                    Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
                     if (s.Content.Compare(ref possibleToCrisscrossReduce.Content))
                     {
                         if (s.Root is null)
@@ -288,6 +288,7 @@ namespace SharpPDDL
                                 throw new Exception();
 
                             Crisscross.Merge(ref s, ref possibleToCrisscrossReduce);
+                            Console.WriteLine("Merged: " + s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
                         }
                         
                         Merged = true;
@@ -295,7 +296,7 @@ namespace SharpPDDL
                     }
                 }
 
-                //Console.WriteLine();
+                Console.WriteLine();
 
                 if (Merged)
                     continue;

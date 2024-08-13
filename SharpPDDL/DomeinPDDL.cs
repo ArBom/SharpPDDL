@@ -19,6 +19,8 @@ namespace SharpPDDL
         public ObservableCollection<object> domainObjects;
         private ObservableCollection<GoalPDDL> domainGoals;
         private Task TaskRealization;
+        protected int MinActionParamCount;
+        protected int MaxActionParamCount;
 
         public ListOfString PlanGenerated;
 
@@ -36,6 +38,10 @@ namespace SharpPDDL
             {
                 act.BuildAction(types.allTypes);
             }
+
+            actions.OrderBy(kS => kS.InstantActionParamCount).ThenBy(kS => kS.ActionCost);
+            MinActionParamCount = actions.First().InstantActionParamCount;
+            MaxActionParamCount = actions.Last().InstantActionParamCount;
         }
 
         private void CheckExistActionName(string Name)
