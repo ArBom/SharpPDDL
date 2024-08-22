@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -100,8 +101,7 @@ namespace SharpPDDL
         /// </para></example>
         /// </summary>
         /// <param name="name">Name of Domein</param>
-        /// <param name="actions">Action of domein, you can add it later</param>
-        public DomeinPDDL (string name, ICollection<ActionPDDL> actions = null)
+        public DomeinPDDL (string name)
         {
             this.Name = name;
             this.actions = new List<ActionPDDL>();
@@ -109,10 +109,19 @@ namespace SharpPDDL
 
             this.domainObjects = new ObservableCollection<object>();
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
+        }
 
-            if (!(actions is null))
-                foreach (ActionPDDL actionPDDL in actions)
-                    this.AddAction(actionPDDL);
+        public void DefineTrace(TraceLevel traceLevel, TextWriterTraceListener textWriterTraceListener = null)
+        {
+            if (!(textWriterTraceListener is null))
+            {
+                Trace.Listeners.Add(textWriterTraceListener);
+                Trace.Indent();
+            }
+
+            ExtensionMethods.traceLevel = traceLevel;
+
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Tracing working.");
         }
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)

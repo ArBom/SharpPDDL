@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -26,5 +26,8 @@ namespace SharpPDDL
         }
 
         internal static string LamdbaParamPrefix => "o";
+
+        internal static TraceLevel traceLevel;
+        internal static string TracePrefix = "SharpPDDL -> ";
     }
 }

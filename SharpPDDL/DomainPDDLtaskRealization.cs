@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -85,6 +86,8 @@ namespace SharpPDDL
         private void ReStart(CancellationToken ExternalCancellation)
         {
             Task.WaitAll(BuildingNewCrisscross, CheckingGoalRealization, ReducingCrisscross);
+            InternalCancellationTokenSrc = new CancellationTokenSource();
+            CancelCurrentTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellation, InternalCancellationTokenSrc.Token);
         }
 
         private void CheckAction(Crisscross stateToCheck, int actionPos)
@@ -192,7 +195,8 @@ namespace SharpPDDL
 
         internal void CheckGoalProces(CancellationTokenSource token)
         {
-            Console.WriteLine("Check Goal Proces Run");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Check Goal Proces Run; ID=" + Task.CurrentId);
+
             while (!PossibleGoalRealization.IsEmpty && !token.IsCancellationRequested)
             {
                 if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
@@ -234,7 +238,7 @@ namespace SharpPDDL
                     PossibleNewSrisscrossCre.Add(possibleStatesCrisscross);
             }
 
-            Console.WriteLine("Check Goal Proces Finished");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Check Goal Proces Finished; ID=" + Task.CurrentId);
 
             if (PossibleNewSrisscrossCre.Count == 0)
                 return;
@@ -260,7 +264,8 @@ namespace SharpPDDL
 
         internal void TryMergeCrisscross(CancellationTokenSource token)
         {
-            Console.WriteLine("Try Merge Crisscross Run");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Try Merge Crisscross Run; ID=" + Task.CurrentId);
+
             while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
             {
                 Crisscross possibleToCrisscrossReduce;
@@ -305,7 +310,7 @@ namespace SharpPDDL
 
                 PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
             }
-            Console.WriteLine("Try Merge Crisscross Finished");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Try Merge Crisscross Finished; ID=" + Task.CurrentId);
 
             //Do not start checking goal realization if whole state is cancelled 
             if (token.IsCancellationRequested)
@@ -320,7 +325,8 @@ namespace SharpPDDL
 
         internal void BuildNewState(CancellationTokenSource token)
         {
-            Console.WriteLine("Build New State Run");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Build New State Run; ID=" + Task.CurrentId);
+
             while (PossibleNewSrisscrossCre.Count != 0 && !token.IsCancellationRequested)
             {
                 Crisscross Temp;
@@ -340,7 +346,7 @@ namespace SharpPDDL
                 for (int a = 0; a != actions.Count; ++a)
                     CheckAction(Temp, a);
             }
-            Console.WriteLine("Build New State Finished");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Build New State Finished; ID=" + Task.CurrentId);
 
             if (PossibleToCrisscrossReduce.Count == 0)
                 return;

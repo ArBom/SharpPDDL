@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
+
 using SharpPDDL;
 
 namespace Hanoi_Tower
@@ -46,6 +46,8 @@ namespace Hanoi_Tower
         static void Main(string[] args)
         {
             DomeinPDDL newDomein = new DomeinPDDL("Hanoi");
+
+            newDomein.DefineTrace(TraceLevel.Verbose, new TextWriterTraceListener(Console.Out));
 
             HanoiBrick MovedBrick = null;
             HanoiObj ObjBelowMoved = null;
@@ -117,7 +119,9 @@ namespace Hanoi_Tower
 
             Console.ReadKey();
             ExternalcancellationTokenSource.Cancel();
+
             int AO = 1500;
+            Trace.Close();
         }
     }
 }
