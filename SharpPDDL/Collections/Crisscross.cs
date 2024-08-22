@@ -171,7 +171,26 @@ namespace SharpPDDL
                 }
 
                 //...add it to Incorporated AlternativeRoots
-                Incorporating.AlternativeRoots.Add(Annexed.AlternativeRoots[AnnAltRootI]);
+                bool IncorporatingAltRoorInclude = false;
+                for(int IncoAltRootI = 0; IncoAltRootI != Incorporating.AlternativeRoots.Count; IncoAltRootI++)
+                {
+                    if(Incorporating.AlternativeRoots[IncoAltRootI].Equals(Annexed.AlternativeRoots[AnnAltRootI]))
+                    {
+                        IncorporatingAltRoorInclude = true;
+                        break;
+                    }
+                }
+                if(!IncorporatingAltRoorInclude)
+                {
+                    if (Incorporating.Root is null)
+                    {
+                        Incorporating.AlternativeRoots.Add(Annexed.AlternativeRoots[AnnAltRootI]);
+                    }
+                    else if (!Incorporating.Root.Equals(Annexed.AlternativeRoots[AnnAltRootI]))
+                    {
+                        Incorporating.AlternativeRoots.Add(Annexed.AlternativeRoots[AnnAltRootI]);
+                    }
+                }
             }
                        
             foreach (var child in Annexed.Children)

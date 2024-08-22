@@ -7,6 +7,7 @@ namespace SharpPDDL
 {
     public struct CrisscrossRefEnum
     {
+        internal ref Crisscross Current => ref chain[chainInd];
         private int chainInd;
         Crisscross[] chain;
 
@@ -74,8 +75,6 @@ namespace SharpPDDL
 
             return MoveNextFromLine(DeepIndeks - 1);
         }
-
-        internal ref Crisscross Current => ref chain[chainInd];
 
         private void MakeCurrentsBigger()
         {

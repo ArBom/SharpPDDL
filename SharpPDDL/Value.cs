@@ -25,7 +25,7 @@ namespace SharpPDDL
 
         internal bool IsInUse
         {
-            get { return ( _IsInUse_EffectIn || _IsInUse_EffectOut || _IsInUse_PreconditionIn); }
+            get { return ( _IsInUse_EffectIn || _IsInUse_EffectOut || _IsInUse_PreconditionIn || _IsInUse_ActionCostIn); }
         }
 
         //In the beginning one premise it will be not in use
@@ -64,6 +64,19 @@ namespace SharpPDDL
                 //It can be change only for true
                 if (value)
                     _IsInUse_EffectOut = true;
+            }
+        }
+
+        //In the beginning one premise it will be not in use
+        protected bool _IsInUse_ActionCostIn = false;
+        internal bool IsInUse_ActionCostIn
+        {
+            get { return _IsInUse_ActionCostIn; }
+            set
+            {
+                //It can be change only for true
+                if (value)
+                    _IsInUse_ActionCostIn = true;
             }
         }
     }

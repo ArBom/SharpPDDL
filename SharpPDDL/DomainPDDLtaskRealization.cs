@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -8,48 +7,34 @@ using System.Collections.Concurrent;
 
 namespace SharpPDDL
 {
-    /*internal class Referencer<T>
-    {
-        internal Referencer(ref T content)
-        {
-            _Content = content;
-        }
-
-        protected T _Content;
-        internal ref T Content
-        {
-            get {return ref _Content; }
-        }
-
-        internal void ContentOut (out T content)
-        {
-            content = _Content;
-        }
-    }*/
-
     public partial class DomeinPDDL
     {
         object PossibleNewSrisscrossCreLocker = new object();
         List<Crisscross> PossibleNewSrisscrossCre = new List<Crisscross>();
-        Thread BuildingNewCrisscross = null;
+        Task BuildingNewCrisscross = null;
 
         //BlockingCollection<Crisscross> PossibleGoalRealization = new BlockingCollection<Crisscross>(new ConcurrentQueue<Crisscross>(), 10000);
         ConcurrentQueue<Crisscross> PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-        Thread CheckingGoalRealization = null;
+        Task CheckingGoalRealization = null;
+        CancellationTokenSource InternalCancellationTokenSrc;
 
-        ConcurrentQueue<Crisscross> PossibleToCrisscrossReduce = new ConcurrentQueue<Crisscross>();
-        Thread ReducingCrisscross = null;
+        List<Crisscross> PossibleToCrisscrossReduce = new List<Crisscross>();
+        object CrisscrossReduceLocker = new object();
+        Task ReducingCrisscross = null;
 
-        CancellationTokenSource TaskRealizationCTS;
+        private CancellationTokenSource CancelCurrentTokenS;
         ParallelOptions options;
 
-        public void Start()
+        public void Start(CancellationToken CancellationDomein = default)
         {
+            InternalCancellationTokenSrc = new CancellationTokenSource();
+            InternalCancellationTokenSrc.Token.Register(() => ReStart(CancellationDomein));
+            CancelCurrentTokenS = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancellationTokenSrc.Token);
             CheckActions();
 
             options = new ParallelOptions
             {
-                CancellationToken = TaskRealizationCTS.Token,
+                CancellationToken = CancelCurrentTokenS.Token,
                 MaxDegreeOfParallelism = Environment.ProcessorCount
             };
 
@@ -93,8 +78,13 @@ namespace SharpPDDL
             states.Content = possibleState;
             PossibleGoalRealization.Enqueue(states);
 
-            CheckingGoalRealization = new Thread(CheckGoalProces);
+            CheckingGoalRealization = new Task(() => CheckGoalProces(CancelCurrentTokenS));
             CheckingGoalRealization.Start();
+        }
+
+        private void ReStart(CancellationToken ExternalCancellation)
+        {
+            Task.WaitAll(BuildingNewCrisscross, CheckingGoalRealization, ReducingCrisscross);
         }
 
         private void CheckAction(Crisscross stateToCheck, int actionPos)
@@ -119,8 +109,11 @@ namespace SharpPDDL
 
                 PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
                 stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost, out Crisscross AddedItem);
-                //Referencer<Crisscross> Ref = new Referencer<Crisscross>(ref AddedItem);
-                PossibleToCrisscrossReduce.Enqueue(AddedItem);
+
+                lock (CrisscrossReduceLocker)
+                {
+                    PossibleToCrisscrossReduce.Add(AddedItem);
+                }
             }
 
             void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
@@ -197,10 +190,10 @@ namespace SharpPDDL
             return RealizatedList;
         }
 
-        internal void CheckGoalProces()
+        internal void CheckGoalProces(CancellationTokenSource token)
         {
             Console.WriteLine("Check Goal Proces Run");
-            while (!PossibleGoalRealization.IsEmpty)
+            while (!PossibleGoalRealization.IsEmpty && !token.IsCancellationRequested)
             {
                 if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                     continue;
@@ -246,57 +239,66 @@ namespace SharpPDDL
             if (PossibleNewSrisscrossCre.Count == 0)
                 return;
 
+            //Do not start building new Crisscrosses if whole state is cancelled
+            if (token.IsCancellationRequested)
+                return;
+
             if (BuildingNewCrisscross is null)
             {
-                BuildingNewCrisscross = new Thread(BuildNewState);
+                BuildingNewCrisscross = new Task(() => BuildNewState(CancelCurrentTokenS));
                 BuildingNewCrisscross.Start();
                 return;
             }
 
-            if (BuildingNewCrisscross.ThreadState != ThreadState.Running)
+            if (BuildingNewCrisscross.Status != TaskStatus.Running)
             {
-                BuildingNewCrisscross = new Thread(BuildNewState);
+                BuildingNewCrisscross = new Task(() => BuildNewState(CancelCurrentTokenS));
                 //TODO sortowanie
                 BuildingNewCrisscross.Start();
             }
         }
 
-        internal void TryMergeCrisscross()
+        internal void TryMergeCrisscross(CancellationTokenSource token)
         {
             Console.WriteLine("Try Merge Crisscross Run");
-            while (!PossibleToCrisscrossReduce.IsEmpty)
+            while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
             {
-                if (!PossibleToCrisscrossReduce.TryDequeue(out Crisscross possibleToCrisscrossReduce))
+                Crisscross possibleToCrisscrossReduce;
+
+                try
+                {
+                    lock (CrisscrossReduceLocker)
+                    {
+                        possibleToCrisscrossReduce = PossibleToCrisscrossReduce[0];
+                        PossibleToCrisscrossReduce.RemoveAt(0);
+                    }
+                }
+                catch
+                {
                     continue;
-
+                }
+                
                 bool Merged = false;
-                //Crisscross possibleToCrisscrossReduce = Dequeued;//.Content;
 
-                CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);                   
+                CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
                 while (crisscrossRefEnum.MoveNext())
                 //foreach (ref Crisscross s in states) it throw cs1510
                 {
-                    var s = crisscrossRefEnum.Current;
-                    Console.WriteLine(s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
-                    if (s.Content.Compare(ref possibleToCrisscrossReduce.Content))
+                    if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
                     {
-                        if (s.Root is null)
+                        if (crisscrossRefEnum.Current.Root is null)
+                        {
                             Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
+                        }
                         else
                         {
-                            if (s.Equals(possibleToCrisscrossReduce))
-                                throw new Exception();
-
-                            Crisscross.Merge(ref s, ref possibleToCrisscrossReduce);
-                            Console.WriteLine("Merged: " + s.Content.CheckSum + " " + s.CumulativedTransitionCharge);
+                            Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
                         }
                         
                         Merged = true;
                         break;
                     }
                 }
-
-                Console.WriteLine();
 
                 if (Merged)
                     continue;
@@ -305,17 +307,21 @@ namespace SharpPDDL
             }
             Console.WriteLine("Try Merge Crisscross Finished");
 
-            if (CheckingGoalRealization.ThreadState != ThreadState.Running)
+            //Do not start checking goal realization if whole state is cancelled 
+            if (token.IsCancellationRequested)
+                return;
+
+            if (CheckingGoalRealization.Status != TaskStatus.Running)
             {
-                CheckingGoalRealization = new Thread(CheckGoalProces);
+                CheckingGoalRealization = new Task(() => CheckGoalProces(token));
                 CheckingGoalRealization.Start();
             }
         }
 
-        internal void BuildNewState()
+        internal void BuildNewState(CancellationTokenSource token)
         {
             Console.WriteLine("Build New State Run");
-            while (PossibleNewSrisscrossCre.Count != 0)
+            while (PossibleNewSrisscrossCre.Count != 0 && !token.IsCancellationRequested)
             {
                 Crisscross Temp;
                 lock (PossibleNewSrisscrossCreLocker)
@@ -339,16 +345,20 @@ namespace SharpPDDL
             if (PossibleToCrisscrossReduce.Count == 0)
                 return;
 
+            //Do not start reducing Crisscross if whole state is cancelled
+            if (token.IsCancellationRequested)
+                return;
+
             if (ReducingCrisscross is null)
             {
-                ReducingCrisscross = new Thread(TryMergeCrisscross);
+                ReducingCrisscross = new Task(() => TryMergeCrisscross(token));
                 ReducingCrisscross.Start();
                 return;
             }
 
-            if (ReducingCrisscross.ThreadState != ThreadState.Running)
+            if (ReducingCrisscross.Status != TaskStatus.Running)
             {
-                ReducingCrisscross = new Thread(TryMergeCrisscross);
+                ReducingCrisscross = new Task(() => TryMergeCrisscross(token));
                 ReducingCrisscross.Start();
             }
         }

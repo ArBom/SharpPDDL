@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using SharpPDDL;
 
 namespace Hanoi_Tower
@@ -112,9 +112,11 @@ namespace Hanoi_Tower
             newDomein.AddGoal(movedBrick);
 
             newDomein.PlanGenerated += PrintPlan;
-            newDomein.Start();
+            CancellationTokenSource ExternalcancellationTokenSource = new CancellationTokenSource();
+            newDomein.Start(ExternalcancellationTokenSource.Token);
 
             Console.ReadKey();
+            ExternalcancellationTokenSource.Cancel();
             int AO = 1500;
         }
     }

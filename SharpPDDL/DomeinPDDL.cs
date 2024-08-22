@@ -18,7 +18,6 @@ namespace SharpPDDL
         internal Crisscross states;
         public ObservableCollection<object> domainObjects;
         private ObservableCollection<GoalPDDL> domainGoals;
-        private Task TaskRealization;
         protected int MinActionParamCount;
         protected int MaxActionParamCount;
 
@@ -106,7 +105,6 @@ namespace SharpPDDL
         {
             this.Name = name;
             this.actions = new List<ActionPDDL>();
-            this.TaskRealizationCTS = new CancellationTokenSource();
             this.domainGoals = new ObservableCollection<GoalPDDL>();
 
             this.domainObjects = new ObservableCollection<object>();

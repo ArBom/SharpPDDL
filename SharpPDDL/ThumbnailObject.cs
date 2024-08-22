@@ -56,7 +56,7 @@ namespace SharpPDDL
 
             for (ushort arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
             {
-                if (this[ValuesIndeksesKeys[arrayCounter]] != With[ValuesIndeksesKeys[arrayCounter]])
+                if (!this[ValuesIndeksesKeys[arrayCounter]].Equals(With[ValuesIndeksesKeys[arrayCounter]]))
                     return false;
             }
 
