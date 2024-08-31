@@ -8,6 +8,7 @@ namespace SharpPDDL
         readonly internal string Name;
         internal Type OwnerType;
         readonly internal Type Type;
+        protected ushort _ValueOfIndexesKey = 0;
 
         //true for field, false for properties
         internal bool IsField;
@@ -79,6 +80,16 @@ namespace SharpPDDL
                     _IsInUse_ActionCostIn = true;
             }
         }
+
+        internal ushort ValueOfIndexesKey
+        {
+            get { return _ValueOfIndexesKey; }
+            set
+            {
+                if (_ValueOfIndexesKey == 0)
+                    _ValueOfIndexesKey = value;
+            }
+        }
     }
 
     internal class ValueOfParametr : Value
@@ -102,23 +113,11 @@ namespace SharpPDDL
 
     internal class ValueOfThumbnail : Value
     {
-        protected ushort _ValueOfIndexesKey = 0;
-
         internal ValueOfThumbnail(ValueOfParametr valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField)
         {
             IsInUse_PreconditionIn = valueOfParametr.IsInUse_PreconditionIn;
             IsInUse_EffectIn = valueOfParametr.IsInUse_EffectIn;
             IsInUse_EffectOut = valueOfParametr.IsInUse_EffectOut;
-        }
-
-        internal ushort ValueOfIndexesKey
-        {
-            get { return _ValueOfIndexesKey; }
-            set
-            {
-                if (_ValueOfIndexesKey == 0)
-                    _ValueOfIndexesKey = value;
-            }
         }
     }
 }

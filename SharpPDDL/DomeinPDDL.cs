@@ -111,17 +111,11 @@ namespace SharpPDDL
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
         }
 
-        public void DefineTrace(TraceLevel traceLevel, TextWriterTraceListener textWriterTraceListener = null)
+        public void DefineTrace(TraceSwitch LibTraceLevel)
         {
-            if (!(textWriterTraceListener is null))
-            {
-                Trace.Listeners.Add(textWriterTraceListener);
-                Trace.Indent();
-            }
+            ExtensionMethods.traceLevel = LibTraceLevel;
 
-            ExtensionMethods.traceLevel = traceLevel;
-
-            Trace.WriteLineIf(ExtensionMethods.traceLevel == TraceLevel.Verbose, ExtensionMethods.TracePrefix + "Tracing working.");
+            Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Tracing working.");
         }
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)

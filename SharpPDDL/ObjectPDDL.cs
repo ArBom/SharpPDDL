@@ -6,9 +6,9 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    abstract class ObjectPDDL
+    public abstract class ObjectPDDL
     {
-        readonly internal string Name;
+        readonly public string Name;
 
         readonly internal Type TypeOf1Class;
         readonly internal Int32 Hash1Class;

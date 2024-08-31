@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace SharpPDDL
 {
@@ -10,13 +12,15 @@ namespace SharpPDDL
         where T1p : class 
         where T1c : class, T1p
     {
-        readonly ValueType newValue;
+        internal readonly ValueType newValue;
+        internal readonly Expression<Func<T1p, ValueType>> Destination;
         protected T1c t1;
 
         internal EffectPDDL1(string Name, ValueType newValue, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
             this.newValue = newValue;
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
+            this.Destination = Destination;
             DestLambdaListerPDDL.Visit(Destination);
             this.usedMembers1Class = DestLambdaListerPDDL.used[0];
             this.DestinationMemberName = usedMembers1Class[0];

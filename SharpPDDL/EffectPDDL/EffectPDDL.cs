@@ -1,15 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SharpPDDL
 {
-    internal abstract class EffectPDDL : ObjectPDDL
+    public abstract class EffectPDDL : ObjectPDDL
     {
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
         internal string DestinationMemberName;
+        internal bool UsingAsExecution;
 
-        internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
+        public void UseAsExecution()
+        {
+            UsingAsExecution = true;
+        }
+
+        internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        {
+            UsingAsExecution = false;
+        }
 
         internal static EffectPDDL Instance<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember) where T1 : class //przypisanie wartosci ze stałej
         {
