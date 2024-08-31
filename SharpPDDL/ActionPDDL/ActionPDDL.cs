@@ -284,7 +284,7 @@ namespace SharpPDDL
         /// <param name="newValue_Static">New value assigning to <c>destinationObj</c>>'s member</param>
         /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
         /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
-        public void AddEffect<T>(string Name, ValueType newValue_Static, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember) where T : class 
+        public EffectPDDL AddEffect<T>(string Name, ValueType newValue_Static, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember) where T : class 
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
@@ -307,6 +307,7 @@ namespace SharpPDDL
             }
 
             Effects.Add(temp);
+            return temp;
         }
 
         /// <summary>

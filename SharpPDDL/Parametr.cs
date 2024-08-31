@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SharpPDDL
 {
@@ -70,6 +72,31 @@ namespace SharpPDDL
                 }
             }
         }
+        /*
+        internal void SetAction(string MethodName, params object[] MethodParams)
+        {
+            var Methods = Type.GetMethods().Where(M => M.Name == MethodName);
+
+            if (MethodParams.Length != 0)
+            {
+                Methods = Methods.Where(M => M.GetParameters().Length == MethodParams.Length);
+            }
+            else
+            {
+
+            }
+
+
+
+        }
+
+        internal Task ExecuteAction(object[] paramsy)
+        {
+            if (this.ParameterExecutionMethod is null)
+                return null;
+            return new Task(ParameterExecutionMethod.Invoke(Oryginal, paramsy)).Start();
+
+        }*/
 
         internal void RemoveUnuseValue()
         {

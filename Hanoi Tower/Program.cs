@@ -45,9 +45,13 @@ namespace Hanoi_Tower
 
         static void Main(string[] args)
         {
+            Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             DomeinPDDL newDomein = new DomeinPDDL("Hanoi");
 
-            newDomein.DefineTrace(TraceLevel.Verbose, new TextWriterTraceListener(Console.Out));
+            newDomein.DefineTrace(new TraceSwitch("Default", "default")
+            {
+                Level = TraceLevel.Off
+            });
 
             HanoiBrick MovedBrick = null;
             HanoiObj ObjBelowMoved = null;
@@ -68,7 +72,7 @@ namespace Hanoi_Tower
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
             moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
-            moveBrickOnBrick.AddEffect("New stand is full", false, ref NewStandB, NS => NS.IsEmptyUpSide);
+            moveBrickOnBrick.AddEffect("New stand is full", false, ref NewStandB, NS => NS.IsEmptyUpSide).UseAsExecution();
             moveBrickOnBrick.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide);
             moveBrickOnBrick.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide);
             moveBrickOnBrick.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandB, NSB => NSB.HanoiObjSizeUpSide);
