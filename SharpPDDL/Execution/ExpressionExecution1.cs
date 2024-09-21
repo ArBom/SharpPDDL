@@ -15,7 +15,7 @@ namespace SharpPDDL
             this.action = action;
         }
 
-        internal override void CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
+        internal override Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
         {
             List<ParameterExpression> parameters = new List<ParameterExpression>();
             for (int i = 0; i != Parameters.Count; i++)
@@ -33,6 +33,7 @@ namespace SharpPDDL
 
             LambdaExpression lambdaExpression = Expression.Lambda(action.Body, parameters);
             this.Delegate = lambdaExpression.Compile();
+            return this.Delegate;
         }
     }
 }

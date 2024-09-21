@@ -10,6 +10,7 @@ namespace SharpPDDL
         internal ref Crisscross Current => ref chain[chainInd];
         private int chainInd;
         Crisscross[] chain;
+        List<int> chainChildNo;
 
         internal CrisscrossRefEnum(ref Crisscross creator)
         {
@@ -19,6 +20,7 @@ namespace SharpPDDL
             };
 
             chain = new Crisscross[] {MinusOnePos, creator, null};
+            chainChildNo = new List<int> {0, 0, 0};
             chainInd = 0;
         }
 
@@ -34,14 +36,17 @@ namespace SharpPDDL
 
                 for (int i = 0; i != chain[chainInd].Children.Count - 1; i++)
                 {
+                    //the root of whole Crisscross could be replaced inside them
                     if (chain[chainInd].Children[i].Child.Root is null)
                         continue;
 
+                    //Avoid the loopping
                     if (chain[chainInd].Children[i].Child.Root.Equals(chain[chainInd]))
                     {
                         if (chain.Length == chainInd + 1)
                             MakeCurrentsBigger();
 
+                        chainChildNo[chainInd] = i;
                         chain[chainInd + 1] = chain[chainInd].Children[i].Child;
                         chainInd++;
                         return true;
@@ -57,16 +62,18 @@ namespace SharpPDDL
             if (DeepIndeks <= 1)
                 return false;
 
-            string CheckSumOfDeepIndeks = chain[DeepIndeks].Content.CheckSum;
-            int CurrentAtRootList = chain[DeepIndeks - 1].Children.FindIndex(c => (c.Child.Content.CheckSum == CheckSumOfDeepIndeks && true )); //TODO checking root
+            //string CheckSumOfDeepIndeks = chain[DeepIndeks].Content.CheckSum;
+            //int CurrentAtRootList = chain[DeepIndeks - 1].Children.FindIndex(c => (c.Child.Content.CheckSum == CheckSumOfDeepIndeks && true )); //TODO checking root
+            int CurrentAtRootList = chainChildNo[DeepIndeks-1] +1;
 
-            for (int i = CurrentAtRootList + 1; i != chain[DeepIndeks - 1].Children.Count; i++)
+            for (int i = CurrentAtRootList; i != chain[DeepIndeks - 1].Children.Count; i++)
             {
                 if (chain[DeepIndeks - 1].Children[i].Child.Root is null)
                     continue;
 
                 if (chain[DeepIndeks - 1].Children[i].Child.Root.Equals(chain[DeepIndeks - 1]))
                 {
+                    chainChildNo[DeepIndeks - 1] = i;
                     chain[DeepIndeks] = chain[DeepIndeks - 1].Children[i].Child;
                     chainInd = DeepIndeks;
                     return true;
@@ -89,6 +96,7 @@ namespace SharpPDDL
             }
 
             chain = NewChain;
+            chainChildNo.Add(0);
         }
 
         internal void Reset()

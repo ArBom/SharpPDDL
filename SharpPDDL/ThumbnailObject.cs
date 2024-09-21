@@ -19,6 +19,7 @@ namespace SharpPDDL
 
         internal void FigureCheckSum()
         {
+            //TODO sprawdzić poniższe
             string MD5input = Precursor.GetHashCode().ToString();
 
             for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)

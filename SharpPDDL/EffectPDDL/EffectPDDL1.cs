@@ -12,13 +12,12 @@ namespace SharpPDDL
         where T1p : class 
         where T1c : class, T1p
     {
-        internal readonly ValueType newValue;
         internal readonly Expression<Func<T1p, ValueType>> Destination;
         protected T1c t1;
 
         internal EffectPDDL1(string Name, ValueType newValue, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
-            this.newValue = newValue;
+            this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             this.Destination = Destination;
             DestLambdaListerPDDL.Visit(Destination);
@@ -41,7 +40,7 @@ namespace SharpPDDL
             };
 
             var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
-            Expression[] param = { FuncOutKeyExpression, Expression.Convert(Expression.Constant(newValue, newValue.GetType()), typeof(ValueType)) };
+            Expression[] param = { FuncOutKeyExpression, Expression.Convert(SourceFunc, typeof(ValueType)) };
             NewExpression expectedTypeExpression = Expression.New(ResultType, param);
             Expression ModifiedFunct = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, parameterExpressions);
 

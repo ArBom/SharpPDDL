@@ -4,22 +4,25 @@ using System.Linq.Expressions;
 
 namespace SharpPDDL
 {
-    internal static class EffectExecution
+    internal class EffectExecution : Execution
     {
-        internal static Delegate CreateEffectDelegate<T1c, T1p> (this EffectPDDL1<T1c, T1p> effectPDDL1, IReadOnlyList<Parametr> Parameters)
-        where T1p : class
-        where T1c : class, T1p
+        readonly EffectPDDL SourceEffectPDDL;
+
+        internal EffectExecution(EffectPDDL SourceEffectPDDL) : base(SourceEffectPDDL.Name)
+        {
+            this.SourceEffectPDDL = SourceEffectPDDL;
+        }
+
+
+        internal override Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
         {
             List<ParameterExpression> parameters = new List<ParameterExpression>();
-            /*{
-                Expression.Parameter(typeof(WaitHandle), "Signal"),
-                Expression.Parameter(typeof(WaitHandle), "WaitFor")
-            };*/
 
-            for (int i = 0; i != Parameters.Count; i++)
+            /*for (int i = 0; i != Parameters.Count; i++)
             {
-                if(effectPDDL1.AllParamsOfAct1ClassPos == i)
+                if(SourceEffectPDDL.AllParamsOfAct1ClassPos == i)
                 {
+                    parameters.Add(SourceEffectPDDL.)
                     parameters.Add(effectPDDL1.Destination.Parameters[0]);
                 }
                 else
@@ -28,10 +31,12 @@ namespace SharpPDDL
                     parameters.Add(ToAdd);
                 }
             }
-            Expression Body = Expression.Assign(effectPDDL1.Destination, Expression.Constant(effectPDDL1.newValue));
-            LambdaExpression Whole = Expression.Lambda(Body, parameters);
+            Expression Body = Expression.Assign(effectPDDL1.Destination, SourceEffectPDDL.SourceFunc);
+            LambdaExpression Whole = Expression.Lambda(Body, this.Name, parameters);
 
-            return Whole.Compile();
+            return Whole.Compile();*/
+
+            return null;
         }
     }
 }

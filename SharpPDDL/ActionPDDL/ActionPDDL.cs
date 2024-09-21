@@ -14,6 +14,7 @@ namespace SharpPDDL
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
+        private List<Execution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
         internal int InstantActionParamCount { get; private set; }
@@ -320,7 +321,7 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public void AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
+        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
             where T1p : class
             where T2p : class
             where T1c : class, T1p
@@ -370,6 +371,7 @@ namespace SharpPDDL
             }
 
             Effects.Add(temp);
+            return temp;
         }
 
         /// <summary>
@@ -382,13 +384,13 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember)
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember)
             where T1 : class
             where T2 : class
             =>
             AddEffect<T1, T1, T2, T2>(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
 
-        public void AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) 
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) 
             where T1 : class 
             where T2 : class
         {
@@ -438,6 +440,7 @@ namespace SharpPDDL
             }
 
             Effects.Add(temp);
+            return temp;
         }
         #endregion
 
@@ -494,6 +497,7 @@ namespace SharpPDDL
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
             this.Effects = new List<EffectPDDL>();
+            this.Executions = new List<Execution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
         }
     }

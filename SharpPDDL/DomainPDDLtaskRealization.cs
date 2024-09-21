@@ -26,6 +26,8 @@ namespace SharpPDDL
         private CancellationTokenSource CancelCurrentTokenS;
         ParallelOptions options;
 
+        long margeCounter = 0;
+
         public void Start(CancellationToken CancellationDomein = default)
         {
             InternalCancellationTokenSrc = new CancellationTokenSource();
@@ -211,7 +213,7 @@ namespace SharpPDDL
                 if (GoalsReach.Count != 0)
                 {
                     if (ExtensionMethods.traceLevel.TraceInfo)
-                        Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!!");
+                        Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!!      + Marged count: " + margeCounter);
 
                     Crisscross state = states;
                     List<CrisscrossChildrenCon> r = possibleStatesCrisscross.Position();
@@ -236,7 +238,7 @@ namespace SharpPDDL
 
                         PlanGenerated?.Invoke(Plan);
 
-                    Console.ReadKey();
+                        Console.ReadKey(); //TODO; 
                     }
                 }
 
@@ -295,6 +297,7 @@ namespace SharpPDDL
                 while (crisscrossRefEnum.MoveNext())
                 //foreach (ref Crisscross s in states) it throw cs1510
                 {
+                    Console.WriteLine(crisscrossRefEnum.Current.Content.CheckSum);
                     if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
                     {
                         if (crisscrossRefEnum.Current.Root is null)
@@ -305,14 +308,18 @@ namespace SharpPDDL
                         {
                             Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
                         }
-                        
+
+                        margeCounter++;
                         Merged = true;
                         break;
                     }
                 }
 
                 if (Merged)
+                {
+                    //Console.WriteLine(crisscrossRefEnum.Current.Children.Count + " " + (crisscrossRefEnum.Current.AlternativeRoots.Count+1) + " " + crisscrossRefEnum.Current.Content.CheckSum);
                     continue;
+                }
 
                 PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
             }

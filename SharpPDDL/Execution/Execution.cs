@@ -5,11 +5,11 @@ namespace SharpPDDL
 {
     internal abstract class Execution
     {
-        readonly string Name;
+        readonly protected string Name;
         internal Delegate Delegate;
 
         internal Execution(string Name) { this.Name = Name; }
-        internal abstract void CreateEffectDelegate(IReadOnlyList<Parametr> Parameters);
+        internal abstract Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters);
 
         protected int? Index<T>(T t, IReadOnlyList<Parametr> Parameters)
         {
