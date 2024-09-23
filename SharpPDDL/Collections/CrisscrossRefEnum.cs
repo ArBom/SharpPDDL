@@ -34,7 +34,7 @@ namespace SharpPDDL
                     return true;
                 }
 
-                for (int i = 0; i != chain[chainInd].Children.Count - 1; i++)
+                for (int i = 0; i != chain[chainInd].Children.Count; i++)
                 {
                     //the root of whole Crisscross could be replaced inside them
                     if (chain[chainInd].Children[i].Child.Root is null)

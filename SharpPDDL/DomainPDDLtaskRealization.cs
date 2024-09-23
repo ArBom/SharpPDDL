@@ -213,7 +213,7 @@ namespace SharpPDDL
                 if (GoalsReach.Count != 0)
                 {
                     if (ExtensionMethods.traceLevel.TraceInfo)
-                        Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!!      + Marged count: " + margeCounter);
+                        Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!");
 
                     Crisscross state = states;
                     List<CrisscrossChildrenCon> r = possibleStatesCrisscross.Position();
@@ -297,7 +297,6 @@ namespace SharpPDDL
                 while (crisscrossRefEnum.MoveNext())
                 //foreach (ref Crisscross s in states) it throw cs1510
                 {
-                    Console.WriteLine(crisscrossRefEnum.Current.Content.CheckSum);
                     if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
                     {
                         if (crisscrossRefEnum.Current.Root is null)
@@ -317,7 +316,6 @@ namespace SharpPDDL
 
                 if (Merged)
                 {
-                    //Console.WriteLine(crisscrossRefEnum.Current.Children.Count + " " + (crisscrossRefEnum.Current.AlternativeRoots.Count+1) + " " + crisscrossRefEnum.Current.Content.CheckSum);
                     continue;
                 }
 
