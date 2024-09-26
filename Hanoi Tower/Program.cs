@@ -10,12 +10,6 @@ namespace Hanoi_Tower
 {
     class Program
     {
-        static void PrintPlan(List<List<string>> plan)
-        {
-            for (int i = 0; i != plan.Count; i++)
-                Console.WriteLine(plan[i][0] + plan[i][1]);
-        }
-
         public class HanoiObj //Sorry it cannot be abstract
         {
             public int HanoiObjSizeUpSide = 0;
@@ -45,8 +39,22 @@ namespace Hanoi_Tower
 
         static void Main(string[] args)
         {
+            Stopwatch Stopwatch = new Stopwatch();
+
+            void PrintPlan(List<List<string>> plan)
+            {
+                Stopwatch.Stop();
+
+                for (int i = 0; i != plan.Count; i++)
+                    Console.WriteLine(plan[i][0] + plan[i][1]);
+
+                Console.WriteLine("Stopwatch result: " + Stopwatch.Elapsed);
+            }
+
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             DomeinPDDL newDomein = new DomeinPDDL("Hanoi");
+
+            Stopwatch.Start();
 
             newDomein.DefineTrace(new TraceSwitch("Default", "default")
             {
@@ -95,7 +103,7 @@ namespace Hanoi_Tower
 
             newDomein.AddAction(moveBrickOnTable);
 
-            int MaxBriSize = 6;
+            int MaxBriSize = 4;
             for (int Bri = 1; Bri <= MaxBriSize; Bri++)
             {
                 HanoiBrick newOne = new HanoiBrick(Bri);

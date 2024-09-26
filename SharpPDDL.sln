@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpPDDL", "SharpPDDL\Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hanoi Tower", "Hanoi Tower\Hanoi Tower.csproj", "{84A703F4-697D-43E2-8EC8-828866F38B8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Water pouring puzzle\Water pouring puzzle.csproj", "{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

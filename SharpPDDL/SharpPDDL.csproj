@@ -10,7 +10,7 @@
     <Authors>Arkadiusz Bomba</Authors>
     <PackageReleaseNotes>α</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL</RepositoryUrl>
-    <Version>0.1.0</Version>
+    <Version>0.1.01</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
