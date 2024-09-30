@@ -12,7 +12,7 @@ namespace SharpPDDL
         internal abstract Type OriginalObjType { get; }
         protected Dictionary<ushort, ValueType> Dict;
         internal abstract ushort[] ValuesIndeksesKeys { get; }
-        internal abstract PossibleStateThumbnailObject Precursor { get; }
+        public abstract PossibleStateThumbnailObject Precursor { get; }
         internal PossibleStateThumbnailObject Parent;
         internal List<PossibleStateThumbnailObject> child;
         internal string CheckSum;
@@ -70,7 +70,7 @@ namespace SharpPDDL
     {
         internal override object OriginalObj { get { return _Precursor.OriginalObj; } }
         internal PossibleStateThumbnailObject _Precursor;
-        internal override PossibleStateThumbnailObject Precursor { get { return _Precursor; } }
+        public override PossibleStateThumbnailObject Precursor { get { return _Precursor; } }
         new internal List<ThumbnailObject<TOriginalObj>> child;
         internal override Type OriginalObjType { get { return _Precursor.OriginalObjType; } }
 
@@ -108,7 +108,7 @@ namespace SharpPDDL
         readonly internal TOriginalObj _OriginalObj;
         internal override Type OriginalObjType => _OriginalObj.GetType();
         readonly SingleTypeOfDomein Model;
-        internal override PossibleStateThumbnailObject Precursor { get { return this; } }
+        public override PossibleStateThumbnailObject Precursor { get { return this; } }
         internal override ushort[] ValuesIndeksesKeys
         {
             get { return Model.ValuesKeys; }

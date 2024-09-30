@@ -95,9 +95,9 @@ namespace SharpPDDL
     internal class ValueOfParametr : Value
     {
         //In the beginning one premise it will be not in use
-        private bool _IsInUse = false;
+        //private bool _IsInUse = false;
 
-        internal new bool IsInUse
+        /*internal new bool IsInUse
         {
             get { return _IsInUse; }
             set
@@ -106,7 +106,7 @@ namespace SharpPDDL
                 if (value)
                     _IsInUse = true;
             }
-        }
+        }*/
 
         internal ValueOfParametr(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField) { }
     }

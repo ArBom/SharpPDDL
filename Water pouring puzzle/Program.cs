@@ -1,8 +1,8 @@
-﻿using System;
-/*
+﻿/*
  * Treatment the puzzle: https://en.wikipedia.org/wiki/Water_pouring_puzzle#Standard_example 
  */
 
+using System;
 using System.Collections.Generic;
 using SharpPDDL;
 
@@ -35,8 +35,6 @@ namespace Water_pouring_puzzle
         {
             for (int i = 0; i != plan.Count; i++)
                 Console.WriteLine(plan[i][0] + plan[i][1]);
-
-            Console.ReadKey();
         }
 
         static void Main(string[] args)
@@ -78,7 +76,6 @@ namespace Water_pouring_puzzle
             DecantingDomein.domainObjects.Add(waterJug3);
 
             GoalPDDL Halve = new GoalPDDL("Divide in half");
-            //Halve.AddExpectedObjectState(Water_Jug => Water_Jug.flood == 4, waterJug3);
             Halve.AddExpectedObjectState(Water_Jug => Water_Jug.flood == 4, waterJug8);
             Halve.AddExpectedObjectState(Water_Jug => Water_Jug.flood == 4, waterJug5);
             DecantingDomein.AddGoal(Halve);
@@ -86,7 +83,6 @@ namespace Water_pouring_puzzle
             DecantingDomein.PlanGenerated += PrintPlan;
             DecantingDomein.Start();
             Console.ReadKey();
-            int BreakPoint = 100;
         }
     }
 }

@@ -175,7 +175,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
+                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -233,7 +233,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
+                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -253,7 +253,7 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers2Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
+                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -300,7 +300,7 @@ namespace SharpPDDL
                     continue;
 
                 int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                parametr.values[ToTagIndex].IsInUse = true;
+                //v parametr.values[ToTagIndex].IsInUse = true;
                 parametr.values[ToTagIndex].IsInUse_EffectOut = true;
 
                 parametr.UsedInEffect = true;
@@ -341,11 +341,8 @@ namespace SharpPDDL
                 if (!parametr.Oryginal.Equals(DestinationObj))
                     continue;
 
-
                 int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                parametr.values[ToTagIndex].IsInUse = true;
                 parametr.values[ToTagIndex].IsInUse_EffectOut = true;
-
                 parametr.UsedInEffect = true;
                 break;
             }
@@ -362,7 +359,6 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_EffectIn = true;
                 }
 
@@ -408,13 +404,8 @@ namespace SharpPDDL
                 if (!parametr.Oryginal.Equals(DestinationObj))
                     continue;
 
-                foreach (string valueName in temp.usedMembers1Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
-                    parametr.values[ToTagIndex].IsInUse_EffectIn = true;
-                }
-
+                int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
+                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
                 parametr.UsedInEffect = true;
                 break;
             }
@@ -431,7 +422,6 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers2Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_EffectIn = true;
                 }
 

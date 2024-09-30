@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * Treatment the puzzle: https://en.wikipedia.org/wiki/Tower_of_Hanoi
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -10,7 +14,7 @@ namespace Hanoi_Tower
 {
     class Program
     {
-        public class HanoiObj //Sorry it cannot be abstract
+        public class HanoiObj //It cannot be abstract
         {
             public int HanoiObjSizeUpSide = 0;
             public bool IsEmptyUpSide;

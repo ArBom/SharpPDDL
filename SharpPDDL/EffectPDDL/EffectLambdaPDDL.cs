@@ -139,15 +139,29 @@ namespace SharpPDDL
             }*/
             ///in next version
 
-            ushort ValueOfIndexesKey = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey).First();
-
+            var ValueOfIndexes = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).First();
+            ushort ValueOfIndexesKey = ValueOfIndexes.ValueOfIndexesKey;
             Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
             PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
 
-            //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
-            IndexExpression IndexAccessExpr = Expression.MakeIndex(newParam, TO_indekser, argument);
+            //To expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
+            IndexExpression IndexAccessExpr;
+
+            //Some kind of micro-optimalization :)
+            //If the value of variable is change in athers possible state take the value 
+            if (ValueOfIndexes.IsInUse_EffectOut)
+            {
+                IndexAccessExpr = Expression.MakeIndex(newParam, TO_indekser, argument);
+            }
+            //In the other case take the value from precursor
+            else
+            {
+                PropertyInfo PrecursorPropertyInfo = typeof(PossibleStateThumbnailObject).GetProperty("Precursor");
+                Expression PrecursorAccessExpression = Expression.MakeMemberAccess(newParam, PrecursorPropertyInfo);
+                IndexAccessExpr = Expression.MakeIndex(PrecursorAccessExpression, TO_indekser, argument);
+            }
 
             //Convert above expression from ValueType to particular type of frontal value
             return Expression.Convert(IndexAccessExpr, node.Type);
