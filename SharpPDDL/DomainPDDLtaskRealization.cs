@@ -92,9 +92,11 @@ namespace SharpPDDL
             CancelCurrentTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellation, InternalCancellationTokenSrc.Token);
         }
 
-        private void CheckAction(Crisscross stateToCheck, int actionPos)
+        private void CheckAction(Crisscross stateToCheck)
         {
-            void TryActionPossibility (PossibleStateThumbnailObject[] SetToCheck)
+            List<Crisscross> ToAddList = new List<Crisscross>();
+
+            void TryActionPossibility (PossibleStateThumbnailObject[] SetToCheck, int actionPos)
             {
                 object ResultOfCheck = actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
 
@@ -115,17 +117,14 @@ namespace SharpPDDL
                 PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
                 stateToCheck.Add(newPossibleState, actionPos, ActionArg, actions[actionPos].ActionCost, out Crisscross AddedItem);
 
-                lock (CrisscrossReduceLocker)
-                {
-                    PossibleToCrisscrossReduce.Add(AddedItem);
-                }
+                ToAddList.Add(AddedItem);
             }
 
-            void Permute(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> s, int n)
+            void VariationsWithoutRepetition(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> PrevHead, int ExpectedSLenght)
             {
                 for (int i = 0; i < Source.Count; i++)
                 {
-                    List<PossibleStateThumbnailObject> head = new List<PossibleStateThumbnailObject>(s)
+                    List<PossibleStateThumbnailObject> Head = new List<PossibleStateThumbnailObject>(PrevHead)
                     {
                         Source[i]
                     };
@@ -133,23 +132,39 @@ namespace SharpPDDL
                     tail.AddRange(Source);
                     tail.RemoveAt(i);
 
-                    if (head.Count != n)
+                    if (Head.Count != ExpectedSLenght)
                     {
-                        Permute(tail, head, n);
+                        VariationsWithoutRepetition(tail, Head, ExpectedSLenght);
                         continue;
                     }
 
-                    TryActionPossibility(head.ToArray());
+                    PossibleStateThumbnailObject[] SetToCheck = Head.ToArray();
+                    foreach (int actionPos in actionsByParamCount[ExpectedSLenght])
+                    {
+                        TryActionPossibility(SetToCheck, actionPos);
+                    }
+
+                    if (ExpectedSLenght == MaxActionParamCount)
+                        continue;
+
+                    int NewExpectedSLenght = actionsByParamCount.Keys.Where(k => k > ExpectedSLenght).Min();
+                    VariationsWithoutRepetition(tail, Head, NewExpectedSLenght);
                 }
             }
 
-            int ThObjCount = stateToCheck.Content.ThumbnailObjects.Count;
-            int ActParCount = actions[actionPos].InstantActionParamCount;
+            /*int ThObjCount = stateToCheck.Content.ThumbnailObjects.Count;
+            int ActParCount = actions[actionPos1].InstantActionParamCount;
 
             if (ThObjCount < ActParCount)
-                return;
+                return;*/
 
-            Permute(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), actions[actionPos].InstantActionParamCount);
+            VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), MinActionParamCount);
+
+            ToAddList.OrderBy(c => c.CumulativedTransitionCharge);
+            lock (CrisscrossReduceLocker)
+            {
+                PossibleToCrisscrossReduce.AddRange(ToAddList);
+            }
         }
 
         internal bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
@@ -352,8 +367,7 @@ namespace SharpPDDL
                     PossibleNewSrisscrossCre.RemoveAt(0);
                 }
 
-                for (int a = 0; a != actions.Count; ++a)
-                    CheckAction(Temp, a);
+                CheckAction(Temp);
             }
             //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Build New State Finished; ID=" + Task.CurrentId);
 
