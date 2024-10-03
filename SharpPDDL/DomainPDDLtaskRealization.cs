@@ -10,17 +10,21 @@ namespace SharpPDDL
 {
     public partial class DomeinPDDL
     {
+        CancellationTokenSource InternalCancellationTokenSrc;
+
+        AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(false);
         object PossibleNewSrisscrossCreLocker = new object();
-        List<Crisscross> PossibleNewSrisscrossCre = new List<Crisscross>();
+        List<Crisscross> PossibleNewCrisscrossCre = new List<Crisscross>();
         Task BuildingNewCrisscross = null;
 
         //BlockingCollection<Crisscross> PossibleGoalRealization = new BlockingCollection<Crisscross>(new ConcurrentQueue<Crisscross>(), 10000);
+        AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(true);
         ConcurrentQueue<Crisscross> PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
         Task CheckingGoalRealization = null;
-        CancellationTokenSource InternalCancellationTokenSrc;
 
-        List<Crisscross> PossibleToCrisscrossReduce = new List<Crisscross>();
+        AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false);
         object CrisscrossReduceLocker = new object();
+        List<Crisscross> PossibleToCrisscrossReduce = new List<Crisscross>();
         Task ReducingCrisscross = null;
 
         private CancellationTokenSource CancelCurrentTokenS;
@@ -81,6 +85,13 @@ namespace SharpPDDL
             };
             PossibleGoalRealization.Enqueue(states);
 
+            ///dodane
+            BuildingNewCrisscross = new Task(() => BuildNewState(CancelCurrentTokenS));
+            ReducingCrisscross = new Task(() => TryMergeCrisscross(CancelCurrentTokenS));
+            BuildingNewCrisscross.Start();
+            ReducingCrisscross.Start();
+            ///dodane
+
             CheckingGoalRealization = new Task(() => CheckGoalProces(CancelCurrentTokenS));
             CheckingGoalRealization.Start();
         }
@@ -96,7 +107,7 @@ namespace SharpPDDL
         {
             List<Crisscross> ToAddList = new List<Crisscross>();
 
-            void TryActionPossibility (PossibleStateThumbnailObject[] SetToCheck, int actionPos)
+            void TryActionPossibility(PossibleStateThumbnailObject[] SetToCheck, int actionPos)
             {
                 object ResultOfCheck = actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
 
@@ -160,16 +171,20 @@ namespace SharpPDDL
 
             VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), MinActionParamCount);
 
-            ToAddList.OrderBy(c => c.CumulativedTransitionCharge);
-            lock (CrisscrossReduceLocker)
+            if (ToAddList.Count() != 0)
             {
-                PossibleToCrisscrossReduce.AddRange(ToAddList);
+                ToAddList.OrderBy(c => c.CumulativedTransitionCharge);
+                lock (CrisscrossReduceLocker)
+                {
+                    PossibleToCrisscrossReduce.AddRange(ToAddList);
+                }
+                ReducingCrisscrossARE.Set();
             }
         }
 
         internal bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
         {
-            foreach(var state in possibleState.ChangedThumbnailObjects)
+            foreach (var state in possibleState.ChangedThumbnailObjects)
                 foreach (var goalObj in possibleGoal.GoalObjects)
                     if ((bool)goalObj.GoalPDDL.DynamicInvoke(state))
                         return true;
@@ -215,181 +230,145 @@ namespace SharpPDDL
         internal void CheckGoalProces(CancellationTokenSource token)
         {
             //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Check Goal Proces Run; ID=" + Task.CurrentId);
-
-            while (!PossibleGoalRealization.IsEmpty /*&& !token.IsCancellationRequested*/)
+            while (!token.IsCancellationRequested)
             {
-                if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
-                    continue;
+                CheckingGoalRealizationARE.WaitOne();
 
-                List<GoalPDDL> GoalsReach = CheckNewGoalsReach(possibleStatesCrisscross);
-
-                if (GoalsReach.Count != 0)
+                while (!PossibleGoalRealization.IsEmpty /*&& !token.IsCancellationRequested*/)
                 {
-                    //if (ExtensionMethods.traceLevel.TraceInfo)
-                    //Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!");
+                    if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
+                        continue;
 
-                    Console.WriteLine(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!");
-                    Crisscross state = states;
-                    List<CrisscrossChildrenCon> r = possibleStatesCrisscross.Position();
+                    List<GoalPDDL> GoalsReach = CheckNewGoalsReach(possibleStatesCrisscross);
 
-                    if (!(r is null))
+                    if (GoalsReach.Count != 0)
                     {
-                        List<List<string>> Plan = new List<List<string>>();
+                        //if (ExtensionMethods.traceLevel.TraceInfo)
+                        //Trace.TraceInformation(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!");
 
-                        for (int i = 0; i != r.Count; i++)
+                        Console.WriteLine(ExtensionMethods.TracePrefix + GoalsReach[0].Name + " determined!!");
+                        Crisscross state = states;
+                        List<CrisscrossChildrenCon> r = possibleStatesCrisscross.Position();
+
+                        if (!(r is null))
                         {
-                            PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[actions[r[i].ActionNr].InstantActionParamCount];
+                            List<List<string>> Plan = new List<List<string>>();
 
-                            for (int j = 0; j != arg.Length; j++)
+                            for (int i = 0; i != r.Count; i++)
                             {
-                                arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
+                                PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[actions[r[i].ActionNr].InstantActionParamCount];
+
+                                for (int j = 0; j != arg.Length; j++)
+                                {
+                                    arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
+                                }
+
+                                Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg) });
+
+                                state = r[i].Child;
                             }
 
-                            Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg) });
+                            PlanGenerated?.Invoke(Plan);
 
-                            state = r[i].Child;
+                            Console.ReadKey(); //TODO; 
                         }
+                    }
 
-                        PlanGenerated?.Invoke(Plan);
-
-                        Console.ReadKey(); //TODO; 
+                    if (possibleStatesCrisscross.Children.Count == 0)
+                    {
+                        lock (PossibleNewSrisscrossCreLocker)
+                            PossibleNewCrisscrossCre.Add(possibleStatesCrisscross);
+                        BuildingNewCrisscrossARE.Set();
                     }
                 }
-
-                if (possibleStatesCrisscross.Children.Count == 0)
-                    PossibleNewSrisscrossCre.Add(possibleStatesCrisscross);
-            }
-
-            //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Check Goal Proces Finished; ID=" + Task.CurrentId);
-
-            if (PossibleNewSrisscrossCre.Count == 0)
-                return;
-
-            //Do not start building new Crisscrosses if whole state is cancelled
-            if (token.IsCancellationRequested)
-                return;
-
-            if (BuildingNewCrisscross is null)
-            {
-                BuildingNewCrisscross = new Task(() => BuildNewState(CancelCurrentTokenS));
-                BuildingNewCrisscross.Start();
-                return;
-            }
-
-            if (BuildingNewCrisscross.Status != TaskStatus.Running)
-            {
-                BuildingNewCrisscross = new Task(() => BuildNewState(CancelCurrentTokenS));
-                //TODO sortowanie
-                BuildingNewCrisscross.Start();
             }
         }
 
         internal void TryMergeCrisscross(CancellationTokenSource token)
         {
             //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Try Merge Crisscross Run; ID=" + Task.CurrentId);
-
-            while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
+            while (!token.IsCancellationRequested)
             {
-                Crisscross possibleToCrisscrossReduce;
+                ReducingCrisscrossARE.WaitOne();
 
-                try
+                while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
                 {
-                    lock (CrisscrossReduceLocker)
-                    {
-                        possibleToCrisscrossReduce = PossibleToCrisscrossReduce[0];
-                        PossibleToCrisscrossReduce.RemoveAt(0);
-                    }
-                }
-                catch
-                {
-                    continue;
-                }
-                
-                bool Merged = false;
+                    Crisscross possibleToCrisscrossReduce;
 
-                CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
-                while (crisscrossRefEnum.MoveNext())
-                //foreach (ref Crisscross s in states) it throw cs1510
-                {
-                    if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
-                    {
-                        if (crisscrossRefEnum.Current.Root is null)
-                        {
-                            Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
-                        }
-                        else
-                        {
-                            Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
-                        }
-
-                        Merged = true;
-                        break;
-                    }
-                }
-
-                if (Merged)
-                {
-                    continue;
-                }
-
-                PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
-            }
-           // Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Try Merge Crisscross Finished; ID=" + Task.CurrentId);
-
-            //Do not start checking goal realization if whole state is cancelled 
-            if (token.IsCancellationRequested)
-                return;
-
-            if (CheckingGoalRealization.Status != TaskStatus.Running)
-            {
-                CheckingGoalRealization = new Task(() => CheckGoalProces(token));
-                CheckingGoalRealization.Start();
-            }
-        }
-
-        internal void BuildNewState(CancellationTokenSource token)
-        {
-            //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Build New State Run; ID=" + Task.CurrentId);
-
-            while (PossibleNewSrisscrossCre.Count != 0 && !token.IsCancellationRequested)
-            {
-                Crisscross Temp;
-                lock (PossibleNewSrisscrossCreLocker)
-                {
                     try
                     {
-                        Temp = PossibleNewSrisscrossCre[0];                       
+                        lock (CrisscrossReduceLocker)
+                        {
+                            possibleToCrisscrossReduce = PossibleToCrisscrossReduce[0];
+                            PossibleToCrisscrossReduce.RemoveAt(0);
+                        }
                     }
                     catch
                     {
                         continue;
                     }
-                    PossibleNewSrisscrossCre.RemoveAt(0);
-                }
 
-                CheckAction(Temp);
+                    bool Merged = false;
+
+                    CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
+                    while (crisscrossRefEnum.MoveNext())
+                    //foreach (ref Crisscross s in states) it throw cs1510
+                    {
+                        if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
+                        {
+                            if (crisscrossRefEnum.Current.Root is null)
+                            {
+                                Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
+                            }
+                            else
+                            {
+                                Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
+                            }
+
+                            Merged = true;
+                            break;
+                        }
+                    }
+
+                    if (Merged)
+                    {
+                        continue;
+                    }
+
+                    PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
+                    CheckingGoalRealizationARE.Set();
+                }
+            }
+            //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Try Merge Crisscross Finished; ID=" + Task.CurrentId);
+        }
+
+        internal void BuildNewState(CancellationTokenSource token)
+        {
+            //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Build New State Run; ID=" + Task.CurrentId);
+            Crisscross Temp;
+            while (!token.IsCancellationRequested)
+            {
+                BuildingNewCrisscrossARE.WaitOne();
+
+                while (PossibleNewCrisscrossCre.Count() != 0 && !token.IsCancellationRequested)
+                {
+                    lock (PossibleNewSrisscrossCreLocker)
+                    {
+                        try
+                        {
+                            Temp = PossibleNewCrisscrossCre[0];
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                        PossibleNewCrisscrossCre.RemoveAt(0);
+                    }
+
+                    CheckAction(Temp);
+                }
             }
             //Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Build New State Finished; ID=" + Task.CurrentId);
-
-            if (PossibleToCrisscrossReduce.Count == 0)
-                return;
-
-            //Do not start reducing Crisscross if whole state is cancelled
-            if (token.IsCancellationRequested)
-                return;
-
-            if (ReducingCrisscross is null)
-            {
-                ReducingCrisscross = new Task(() => TryMergeCrisscross(token));
-                ReducingCrisscross.Start();
-                return;
-            }
-
-            if (ReducingCrisscross.Status != TaskStatus.Running)
-            {
-                ReducingCrisscross = new Task(() => TryMergeCrisscross(token));
-                ReducingCrisscross.Start();
-            }
         }
     }
 }

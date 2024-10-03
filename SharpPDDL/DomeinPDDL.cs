@@ -22,6 +22,7 @@ namespace SharpPDDL
         private ObservableCollection<GoalPDDL> domainGoals;
         protected int MinActionParamCount;
         protected int MaxActionParamCount;
+        static Dictionary<string, DomeinPDDL> AllDomain;
 
         public ListOfString PlanGenerated;
 
@@ -106,6 +107,14 @@ namespace SharpPDDL
         /// <param name="name">Name of Domein</param>
         public DomeinPDDL (string name)
         {
+            if (AllDomain is null)
+                AllDomain = new Dictionary<string, DomeinPDDL>();
+
+            if (AllDomain.ContainsKey(name))
+                throw new Exception();
+
+            AllDomain.Add(name, this);
+
             this.Name = name;
             this.actions = new List<ActionPDDL>();
             this.domainGoals = new ObservableCollection<GoalPDDL>();

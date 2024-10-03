@@ -62,7 +62,7 @@ namespace Hanoi_Tower
 
             newDomein.DefineTrace(new TraceSwitch("Default", "default")
             {
-                Level = TraceLevel.Info
+                Level = TraceLevel.Off
             });
 
             HanoiBrick MovedBrick = null;
@@ -107,7 +107,7 @@ namespace Hanoi_Tower
 
             newDomein.AddAction(moveBrickOnTable);
 
-            int MaxBriSize = 4;
+            int MaxBriSize = 8;
             for (int Bri = 1; Bri <= MaxBriSize; Bri++)
             {
                 HanoiBrick newOne = new HanoiBrick(Bri);
