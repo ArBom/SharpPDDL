@@ -5,12 +5,23 @@ using System.Text;
 
 namespace SharpPDDL
 {
+    internal class ChainStruct
+    {
+        internal Crisscross Chain;
+        internal int ChainChildNo;
+
+        internal ChainStruct(Crisscross chain, int ChainChildNo)
+        {
+            this.Chain = chain;
+            this.ChainChildNo = ChainChildNo;
+        }
+    }
+
     public struct CrisscrossRefEnum
     {
-        internal ref Crisscross Current => ref chain[chainInd];
+        internal ref Crisscross Current => ref Chains[chainInd].Chain;
+        List<ChainStruct> Chains;
         private int chainInd;
-        Crisscross[] chain;
-        List<int> chainChildNo;
 
         internal CrisscrossRefEnum(ref Crisscross creator)
         {
@@ -19,14 +30,20 @@ namespace SharpPDDL
                 Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, 0, null) }
             };
 
-            chain = new Crisscross[] {MinusOnePos, creator, null};
-            chainChildNo = new List<int> {0, 0, 0};
+            Chains = new List<ChainStruct> {
+                new ChainStruct(MinusOnePos, 0),
+                new ChainStruct(creator, 0),
+                new ChainStruct(null, 0)
+            };
+
             chainInd = 0;
         }
 
         internal bool MoveNext()
         {
-            if (chain[chainInd].Children.Count != 0)
+            Crisscross Chain_chainInd = Chains[chainInd].Chain;
+
+            if (Chain_chainInd.Children.Count != 0)
             {
                 if (chainInd == 0)
                 {
@@ -34,20 +51,20 @@ namespace SharpPDDL
                     return true;
                 }
 
-                for (int i = 0; i != chain[chainInd].Children.Count; i++)
+                for (int i = 0; i != Chain_chainInd.Children.Count; i++)
                 {
                     //the root of whole Crisscross could be replaced inside them
-                    if (chain[chainInd].Children[i].Child.Root is null)
+                    if (Chain_chainInd.Children[i].Child.Root is null)
                         continue;
 
                     //Avoid the loopping
-                    if (chain[chainInd].Children[i].Child.Root.Equals(chain[chainInd]))
+                    if (Chain_chainInd.Children[i].Child.Root.Equals(Chain_chainInd))
                     {
-                        if (chain.Length == chainInd + 1)
-                            MakeCurrentsBigger();
+                        if (Chains.Count == chainInd + 1)
+                            Chains.Add(new ChainStruct(null, 0));
 
-                        chainChildNo[chainInd] = i;
-                        chain[chainInd + 1] = chain[chainInd].Children[i].Child;
+                        Chains[chainInd].ChainChildNo = i;
+                        Chains[chainInd + 1].Chain = Chain_chainInd.Children[i].Child;
                         chainInd++;
                         return true;
                     }
@@ -62,19 +79,18 @@ namespace SharpPDDL
             if (DeepIndeks <= 1)
                 return false;
 
-            //string CheckSumOfDeepIndeks = chain[DeepIndeks].Content.CheckSum;
-            //int CurrentAtRootList = chain[DeepIndeks - 1].Children.FindIndex(c => (c.Child.Content.CheckSum == CheckSumOfDeepIndeks && true )); //TODO checking root
-            int CurrentAtRootList = chainChildNo[DeepIndeks-1] +1;
+            var Chains_DeepIndeks_1 = Chains[DeepIndeks - 1];
+            int CurrentAtRootList = Chains_DeepIndeks_1.ChainChildNo +1;
 
-            for (int i = CurrentAtRootList; i != chain[DeepIndeks - 1].Children.Count; i++)
+            for (int i = CurrentAtRootList; i != Chains_DeepIndeks_1.Chain.Children.Count; i++)
             {
-                if (chain[DeepIndeks - 1].Children[i].Child.Root is null)
+                if (Chains_DeepIndeks_1.Chain.Children[i].Child.Root is null)
                     continue;
 
-                if (chain[DeepIndeks - 1].Children[i].Child.Root.Equals(chain[DeepIndeks - 1]))
+                if (Chains_DeepIndeks_1.Chain.Children[i].Child.Root.Equals(Chains_DeepIndeks_1.Chain))
                 {
-                    chainChildNo[DeepIndeks - 1] = i;
-                    chain[DeepIndeks] = chain[DeepIndeks - 1].Children[i].Child;
+                    Chains_DeepIndeks_1.ChainChildNo = i;
+                    Chains[DeepIndeks].Chain = Chains_DeepIndeks_1.Chain.Children[i].Child;
                     chainInd = DeepIndeks;
                     return true;
                 }
@@ -83,30 +99,6 @@ namespace SharpPDDL
             return MoveNextFromLine(DeepIndeks - 1);
         }
 
-        private void MakeCurrentsBigger()
-        {
-            Crisscross[] NewChain = new Crisscross[chain.Length + 1];
-
-            for (int a = 0; a < NewChain.Length; a++)
-            {
-                if (a < chain.Length)
-                    NewChain[a] = chain[a];
-                else
-                    NewChain[a] = null;
-            }
-
-            chain = NewChain;
-            chainChildNo.Add(0);
-        }
-
-        internal void Reset()
-        {
-            chainInd = 0;
-
-            for(int i = 2; i != chain.Length; i++)
-            {
-                chain[i] = null;
-            }
-        }
+        internal void Reset() => chainInd = 0;
     }
 }
