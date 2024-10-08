@@ -10,19 +10,20 @@ using System.Threading;
 namespace SharpPDDL
 {
     public delegate void ListOfString(List<List<string>> planGenerated);
+    internal delegate void FoundSols(KeyValuePair<Crisscross, List<GoalPDDL>> foundSolutions);
 
     public partial class DomeinPDDL
     {
+        static Dictionary<string, DomeinPDDL> AllDomain;
+
         public readonly string Name;
         private TypesPDDL types;
-        private List<ActionPDDL> actions;
-        private Dictionary<int, int[]> actionsByParamCount;
+        internal List<ActionPDDL> actions;
+        internal CrisscrossGenerator crisscrossGenerator;
         internal Crisscross states;
         public ObservableCollection<object> domainObjects;
-        private ObservableCollection<GoalPDDL> domainGoals;
-        protected int MinActionParamCount;
-        protected int MaxActionParamCount;
-        static Dictionary<string, DomeinPDDL> AllDomain;
+        internal ObservableCollection<GoalPDDL> domainGoals;
+        internal FoundSols foundSols;
 
         public ListOfString PlanGenerated;
 
@@ -40,12 +41,6 @@ namespace SharpPDDL
             {
                 act.BuildAction(types.allTypes);
             }
-
-            //Group action by number of parameter to optimalization in time of creation new states exacly for VariationsWithoutRepetition
-            actionsByParamCount = actions.GroupBy(a => a.InstantActionParamCount, (ParamCount, c) => (ParamCount, c.Select(d => actions.IndexOf(d)).ToArray())).ToDictionary(g => g.ParamCount, g => g.Item2);
-
-            MinActionParamCount = actionsByParamCount.Keys.Min();
-            MaxActionParamCount = actionsByParamCount.Keys.Max();
         }
 
         private void CheckExistActionName(string Name)
@@ -121,6 +116,8 @@ namespace SharpPDDL
 
             this.domainObjects = new ObservableCollection<object>();
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
+
+            this.foundSols += this.GenList;
         }
 
         public void DefineTrace(TraceSwitch LibTraceLevel)

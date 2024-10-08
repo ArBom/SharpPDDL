@@ -17,7 +17,7 @@ namespace SharpPDDL
         private List<Execution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
-        internal int InstantActionParamCount { get; private set; }
+        internal int InstantActionParamCount => Parameters.Count;
 
         internal List<SingleType> TakeSingleTypes()
         {
@@ -175,7 +175,6 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -233,7 +232,6 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers1Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -253,7 +251,6 @@ namespace SharpPDDL
                 foreach (string valueName in temp.usedMembers2Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    //v parametr.values[ToTagIndex].IsInUse = true;
                     parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
                 }
 
@@ -300,7 +297,6 @@ namespace SharpPDDL
                     continue;
 
                 int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                //v parametr.values[ToTagIndex].IsInUse = true;
                 parametr.values[ToTagIndex].IsInUse_EffectOut = true;
 
                 parametr.UsedInEffect = true;
@@ -410,7 +406,7 @@ namespace SharpPDDL
                 break;
             }
 
-            //Tak source parameter value as "IsInUse"
+            //Tag source parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
             {
                 if (parametr.HashCode != SourceObj.GetHashCode())
@@ -450,8 +446,6 @@ namespace SharpPDDL
                 EffectExpressions.Add(ExpressionOfEffect);
             }
 
-            InstantActionParamCount = Parameters.Count;
-
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
 
@@ -479,8 +473,6 @@ namespace SharpPDDL
         {
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or emty
-
-            //TODO zadbać o unikalność nazw
 
             this.ActionCost = ActionCost;
             this.Name = Name;
