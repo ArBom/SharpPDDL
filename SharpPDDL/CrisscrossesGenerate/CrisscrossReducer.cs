@@ -12,6 +12,8 @@ namespace SharpPDDL.CrisscrossesGenerate
         Crisscross states;
 
         internal Task BuildingNewCrisscross;
+        internal bool IsWaiting = true;
+        internal Action NoNewData;
 
         internal AutoResetEvent ReducingCrisscrossARE;
         List<Crisscross> PossibleToCrisscrossReduce;
@@ -43,6 +45,7 @@ namespace SharpPDDL.CrisscrossesGenerate
             while (!token.IsCancellationRequested)
             {
                 ReducingCrisscrossARE.WaitOne();
+                IsWaiting = false;
 
                 while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
                 {
@@ -91,6 +94,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                     PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
                     CheckingGoalRealizationARE.Set();
                 }
+                NoNewData.BeginInvoke(null, null);
+                IsWaiting = true;
             }
         }
     }

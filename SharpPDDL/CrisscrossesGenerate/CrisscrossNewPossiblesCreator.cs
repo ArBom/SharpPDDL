@@ -15,6 +15,8 @@ namespace SharpPDDL.CrisscrossesGenerate
         protected readonly int MaxActionParamCount;
 
         internal Task BuildingNewCrisscross = null;
+        internal bool IsWaiting = true;
+        internal Action NoNewData;
 
         internal readonly AutoResetEvent BuildingNewCrisscrossARE;
         protected readonly List<Crisscross> PossibleNewCrisscrossCre;
@@ -55,6 +57,7 @@ namespace SharpPDDL.CrisscrossesGenerate
             while (!token.IsCancellationRequested)
             {
                 BuildingNewCrisscrossARE.WaitOne();
+                IsWaiting = false;
 
                 while (PossibleNewCrisscrossCre.Count() != 0 && !token.IsCancellationRequested)
                 {
@@ -142,6 +145,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                         ReducingCrisscrossARE.Set();
                     }
                 }
+                NoNewData.BeginInvoke(null, null);
+                IsWaiting = true;
             }
         }
     }

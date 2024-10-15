@@ -15,6 +15,9 @@ namespace SharpPDDL
         protected CancellationToken ExternalCancellation;
         protected CancellationToken CurrentCancelTokenS;
 
+        object PossibleNewCrisscrossCreLocker;
+        object CrisscrossReduceLocker;
+
         //Buffors between consuments-procucents
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
         List<Crisscross> PossibleNewCrisscrossCre;
@@ -25,28 +28,37 @@ namespace SharpPDDL
         protected CrisscrossNewPossiblesCreator crisscrossNewPossiblesCreator;
         protected CrisscrossReducer crisscrossReducer;
 
+        readonly Action NoNewDataCheck;
+        readonly Action CrisscrossesGenerated;
+
         internal CrisscrossGenerator(DomeinPDDL Owner)
         {
+            this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
+            this.PossibleNewCrisscrossCre = new List<Crisscross>();
+            this.PossibleToCrisscrossReduce = new List<Crisscross>();
+
+            this.NoNewDataCheck = new Action(CheckAllGenerated);
+
             //Creating AutoResetEvents
             AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(false);
             AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(false);
             AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false);
 
-
-            this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-            this.PossibleNewCrisscrossCre = new List<Crisscross>();
-            this.PossibleToCrisscrossReduce = new List<Crisscross>();
-
             //add the root of whole tree to check at the begining
             PossibleGoalRealization.Enqueue(Owner.states);
 
-            object PossibleNewCrisscrossCreLocker = new object();
-            object CrisscrossReduceLocker = new object();
+            PossibleNewCrisscrossCreLocker = new object();
+            CrisscrossReduceLocker = new object();
 
             //Init the classes with task and set communication of it
-            this.goalChecker = new GoalChecker(Owner.domainGoals, Owner.foundSols, CheckingGoalRealizationARE, PossibleGoalRealization, PossibleNewCrisscrossCreLocker, PossibleNewCrisscrossCre, BuildingNewCrisscrossARE);
+            this.goalChecker = new GoalChecker(Owner.domainGoals, CheckingGoalRealizationARE, PossibleGoalRealization, PossibleNewCrisscrossCreLocker, PossibleNewCrisscrossCre, BuildingNewCrisscrossARE);
             this.crisscrossNewPossiblesCreator = new CrisscrossNewPossiblesCreator(Owner.actions, BuildingNewCrisscrossARE, PossibleNewCrisscrossCre, PossibleNewCrisscrossCreLocker, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker);
             this.crisscrossReducer = new CrisscrossReducer(Owner.states, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker, PossibleGoalRealization, CheckingGoalRealizationARE);
+
+            goalChecker.foundSols = Owner.foundSols;
+            goalChecker.NoNewData = NoNewDataCheck;
+            crisscrossReducer.NoNewData = NoNewDataCheck;
+            crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
         }
 
         internal void Start(CancellationToken ExternalCancellationToken)
@@ -84,6 +96,32 @@ namespace SharpPDDL
             Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 50 );
 
             Start(ExternalCancellation);
+        }
+
+        private void CheckAllGenerated()
+        {
+            lock (PossibleNewCrisscrossCreLocker)
+                if (PossibleNewCrisscrossCre.Count != 0)
+                    return;
+
+            lock(CrisscrossReduceLocker)
+                if (PossibleToCrisscrossReduce.Count != 0)
+                    return;
+
+            if (PossibleGoalRealization.Count != 0)
+                return;
+
+            if (!goalChecker.IsWaiting)
+                return;
+
+            if (!crisscrossNewPossiblesCreator.IsWaiting)
+                return;
+
+            if (!crisscrossReducer.IsWaiting)
+                return;
+
+            Console.WriteLine("all states generated");
+            CrisscrossesGenerated?.Invoke();
         }
     }
 }

@@ -12,7 +12,9 @@ namespace SharpPDDL.CrisscrossesGenerate
     {
         ObservableCollection<GoalPDDL> domainGoals;
         internal Task CheckingGoal;
+        internal bool IsWaiting = false;
         internal FoundSols foundSols;
+        internal Action NoNewData;
 
         internal AutoResetEvent CheckingGoalRealizationARE;
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
@@ -21,10 +23,9 @@ namespace SharpPDDL.CrisscrossesGenerate
         List<Crisscross> PossibleNewCrisscrossCre;
         AutoResetEvent BuildingNewCrisscrossARE;
 
-        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, FoundSols foundSols, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, List<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
+        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, List<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
         {
             this.domainGoals = domainGoals;
-            this.foundSols = foundSols;
 
             this.CheckingGoalRealizationARE = CheckingGoalRealizationARE;
             this.PossibleGoalRealization = PossibleGoalRealization;
@@ -90,6 +91,7 @@ namespace SharpPDDL.CrisscrossesGenerate
             while (!token.IsCancellationRequested)
             {
                 CheckingGoalRealizationARE.WaitOne();
+                IsWaiting = false;
 
                 while (!PossibleGoalRealization.IsEmpty)
                 {
@@ -111,6 +113,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                         BuildingNewCrisscrossARE.Set();
                     }
                 }
+                NoNewData.BeginInvoke(null, null);
+                IsWaiting = true;
             }
         }
     }
