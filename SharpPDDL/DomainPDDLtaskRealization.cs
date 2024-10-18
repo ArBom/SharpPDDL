@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace SharpPDDL
 {
     public partial class DomeinPDDL
     {
+        CancellationToken CancellationDomein;
+
         public void Start(CancellationToken CancellationDomein = default)
         {
+            this.CancellationDomein = CancellationDomein;
+            CancellationDomein.Register(ExternalCancellationOfProc);
             CheckActions();
 
             /*options = new ParallelOptions
@@ -62,7 +65,37 @@ namespace SharpPDDL
             };
 
             this.crisscrossGenerator = new CrisscrossGenerator(this);
+
+            this.domainGoals.CollectionChanged += DomainGoals_CollectionChanged;
+
             crisscrossGenerator.Start(CancellationDomein);
+        }
+
+        private void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                return;
+
+            ICollection<GoalPDDL> ToCheckGoals;
+           
+            try
+            {
+                ToCheckGoals = (ICollection<GoalPDDL>)sender;
+            }
+            catch
+            {
+                Console.WriteLine("Unknown error in time of adding goal in run");
+                Console.ReadKey();
+                throw new Exception();
+            }
+
+            foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
+                GoalsPDDP.CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
+        }
+
+        protected void ExternalCancellationOfProc()
+        {
+            this.domainGoals.CollectionChanged -= DomainGoals_CollectionChanged;
         }
         
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
