@@ -1,13 +1,18 @@
 ![Logo](https://onedrive.live.com/embed?resid=5B6E90429D9C8454%21346129&authkey=%21AIQv_XycrJiLVlI&width=1127&height=319)
 
-This is the class library based on PDDL intellection. It uses only C# 7.0 standard library. The library "translate" one's non-abstract, public classes to own format which is use to make simulation of possible actions. Values inside classes using to find solution have to be ValueType only (most numeric, like int, short etc., char, bool).
+This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.3 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
 > [!WARNING]
 > Library has many bugs, works unstable so is not to use, still.
 
-One can to use previously defined classes which are useing in other part of one's programm, like:
+One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing to realize the goal. Examples of problems possible to solution by this algorithm:
+
+<details> 
+  <summary>Tower of Hanoi</summary>
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Tower_of_Hanoi)
+    
 ```cs
-public class HanoiObj //Sorry it cannot be abstract
+public class HanoiObj //It cannot be abstract
 {
     public int HanoiObjSizeUpSide = 0;
     public bool IsEmptyUpSide;
@@ -23,9 +28,11 @@ public class HanoiTable : HanoiObj
     public readonly int no;
 }
 ```
+
 Instances of class used to define action shouldn't be use in other part of program. In time of create actions library create class instance excluding use the class constructor.
 
 For these classes one can define rules in library like "Move brick onto another brick" or "Move brick on table". Preconditions, effect etc. are phrased by library's user as Expressions (System.Linq.Expressions):
+
 ```cs
 DomeinPDDL newDomein = new DomeinPDDL("Hanoi");
 
@@ -83,5 +90,59 @@ Move brick on table: Place the 1-size brick onto table no 0.
 Move brick onto another brick: Place the 2-size brick onto 3-size brick.
 Move brick onto another brick: Place the 1-size brick onto 2-size brick.
 ```
+</details>
+<details> 
+  <summary>Water pouring puzzle</summary>
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
+    
+  ```cs
+public class WaterJug
+{
+    public readonly float Capacity;
+    public float flood;
+    ⁝
+}
+```    
+```cs
+DomeinPDDL DecantingDomein = new DomeinPDDL("decanting problems");
+
+ActionPDDL DecantWater = new ActionPDDL("Decant water");
+WaterJug SourceJug = null;
+WaterJug DestinationJug = null;
+
+DecantWater.AddAssignedParametr(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
+DecantWater.AddAssignedParametr(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
+
+DecantWater.AddPrecondiction("Source Jug is not empty", ref SourceJug, Source_Jug => (Source_Jug.flood != 0));
+DecantWater.AddPrecondiction("Destination Jug is not full", ref DestinationJug, Destination_Jug => Destination_Jug.flood < Destination_Jug.Capacity);
+
+DecantWater.AddEffect(
+    "Reduce source jug flood", 
+    ref DestinationJug, 
+    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0,
+    ref SourceJug, 
+    Source_Jug => Source_Jug.flood );
+
+DecantWater.AddEffect(
+    "Increase destination jug flood",
+    ref SourceJug,
+    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood,
+    ref DestinationJug,
+    Destination_Jug => Destination_Jug.flood );
+
+    DecantingDomein.AddAction(DecantWater);
+```
+```
+SharpPDDL : Divide in half determined!!
+Decant water: from 8-liter jug to the 5-liter jug.
+Decant water: from 5-liter jug to the 3-liter jug.
+Decant water: from 3-liter jug to the 8-liter jug.
+Decant water: from 5-liter jug to the 3-liter jug.
+Decant water: from 8-liter jug to the 5-liter jug.
+Decant water: from 5-liter jug to the 3-liter jug.
+Decant water: from 3-liter jug to the 8-liter jug.
+```
+</details>
+
 ---
-License: [Creative Commons Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
+License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
