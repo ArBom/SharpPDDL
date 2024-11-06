@@ -9,7 +9,6 @@ namespace SharpPDDL
 { 
     internal class EffectLambdaPDDL : ExpressionVisitor
     {
-
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
         public Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ModifiedFunct;

@@ -1,6 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace SharpPDDL
 {
@@ -13,30 +16,63 @@ namespace SharpPDDL
             this.SourceEffectPDDL = SourceEffectPDDL;
         }
 
-
         internal override Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
         {
-            List<ParameterExpression> parameters = new List<ParameterExpression>();
+            EffectLambdaExecution effectLambdaExecution = new EffectLambdaExecution(SourceEffectPDDL);
+            effectLambdaExecution.Visit(SourceEffectPDDL.SourceFunc);
+            return effectLambdaExecution.EffectDel;
+        }
+    }
 
-            /*for (int i = 0; i != Parameters.Count; i++)
+    internal class EffectLambdaExecution : ExpressionVisitor
+    {
+        internal Delegate EffectDel = null;
+        readonly MemberInfo Dest;
+        readonly string Name;
+        private ReadOnlyCollection<ParameterExpression> _parameters;
+        private ReadOnlyCollection<ParameterExpression> OldParameters;
+
+        //konstruktor
+        internal EffectLambdaExecution (EffectPDDL SourceEffectPDDL)
+        {
+            //MemberInfo of destination
+            Dest = SourceEffectPDDL.TypeOf1Class.GetMember(SourceEffectPDDL.DestinationMemberName).First(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field);
+            Name = SourceEffectPDDL.Name;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            //Parameters
+            OldParameters = node.Parameters;
+            _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
+            
+            //Make access to destination
+            Expression DestAcc = Expression.MakeMemberAccess(_parameters[0], Dest);
+
+            //set new _parameters somewhere inside this
+            Expression ChanBody = Visit(node.Body);
+
+            //Make expression to assign body with new params to the destination
+            Expression Assign = Expression.Assign(DestAcc, ChanBody);
+
+            //Marge it all
+            LambdaExpression ModifiedFunct = Expression.Lambda(Assign, Name, _parameters);
+
+            try
             {
-                if(SourceEffectPDDL.AllParamsOfAct1ClassPos == i)
-                {
-                    parameters.Add(SourceEffectPDDL.)
-                    parameters.Add(effectPDDL1.Destination.Parameters[0]);
-                }
-                else
-                {
-                    ParameterExpression ToAdd = Expression.Parameter(Parameters[i].Type);
-                    parameters.Add(ToAdd);
-                }
+                EffectDel = ModifiedFunct.Compile();
             }
-            Expression Body = Expression.Assign(effectPDDL1.Destination, SourceEffectPDDL.SourceFunc);
-            LambdaExpression Whole = Expression.Lambda(Body, this.Name, parameters);
+            catch
+            {
+                throw new Exception("New func cannot be compilated.");
+            }
 
-            return Whole.Compile();*/
+            return ModifiedFunct;
+        }
 
-            return null;
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return _parameters.First(p => p.Name == node.Name);
         }
     }
 }
