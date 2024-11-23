@@ -444,6 +444,18 @@ namespace SharpPDDL
             {
                 Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
+
+                if (Effect.UsingAsExecution)
+                {
+                    Executions.Add(new EffectExecution(Effect));
+                }
+            }
+
+            //TODO dodać inne executionsy nie wywodzące się z effectów
+
+            foreach (Execution execution in Executions)
+            {
+                execution.CreateEffectDelegate(Parameters);
             }
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);

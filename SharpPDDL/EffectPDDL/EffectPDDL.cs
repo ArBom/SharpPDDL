@@ -7,9 +7,9 @@ namespace SharpPDDL
     public abstract class EffectPDDL : ObjectPDDL
     {
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
-        
-        private Expression _SourceFunc;
-        internal protected Expression SourceFunc
+
+        internal Expression _SourceFunc;
+        internal protected virtual Expression SourceFunc
         {
             get { return _SourceFunc; }
             protected set
@@ -22,10 +22,7 @@ namespace SharpPDDL
         internal string DestinationMemberName;
         internal bool UsingAsExecution;
 
-        public void UseAsExecution()
-        {
-            UsingAsExecution = true;
-        }
+        public void UseAsExecution() => this.UsingAsExecution = true;
 
         internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
         {
