@@ -33,8 +33,16 @@ namespace SharpPDDL
         internal Delegate EffectDel = null;
         readonly string Name;
         readonly EffectPDDL SourceEffectPDDL;
+
+        private readonly int[] ParamsIndexesInAction;
+
+        //new parameters with oryginal type with lenght and order like "Parameters" List bellow
         private readonly IReadOnlyList<ParameterExpression> _parameters;
+
+        //old parameters of source lambda
         private List<ParameterExpression> OldParameters;
+
+        //Parameters of whole Action
         IReadOnlyList<Parametr> Parameters;
 
         //konstruktor
@@ -43,6 +51,10 @@ namespace SharpPDDL
             Name = SourceEffectPDDL.Name;
             this.SourceEffectPDDL = SourceEffectPDDL;
             this.Parameters = Parameters;
+
+            ParamsIndexesInAction = new int[] { SourceEffectPDDL.AllParamsOfAct1ClassPos.Value };
+            if (SourceEffectPDDL.AllParamsOfAct2ClassPos.HasValue)
+                ParamsIndexesInAction = new int[] { SourceEffectPDDL.AllParamsOfAct1ClassPos.Value, SourceEffectPDDL.AllParamsOfAct2ClassPos.Value };
 
             //Create ParameterExpressions from Parameters
             List<ParameterExpression> parameters = new List<ParameterExpression>();
@@ -90,78 +102,37 @@ namespace SharpPDDL
             }
         }
 
+        private string NewParamName(string OldNodeName)
+        {
+            ParameterExpression param = OldParameters.First(p => p.Name == OldNodeName);
+            int index = OldParameters.IndexOf(param);
+
+            if (OldParameters.Count == 1)
+                index++;
+
+            return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
+        }
+
         protected override Expression VisitMember(MemberExpression node)
         {
             switch (node.NodeType)
             {
                 case ExpressionType.MemberAccess:
                     //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example string("Parameter")
-                    string memberExpressionName = node.Expression.ToString();
+                    string OldParamName = node.Expression.ToString();
+
+                    string memberExpressionName = NewParamName(OldParamName);
                     MemberInfo memberInfo = node.Member;
-
-                    ParameterExpression parameterExpression;
-                    switch (OldParameters.FindIndex(p => p.Name == memberExpressionName))
-                    {
-                        case 0:
-                            parameterExpression = _parameters[SourceEffectPDDL.AllParamsOfAct1ClassPos.Value];
-                            break;
-
-                        case 1:
-                            parameterExpression = _parameters[SourceEffectPDDL.AllParamsOfAct2ClassPos.Value];
-                            break;
-
-                        default:
-                            throw new Exception();
-                    }
-
+                    ParameterExpression parameterExpression = _parameters.First(p => p.Name == memberExpressionName);
                     Expression expression = Expression.MakeMemberAccess(parameterExpression, memberInfo);               
                     return expression;
+
+                case ExpressionType.Constant:
+                    return node;
 
                 default:
                     return node;
             }
-        }
-
-        /*public override Expression Visit(Expression node)
-        {
-            if (node.NodeType == ExpressionType.Lambda)
-            {
-                LambdaExpression TempLambda = (LambdaExpression)node;
-                //VisitLambda<LambdaExpression>(TempLambda);
-            }
-
-            return node;
-        }*/
-
-        protected override Expression VisitLambda<T>(Expression<T> node)
-        {
-            //Parameters
-            //OldParameters = node.Parameters;
-            //_parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
-            
-            //Make access to destination
-            //Expression DestAcc = Expression.MakeMemberAccess(_parameters[0], Dest);
-
-            //set new _parameters somewhere inside this
-            Expression ChanBody = Visit(node.Body);
-
-            //Make expression to assign body with new params to the destination
-            //Expression Assign = Expression.Assign(DestAcc, ChanBody);
-
-            //Marge it all
-           // LambdaExpression ModifiedFunct = Expression.Lambda(Assign, Name, _parameters);
-
-            try
-            {
-                //EffectDel = ModifiedFunct.Compile();
-            }
-            catch
-            {
-                throw new Exception("New func cannot be compilated.");
-            }
-
-            return null;
-           // return ModifiedFunct;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
