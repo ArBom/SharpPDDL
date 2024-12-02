@@ -42,7 +42,7 @@ namespace SharpPDDL
                     continue;
                 }
 
-                foreach (ValueOfParametr valueP in parametr.values)
+                foreach (Value valueP in parametr.values)
                 {
                     if (singleType.Values.Exists(t => t.Name == valueP.Name))
                     {

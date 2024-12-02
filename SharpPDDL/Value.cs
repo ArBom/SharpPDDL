@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace SharpPDDL
 {
-    internal abstract class Value
+    internal class Value
     {
         readonly internal string Name;
         internal Type OwnerType;
@@ -22,6 +21,18 @@ namespace SharpPDDL
             this.OwnerType = typeOfOwner;
             this.Type = typeOfValue;
             this.IsField = isField;
+        }
+
+        internal Value(Value OthetValue)
+        {
+            this.Name = OthetValue.Name;
+            this.OwnerType = OthetValue.OwnerType;
+            this.Type = OthetValue.Type;
+            this.IsField = OthetValue.IsField;
+
+            this.IsInUse_PreconditionIn = OthetValue.IsInUse_PreconditionIn;
+            this.IsInUse_EffectIn = OthetValue.IsInUse_EffectIn;
+            this.IsInUse_EffectOut = OthetValue.IsInUse_EffectOut;
         }
 
         internal bool IsInUse
@@ -92,28 +103,9 @@ namespace SharpPDDL
         }
     }
 
-    internal class ValueOfParametr : Value
-    {
-        //In the beginning one premise it will be not in use
-        //private bool _IsInUse = false;
-
-        /*internal new bool IsInUse
-        {
-            get { return _IsInUse; }
-            set
-            {
-                //It can be change only for true
-                if (value)
-                    _IsInUse = true;
-            }
-        }*/
-
-        internal ValueOfParametr(string name, Type typeOfValue, Type typeOfOwner, bool isField) : base(name, typeOfValue, typeOfOwner, isField) { }
-    }
-
     internal class ValueOfThumbnail : Value
     {
-        internal ValueOfThumbnail(ValueOfParametr valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField)
+        internal ValueOfThumbnail(Value valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField)
         {
             IsInUse_PreconditionIn = valueOfParametr.IsInUse_PreconditionIn;
             IsInUse_EffectIn = valueOfParametr.IsInUse_EffectIn;

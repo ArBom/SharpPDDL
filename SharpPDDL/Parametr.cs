@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Runtime.CompilerServices;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SharpPDDL
 {
@@ -35,7 +31,7 @@ namespace SharpPDDL
             }
         }
 
-        internal List<ValueOfParametr> values;
+        internal List<Value> values;
 
         public Parametr(Int32 hashCode, object oryginal)
         {
@@ -46,7 +42,7 @@ namespace SharpPDDL
                 throw new Exception("Wrong object type - its not a class");
 
             this.HashCode = hashCode;
-            values = new List<ValueOfParametr>();
+            values = new List<Value>();
 
             PropertyInfo[] allProperties = Type.GetProperties(); //pobierz properties z odpowiednika we wszystkich typach
             foreach (PropertyInfo propertyInfo in allProperties) //dla kazdego propertis...
@@ -55,7 +51,7 @@ namespace SharpPDDL
                 {
                     string PropertyName = propertyInfo.Name;
 
-                    ValueOfParametr newValue = new ValueOfParametr(PropertyName, propertyInfo.PropertyType, Type, false); //...utworz nową wartość...
+                    Value newValue = new Value(PropertyName, propertyInfo.PropertyType, Type, false); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }
@@ -67,7 +63,7 @@ namespace SharpPDDL
                 {
                     string fieldName = fieldInfo.Name;
 
-                    ValueOfParametr newValue = new ValueOfParametr(fieldName, fieldInfo.FieldType, Type, true); //...utworz nową wartość...
+                    Value newValue = new Value(fieldName, fieldInfo.FieldType, Type, true); //...utworz nową wartość...
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }

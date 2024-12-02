@@ -51,8 +51,6 @@ namespace SharpPDDL
             };
 
             this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg));
-            //TODO zobaczyć czy to to krzaczy mergowanie
-            //Children.Sort((a, b) => a.Child.Content.GetHashCode().CompareTo(b.Child.Content.GetHashCode())); 
         }
 
         public Crisscross this[int key]

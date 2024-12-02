@@ -39,7 +39,7 @@ namespace SharpPDDL
                 }
 
                 //in the other case update values of Parameter
-                foreach (ValueOfParametr value in singleType.Values)
+                foreach (Value value in singleType.Values)
                 {
                     if (allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name))
                     {

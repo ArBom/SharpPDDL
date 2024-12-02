@@ -50,7 +50,7 @@ namespace SharpPDDL
 
             foreach (Value value in singleType.Values)
             {
-                ValueOfThumbnail TempValueOfThumbnail = new ValueOfThumbnail((ValueOfParametr)value);
+                ValueOfThumbnail TempValueOfThumbnail = new ValueOfThumbnail((Value)value);
                 Values.Add(TempValueOfThumbnail);
             }
             this.CumulativeValues = new List<ValueOfThumbnail>();

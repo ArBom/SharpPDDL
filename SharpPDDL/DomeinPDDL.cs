@@ -105,6 +105,12 @@ namespace SharpPDDL
             if (AllDomain is null)
                 AllDomain = new Dictionary<string, DomeinPDDL>();
 
+            if (name is null)
+                throw new Exception();
+
+            if (name == "")
+                throw new Exception();
+
             if (AllDomain.ContainsKey(name))
                 throw new Exception();
 
