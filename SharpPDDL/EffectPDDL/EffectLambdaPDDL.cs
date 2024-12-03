@@ -168,6 +168,9 @@ namespace SharpPDDL
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node.Method.IsStatic)
+                return node;
+
             throw new Exception("You cannot to use object method call to create model of object. Try to write this method (" + node.ToString() + ")as new lambda which uses only ValueType member(s) of object.");
         }
     }
