@@ -5,15 +5,16 @@ using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
 namespace SharpPDDL
-{    
+{
     public class ActionPDDL
     {
         public readonly string Name;
-        internal readonly uint ActionCost;
+        internal readonly uint actionCostUint;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
+        internal ActionCost actionCost;
         private List<Execution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
@@ -21,6 +22,8 @@ namespace SharpPDDL
 
         internal List<SingleType> TakeSingleTypes()
         {
+            actionCost.TagInUse(Parameters);
+
             List<SingleType> ToRet = new List<SingleType>();
 
             foreach (Parametr parametr in Parameters)
@@ -429,9 +432,42 @@ namespace SharpPDDL
             return temp;
         }
         #endregion
+        #region ActionCost
+        public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
+            where T1 : class
+        {
+            this.actionCost = new ActionCost<T1>(ref In1, CostExpression, this.actionCost.defaultCost);
+        }
+
+        public void DefineActionCost<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
+            where T1 : class
+            where T2 : class
+        {
+            this.actionCost = new ActionCost<T1, T2>(ref In1, ref In2, CostExpression, this.actionCost.defaultCost);
+        }
+
+        public void DefineActionCost<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            this.actionCost = new ActionCost<T1, T2, T3>(ref In1, ref In2, ref In3, CostExpression, this.actionCost.defaultCost);
+        }
+
+        public void DefineActionCost<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
+             where T1 : class
+             where T2 : class
+             where T3 : class
+             where T4 : class
+        {
+            this.actionCost = new ActionCost<T1, T2, T3, T4>(ref In1, ref In2, ref In3, ref In4, CostExpression, this.actionCost.defaultCost);
+        }
+        #endregion
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
+            actionCost.BuildActionCost(allTypes, InstantActionParamCount);
+
             var PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
@@ -481,18 +517,21 @@ namespace SharpPDDL
         /// </summary>
         /// <param name="Name">Unique, non-empty action name</param>
         /// <param name="ActionCost">Resource consumption of the action, for example execution time. The smaller it is, the better it is to trigger the action</param>
-        public ActionPDDL(string Name, uint ActionCost = 1)
+        public ActionPDDL(string Name, uint actionCost = 1)
         {
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or emty
 
-            this.ActionCost = ActionCost;
             this.Name = Name;
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
             this.Effects = new List<EffectPDDL>();
             this.Executions = new List<Execution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
+
+            //TODO poniższe do wyczyszczenia
+            this.actionCostUint = actionCost;
+            this.actionCost = new ActionCost(actionCost);
         }
     }
 }

@@ -33,6 +33,25 @@ namespace SharpPDDL
                         break;
                     }
 
+                case 3:
+                    {
+                        used = new List<string>[3];
+                        used[0] = new List<string>();
+                        used[1] = new List<string>();
+                        used[2] = new List<string>();
+                        break;
+                    }
+
+                case 4:
+                    {
+                        used = new List<string>[4];
+                        used[0] = new List<string>();
+                        used[1] = new List<string>();
+                        used[2] = new List<string>();
+                        used[3] = new List<string>();
+                        break;
+                    }
+
                 default:
                     {
                         throw new Exception();

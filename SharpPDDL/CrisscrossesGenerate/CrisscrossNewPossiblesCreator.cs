@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -95,7 +94,9 @@ namespace SharpPDDL.CrisscrossesGenerate
                         }
 
                         PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
-                        stateToCheck.Add(newPossibleState, actionPos, ActionArg, Actions[actionPos].ActionCost, out Crisscross AddedItem);
+                        //var a = Actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
+                        uint ActionCost = (uint)Actions[actionPos].actionCost.CostExpressionFunc.DynamicInvoke(SetToCheck);
+                        stateToCheck.Add(newPossibleState, actionPos, ActionArg, Actions[actionPos].actionCostUint, out Crisscross AddedItem);
 
                         ToAddList.Add(AddedItem);
                     }
