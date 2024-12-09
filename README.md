@@ -28,7 +28,100 @@ public class HanoiTable : HanoiObj
     public readonly int no;
 }
 ```
+```mermaid
 
+classDiagram
+
+namespace Legend {
+
+    class Class{
+        Its a block representant some class
+    }
+
+    class Object {
+        Its a block representant some object / class instance
+    }
+
+}
+
+    style Object fill:#391, stroke-style:..
+    style Class fill:#139, stroke-style:..
+
+namespace HanoiTower {
+
+    class HanoiObj{
+        +int HanoiObjSizeUpSide
+        +bool IsEmptyUpSide
+    }
+
+    class HanoiBrick{
+        +int Size
+    }
+
+    class HanoiTable {
+        +int no
+    }
+}
+    HanoiObj <|-- HanoiBrick
+    HanoiObj <|-- HanoiTable
+
+    style HanoiObj fill:#139, stroke-style:..
+    style HanoiBrick fill:#139, stroke-style:..
+    style HanoiTable fill:#139, stroke-style:..
+
+namespace SharpPDDL {
+
+    class Root_TreeNode{
+        ~SingleTypeOfDomein Content
+        ~List~TreeNode~ Children 
+    }
+
+    class HanoiObj_SingleTypeOfDomein {
+        ~Type Type : BaseShapes.HanoiObj
+        ~List~ValueOfThumbnail~ CumulativeValues 
+    }
+
+    class 0_TreeNode{
+        ~SingleTypeOfDomein Content
+        ~List~TreeNode~ Children 
+    }
+
+    class HanoiBrick_SingleTypeOfDomein {
+        ~Type Type : BaseShapes.HanoiObj
+        ~List~ValueOfThumbnail~ CumulativeValues 
+    }
+
+    class 1_TreeNode{
+        ~SingleTypeOfDomein Content
+        ~List~TreeNode~ Children 
+    }
+
+    class HanoiTable_SingleTypeOfDomein {
+        ~Type Type : BaseShapes.HanoiObj
+        ~List~ValueOfThumbnail~ CumulativeValues 
+    }
+}
+    style Root_TreeNode fill:#391, stroke-style:..
+    style 0_TreeNode fill:#391, stroke-style:..
+    style 1_TreeNode fill:#391, stroke-style:..
+    style HanoiObj_SingleTypeOfDomein fill:#391, stroke-style:..
+    style HanoiBrick_SingleTypeOfDomein fill:#391, stroke-style:..
+    style HanoiTable_SingleTypeOfDomein fill:#391, stroke-style:..
+    
+    Root_TreeNode --> "Children[0]" 0_TreeNode
+    Root_TreeNode --> "Children[1]" 1_TreeNode
+    0_TreeNode --> "Content" HanoiBrick_SingleTypeOfDomein
+    1_TreeNode --> "Content" HanoiTable_SingleTypeOfDomein
+    Root_TreeNode --> "Content" HanoiObj_SingleTypeOfDomein
+    HanoiObj_SingleTypeOfDomein ..> "≙" HanoiObj
+    HanoiBrick_SingleTypeOfDomein ..> "≙" HanoiBrick
+    HanoiTable_SingleTypeOfDomein ..> "≙" HanoiTable
+
+    note for HanoiObj_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide"
+    note for HanoiTable_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> // int:no is not use in any action"
+    note for HanoiBrick_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> 3: Size"
+
+```
 Instances of class used to define action shouldn't be use in other part of program. In time of create actions library create class instance excluding use the class constructor.
 
 For these classes one can define rules in library like "Move brick onto another brick" or "Move brick on table". Preconditions, effect etc. are phrased by library's user as Expressions (System.Linq.Expressions):
