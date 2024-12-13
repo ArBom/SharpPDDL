@@ -94,9 +94,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                         }
 
                         PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
-                        //var a = Actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
                         uint ActionCost = (uint)Actions[actionPos].actionCost.CostExpressionFunc.DynamicInvoke(SetToCheck);
-                        stateToCheck.Add(newPossibleState, actionPos, ActionArg, Actions[actionPos].actionCostUint, out Crisscross AddedItem);
+                        stateToCheck.Add(newPossibleState, actionPos, ActionArg, ActionCost, out Crisscross AddedItem);
 
                         ToAddList.Add(AddedItem);
                     }

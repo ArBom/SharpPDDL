@@ -32,17 +32,29 @@ namespace SharpPDDL
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             OldParameters = node.Parameters;
+
+            //Modified function with PossibleStateThumbnailObject as a Parameters
             Expression ModifBody = Visit(node.Body);
+
+            //Variable for modified function result
             ParameterExpression ModCostExpress = Expression.Variable(node.ReturnType, "PosResult");
             Expression conv = Expression.Convert(ModCostExpress, typeof(uint));
+
+            //Const. 0 to check is result positive
             Expression zero = Expression.Constant(0, typeof(int));
+
+            //Check is result positive
             Expression CheckPos = Expression.GreaterThan(ModCostExpress, zero);
+
+            //label to return
             LabelTarget retLabelTarget = Expression.Label(typeof(uint), null);
 
             BlockExpression FBlock = Expression.Block(
                 new ParameterExpression[] { ModCostExpress },
                 Expression.Assign(ModCostExpress, ModifBody),
-                Expression.IfThenElse(CheckPos, Expression.Return(retLabelTarget, conv), Expression.Return(retLabelTarget, DefaultCost)),
+                Expression.IfThenElse(CheckPos, 
+                    Expression.Return(retLabelTarget, conv), 
+                    Expression.Return(retLabelTarget, DefaultCost)),
                 Expression.Label(retLabelTarget, DefaultCost)
                 );
 
@@ -122,7 +134,15 @@ namespace SharpPDDL
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.Method.IsStatic)
-                return node;
+            {
+                List<Expression> Arguments = new List<Expression>();
+                for (int i = 0; i != node.Arguments.Count; i++)
+                    Arguments.Add(Visit(node.Arguments[i]));
+
+                MethodCallExpression Nnode = node.Update(node.Object, new ReadOnlyCollection<Expression>(Arguments));
+
+                return Nnode;          
+            }
 
             throw new Exception();
         }

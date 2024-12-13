@@ -10,12 +10,14 @@ namespace SharpPDDL
         internal Crisscross Child;
         internal readonly int ActionNr;
         internal readonly object[] ActionArgOryg;
+        internal readonly uint ActionCost;
 
-        internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, object[] ActionArgOryg)
+        internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, object[] ActionArgOryg, uint ActionCost)
         {
             this.Child = Child;
             this.ActionNr = ActionNr;
             this.ActionArgOryg = ActionArgOryg;
+            this.ActionCost = ActionCost;
         }
     }
 
@@ -40,9 +42,6 @@ namespace SharpPDDL
 
         public void Add(PossibleState item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge, out Crisscross AddedItem)
         {
-            if (AddedTransitionCharge == 0)
-                AddedTransitionCharge = 1;
-
             AddedItem = new Crisscross()
             {
                 Root = this,
@@ -50,7 +49,7 @@ namespace SharpPDDL
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
-            this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg));
+            this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg, AddedTransitionCharge));
         }
 
         public Crisscross this[int key]

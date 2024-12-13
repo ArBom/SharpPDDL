@@ -75,7 +75,7 @@ namespace SharpPDDL
         {
             Crisscross MinusOnePos = new Crisscross
             {
-                Children = new List<CrisscrossChildrenCon> {new CrisscrossChildrenCon(creator, 0, null)}
+                Children = new List<CrisscrossChildrenCon> {new CrisscrossChildrenCon(creator, 0, null, 0)}
             };
             this.current = MinusOnePos;
             this.UsedAlternativeRoots = new List<KeyValuePair<Crisscross, Crisscross>>();

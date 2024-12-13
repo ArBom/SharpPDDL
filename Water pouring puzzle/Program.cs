@@ -12,6 +12,15 @@ namespace Water_pouring_puzzle
     {
         public class WaterJug
         {
+            //Define Action cost function as quantify of water to decant
+            public static int DecantedWater (float SourceFlood, float DestinationCapacity, float DestinationFlood)
+            {
+                if (SourceFlood + DestinationFlood > DestinationCapacity)
+                    return (int)(DestinationCapacity - DestinationFlood);
+                else
+                    return (int)SourceFlood;
+            }
+
             public readonly float Capacity;
             private float _flood;
             public float flood
@@ -34,7 +43,7 @@ namespace Water_pouring_puzzle
         static void PrintPlan(List<List<string>> plan)
         {
             for (int i = 0; i != plan.Count; i++)
-                Console.WriteLine(plan[i][0] + plan[i][1]);
+                Console.WriteLine(plan[i][0] + plan[i][1] + plan[i][2]);
         }
 
         static void Main(string[] args)
@@ -64,6 +73,8 @@ namespace Water_pouring_puzzle
                 (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood,
                 ref DestinationJug,
                 Destination_Jug => Destination_Jug.flood );
+
+            DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 
             DecantingDomein.AddAction(DecantWater);
 

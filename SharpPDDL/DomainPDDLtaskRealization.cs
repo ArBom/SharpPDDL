@@ -118,7 +118,7 @@ namespace SharpPDDL
                         arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
                     }
 
-                    Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg) });
+                    Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), " Action cost: " + actions[r[i].ActionNr].actionCost.CostExpressionFunc.DynamicInvoke(arg)});
 
                     state = r[i].Child;
                 }

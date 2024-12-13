@@ -89,8 +89,6 @@ namespace Hanoi_Tower
             moveBrickOnBrick.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide).UseAsExecution();
             moveBrickOnBrick.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandB, NSB => NSB.HanoiObjSizeUpSide).UseAsExecution();
 
-            moveBrickOnBrick.DefineActionCost(ref MovedBrick, b => -1);
-
             newDomein.AddAction(moveBrickOnBrick);
 
             ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
@@ -106,8 +104,6 @@ namespace Hanoi_Tower
             moveBrickOnTable.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide).UseAsExecution();
             moveBrickOnTable.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide).UseAsExecution();
             moveBrickOnTable.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandT, NST => NST.HanoiObjSizeUpSide).UseAsExecution();
-
-            moveBrickOnTable.DefineActionCost(ref MovedBrick, b => b.Size);
 
             newDomein.AddAction(moveBrickOnTable);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -11,27 +12,6 @@ namespace SharpPDDL
         protected List<(object Param, int? IndexInAction)> Args;
         internal readonly uint defaultCost;
         internal Delegate CostExpressionFunc;
-
-        private void BuildStatic(int ParamCount)
-        {
-            ConstantExpression ToRetC = Expression.Constant(defaultCost);
-            LabelTarget labelTarget = Expression.Label(typeof(uint));
-            //LabelExpression retLabelTarget = Expression.Label(labelTarget, ToRetC);
-            GotoExpression expression = Expression.Return(labelTarget, ToRetC, typeof(uint));
-            
-            //var breake = Expression.Break(labelTarget, result);
-            BlockExpression Block = Expression.Block(expression, Expression.Label(labelTarget, ToRetC));
-            //BlockExpression Block = Expression.Block(Expression.Label(labelTarget, ToRetC));
-
-            List<ParameterExpression> _parameters = new List<ParameterExpression>();
-            for (int i = 0; i != ParamCount; i++)
-                _parameters.Add(Expression.Parameter(typeof(ParameterExpression), "_" )); //ExtensionMethods.LamdbaParamPrefix + i.ToString()
-
-            LambdaExpression Lambda = Expression.Lambda(Block, _parameters);
-            bool a = Lambda.CanReduce;
-
-            CostExpressionFunc = Lambda.Compile();
-        }
 
         internal ActionCost(uint DefaultCost)
         {
@@ -77,8 +57,8 @@ namespace SharpPDDL
         {
             if (CostExpression is null)
             {
-                BuildStatic(InstantActionParamCount);
-                return;
+                Expression<Func<int>> f = () => (int)defaultCost;
+                CostExpression = f;
             }
 
             ActionCostLambda actionCostLambda = new ActionCostLambda(allTypes, Args, InstantActionParamCount, defaultCost);

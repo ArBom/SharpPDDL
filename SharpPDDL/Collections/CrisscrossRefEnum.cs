@@ -27,7 +27,7 @@ namespace SharpPDDL
         {
             Crisscross MinusOnePos = new Crisscross
             {
-                Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, 0, null) }
+                Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, 0, null, 0) }
             };
 
             Chains = new List<ChainStruct> {
