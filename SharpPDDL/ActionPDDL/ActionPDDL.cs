@@ -466,6 +466,9 @@ namespace SharpPDDL
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
+            if (Parameters.Count == 0)
+                return;
+
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
 
             var PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();

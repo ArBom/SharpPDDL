@@ -41,6 +41,9 @@ namespace SharpPDDL
             }       
             _parameters = TempParams.AsReadOnly();
 
+            if (ChecksParam.Count == 0)
+                return;
+
             BinaryExpression CheckAllParam = ChecksParam[0];
 
             if (ChecksParam.Count >= 2)
@@ -55,9 +58,15 @@ namespace SharpPDDL
                 ChecksPrecondition.Add(preconditionWithNewParam);
             }
 
-            Expression CheckAllPreco = ChecksPrecondition[0];
-            for (int a = 1; a != ChecksPrecondition.Count; a++)
-                CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
+            Expression CheckAllPreco;
+            if (ChecksPrecondition.Count != 0)
+            {
+                CheckAllPreco = ChecksPrecondition[0];
+                for (int a = 1; a != ChecksPrecondition.Count; a++)
+                    CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
+            }
+            else
+                CheckAllPreco = Expression.Constant(true);
 
         // Effects below
             List<Expression>[] EffectsPais = new List<Expression>[parameters.Count];

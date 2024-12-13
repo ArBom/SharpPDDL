@@ -103,7 +103,7 @@ namespace SharpPDDL
             Crisscross state = states;
             List<CrisscrossChildrenCon> r = Found.Key.Position();
 
-            Console.WriteLine(ExtensionMethods.TracePrefix + Found.Value[0].Name + " determined!!!");
+            Console.WriteLine(ExtensionMethods.TracePrefix + Found.Value[0].Name + " determined!!! Total Cost: " + Found.Key.CumulativedTransitionCharge);
 
             if (!(r is null))
             {
@@ -118,7 +118,7 @@ namespace SharpPDDL
                         arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
                     }
 
-                    Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), " Action cost: " + actions[r[i].ActionNr].actionCost.CostExpressionFunc.DynamicInvoke(arg)});
+                    Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), " Action cost: " + r[i].ActionCost });
 
                     state = r[i].Child;
                 }

@@ -127,7 +127,10 @@ namespace SharpPDDL
             Type originalObjTypeCand = originalObj.GetType();
             do
             {
-                this.Model = allTypes.Where(t => t.Type == originalObjTypeCand).First();
+                IEnumerator<SingleTypeOfDomein> ModelsEnum = allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
+                if (ModelsEnum.MoveNext())
+                    this.Model = ModelsEnum.Current;
+
                 originalObjTypeCand = originalObjTypeCand.BaseType;
             }
             while (this.Model is null && !(originalObjTypeCand is null));

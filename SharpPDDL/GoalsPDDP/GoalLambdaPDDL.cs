@@ -132,7 +132,18 @@ namespace SharpPDDL
             if (node.Expression.NodeType == ExpressionType.Constant)
                 return node;
 
-            SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type).First();
+            SingleTypeOfDomein ParameterModel = null;
+            Type originalObjTypeCand = node.Expression.Type;
+            do
+            {
+                IEnumerator<SingleTypeOfDomein> ModelsEnum = allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
+                //IEnumerator<SingleTypeOfDomein> ModelsEnum = Models.GetEnumerator();
+                if (ModelsEnum.MoveNext())
+                    ParameterModel = ModelsEnum.Current;
+
+                originalObjTypeCand = originalObjTypeCand.BaseType;
+            }
+            while (ParameterModel is null && !(originalObjTypeCand is null));
 
             if (ParameterModel is null)
                 throw new Exception();
