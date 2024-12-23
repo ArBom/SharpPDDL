@@ -1,4 +1,5 @@
-![Logo](https://onedrive.live.com/embed?resid=5B6E90429D9C8454%21346129&authkey=%21AIQv_XycrJiLVlI&width=1127&height=319)
+![thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
+
 
 This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.3 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
@@ -174,7 +175,7 @@ newDomein.AddAction(moveBrickOnTable);
 
 Solution output for 3-bricks-hanoi-tower problem:
 ```
-Transfer bricks onto table no. 3 determined!!!
+Transfer bricks onto table no. 3 determined!!! Total Cost: 7
 Move brick on table: Place the 1-size brick onto table no 2.
 Move brick on table: Place the 2-size brick onto table no 1.
 Move brick onto another brick: Place the 1-size brick onto 2-size brick.
@@ -193,7 +194,16 @@ public class WaterJug
 {
     public readonly float Capacity;
     public float flood;
+
+    public static int DecantedWater (float SourceFlood, float DestinationCapacity, float DestinationFlood)
+    {
+        if (SourceFlood + DestinationFlood > DestinationCapacity)
+           return (int)(DestinationCapacity - DestinationFlood);
+        else
+           return (int)SourceFlood;
+    }
     ⁝
+
 }
 ```    
 ```cs
@@ -223,17 +233,20 @@ DecantWater.AddEffect(
     ref DestinationJug,
     Destination_Jug => Destination_Jug.flood );
 
-    DecantingDomein.AddAction(DecantWater);
+DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
+
+DecantingDomein.AddAction(DecantWater);
 ```
 ```
-SharpPDDL : Divide in half determined!!
-Decant water: from 8-liter jug to the 5-liter jug.
-Decant water: from 5-liter jug to the 3-liter jug.
-Decant water: from 3-liter jug to the 8-liter jug.
-Decant water: from 5-liter jug to the 3-liter jug.
-Decant water: from 8-liter jug to the 5-liter jug.
-Decant water: from 5-liter jug to the 3-liter jug.
-Decant water: from 3-liter jug to the 8-liter jug.
+SharpPDDL : Divide in half determined!!! Total Cost: 22
+Decant water: from 8-liter jug to the 5-liter jug. Action cost: 5
+Decant water: from 5-liter jug to the 3-liter jug. Action cost: 3
+Decant water: from 3-liter jug to the 8-liter jug. Action cost: 3
+Decant water: from 5-liter jug to the 3-liter jug. Action cost: 2
+Decant water: from 8-liter jug to the 5-liter jug. Action cost: 5
+Decant water: from 5-liter jug to the 3-liter jug. Action cost: 1
+Decant water: from 3-liter jug to the 8-liter jug. Action cost: 3
+all states generated
 ```
 </details>
 
