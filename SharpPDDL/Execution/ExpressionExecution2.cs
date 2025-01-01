@@ -10,14 +10,15 @@ namespace SharpPDDL
         readonly T2 t2;
         Expression<Action<T1, T2>> action;
 
-        ExpressionExecution(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action) : base(Name)
+        ExpressionExecution(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) 
+            : base(Name, action, WorkWithNewValues, typeof(T1), t1.GetHashCode(), typeof(T2), t2.GetHashCode())
         {
             this.t1 = t1;
             this.t2 = t2;
             this.action = action;
         }
 
-        internal override Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
+        internal Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
         {
             List<ParameterExpression> parameters = new List<ParameterExpression>();
             for (int i = 0; i != Parameters.Count; i++)
@@ -39,6 +40,33 @@ namespace SharpPDDL
             LambdaExpression lambdaExpression = Expression.Lambda(action.Body, parameters);
             this.Delegate = lambdaExpression.Compile();
             return this.Delegate;
+        }
+
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
+        {
+            for (int index = 0; index != listOfParams.Count; index++)
+            {
+                if (listOfParams[index].HashCode != Hash2Class)
+                    continue;
+
+                if (t2.Equals(listOfParams[index].Oryginal))
+                {
+                    AllParamsOfAct1ClassPos = index;
+                    break;
+                }
+            }
+
+            for (int index = 0; index != listOfParams.Count; index++)
+            {
+                if (listOfParams[index].HashCode != Hash1Class)
+                    continue;
+
+                if (t1.Equals(listOfParams[index].Oryginal))
+                {
+                    AllParamsOfAct2ClassPos = index;
+                    return;
+                }
+            }
         }
     }
 }

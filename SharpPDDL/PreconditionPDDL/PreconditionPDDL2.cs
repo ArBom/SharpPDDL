@@ -11,7 +11,6 @@ namespace SharpPDDL
         where T2c : T2p
     {
         internal T2c t2;
-        readonly Expression<Predicate<T1p, T2p>> func;
 
         private void T2Index(IReadOnlyList<Parametr> listOfParams)
         {

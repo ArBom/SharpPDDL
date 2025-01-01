@@ -1,15 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace SharpPDDL
 {
-    internal abstract class Execution
+    internal abstract class Execution : ObjectPDDL
     {
-        readonly protected string Name;
+        readonly internal bool WorkWithNewValues;
         internal Delegate Delegate;
 
-        internal Execution(string Name) { this.Name = Name; }
-        internal abstract Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters);
+        internal Expression _Func;
+        internal protected virtual Expression Func
+        {
+            get { return _Func; }
+            protected set
+            {
+                if (_Func is null)
+                    _Func = value;
+            }
+        }
+
+        internal Execution(string Name, Expression Func, bool WorkWithNewValues, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null)
+            : base (Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        {
+            this.Func = Func;
+            this.WorkWithNewValues = WorkWithNewValues;
+        }
 
         protected int? Index<T>(T t, IReadOnlyList<Parametr> Parameters)
         {

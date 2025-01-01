@@ -9,13 +9,14 @@ namespace SharpPDDL
         readonly T1 t1;
         Expression<Action<T1>> action;
 
-        ExpressionExecution(string Name, ref T1 t1, Expression<Action<T1>> action) : base(Name)
+        ExpressionExecution(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) 
+            : base(Name, action, WorkWithNewValues, typeof(T1), t1.GetHashCode())
         {
             this.t1 = t1;
             this.action = action;
         }
 
-        internal override Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
+        internal Delegate CreateEffectDelegate(IReadOnlyList<Parametr> Parameters)
         {
             List<ParameterExpression> parameters = new List<ParameterExpression>();
             for (int i = 0; i != Parameters.Count; i++)
@@ -34,6 +35,21 @@ namespace SharpPDDL
             LambdaExpression lambdaExpression = Expression.Lambda(action.Body, parameters);
             this.Delegate = lambdaExpression.Compile();
             return this.Delegate;
+        }
+
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
+        {
+            for (int index = 0; index != listOfParams.Count; index++)
+            {
+                if (listOfParams[index].HashCode != Hash1Class)
+                    continue;
+
+                if (t1.Equals(listOfParams[index].Oryginal))
+                {
+                    AllParamsOfAct1ClassPos = index;
+                    return;
+                }
+            }
         }
     }
 }

@@ -8,7 +8,6 @@ namespace SharpPDDL
     internal class PreconditionPDDL<T1c, T1p> : PreconditionPDDL where T1p : class where T1c : T1p
     {
         protected T1c t1;
-        readonly Expression<Predicate<T1p>> func;
 
         protected void T1Index(IReadOnlyList<Parametr> listOfParams)
         {

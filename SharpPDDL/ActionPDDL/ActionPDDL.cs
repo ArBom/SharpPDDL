@@ -285,7 +285,7 @@ namespace SharpPDDL
         /// <param name="newValue_Static">New value assigning to <c>destinationObj</c>>'s member</param>
         /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
         /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
-        public EffectPDDL AddEffect<T>(string Name, ValueType newValue_Static, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember) where T : class 
+        public EffectPDDL AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class 
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
@@ -320,7 +320,7 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember)
+        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source)
             where T1p : class
             where T2p : class
             where T1c : class, T1p
@@ -379,13 +379,13 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember)
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source)
             where T1 : class
             where T2 : class
             =>
-            AddEffect<T1, T1, T2, T2>(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
+            AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct) 
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
         {
@@ -479,23 +479,22 @@ namespace SharpPDDL
             }
 
             var EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
+            List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
             foreach (EffectPDDL Effect in Effects)
             {
                 Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
 
                 if (Effect.UsingAsExecution)
-                {
-                    Executions.Add(new EffectExecution(Effect));
-                }
+                    EffectsUsingAsExecution.Add(Effect);
             }
-
-            //TODO dodać inne executionsy nie wywodzące się z effectów
 
             foreach (Execution execution in Executions)
             {
-                execution.CreateEffectDelegate(Parameters);
+                execution.CompleteClassPos(Parameters);
             }
+
+            var p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;

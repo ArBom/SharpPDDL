@@ -40,10 +40,10 @@ namespace SharpPDDL
         /// <param name="goalExpectation">Description of expected attribute</param>
         /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
         /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, T originalObj, DomeinPDDL newPDDLdomain = null) where T : class
+        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain = null) where T : class
         {
             List<Expression<Predicate<T>>> goalExpectations = new List<Expression<Predicate<T>>>() { goalExpectation };
-            AddExpectedObjectState(new List<Expression<Predicate<T>>>(goalExpectations), originalObj, newPDDLdomain);
+            AddExpectedObjectState(originalObj, new List<Expression<Predicate<T>>>(goalExpectations), newPDDLdomain);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace SharpPDDL
         /// <param name="goalExpectation">Collection of description of expected attributes</param>
         /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
         /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, T originalObj, DomeinPDDL newPDDLdomain = null) where T : class
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
         {
             if (originalObj is null)
                 throw new Exception();
@@ -62,7 +62,7 @@ namespace SharpPDDL
             GoalObjects.Add(temp);
         }
 
-        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, Type originalObjType, DomeinPDDL newPDDLdomain = null) where T : class
+        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
         {
             //todo sprawdzenie dziedziczenia typów
 
@@ -72,7 +72,7 @@ namespace SharpPDDL
 
         public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
         {
-            AddExpectedObjectState(goalExpectations, typeof(T), newPDDLdomain);
+            AddExpectedObjectState(typeof(T), goalExpectations, newPDDLdomain);
         }
 
         internal void BUILDIT(List<SingleTypeOfDomein> allTypes)

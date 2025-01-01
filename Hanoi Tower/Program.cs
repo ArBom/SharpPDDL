@@ -84,10 +84,10 @@ namespace Hanoi_Tower
             moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
             moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
-            moveBrickOnBrick.AddEffect("New stand is full", false, ref NewStandB, NS => NS.IsEmptyUpSide).UseAsExecution();
-            moveBrickOnBrick.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide).UseAsExecution();
-            moveBrickOnBrick.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide).UseAsExecution();
-            moveBrickOnBrick.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandB, NSB => NSB.HanoiObjSizeUpSide).UseAsExecution();
+            moveBrickOnBrick.AddEffect("New stand is full", ref NewStandB, NS => NS.IsEmptyUpSide, false);
+            moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true);
+            moveBrickOnBrick.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0);
+            moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size);
 
             newDomein.AddAction(moveBrickOnBrick);
 
@@ -100,10 +100,10 @@ namespace Hanoi_Tower
             moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, ObjectIsNoUp);
             moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
 
-            moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide).UseAsExecution();
-            moveBrickOnTable.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide).UseAsExecution();
-            moveBrickOnTable.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide).UseAsExecution();
-            moveBrickOnTable.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandT, NST => NST.HanoiObjSizeUpSide).UseAsExecution();
+            moveBrickOnTable.AddEffect("New stand is full", ref NewStandT, NS => NS.IsEmptyUpSide, false);
+            moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true);
+            moveBrickOnTable.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0);
+            moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size);
 
             newDomein.AddAction(moveBrickOnTable);
 
@@ -125,8 +125,8 @@ namespace Hanoi_Tower
                 newDomein.domainObjects.Add(HT);
 
             GoalPDDL movedBrick = new GoalPDDL("Transfer bricks onto table no. 3");
-            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[0] );
-            movedBrick.AddExpectedObjectState( HT => HT.IsEmptyUpSide, HanoiTables[1] );
+            movedBrick.AddExpectedObjectState( HanoiTables[0], HT => HT.IsEmptyUpSide );
+            movedBrick.AddExpectedObjectState( HanoiTables[1], HT => HT.IsEmptyUpSide );
             newDomein.AddGoal(movedBrick);
 
             newDomein.PlanGenerated += PrintPlan;

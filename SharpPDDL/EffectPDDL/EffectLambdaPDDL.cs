@@ -89,6 +89,7 @@ namespace SharpPDDL
             ParameterExpression param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
 
+            //Tag: index
             if (OldParameters.Count == 1)
                 index++;
 

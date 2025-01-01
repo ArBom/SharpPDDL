@@ -16,6 +16,8 @@ namespace SharpPDDL
         /// </returns>
         //internal abstract (Func<ThumbnailObject, ThumbnailObject, bool>, Func<dynamic, dynamic, bool> ) TakeFunct();
 
+        internal Expression func;
+
         /// <summary>
         /// It's check if PDDL object(s) fulfil requirement (of this precondition) to do action.
         /// </summary>
