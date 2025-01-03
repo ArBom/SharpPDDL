@@ -13,14 +13,19 @@ namespace SharpPDDL
 
     internal class WholeActionExecutionLambda : ExpressionVisitor
     {
-        ObjectPDDL ActualEffectPDDL;
+        ObjectPDDL ActualObjectPDDL;
         List<ParameterExpression> Parameters;
         List<ParameterExpression> _parameters = new List<ParameterExpression>();
 
-        internal WholeActionExecutionLambda(IReadOnlyList<Parametr> Parameters, IReadOnlyList<PreconditionPDDL> ExecutionPrecondition, IReadOnlyList<EffectPDDL> ExecutionEffects, IReadOnlyList<Execution> executions )
+        internal readonly Delegate InstantExecutionPDDL;
+
+        internal WholeActionExecutionLambda(IReadOnlyList<Parametr> Parameters, IReadOnlyList<PreconditionPDDL> ExecutionPrecondition, IReadOnlyList<EffectPDDL> ExecutionEffects, IReadOnlyList<ExpressionExecution> executions )
         {
-            IReadOnlyList<Execution> OldDataExecutions = executions.Where(e => e.WorkWithNewValues == false).ToList();
-            IReadOnlyList<Execution> NewDataExecutions = executions.Where(e => e.WorkWithNewValues == true).ToList();
+            foreach (ExpressionExecution execution in executions)
+                execution.CompleteClassPos(Parameters);
+
+            IReadOnlyList<ExpressionExecution> OldDataExecutions = executions.Where(e => e.WorkWithNewValues == false).ToList();
+            IReadOnlyList<ExpressionExecution> NewDataExecutions = executions.Where(e => e.WorkWithNewValues == true).ToList();
 
             for (int i = 0; i != Parameters.Count; i++)
             {
@@ -33,9 +38,6 @@ namespace SharpPDDL
             int UsingVar = ExecutionEffects.Count;
             int ExecutionEffectsArraySize = 2 * UsingVar + executions.Count;
 
-            if (ExecutionEffectsArraySize == 0)
-                return;
-
             Expression[] ExecutionEffectsArray = new Expression[ExecutionEffectsArraySize];
             for (int i = 0; i != UsingVar; i++)
             {
@@ -47,7 +49,7 @@ namespace SharpPDDL
                 ParametersVar.Add(ParamVar);
 
                 //Modify source lambda
-                ActualEffectPDDL = ExecutionEffects[i];
+                ActualObjectPDDL = ExecutionEffects[i];
                 Expression modified = Visit(ExecutionEffects[i].SourceFunc);
                 Expression ConvertExpression = Expression.Convert(modified, DestinationMemberType);
                 ExecutionEffectsArray[i] = Expression.Assign(ParamVar, ConvertExpression);
@@ -60,12 +62,14 @@ namespace SharpPDDL
 
             for (int i = 0; i != OldDataExecutions.Count; i++)
             {
-                //ExecutionEffectsArray[UsingVar + i] = Visit(OldDataExecutions[i].);
+                ActualObjectPDDL = OldDataExecutions[i];
+                ExecutionEffectsArray[UsingVar + i] = Visit(OldDataExecutions[i].Func);
             }
 
             for (int i = 0; i != NewDataExecutions.Count; i++)
             {
-                //ExecutionEffectsArray[2*UsingVar + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].);
+                ActualObjectPDDL = OldDataExecutions[i];
+                ExecutionEffectsArray[2*UsingVar + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].Func);
             }
 
             BlockExpression ExecutingExpression = Expression.Block(
@@ -77,13 +81,13 @@ namespace SharpPDDL
 
             if (ExecutionPrecondition.Count != 0)
             {
-                ActualEffectPDDL = ExecutionPrecondition[0];
+                ActualObjectPDDL = ExecutionPrecondition[0];
                 Expression Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[0].func), ExecutingExpression, Expression.Throw(Expression.Constant(new EffectExecutionException(ExecutionPrecondition[0].Name))));
                 if (ExecutionPrecondition.Count > 1)
                 {
                     for (int i = 1; i != ExecutionPrecondition.Count; i++)
                     {
-                        ActualEffectPDDL = ExecutionPrecondition[i];
+                        ActualObjectPDDL = ExecutionPrecondition[i];
                         Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[i].func), Checking, Expression.Throw(Expression.Constant(new EffectExecutionException(ExecutionPrecondition[i].Name))));
                     }
                 }
@@ -93,7 +97,7 @@ namespace SharpPDDL
             else
                 lambdaExpression = Expression.Lambda(ExecutingExpression, _parameters);
 
-            var y = lambdaExpression.Compile();
+            InstantExecutionPDDL = lambdaExpression.Compile();
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -115,10 +119,11 @@ namespace SharpPDDL
             string memberExpressionName = node.Name;
 
             int index = Parameters.FindIndex(p => p.Name == node.Name);
+            //TODO zabezpieczyć jak w Parametrach nie bedzie parametru
 
-            if (ActualEffectPDDL is EffectPDDL)
+            if (ActualObjectPDDL is EffectPDDL)
             {
-                int ParamCount = ((LambdaExpression)((EffectPDDL)ActualEffectPDDL).SourceFunc).Parameters.Count();
+                int ParamCount = ((LambdaExpression)((EffectPDDL)ActualObjectPDDL).SourceFunc).Parameters.Count();
 
                 //Tag: index
                 if (ParamCount == 1)
@@ -128,9 +133,9 @@ namespace SharpPDDL
             switch (index)
             {
                 case 0:
-                    return _parameters[ActualEffectPDDL.AllParamsOfAct1ClassPos.Value];
+                    return _parameters[ActualObjectPDDL.AllParamsOfAct1ClassPos.Value];
                 case 1:
-                    return _parameters[ActualEffectPDDL.AllParamsOfAct2ClassPos.Value];  
+                    return _parameters[ActualObjectPDDL.AllParamsOfAct2ClassPos.Value];  
             }
 
             throw new Exception();

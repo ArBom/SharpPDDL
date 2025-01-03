@@ -25,7 +25,7 @@ namespace SharpPDDL
 
             List<PossibleStateThumbnailObject> allObjects = new List<PossibleStateThumbnailObject>();
 
-            var locker = new object();
+            object locker = new object();
             /*Parallel.ForEach
             (
                 domainObjects,

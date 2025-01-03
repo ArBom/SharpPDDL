@@ -22,8 +22,9 @@ namespace Water_pouring_puzzle
                     return (int)SourceFlood;
             }
 
-            public static void WaitForDecant (int time)
+            public void WaitForDecant (WaterJug DestinationWaterJug)
             {
+                int time = DecantedWater(this.flood, DestinationWaterJug.Capacity, DestinationWaterJug.flood);
                 Task.Delay(time * 2000);
             }
 
@@ -54,7 +55,7 @@ namespace Water_pouring_puzzle
 
         static void Main(string[] args)
         {
-            DomeinPDDL DecantingDomein = new DomeinPDDL("decanting problems");
+            DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems");
 
             ActionPDDL DecantWater = new ActionPDDL("Decant water");
             WaterJug SourceJug = null;
@@ -78,6 +79,9 @@ namespace Water_pouring_puzzle
                 ref SourceJug,
                 (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood)
                 .UseAsExecution();
+
+            DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
+            DecantWater.AddExecution("Let me know", () => Console.WriteLine("Decanted"), true);
 
             DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 

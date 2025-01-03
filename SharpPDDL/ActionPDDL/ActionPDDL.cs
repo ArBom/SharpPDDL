@@ -15,7 +15,7 @@ namespace SharpPDDL
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
         internal ActionCost actionCost;
-        private List<Execution> Executions;
+        private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
         internal int InstantActionParamCount => Parameters.Count;
@@ -432,6 +432,13 @@ namespace SharpPDDL
             return temp;
         }
         #endregion
+        #region Adding Execution
+        public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues) => this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
+
+        public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) => this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+
+        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) => this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+        #endregion
         #region ActionCost
         public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
@@ -489,12 +496,10 @@ namespace SharpPDDL
                     EffectsUsingAsExecution.Add(Effect);
             }
 
-            foreach (Execution execution in Executions)
+            if (this.Executions.Count != 0 || EffectsUsingAsExecution.Count != 0)
             {
-                execution.CompleteClassPos(Parameters);
+                var p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
             }
-
-            var p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
@@ -528,7 +533,7 @@ namespace SharpPDDL
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
             this.Effects = new List<EffectPDDL>();
-            this.Executions = new List<Execution>();
+            this.Executions = new List<ExpressionExecution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
 
             //TODO poniższe do wyczyszczenia
