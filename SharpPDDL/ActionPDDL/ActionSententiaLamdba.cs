@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -19,7 +18,6 @@ namespace SharpPDDL
 
             //Getting the string.Replace(string,string) method
             MethodInfo ReplaceMethod = typeof(string).GetMethod("Replace", new Type[] { typeof(string), typeof(string) });
-            //MemberInfo OrygObjMethod = typeof(PossibleStateThumbnailObject).GetMember("OriginalObj").Where(M => M.MemberType == MemberTypes.NestedType).First();
 
             for (int i = 0; i != parameters.Count; i++)
             {

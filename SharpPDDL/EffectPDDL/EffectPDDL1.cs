@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Reflection;
 
 namespace SharpPDDL
 {
@@ -13,7 +11,7 @@ namespace SharpPDDL
         where T1c : class, T1p
     {
         internal readonly Expression<Func<T1p, ValueType>> Destination;
-        protected T1c t1;
+        protected readonly T1c t1;
 
         internal EffectPDDL1(string Name, ValueType newValue, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
@@ -24,6 +22,12 @@ namespace SharpPDDL
             this.usedMembers1Class = DestLambdaListerPDDL.used[0];
             this.DestinationMemberName = usedMembers1Class[0];
             this.t1 = obj1;
+        }
+
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
+        {
+            if (TXIndex(t1, 1, Parameters) == false)
+                throw new Exception("There is no that param at list.");
         }
 
         internal override Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
@@ -45,23 +49,6 @@ namespace SharpPDDL
             Expression ModifiedFunct = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, parameterExpressions);
 
             return (Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>)ModifiedFunct;
-        }
-
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
-        {
-            for (int index = 0; index != listOfParams.Count; index++)
-            {
-                if (listOfParams[index].HashCode != Hash1Class)
-                    continue;
-
-                if (t1.Equals(listOfParams[index].Oryginal))
-                {
-                    AllParamsOfAct1ClassPos = index;
-                    return;
-                }
-            }
-
-            throw new Exception("There is no that param at list.");
         }
     }
 }

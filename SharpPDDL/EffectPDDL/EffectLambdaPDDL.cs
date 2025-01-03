@@ -40,16 +40,6 @@ namespace SharpPDDL
             OldParameters = node.Parameters;
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
 
-            /*if (OldParameters.Count() == 0)
-            {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
-                {
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]),
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty")
-                };
-                _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
-            }*/
-
             //the library use only 1- or 2-Parameter lambdas
             if (OldParameters.Count() > 2)
             {

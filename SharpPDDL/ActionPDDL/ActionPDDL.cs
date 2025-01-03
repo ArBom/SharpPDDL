@@ -9,7 +9,6 @@ namespace SharpPDDL
     public class ActionPDDL
     {
         public readonly string Name;
-        internal readonly uint actionCostUint;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
@@ -535,9 +534,6 @@ namespace SharpPDDL
             this.Effects = new List<EffectPDDL>();
             this.Executions = new List<ExpressionExecution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
-
-            //TODO poniższe do wyczyszczenia
-            this.actionCostUint = actionCost;
             this.actionCost = new ActionCost(actionCost);
         }
     }

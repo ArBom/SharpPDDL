@@ -11,7 +11,6 @@ namespace SharpPDDL
         where T1c : class, T1p
         where T2c : class, T2p
     {
-        //readonly new Expression SourceFunc = null;
         protected T1c t1;
         protected T2c t2;
 

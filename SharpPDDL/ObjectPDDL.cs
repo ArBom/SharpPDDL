@@ -40,5 +40,51 @@ namespace SharpPDDL
                 this.usedMembers2Class = new List<string>();
             }
         }
+
+        internal bool TXIndex<T>(T t, int XClass, IReadOnlyList<Parametr> listOfParams)
+        {
+            int HashXClass;
+
+            switch (XClass)
+            {
+                case 1:
+                    HashXClass = Hash1Class;
+                    break;
+
+                case 2:
+                    if (Hash2Class.HasValue)
+                        HashXClass = Hash2Class.Value;
+                    else
+                        return false;
+                    break;
+
+                default:
+                    return false;
+            }
+
+            for (int index = 0; index != listOfParams.Count; index++)
+            {
+                if (listOfParams[index].HashCode != HashXClass)
+                    continue;
+
+                if (t.Equals(listOfParams[index].Oryginal))
+                {
+                    switch (XClass)
+                    {
+                        case 1:
+                            AllParamsOfAct1ClassPos = index;
+                            break;
+
+                        case 2:
+                            AllParamsOfAct2ClassPos = index;
+                            break;
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

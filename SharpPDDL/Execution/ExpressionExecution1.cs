@@ -14,19 +14,9 @@ namespace SharpPDDL
             this.t1 = t1;
         }
 
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            for (int index = 0; index != listOfParams.Count; index++)
-            {
-                if (listOfParams[index].HashCode != Hash1Class)
-                    continue;
-
-                if (t1.Equals(listOfParams[index].Oryginal))
-                {
-                    AllParamsOfAct1ClassPos = index;
-                    return;
-                }
-            }
+            TXIndex(t1, 1, Parameters);
         }
     }
 }
