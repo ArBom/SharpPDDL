@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SharpPDDL.CrisscrossesGenerate;
@@ -20,7 +20,7 @@ namespace SharpPDDL
 
         //Buffors between consuments-procucents
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
-        List<Crisscross> PossibleNewCrisscrossCre;
+        SortedSet<Crisscross> PossibleNewCrisscrossCre;
         List<Crisscross> PossibleToCrisscrossReduce;
 
         //Classes of data workining
@@ -30,11 +30,12 @@ namespace SharpPDDL
 
         readonly Action NoNewDataCheck;
         readonly Action CrisscrossesGenerated;
+        readonly CurrentMinCumulativeCostUpdate currentMinCumulativeCostUpdate;
 
         internal CrisscrossGenerator(DomeinPDDL Owner)
         {
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-            this.PossibleNewCrisscrossCre = new List<Crisscross>();
+            this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
             this.PossibleToCrisscrossReduce = new List<Crisscross>();
 
             this.NoNewDataCheck = new Action(CheckAllGenerated);
@@ -59,6 +60,7 @@ namespace SharpPDDL
             goalChecker.NoNewData = NoNewDataCheck;
             crisscrossReducer.NoNewData = NoNewDataCheck;
             crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
+            //crisscrossNewPossiblesCreator.CurrentMinCumulativeCostUpdate = 
         }
 
         internal void Start(CancellationToken ExternalCancellationToken)
@@ -73,7 +75,7 @@ namespace SharpPDDL
             CurrentCancelTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellation, InternalCancellationTokenSrc.Token).Token;
 
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-            this.PossibleNewCrisscrossCre = new List<Crisscross>();
+            this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()); ;
             this.PossibleToCrisscrossReduce = new List<Crisscross>();
 
             //Get ready all Tasks of this process
@@ -93,22 +95,22 @@ namespace SharpPDDL
             crisscrossReducer.ReducingCrisscrossARE.Set();
 
             //wait for all task finish
-            Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 50 );
+            Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100 );
 
             Start(ExternalCancellation);
         }
 
         private void CheckAllGenerated()
         {
-            lock (PossibleNewCrisscrossCreLocker)
-                if (PossibleNewCrisscrossCre.Count != 0)
+            //lock (PossibleNewCrisscrossCreLocker)
+                if (PossibleNewCrisscrossCre.Any())
                     return;
 
-            lock(CrisscrossReduceLocker)
-                if (PossibleToCrisscrossReduce.Count != 0)
+            //lock(CrisscrossReduceLocker)
+                if (PossibleToCrisscrossReduce.Any())
                     return;
 
-            if (PossibleGoalRealization.Count != 0)
+            if (PossibleGoalRealization.Any())
                 return;
 
             if (!goalChecker.IsWaiting)

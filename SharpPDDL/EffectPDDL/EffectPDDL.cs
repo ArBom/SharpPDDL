@@ -22,7 +22,7 @@ namespace SharpPDDL
         internal string DestinationMemberName;
         internal bool UsingAsExecution;
 
-        //public void UseAsExecution() => this.UsingAsExecution = true;
+        public void UseAsExecution() => this.UsingAsExecution = true;
 
         protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
         {

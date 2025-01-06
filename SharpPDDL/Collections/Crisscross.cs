@@ -86,6 +86,26 @@ namespace SharpPDDL
         {
             return new CrisscrossEnum(this);
         }
+        
+        // Nested class to do descending sort on make property.
+        private class SortCumulativedTransitionChargeHelper : IComparer<Crisscross>
+        {
+            public int Compare(Crisscross c1, Crisscross c2)
+            {
+                int CumulativedTransitionChargeRes = c1.CumulativedTransitionCharge.CompareTo(c2.CumulativedTransitionCharge);
+
+                // In case of the same CumulativedTransitionCharges' value compare CheckSums
+                if (CumulativedTransitionChargeRes == 0)
+                    return c1.Content.CheckSum.CompareTo(c2.Content.CheckSum);
+
+                return CumulativedTransitionChargeRes;
+            }
+        }
+
+        // Method to return IComparer object for sort helper for SortedSet<> collection.
+        internal static IComparer<Crisscross> SortCumulativedTransitionCharge() =>
+             new SortCumulativedTransitionChargeHelper();
+
 
         public bool IsReadOnly => false;
 

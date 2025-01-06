@@ -9,9 +9,6 @@ using System.Threading;
 
 namespace SharpPDDL
 {
-    public delegate void ListOfString(List<List<string>> planGenerated);
-    internal delegate void FoundSols(KeyValuePair<Crisscross, List<GoalPDDL>> foundSolutions);
-
     public partial class DomeinPDDL
     {
         static Dictionary<string, DomeinPDDL> AllDomain;
@@ -19,6 +16,7 @@ namespace SharpPDDL
         public readonly string Name;
         private TypesPDDL types;
         internal List<ActionPDDL> actions;
+        internal DomainPlanner domainPlanner;
         internal CrisscrossGenerator crisscrossGenerator;
         internal Crisscross states;
         public ObservableCollection<object> domainObjects;

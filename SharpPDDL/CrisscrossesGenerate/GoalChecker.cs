@@ -20,10 +20,10 @@ namespace SharpPDDL.CrisscrossesGenerate
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
 
         object PossibleNewCrisscrossCreLocker;
-        List<Crisscross> PossibleNewCrisscrossCre;
+        SortedSet<Crisscross> PossibleNewCrisscrossCre;
         AutoResetEvent BuildingNewCrisscrossARE;
 
-        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, List<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
+        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, SortedSet<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
         {
             this.domainGoals = domainGoals;
 
@@ -110,6 +110,7 @@ namespace SharpPDDL.CrisscrossesGenerate
                     {
                         lock (PossibleNewCrisscrossCreLocker)
                             PossibleNewCrisscrossCre.Add(possibleStatesCrisscross);
+
                         BuildingNewCrisscrossARE.Set();
                     }
                 }

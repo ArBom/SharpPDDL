@@ -65,6 +65,7 @@ namespace SharpPDDL
             };
 
             this.crisscrossGenerator = new CrisscrossGenerator(this);
+            //this.domainPlanner = new DomainPlanner();
 
             this.domainGoals.CollectionChanged += DomainGoals_CollectionChanged;
 

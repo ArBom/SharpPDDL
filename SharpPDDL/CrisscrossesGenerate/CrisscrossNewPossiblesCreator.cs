@@ -13,19 +13,22 @@ namespace SharpPDDL.CrisscrossesGenerate
         protected readonly int MinActionParamCount;
         protected readonly int MaxActionParamCount;
 
+        protected UInt32 CurrentMinCumulativeCost;
+
         internal Task BuildingNewCrisscross = null;
         internal bool IsWaiting = true;
         internal Action NoNewData;
+        internal CurrentMinCumulativeCostUpdate CurrentMinCumulativeCostUpdate;
 
         internal readonly AutoResetEvent BuildingNewCrisscrossARE;
-        protected readonly List<Crisscross> PossibleNewCrisscrossCre;
+        protected readonly SortedSet<Crisscross> PossibleNewCrisscrossCre;
         protected readonly object PossibleNewSrisscrossCreLocker;
 
         protected readonly AutoResetEvent ReducingCrisscrossARE;
         protected readonly List<Crisscross> PossibleToCrisscrossReduce;
         protected readonly object CrisscrossReduceLocker;
 
-        internal CrisscrossNewPossiblesCreator(List<ActionPDDL> actions, AutoResetEvent BuildingNewCrisscrossARE, List<Crisscross> PossibleNewCrisscrossCre, object PossibleNewSrisscrossCreLocker, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker)
+        internal CrisscrossNewPossiblesCreator(List<ActionPDDL> actions, AutoResetEvent BuildingNewCrisscrossARE, SortedSet<Crisscross> PossibleNewCrisscrossCre, object PossibleNewSrisscrossCreLocker, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker)
         {
             this.Actions = actions;
 
@@ -34,6 +37,8 @@ namespace SharpPDDL.CrisscrossesGenerate
 
             MinActionParamCount = actionsByParamCount.Keys.Min();
             MaxActionParamCount = actionsByParamCount.Keys.Max();
+
+            CurrentMinCumulativeCost = 0;
 
             this.BuildingNewCrisscrossARE = BuildingNewCrisscrossARE;
             this.PossibleNewCrisscrossCre = PossibleNewCrisscrossCre;
@@ -53,6 +58,8 @@ namespace SharpPDDL.CrisscrossesGenerate
         protected void BuildNewState(CancellationToken token)
         {
             Crisscross stateToCheck;
+            List<Crisscross> ToAddList = new List<Crisscross>();
+
             while (!token.IsCancellationRequested)
             {
                 BuildingNewCrisscrossARE.WaitOne();
@@ -64,16 +71,14 @@ namespace SharpPDDL.CrisscrossesGenerate
                     {
                         try
                         {
-                            stateToCheck = PossibleNewCrisscrossCre[0];
+                            stateToCheck = PossibleNewCrisscrossCre.First();
                         }
                         catch
                         {
                             continue;
                         }
-                        PossibleNewCrisscrossCre.RemoveAt(0);
+                        PossibleNewCrisscrossCre.Remove(stateToCheck);
                     }
-
-                    List<Crisscross> ToAddList = new List<Crisscross>();
 
                     void TryActionPossibility(PossibleStateThumbnailObject[] SetToCheck, int actionPos)
                     {
@@ -133,6 +138,12 @@ namespace SharpPDDL.CrisscrossesGenerate
                         }
                     }
 
+                    if (stateToCheck.CumulativedTransitionCharge != CurrentMinCumulativeCost)
+                    {
+                        CurrentMinCumulativeCost = stateToCheck.CumulativedTransitionCharge;
+                        CurrentMinCumulativeCostUpdate?.BeginInvoke(CurrentMinCumulativeCost, null, null);
+                    }
+
                     VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), MinActionParamCount);
 
                     if (ToAddList.Count() != 0)
@@ -143,6 +154,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                             PossibleToCrisscrossReduce.AddRange(ToAddList);
                         }
                         ReducingCrisscrossARE.Set();
+
+                        ToAddList.Clear();
                     }
                 }
                 NoNewData.BeginInvoke(null, null);
