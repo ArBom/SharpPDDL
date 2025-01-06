@@ -13,7 +13,7 @@ namespace SharpPDDL
         internal readonly Expression<Func<T1p, ValueType>> Destination;
         protected readonly T1c t1;
 
-        internal EffectPDDL1(string Name, ValueType newValue, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination) : base(Name, obj1.GetType(), obj1.GetHashCode())
+        internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
             this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();

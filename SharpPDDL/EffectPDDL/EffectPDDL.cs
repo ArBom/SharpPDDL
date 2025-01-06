@@ -22,34 +22,35 @@ namespace SharpPDDL
         internal string DestinationMemberName;
         internal bool UsingAsExecution;
 
-        public void UseAsExecution() => this.UsingAsExecution = true;
+        //public void UseAsExecution() => this.UsingAsExecution = true;
 
-        internal EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
         {
             UsingAsExecution = false;
         }
 
-        internal static EffectPDDL Instance<T1>(string Name, ValueType newValue_Static, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember) where T1 : class //przypisanie wartosci ze stałej
+        internal static EffectPDDL Instance<T1>(string Name, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember, ValueType newValue_Static) //przypisanie wartosci ze stałej
+            where T1 : class
         {
-            return new EffectPDDL1<T1, T1>(Name, newValue_Static, ref destinationObj, destinationMember);
+            return new EffectPDDL1<T1, T1>(Name, ref destinationObj, destinationMember, newValue_Static);
         }
 
-        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c sourceObj1, Expression<Func<T1p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> destinationMember)
+        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T2p, ValueType>> Source)
             where T1p : class
             where T1c : class, T1p
             where T2p : class
             where T2c : class, T2p
         {
-            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref sourceObj1, Source, ref DestinationObj, destinationMember);
+            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
         }
 
-        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> destinationMember)
+        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source)
             where T1p : class
             where T1c : class, T1p
             where T2p : class
             where T2c : class, T2p
         {
-            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref sourceObj1, Source, ref DestinationObj, destinationMember);
+            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
         }
     }
 }

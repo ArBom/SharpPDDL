@@ -22,7 +22,7 @@ namespace SharpPDDL
 
         internal abstract void CompleteClassPos(IReadOnlyList<Parametr> Parameters);
 
-        internal ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)
+        protected ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)
         {
             //nazwa nie może być pusta
             if (String.IsNullOrEmpty(Name))

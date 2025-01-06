@@ -42,12 +42,10 @@ namespace SharpPDDL
 
             //the library use only 1- or 2-Parameter lambdas
             if (OldParameters.Count() > 2)
-            {
                 throw new Exception();
-            }
 
             //make 2-Parameters lambda
-            if (OldParameters.Count() == 1)
+            if (OldParameters.Count() == 1 && ParamsIndexesInAction[0] != ParamsIndexesInAction[1])
             {
                 Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
                 {
@@ -55,9 +53,16 @@ namespace SharpPDDL
                     Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[1])
                 };
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
+
+                Collection<ParameterExpression> OldParameterExpressions = new Collection<ParameterExpression>
+                {
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty"),
+                    OldParameters[0]
+                };
+                OldParameters = new ReadOnlyCollection<ParameterExpression>(OldParameterExpressions);
             }
 
-            var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
+            ConstructorInfo ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
             Expression[] param = { FuncOutKey, Visit(node.Body) };
             NewExpression expectedTypeExpression = Expression.New(ResultType, param);
             ModifiedFunct = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, _parameters);
@@ -78,10 +83,6 @@ namespace SharpPDDL
         {
             ParameterExpression param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
-
-            //Tag: index
-            if (OldParameters.Count == 1)
-                index++;
 
             return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
         }

@@ -121,15 +121,6 @@ namespace SharpPDDL
             int index = Parameters.FindIndex(p => p.Name == node.Name);
             //TODO zabezpieczyć jak w Parametrach nie bedzie parametru
 
-            if (ActualObjectPDDL is EffectPDDL)
-            {
-                int ParamCount = ((LambdaExpression)((EffectPDDL)ActualObjectPDDL).SourceFunc).Parameters.Count();
-
-                //Tag: index
-                if (ParamCount == 1)
-                    index++;
-            }
-
             switch (index)
             {
                 case 0:

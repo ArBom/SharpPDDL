@@ -14,46 +14,46 @@ namespace SharpPDDL
         protected T1c t1;
         protected T2c t2;
 
-        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct) :
-        base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) :
+        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
         {
             MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
             SourceLambdaListerPDDL.Visit(SourceFunct);
             this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
             this.usedMembers2Class = SourceLambdaListerPDDL.used[1];
             this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
         }
 
-        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1c, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2c, ValueType>> DestinationFunct) :
-        base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1c, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2c, ValueType>> SourceFunct) :
+        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
         {
             MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
             SourceLambdaListerPDDL.Visit(SourceFunct);
-            this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
-            this.usedMembers2Class = new List<string>();
+            this.usedMembers1Class = new List<string>();
+            this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
             this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
         }
 
-        internal EffectPDDL2(string Name, ref T1c SourceObj, Expression<Func<T1p, ValueType>> SourceFunct, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct) : 
-        base(Name, SourceObj.GetType(), SourceObj.GetHashCode(), DestinationObj.GetType(), DestinationObj.GetHashCode())
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) : 
+        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
         {
             MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
             SourceLambdaListerPDDL.Visit(SourceFunct);
-            this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
-            this.usedMembers2Class = new List<string>();
+            this.usedMembers1Class = new List<string>();
+            this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
             this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
         }
 
-        private string MutualPartOfConstructors(ref T1c SourceObj, ref T2c DestinationObj, Expression<Func<T2c, ValueType>> DestinationFunct) => 
-            MutualPartOfConstructors(ref SourceObj, ref DestinationObj, DestinationFunct);
+        private string MutualPartOfConstructors(ref T1c DestinationObj, ref T2c SourceObj, Expression<Func<T1c, ValueType>> DestinationFunct) => 
+            MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
 
-        private string MutualPartOfConstructors(ref T1c SourceObj, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationFunct)
+        private string MutualPartOfConstructors(ref T1c DestinationObj, ref T2c SourceObj, Expression<Func<T1p, ValueType>> DestinationFunct)
         {
-            this.t1 = SourceObj;
-            this.t2 = DestinationObj;
+            this.t1 = DestinationObj;
+            this.t2 = SourceObj;
 
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(DestinationFunct);
@@ -75,36 +75,13 @@ namespace SharpPDDL
             return effectLambdaPDDL.ModifiedFunct;
         }
 
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> listOfParams)
+        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            for (int index = 0; index != listOfParams.Count; index++)
-            {
-                if (listOfParams[index].HashCode != Hash2Class)
-                    continue;
-
-                if (t2.Equals(listOfParams[index].Oryginal))
-                {
-                    AllParamsOfAct1ClassPos = index;
-                    break;
-                }
-            }
-
-            if (AllParamsOfAct1ClassPos is null)
+            if (TXIndex(t1, 1, Parameters) == false)
                 throw new Exception("There is no that param at list.");
 
-            for (int index = 0; index != listOfParams.Count; index++)
-            {
-                if (listOfParams[index].HashCode != Hash1Class)
-                    continue;
-
-                if (t1.Equals(listOfParams[index].Oryginal))
-                {
-                    AllParamsOfAct2ClassPos = index;
-                    return;
-                }
-            }
-
-            throw new Exception("There is no that param at list.");
+            if (TXIndex(t2, 2, Parameters) == false)
+                throw new Exception("There is no that param at list.");
         }
     }
 }

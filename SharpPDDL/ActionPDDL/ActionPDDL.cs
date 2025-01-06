@@ -288,7 +288,7 @@ namespace SharpPDDL
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, newValue_Static, ref destinationObj, destinationMember);
+            EffectPDDL temp = EffectPDDL.Instance(Name, ref destinationObj, destinationMember, newValue_Static);
 
             foreach (Parametr parametr in Parameters)
             {
@@ -319,7 +319,7 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T2c DestinationObj, Expression<Func<T2p, ValueType>> DestinationMember, ref T1c SourceObj, Expression<Func<T1p, ValueType>> Source)
+        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationMember, ref T2c SourceObj, Expression<Func<T2p, ValueType>> Source)
             where T1p : class
             where T2p : class
             where T1c : class, T1p
@@ -328,7 +328,7 @@ namespace SharpPDDL
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
             this.AddAssignedParametr(ref DestinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, ref SourceObj, Source, ref DestinationObj, DestinationMember);
+            EffectPDDL temp = EffectPDDL.Instance(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
             //Tag destination parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
@@ -354,7 +354,7 @@ namespace SharpPDDL
                 if (!parametr.Oryginal.Equals(SourceObj))
                     continue;
 
-                foreach (string valueName in temp.usedMembers1Class)
+                foreach (string valueName in temp.usedMembers2Class)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
                     parametr.values[ToTagIndex].IsInUse_EffectIn = true;
@@ -378,20 +378,20 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationMember, ref T1 SourceObj, Expression<Func<T1, ValueType>> Source)
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationMember, ref T2 SourceObj, Expression<Func<T2, ValueType>> Source)
             where T1 : class
             where T2 : class
             =>
             AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T2 DestinationObj, Expression<Func<T2, ValueType>> DestinationFunct, ref T1 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
+        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
             this.AddAssignedParametr(ref DestinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, ref SourceObj, SourceFunct, ref DestinationObj, DestinationFunct);
+            EffectPDDL temp = EffectPDDL.Instance(Name, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
 
             //Tag destination parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
