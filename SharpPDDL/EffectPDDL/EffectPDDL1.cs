@@ -16,12 +16,31 @@ namespace SharpPDDL
         internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue) : base(Name, obj1.GetType(), obj1.GetHashCode())
         {
             this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
-            MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             this.Destination = Destination;
+            this.t1 = obj1;
+        }
+
+        override internal void CompleteActinParams(IList<Parametr> Parameters)
+        {
+            MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(Destination);
             this.usedMembers1Class = DestLambdaListerPDDL.used[0];
             this.DestinationMemberName = usedMembers1Class[0];
-            this.t1 = obj1;
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != t1.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(t1))
+                    continue;
+
+                int ToTagIndex = parametr.values.FindIndex(v => v.Name == DestinationMemberName);
+                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
+
+                parametr.UsedInEffect = true;
+                break;
+            }
         }
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)

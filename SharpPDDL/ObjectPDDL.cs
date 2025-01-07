@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SharpPDDL
 {
-    public abstract class ObjectPDDL
+    internal abstract class ObjectPDDL
     {
         readonly public string Name;
 
@@ -20,6 +20,7 @@ namespace SharpPDDL
         internal List<string> usedMembers2Class;
         internal int? AllParamsOfAct2ClassPos = null;
 
+        internal abstract void CompleteActinParams(IList<Parametr> Parameters);
         internal abstract void CompleteClassPos(IReadOnlyList<Parametr> Parameters);
 
         protected ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)

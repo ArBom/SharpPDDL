@@ -11,13 +11,35 @@ namespace SharpPDDL
     {
         protected readonly T1c t1;
 
-        internal PreconditionPDDL(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) : base(Name, obj1.GetType(), obj1.GetHashCode())
+        internal PreconditionPDDL(string Name, ref T1c obj1, Expression<Predicate<T1p>> func)
+            : base(Name, func, obj1.GetType(), obj1.GetHashCode())
+            => this.t1 = obj1;
+
+
+        override internal void CompleteActinParams(IList<Parametr> Parameters)
         {
-            this.func = func;
+
             MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
             _ = memberofLambdaListerPDDL.Visit(func);
             this.usedMembers1Class = memberofLambdaListerPDDL.used[0];
-            this.t1 = obj1;
+
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != t1.GetHashCode())
+                    continue;
+
+                if (!(parametr.Oryginal.Equals(t1)))
+                    continue;
+
+                foreach (string valueName in usedMembers1Class)
+                {
+                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
+                    parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
+                }
+
+                parametr.UsedInPrecondition = true;
+                break;
+            }
         }
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)

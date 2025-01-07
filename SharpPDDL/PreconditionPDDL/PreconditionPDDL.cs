@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace SharpPDDL
 {
@@ -8,7 +9,7 @@ namespace SharpPDDL
 
     abstract internal class PreconditionPDDL : ObjectPDDL
     {
-        internal Expression func;
+        internal readonly Expression func;
 
         /// <summary>
         /// It's check if PDDL object(s) fulfil requirement (of this precondition) to do action.
@@ -20,7 +21,9 @@ namespace SharpPDDL
 
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
 
-        protected PreconditionPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
+        protected PreconditionPDDL(string Name, Expression func, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) 
+            : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+            => this.func = func;
 
         internal static PreconditionPDDL Instance<T1c, T1p>(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) 
             where T1p : class 

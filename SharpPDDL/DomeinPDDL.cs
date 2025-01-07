@@ -74,7 +74,7 @@ namespace SharpPDDL
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or empty
 
-            if (this.domainGoals.Any(goal => goal.goalPriority != null))
+            if (this.domainGoals.Any())
                 throw new Exception();
         }
 

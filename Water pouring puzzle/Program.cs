@@ -65,20 +65,18 @@ namespace Water_pouring_puzzle
             DecantWater.AddAssignedParametr(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
 
             DecantWater.AddEffect(
-                "Reduce source jug flood", 
-                ref SourceJug, 
+                "Reduce source jug flood",
+                ref SourceJug,
                 Source_Jug => Source_Jug.flood,
                 ref DestinationJug,
-                (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0)
-                .UseAsExecution();
+                (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
 
             DecantWater.AddEffect(
                 "Increase destination jug flood",
                 ref DestinationJug,
                 Destination_Jug => Destination_Jug.flood,
                 ref SourceJug,
-                (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood)
-                .UseAsExecution();
+                (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
 
             DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
             DecantWater.AddExecution("Let me know", () => Console.WriteLine("Decanted"), true);

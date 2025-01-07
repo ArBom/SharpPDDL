@@ -14,47 +14,30 @@ namespace SharpPDDL
         protected T1c t1;
         protected T2c t2;
 
+        Expression<Func<T1p, ValueType>> DestinationFunct;
+
         internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) :
         base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
         {
-            MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
-            SourceLambdaListerPDDL.Visit(SourceFunct);
-            this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
-            this.usedMembers2Class = SourceLambdaListerPDDL.used[1];
-            this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
-        }
+            this.t1 = DestinationObj;
+            this.t2 = SourceObj;
 
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1c, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2c, ValueType>> SourceFunct) :
-        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
-        {
-            MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
-            SourceLambdaListerPDDL.Visit(SourceFunct);
-            this.usedMembers1Class = new List<string>();
-            this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
             this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
+            this.DestinationFunct = DestinationFunct;
         }
 
         internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) : 
         base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
         {
-            MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
-            SourceLambdaListerPDDL.Visit(SourceFunct);
-            this.usedMembers1Class = new List<string>();
-            this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
-            this.SourceFunc = SourceFunct;
-            this.DestinationMemberName = MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
-        }
-
-        private string MutualPartOfConstructors(ref T1c DestinationObj, ref T2c SourceObj, Expression<Func<T1c, ValueType>> DestinationFunct) => 
-            MutualPartOfConstructors(ref DestinationObj, ref SourceObj, DestinationFunct);
-
-        private string MutualPartOfConstructors(ref T1c DestinationObj, ref T2c SourceObj, Expression<Func<T1p, ValueType>> DestinationFunct)
-        {
             this.t1 = DestinationObj;
             this.t2 = SourceObj;
 
+            this.SourceFunc = SourceFunct;
+            this.DestinationFunct = DestinationFunct;
+        }
+
+        private string MutualPartOfConstructors(Expression<Func<T1p, ValueType>> DestinationFunct)
+        {
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(DestinationFunct);
             string temp = DestLambdaListerPDDL.used[0][0];
@@ -63,6 +46,66 @@ namespace SharpPDDL
                 usedMembers2Class.Add(temp);
 
             return temp;
+        }
+
+        override internal void CompleteActinParams(IList<Parametr> Parameters)
+        {
+            MemberofLambdaListerPDDL SourceLambdaListerPDDL = new MemberofLambdaListerPDDL();
+            SourceLambdaListerPDDL.Visit(SourceFunc);
+
+            if (SourceFunc is Expression<Func<T1p, T2p, ValueType>>)
+            {
+                this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
+                this.usedMembers2Class = SourceLambdaListerPDDL.used[1];
+            }
+            else if (SourceFunc is Expression<Func<T2p, ValueType>>)
+            {
+                this.usedMembers1Class = new List<string>();
+                this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
+            }
+
+            this.DestinationMemberName = MutualPartOfConstructors(DestinationFunct);
+
+            //Tag destination parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != t1.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(t1))
+                    continue;
+
+                int ToTagIndex = parametr.values.FindIndex(v => v.Name == DestinationMemberName);
+                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
+
+                foreach (string valueName in usedMembers1Class)
+                {
+                    ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
+                    parametr.values[ToTagIndex].IsInUse_EffectIn = true;
+                }
+
+                parametr.UsedInEffect = true;
+                break;
+            }
+
+            //Tag source parameter value as "IsInUse"
+            foreach (Parametr parametr in Parameters)
+            {
+                if (parametr.HashCode != t2.GetHashCode())
+                    continue;
+
+                if (!parametr.Oryginal.Equals(t2))
+                    continue;
+
+                foreach (string valueName in usedMembers2Class)
+                {
+                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
+                    parametr.values[ToTagIndex].IsInUse_EffectIn = true;
+                }
+
+                parametr.UsedInEffect = true;
+                break;
+            }
         }
 
         internal override Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)

@@ -18,7 +18,7 @@ namespace SharpPDDL
             this.defaultCost = DefaultCost;
         }
 
-        internal void TagInUse(IReadOnlyList<Parametr> Parameters)
+        internal void CompleteActinParams(IList<Parametr> Parameters)
         {
             if (CostExpression is null)
                 return;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.Serialization;
 
 namespace SharpPDDL
 {
@@ -21,7 +20,13 @@ namespace SharpPDDL
 
         internal List<SingleType> TakeSingleTypes()
         {
-            actionCost.TagInUse(Parameters);
+            foreach (PreconditionPDDL precondition in Preconditions)
+                precondition.CompleteActinParams(Parameters);
+
+            foreach (EffectPDDL effect in Effects)
+                effect.CompleteActinParams(Parameters);
+
+            actionCost.CompleteActinParams(Parameters);
 
             List<SingleType> ToRet = new List<SingleType>();
 
@@ -30,7 +35,7 @@ namespace SharpPDDL
                 parametr.RemoveUnuseValue();
                 SingleType singleType = null;
 
-                if (ToRet.Count != 0)
+                if (ToRet.Any())
                 {
                     var singleTypes = ToRet.Where(sT => sT.Type == parametr.Type);
                     if (singleTypes.Count() != 0)
@@ -63,26 +68,10 @@ namespace SharpPDDL
             return ToRet;
         }
 
-        public void AddUnassignedParametr<T>(out T destination, string Text = null, params Expression<Func<T, object>>[] TextParams) where T : class
-        {
-            destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
-            AddParameter(ref destination, Text, TextParams);
-        }
-
         public void AddAssignedParametr<T>(ref T destination, string Text = null, params Expression<Func<T, object>>[] TextParams) where T : class
         {
-            if (typeof(T).IsAbstract)
-                throw new Exception("Sorry, You cannot to use abstract parameter at this version");
+            Parametr.GetTheInstance(ref destination);
 
-            if (destination is null)
-                destination = (T)FormatterServices.GetUninitializedObject(typeof(T));
-
-            Int32 HashCode = destination.GetHashCode();
-            AddParameter(ref destination, Text, TextParams);
-        }
-
-        internal void AddParameter<T>(ref T destination, string Text, Expression<Func<T, object>>[] TextParams) where T : class
-        {
             Int32 HashCode = destination.GetHashCode();
 
             if (Parameters.Any(t => t.HashCode == HashCode))
@@ -164,27 +153,8 @@ namespace SharpPDDL
         {
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj);
-            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj, func);
 
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != obj.GetHashCode())
-                    continue;
-
-                if (!(parametr.Oryginal.Equals(obj)))
-                    continue;
-
-                foreach (string valueName in temp.usedMembers1Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
-                }
-
-                parametr.UsedInPrecondition = true;
-                break;
-            }
-
-            Preconditions.Add(temp);
+            Preconditions.Add(PreconditionPDDL.Instance(Name, ref obj, func));
         }
 
         /// <summary>
@@ -221,47 +191,8 @@ namespace SharpPDDL
             CheckExistPreconditionName(Name);
             this.AddAssignedParametr(ref obj1);
             this.AddAssignedParametr(ref obj2);
-            PreconditionPDDL temp = PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func);
 
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != obj1.GetHashCode())
-                    continue;
-
-                if (!(parametr.Oryginal.Equals(obj1)))
-                    continue;
-
-                foreach (string valueName in temp.usedMembers1Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
-                }
-
-                parametr.UsedInPrecondition = true;
-                break;
-                    
-            }
-
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != obj2.GetHashCode())
-                    continue;
-
-                if (!(parametr.Oryginal.Equals(obj2)))
-                    continue;
-
-                foreach (string valueName in temp.usedMembers2Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;
-                }
-
-                parametr.UsedInPrecondition = true;
-                    break;
-
-            }
-
-            Preconditions.Add(temp);
+            Preconditions.Add(PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func));
         }
         #endregion
         #region Adding Effects
@@ -284,29 +215,12 @@ namespace SharpPDDL
         /// <param name="newValue_Static">New value assigning to <c>destinationObj</c>>'s member</param>
         /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
         /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
-        public EffectPDDL AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class 
+        public void AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class 
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref destinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, ref destinationObj, destinationMember, newValue_Static);
 
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != destinationObj.GetHashCode())
-                    continue;
-
-                if (!parametr.Oryginal.Equals(destinationObj))
-                    continue;
-
-                int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
-
-                parametr.UsedInEffect = true;
-                break;
-            }
-
-            Effects.Add(temp);
-            return temp;
+            Effects.Add(EffectPDDL.Instance(Name, ref destinationObj, destinationMember, newValue_Static));
         }
 
         /// <summary>
@@ -319,7 +233,7 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationMember, ref T2c SourceObj, Expression<Func<T2p, ValueType>> Source)
+        public void AddEffect<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationMember, ref T2c SourceObj, Expression<Func<T2p, ValueType>> Source)
             where T1p : class
             where T2p : class
             where T1c : class, T1p
@@ -328,44 +242,8 @@ namespace SharpPDDL
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
             this.AddAssignedParametr(ref DestinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
-            //Tag destination parameter value as "IsInUse"
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != DestinationObj.GetHashCode())
-                    continue;
-
-                if (!parametr.Oryginal.Equals(DestinationObj))
-                    continue;
-
-                int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
-                parametr.UsedInEffect = true;
-                break;
-            }
-
-            //Tag source parameter value as "IsInUse"
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != SourceObj.GetHashCode())
-                    continue;
-
-                if (!parametr.Oryginal.Equals(SourceObj))
-                    continue;
-
-                foreach (string valueName in temp.usedMembers2Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse_EffectIn = true;
-                }
-
-                parametr.UsedInEffect = true;
-                break;
-            }
-
-            Effects.Add(temp);
-            return temp;
+            Effects.Add(EffectPDDL.Instance(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source));
         }
 
         /// <summary>
@@ -378,57 +256,21 @@ namespace SharpPDDL
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationMember, ref T2 SourceObj, Expression<Func<T2, ValueType>> Source)
+        public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationMember, ref T2 SourceObj, Expression<Func<T2, ValueType>> Source)
             where T1 : class
             where T2 : class
             =>
             AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
-        public EffectPDDL AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
+        public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
         {
             CheckExistEffectName(Name);
             this.AddAssignedParametr(ref SourceObj);
             this.AddAssignedParametr(ref DestinationObj);
-            EffectPDDL temp = EffectPDDL.Instance(Name, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
 
-            //Tag destination parameter value as "IsInUse"
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != DestinationObj.GetHashCode())
-                    continue;
-
-                if (!parametr.Oryginal.Equals(DestinationObj))
-                    continue;
-
-                int ToTagIndex = parametr.values.FindIndex(v => v.Name == temp.DestinationMemberName);
-                parametr.values[ToTagIndex].IsInUse_EffectOut = true;
-                parametr.UsedInEffect = true;
-                break;
-            }
-
-            //Tag source parameter value as "IsInUse"
-            foreach (Parametr parametr in Parameters)
-            {
-                if (parametr.HashCode != SourceObj.GetHashCode())
-                    continue;
-
-                if (!parametr.Oryginal.Equals(SourceObj))
-                    continue;
-
-                foreach (string valueName in temp.usedMembers2Class)
-                {
-                    int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
-                    parametr.values[ToTagIndex].IsInUse_EffectIn = true;
-                }
-
-                parametr.UsedInEffect = true;
-                break;
-            }
-
-            Effects.Add(temp);
-            return temp;
+            Effects.Add(EffectPDDL.Instance(Name, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct));
         }
         #endregion
         #region Adding Execution

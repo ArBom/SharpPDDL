@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace SharpPDDL
 {
@@ -67,6 +68,15 @@ namespace SharpPDDL
                     this.values.Add(newValue); //...i dodaj na listę
                 }
             }
+        }
+
+        internal static void GetTheInstance<T> (ref T ToInstance) where T : class
+        {
+            if (typeof(T).IsAbstract)
+                throw new Exception("Sorry, You cannot to use abstract parameter at this version");
+
+            if (ToInstance is null)
+                ToInstance = (T)FormatterServices.GetUninitializedObject(typeof(T));
         }
 
         internal void RemoveUnuseValue()
