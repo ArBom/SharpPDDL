@@ -102,14 +102,4 @@ namespace SharpPDDL
             }
         }
     }
-
-    internal class ValueOfThumbnail : Value
-    {
-        internal ValueOfThumbnail(Value valueOfParametr) : base(valueOfParametr.Name, valueOfParametr.Type, valueOfParametr.OwnerType, valueOfParametr.IsField)
-        {
-            IsInUse_PreconditionIn = valueOfParametr.IsInUse_PreconditionIn;
-            IsInUse_EffectIn = valueOfParametr.IsInUse_EffectIn;
-            IsInUse_EffectOut = valueOfParametr.IsInUse_EffectOut;
-        }
-    }
 }

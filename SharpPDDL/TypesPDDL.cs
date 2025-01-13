@@ -58,7 +58,7 @@ namespace SharpPDDL
                     }
 
                     lock (allTypes[ToTagAllTypesIndex.Value])
-                        allTypes[ToTagAllTypesIndex.Value].Values.Add(new ValueOfThumbnail(value));
+                        allTypes[ToTagAllTypesIndex.Value].Values.Add(value);
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace SharpPDDL
         internal void CompleteValuesIndekses()
         {
             #region NestedVoid
-            void ChangeAtChildren(TreeNode<SingleTypeOfDomein> node, ValueOfThumbnail childValue, ushort ValuesIndeksCount)
+            void ChangeAtChildren(TreeNode<SingleTypeOfDomein> node, Value childValue, ushort ValuesIndeksCount)
             {
                 node.Content.CumulativeValues.First(v => v.Name == childValue.Name).ValueOfIndexesKey = ValuesIndeksCount;
 
@@ -80,7 +80,7 @@ namespace SharpPDDL
             {
                 if (!(node.Content is null))
                 {
-                    foreach (ValueOfThumbnail childValue in node.Content.Values)
+                    foreach (Value childValue in node.Content.Values)
                     {
                         if (node.Content.CumulativeValues.Any(cv => cv.Name == childValue.Name && cv.ValueOfIndexesKey != 0))
                             continue;
@@ -138,7 +138,7 @@ namespace SharpPDDL
                             }
                             else
                             {
-                                SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<ValueOfThumbnail>()); //TODO lista
+                                SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<Value>()); //TODO lista
 
                                 newType = new TreeNode<SingleTypeOfDomein>()
                                 {
@@ -168,7 +168,7 @@ namespace SharpPDDL
 
             void PopulateInheritedTypes(TreeNode<SingleTypeOfDomein> node)
             {
-                if (node.Children.Count == 0)
+                if (!node.Children.Any())
                     return;
 
                 //take number of node's content inhered types
@@ -186,10 +186,10 @@ namespace SharpPDDL
                     {
                         Type TypeUp = AnalysedNode.Content?.Type.BaseType;
                         Type TypeUp2 = AnalysedNode.Content.Type.BaseType;
-                        List<(ValueOfThumbnail m, string Name)> AnalysedNodeValuesTuple = AnalysedNode.Content.Values.Select(m => (m, m.Name)).ToList();
-                        List<ValueOfThumbnail> newSingleTypeMembers = TypeUp.GetMembers().Select(mtmember => AnalysedNodeValuesTuple.FirstOrDefault(anvt => (anvt.Name == mtmember.Name && (mtmember.MemberType == MemberTypes.Field || mtmember.MemberType == MemberTypes.Property))))?.Where(el => !(el.m is null)).Select(el => el.m).ToList();
+                        List<(Value m, string Name)> AnalysedNodeValuesTuple = AnalysedNode.Content.Values.Select(m => (m, m.Name)).ToList();
+                        List<Value> newSingleTypeMembers = TypeUp.GetMembers().Select(mtmember => AnalysedNodeValuesTuple.FirstOrDefault(anvt => (anvt.Name == mtmember.Name && (mtmember.MemberType == MemberTypes.Field || mtmember.MemberType == MemberTypes.Property))))?.Where(el => !(el.m is null)).Select(el => el.m).ToList();
 
-                        foreach (ValueOfThumbnail newSingleTypeMember in newSingleTypeMembers)
+                        foreach (Value newSingleTypeMember in newSingleTypeMembers)
                         {
                             AnalysedNode.Content.Values.Remove(newSingleTypeMember);
                             newSingleTypeMember.OwnerType = TypeUp;
@@ -213,7 +213,7 @@ namespace SharpPDDL
 
                     for (int ValueCount = node.Children[a].Content.Values.Count - 1; ValueCount >= 0; --ValueCount)
                     {
-                        ValueOfThumbnail tempChVal = node.Children[a].Content.Values[ValueCount];
+                        Value tempChVal = node.Children[a].Content.Values[ValueCount];
 
                         //value znajduje się u child i w node
                         if (node.Content.Values.Any(v => (v.Name == tempChVal.Name && v.OwnerType == tempChVal.OwnerType)))
@@ -235,7 +235,7 @@ namespace SharpPDDL
 
             void TagValues(TreeNode<SingleTypeOfDomein> node)
             {
-                if (node.Children.Count != 0)
+                if (node.Children.Any())
                     foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                         TagValues(child);
 
@@ -250,7 +250,7 @@ namespace SharpPDDL
                             continue;
                         }
 
-                        foreach (ValueOfThumbnail v in tempNode.Content.Values)
+                        foreach (Value v in tempNode.Content.Values)
                         {
                             if (tempNode.Root.Content.Values.Any(aV => aV.Name == v.Name))
                             {
@@ -269,11 +269,11 @@ namespace SharpPDDL
             void CumulateValues(TreeNode<SingleTypeOfDomein> node)
             {
                 if (node.Content != null)
-                    node.Content.CumulativeValues = new List<ValueOfThumbnail>(node.Content.Values);
+                    node.Content.CumulativeValues = new List<Value>(node.Content.Values);
 
                 if (node.Root?.Content != null)
                 {
-                    node.Content.CumulativeValues = new List<ValueOfThumbnail>(node.Root.Content.CumulativeValues);
+                    node.Content.CumulativeValues = new List<Value>(node.Root.Content.CumulativeValues);
                     var newValues = node.Content.Values.Where(v => !node.Content.CumulativeValues.Any(cv => cv.Name == v.Name));
                     node.Content.CumulativeValues.AddRange(newValues);
                 }

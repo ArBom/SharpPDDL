@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Collections;
 
 namespace SharpPDDL
 {
@@ -16,15 +15,15 @@ namespace SharpPDDL
             this.Type = type;
         }
 
-        public SingleType(Type type, IReadOnlyList<Value> values)
+        internal SingleType(Type type, IReadOnlyList<Value> values)
         {
             this.Type = type;
             this.Values = new List<Value>();
 
-            MemberInfo[] AllTypeMembers = type.GetMembers();
-
             if (values is null)
                 return;
+
+            MemberInfo[] AllTypeMembers = type.GetMembers();
 
             foreach (Value value in values)
                 if (AllTypeMembers.Any(allM => allM.Name == value.Name))
@@ -34,37 +33,23 @@ namespace SharpPDDL
 
     internal class SingleTypeOfDomein : SingleType
     {
-        internal List<ValueOfThumbnail> CumulativeValues;
-        new internal List<ValueOfThumbnail> Values;
+        internal List<Value> CumulativeValues;
+        new internal List<Value> Values;
         internal ushort[] ValuesKeys;
 
-        internal SingleTypeOfDomein(Type type, List<ValueOfThumbnail> values) : base(type)
+        internal SingleTypeOfDomein(Type type, List<Value> values) : base(type)
         {
             this.Values = values;
-            this.CumulativeValues = new List<ValueOfThumbnail>();
+            this.CumulativeValues = new List<Value>();
         }
 
         internal SingleTypeOfDomein(SingleType singleType) : base(singleType.Type)
         {
-            this.Values = new List<ValueOfThumbnail>();
-
-            foreach (Value value in singleType.Values)
-            {
-                ValueOfThumbnail TempValueOfThumbnail = new ValueOfThumbnail((Value)value);
-                Values.Add(TempValueOfThumbnail);
-            }
-            this.CumulativeValues = new List<ValueOfThumbnail>();
+            this.Values = new List<Value>(singleType.Values);       
+            this.CumulativeValues = new List<Value>();
         }
 
         internal void CreateValuesKeys()
-        {
-            List<ushort> TempList = new List<ushort>();
-
-            foreach (ValueOfThumbnail valueOfThumbnail in CumulativeValues)
-                TempList.Add(valueOfThumbnail.ValueOfIndexesKey);
-
-            TempList.Sort();
-            ValuesKeys = TempList.ToArray();
-        }
+            => ValuesKeys = CumulativeValues.Select(CV => CV.ValueOfIndexesKey).OrderBy(VOIK => VOIK).ToArray();
     }
 }

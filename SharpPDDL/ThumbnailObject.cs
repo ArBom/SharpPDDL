@@ -88,7 +88,7 @@ namespace SharpPDDL
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(_Precursor, this, Changes);
 
-            if (Changes.Count != 0)
+            if (Changes.Any())
             {
                 foreach (var update in Changes)
                     NewChild.Dict[update.Key] = update.Value;
@@ -138,7 +138,7 @@ namespace SharpPDDL
             if (this.Model is null)
                 throw new Exception();
 
-            foreach (ValueOfThumbnail VOT in Model.CumulativeValues)
+            foreach (Value VOT in Model.CumulativeValues)
             {
                 ValueType value;
 
@@ -171,9 +171,9 @@ namespace SharpPDDL
         {
             get
             {
-                ValueOfThumbnail TempVOT = null;
+                Value TempVOT = null;
 
-                foreach(ValueOfThumbnail valueOfThumbnail in Model.Values)
+                foreach(Value valueOfThumbnail in Model.Values)
                 {
                     if (valueOfThumbnail.ValueOfIndexesKey == key)
                     {
@@ -193,7 +193,7 @@ namespace SharpPDDL
         {
             ThumbnailObject<TOriginalObj> NewChild = new ThumbnailObject<TOriginalObj>(this, this, Changes);
 
-            if (Changes.Count != 0)
+            if (Changes.Any())
             {
                 NewChild.FigureCheckSum();
             }
