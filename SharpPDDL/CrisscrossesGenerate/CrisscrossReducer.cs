@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,12 +43,21 @@ namespace SharpPDDL.CrisscrossesGenerate
 
         private void TryMergeCrisscross(CancellationToken token)
         {
+            bool CheckPossibleOfRealization()
+            {
+                if (token.IsCancellationRequested)
+                    return false;
+
+                lock (CrisscrossReduceLocker)
+                    return PossibleToCrisscrossReduce.Any();
+            }
+
             while (!token.IsCancellationRequested)
             {
                 ReducingCrisscrossARE.WaitOne();
                 IsWaiting = false;
 
-                while (PossibleToCrisscrossReduce.Count != 0 && !token.IsCancellationRequested)
+                while (CheckPossibleOfRealization())
                 {
                     Crisscross possibleToCrisscrossReduce;
 

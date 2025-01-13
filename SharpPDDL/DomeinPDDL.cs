@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace SharpPDDL
 {
@@ -16,16 +15,14 @@ namespace SharpPDDL
         public readonly string Name;
         private TypesPDDL types;
         internal List<ActionPDDL> actions;
-        internal DomainPlanner domainPlanner;
-        internal CrisscrossGenerator crisscrossGenerator;
-        internal Crisscross states;
+        internal DomainPlanner DomainPlanner;
+        internal PossibleState CurrentState;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
-        internal FoundSols foundSols;
 
         public ListOfString PlanGenerated;
 
-        internal void CheckActions()
+        internal void CheckActions(ParallelOptions parallelOptions = default)
         {
             this.types = new TypesPDDL();
             foreach (ActionPDDL act in actions)
@@ -120,8 +117,6 @@ namespace SharpPDDL
 
             this.domainObjects = new ObservableCollection<object>();
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
-
-            this.foundSols += this.GenList;
         }
 
         public void DefineTrace(TraceSwitch LibTraceLevel)

@@ -28,6 +28,7 @@ namespace SharpPDDL
         public List<Crisscross> AlternativeRoots;
         public List<CrisscrossChildrenCon> Children;
         public UInt32 CumulativedTransitionCharge { get; private set; }
+        private static EqComp eqComp;
 
         internal Crisscross()
         {
@@ -36,6 +37,9 @@ namespace SharpPDDL
             this.Children = new List<CrisscrossChildrenCon>();
             this.Content = null;
             this.CumulativedTransitionCharge = 0;
+
+            if (eqComp is null)
+                eqComp = new EqComp();
         }
 
         public void Add(PossibleState item) => this.Add(item, 0, new object[0], 1, out Crisscross C);
@@ -106,6 +110,32 @@ namespace SharpPDDL
         internal static IComparer<Crisscross> SortCumulativedTransitionCharge() =>
              new SortCumulativedTransitionChargeHelper();
 
+        private class EqComp : IEqualityComparer<Crisscross>
+        {
+            public bool Equals(Crisscross x, Crisscross y)
+            {
+                if (x.Content.CheckSum != y.Content.CheckSum)
+                    return false;
+
+                for (ushort ListCounter = 0; ListCounter != x.Content.ThumbnailObjects.Count; ++ListCounter)
+                {
+                    if (x.Content.ThumbnailObjects[ListCounter].CheckSum == (y.Content.ThumbnailObjects[ListCounter].CheckSum))
+                        continue;
+                    else
+                        return false;
+                }
+
+                return true;
+            }
+
+            public int GetHashCode(Crisscross obj)
+            {
+                return obj.Content.CheckSum.GetHashCode();
+            }
+        }
+
+        internal static IEqualityComparer<Crisscross> IContentEqualityComparer =>
+            new EqComp();
 
         public bool IsReadOnly => false;
 
@@ -118,7 +148,8 @@ namespace SharpPDDL
             if (this.Root == null)
                 return previesly;
 
-            CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            //CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => eqComp.Equals(c.Child, this));
             List<CrisscrossChildrenCon> current = new List<CrisscrossChildrenCon>();
             current.Add(thisOfRoot);
             current.AddRange(previesly);
@@ -130,7 +161,8 @@ namespace SharpPDDL
             if (this.Root == null)
                 return null;
 
-            var thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            //var thisOfRoot = this.Root.Children.First(c => c.Child == this);
+            var thisOfRoot = this.Root.Children.First(c => eqComp.Equals(c.Child, this));
             List<CrisscrossChildrenCon> ToRet = new List<CrisscrossChildrenCon>();
 
             return Position(ToRet);
@@ -198,6 +230,7 @@ namespace SharpPDDL
                         break;
                     }
                 }
+
                 if(!IncorporatingAltRoorInclude)
                 {
                     if (Incorporating.Root is null)
@@ -208,10 +241,6 @@ namespace SharpPDDL
                     {
                         Incorporating.AlternativeRoots.Add(Annexed.AlternativeRoots[AnnAltRootI]);
                     }
-                }
-                else
-                {
-                    int BreakPoint = 0;
                 }
             }
                        

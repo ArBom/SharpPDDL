@@ -9,19 +9,22 @@ namespace SharpPDDL
 {
     public partial class DomeinPDDL
     {
-        CancellationToken CancellationDomein;
-
-        public void Start(CancellationToken CancellationDomein = default)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="MaxDegreeOfParalleism">Not in use yet</param>
+        /// <param name="CancellationDomein"></param>
+        public void Start(int? MaxDegreeOfParalleism = null, CancellationToken CancellationDomein = default)
         {
-            this.CancellationDomein = CancellationDomein;
             CancellationDomein.Register(ExternalCancellationOfProc);
-            CheckActions();
 
-            /*options = new ParallelOptions
+            ParallelOptions options = new ParallelOptions
             {
-                CancellationToken = CancelCurrentTokenS.Token,
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };*/
+                CancellationToken = CancellationDomein,
+                MaxDegreeOfParallelism = MaxDegreeOfParalleism ?? Environment.ProcessorCount
+            };
+
+            CheckActions(options);
 
             List<PossibleStateThumbnailObject> allObjects = new List<PossibleStateThumbnailObject>();
 
@@ -52,24 +55,22 @@ namespace SharpPDDL
                 allObjects.Add(ObjectPrecursor);
             }
 
-            PossibleState possibleState = new PossibleState(allObjects);
+            CurrentState = new PossibleState(allObjects);
 
             foreach (var goal in domainGoals)
             {
                 goal.BUILDIT(this.types.allTypes);
             }
 
-            states = new Crisscross
-            {
-                Content = possibleState
-            };
+            DomainPlanner = new DomainPlanner(this);
 
-            this.crisscrossGenerator = new CrisscrossGenerator(this);
-            //this.domainPlanner = new DomainPlanner();
+            foreach (Delegate d in this.PlanGenerated.GetInvocationList())
+                DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)d;
+
 
             this.domainGoals.CollectionChanged += DomainGoals_CollectionChanged;
 
-            crisscrossGenerator.Start(CancellationDomein);
+            DomainPlanner.Start(options);
         }
 
         private void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -91,41 +92,15 @@ namespace SharpPDDL
             }
 
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
-                GoalsPDDP.CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
+            {
+                //GoalsPDDP.CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
+            }
         }
 
         protected void ExternalCancellationOfProc()
         {
             this.domainGoals.CollectionChanged -= DomainGoals_CollectionChanged;
         }
-        
-        internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
-        {
-            Crisscross state = states;
-            List<CrisscrossChildrenCon> r = Found.Key.Position();
-
-            Console.WriteLine(ExtensionMethods.TracePrefix + Found.Value[0].Name + " determined!!! Total Cost: " + Found.Key.CumulativedTransitionCharge);
-
-            if (!(r is null))
-            {
-                List<List<string>> Plan = new List<List<string>>();
-
-                for (int i = 0; i != r.Count; i++)
-                {
-                    PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[actions[r[i].ActionNr].InstantActionParamCount];
-
-                    for (int j = 0; j != arg.Length; j++)
-                    {
-                        arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(r[i].ActionArgOryg[j]));
-                    }
-
-                    Plan.Add(new List<string> { actions[r[i].ActionNr].Name + ": ", (string)actions[r[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), " Action cost: " + r[i].ActionCost });
-
-                    state = r[i].Child;
-                }
-
-                PlanGenerated?.Invoke(Plan);               
-            }
-        }
+       
     }
 }

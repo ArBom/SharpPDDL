@@ -10,6 +10,7 @@ namespace SharpPDDL
         protected ushort ValuesIndeksCount = 0;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
         internal TreeNode<SingleTypeOfDomein> Root;
+        object locker = new object();
 
         //method is call for every Action
         internal void CompleteTypes(List<SingleType> singleTypes)
@@ -19,29 +20,35 @@ namespace SharpPDDL
                 int? ToTagAllTypesIndex = null;
 
                 //If its some type was added before...
-                if (allTypes.Count != 0)
+                lock (locker)
                 {
-                    ///...try to find the same type added before
-                    var SingleTypeInLists = allTypes.Any(st => st.Type == singleType.Type);
-                    if (SingleTypeInLists)
-                        //SingleTypeInList = SingleTypeInLists.First();
-                        ToTagAllTypesIndex = allTypes.FindIndex(st => st.Type == singleType.Type);
+                    if (allTypes.Any())
+                    {
+                        ///...try to find the same type added before
+                        var SingleTypeInLists = allTypes.Any(st => st.Type == singleType.Type);
+                        if (SingleTypeInLists)
+                            ToTagAllTypesIndex = allTypes.FindIndex(st => st.Type == singleType.Type);
+                    }
 
-                }
-
-                //if it didnt find the same type added before...
-                if (ToTagAllTypesIndex is null)
-                {
-                    //...add it now...
-                    allTypes.Add(new SingleTypeOfDomein(singleType));
-                    //...and work with another
-                    continue;
+                    //if it didnt find the same type added before...
+                    if (ToTagAllTypesIndex is null)
+                    {
+                        //...add it now...
+                        allTypes.Add(new SingleTypeOfDomein(singleType));
+                        //...and work with another
+                        continue;
+                    }
                 }
 
                 //in the other case update values of Parameter
                 foreach (Value value in singleType.Values)
                 {
-                    if (allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name))
+                    bool AnyValueOfName;
+
+                    lock (allTypes[ToTagAllTypesIndex.Value])
+                        AnyValueOfName = allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name);
+
+                    if (AnyValueOfName)
                     {
                         int ToTagIndex = allTypes[ToTagAllTypesIndex.Value].Values.FindIndex(v => v.Name == value.Name);
                         allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_EffectIn = value.IsInUse_EffectIn;
@@ -50,7 +57,8 @@ namespace SharpPDDL
                         continue;
                     }
 
-                    allTypes[ToTagAllTypesIndex.Value].Values.Add(new ValueOfThumbnail(value));
+                    lock (allTypes[ToTagAllTypesIndex.Value])
+                        allTypes[ToTagAllTypesIndex.Value].Values.Add(new ValueOfThumbnail(value));
                 }
             }
         }

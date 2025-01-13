@@ -131,7 +131,7 @@ namespace Hanoi_Tower
 
             newDomein.PlanGenerated += PrintPlan;
             CancellationTokenSource ExternalcancellationTokenSource = new CancellationTokenSource();
-            newDomein.Start(ExternalcancellationTokenSource.Token);
+            newDomein.Start(null, ExternalcancellationTokenSource.Token);
 
             Console.ReadKey();
             ExternalcancellationTokenSource.Cancel();

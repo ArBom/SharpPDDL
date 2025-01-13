@@ -13,19 +13,16 @@ namespace SharpPDDL.CrisscrossesGenerate
         protected readonly int MinActionParamCount;
         protected readonly int MaxActionParamCount;
 
-        protected UInt32 CurrentMinCumulativeCost;
-
         internal Task BuildingNewCrisscross = null;
         internal bool IsWaiting = true;
         internal Action NoNewData;
-        internal CurrentMinCumulativeCostUpdate CurrentMinCumulativeCostUpdate;
 
         internal readonly AutoResetEvent BuildingNewCrisscrossARE;
         protected readonly SortedSet<Crisscross> PossibleNewCrisscrossCre;
         protected readonly object PossibleNewSrisscrossCreLocker;
 
         protected readonly AutoResetEvent ReducingCrisscrossARE;
-        protected readonly List<Crisscross> PossibleToCrisscrossReduce;
+        protected List<Crisscross> PossibleToCrisscrossReduce;
         protected readonly object CrisscrossReduceLocker;
 
         internal CrisscrossNewPossiblesCreator(List<ActionPDDL> actions, AutoResetEvent BuildingNewCrisscrossARE, SortedSet<Crisscross> PossibleNewCrisscrossCre, object PossibleNewSrisscrossCreLocker, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker)
@@ -37,8 +34,6 @@ namespace SharpPDDL.CrisscrossesGenerate
 
             MinActionParamCount = actionsByParamCount.Keys.Min();
             MaxActionParamCount = actionsByParamCount.Keys.Max();
-
-            CurrentMinCumulativeCost = 0;
 
             this.BuildingNewCrisscrossARE = BuildingNewCrisscrossARE;
             this.PossibleNewCrisscrossCre = PossibleNewCrisscrossCre;
@@ -57,6 +52,15 @@ namespace SharpPDDL.CrisscrossesGenerate
 
         protected void BuildNewState(CancellationToken token)
         {
+            bool CheckPossibleOfRealization()
+            {
+                if (token.IsCancellationRequested)
+                    return false;
+
+                lock (PossibleNewSrisscrossCreLocker)
+                    return PossibleNewCrisscrossCre.Any();
+            }
+
             Crisscross stateToCheck;
             List<Crisscross> ToAddList = new List<Crisscross>();
 
@@ -65,7 +69,7 @@ namespace SharpPDDL.CrisscrossesGenerate
                 BuildingNewCrisscrossARE.WaitOne();
                 IsWaiting = false;
 
-                while (PossibleNewCrisscrossCre.Count() != 0 && !token.IsCancellationRequested)
+                while (CheckPossibleOfRealization())
                 {
                     lock (PossibleNewSrisscrossCreLocker)
                     {
@@ -77,6 +81,7 @@ namespace SharpPDDL.CrisscrossesGenerate
                         {
                             continue;
                         }
+
                         PossibleNewCrisscrossCre.Remove(stateToCheck);
                     }
 
@@ -138,22 +143,17 @@ namespace SharpPDDL.CrisscrossesGenerate
                         }
                     }
 
-                    if (stateToCheck.CumulativedTransitionCharge != CurrentMinCumulativeCost)
-                    {
-                        CurrentMinCumulativeCost = stateToCheck.CumulativedTransitionCharge;
-                        CurrentMinCumulativeCostUpdate?.BeginInvoke(CurrentMinCumulativeCost, null, null);
-                    }
-
                     VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), MinActionParamCount);
 
-                    if (ToAddList.Count() != 0)
+                    if (ToAddList.Any())
                     {
-                        ToAddList.OrderBy(c => c.CumulativedTransitionCharge);
+                        ToAddList = ToAddList.OrderBy(c => c.CumulativedTransitionCharge).ToList();
+
                         lock (CrisscrossReduceLocker)
                         {
                             PossibleToCrisscrossReduce.AddRange(ToAddList);
+                            ReducingCrisscrossARE.Set();
                         }
-                        ReducingCrisscrossARE.Set();
 
                         ToAddList.Clear();
                     }

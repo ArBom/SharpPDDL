@@ -13,8 +13,11 @@ namespace SharpPDDL.CrisscrossesGenerate
         ObservableCollection<GoalPDDL> domainGoals;
         internal Task CheckingGoal;
         internal bool IsWaiting = false;
-        internal FoundSols foundSols;
+        internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols;
         internal Action NoNewData;
+
+        protected UInt32 CurrentMinCumulativeCost;
+        internal Action<uint> CurrentMinCumulativeCostUpdate;
 
         internal AutoResetEvent CheckingGoalRealizationARE;
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
@@ -54,6 +57,7 @@ namespace SharpPDDL.CrisscrossesGenerate
         private List<GoalPDDL> CheckNewGoalsReach(Crisscross updatedOb)
         {
             List<GoalPDDL> RealizatedList = new List<GoalPDDL>();
+            CurrentMinCumulativeCost = 0;
 
             foreach (GoalPDDL Goal in domainGoals)
             {
@@ -100,18 +104,26 @@ namespace SharpPDDL.CrisscrossesGenerate
 
                     List<GoalPDDL> GoalsReach = CheckNewGoalsReach(possibleStatesCrisscross);
 
-                    if (GoalsReach.Count != 0)
+                    if (GoalsReach.Any())
                     {
                         KeyValuePair<Crisscross, List<GoalPDDL>> ToRet = new KeyValuePair<Crisscross, List<GoalPDDL>>(possibleStatesCrisscross, GoalsReach);
                         this.foundSols?.Invoke(ToRet);
+                        CurrentMinCumulativeCost = possibleStatesCrisscross.CumulativedTransitionCharge;
+                    }
+                    else if (possibleStatesCrisscross.CumulativedTransitionCharge > CurrentMinCumulativeCost)
+                    {
+                        CurrentMinCumulativeCost = possibleStatesCrisscross.CumulativedTransitionCharge;
+                        CurrentMinCumulativeCostUpdate?.Invoke(CurrentMinCumulativeCost);
                     }
 
-                    if (possibleStatesCrisscross.Children.Count == 0)
+                    if (!possibleStatesCrisscross.Children.Any())
                     {
                         lock (PossibleNewCrisscrossCreLocker)
+                        {
                             PossibleNewCrisscrossCre.Add(possibleStatesCrisscross);
 
-                        BuildingNewCrisscrossARE.Set();
+                            BuildingNewCrisscrossARE.Set();
+                        }
                     }
                 }
                 NoNewData.BeginInvoke(null, null);

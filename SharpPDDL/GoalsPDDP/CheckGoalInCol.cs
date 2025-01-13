@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +8,7 @@ namespace SharpPDDL.GoalsPDDP
 {
     internal static class CheckGoalInCol
     {
-        internal static Task CheckNewGoal(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, FoundSols foundSols)
+        internal static Task CheckNewGoal(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols)
         {
             Task CheckItAsTask = new Task(() => CheckIt(cancellationToken, states, Goal, foundSols));
             CheckItAsTask.Start();
@@ -26,7 +25,7 @@ namespace SharpPDDL.GoalsPDDP
             return false;
         }
 
-        private static void CheckIt(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, FoundSols foundSols)
+        private static void CheckIt(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols)
         {
             Crisscross TempCrisscross;
             CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);

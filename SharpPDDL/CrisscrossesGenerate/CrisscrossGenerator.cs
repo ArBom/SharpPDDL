@@ -19,20 +19,19 @@ namespace SharpPDDL
         object CrisscrossReduceLocker;
 
         //Buffors between consuments-procucents
-        ConcurrentQueue<Crisscross> PossibleGoalRealization;
-        SortedSet<Crisscross> PossibleNewCrisscrossCre;
-        List<Crisscross> PossibleToCrisscrossReduce;
+        protected ConcurrentQueue<Crisscross> PossibleGoalRealization;
+        protected SortedSet<Crisscross> PossibleNewCrisscrossCre;
+        protected List<Crisscross> PossibleToCrisscrossReduce;
 
         //Classes of data workining
         protected GoalChecker goalChecker;
         protected CrisscrossNewPossiblesCreator crisscrossNewPossiblesCreator;
         protected CrisscrossReducer crisscrossReducer;
 
-        readonly Action NoNewDataCheck;
-        readonly Action CrisscrossesGenerated;
-        readonly CurrentMinCumulativeCostUpdate currentMinCumulativeCostUpdate;
+        protected readonly Action NoNewDataCheck;
+        internal Action CrisscrossesGenerated;
 
-        internal CrisscrossGenerator(DomeinPDDL Owner)
+        internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
         {
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
             this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
@@ -46,7 +45,7 @@ namespace SharpPDDL
             AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false);
 
             //add the root of whole tree to check at the begining
-            PossibleGoalRealization.Enqueue(Owner.states);
+            PossibleGoalRealization.Enqueue(CurrentBuilded);
 
             PossibleNewCrisscrossCreLocker = new object();
             CrisscrossReduceLocker = new object();
@@ -54,26 +53,16 @@ namespace SharpPDDL
             //Init the classes with task and set communication of it
             this.goalChecker = new GoalChecker(Owner.domainGoals, CheckingGoalRealizationARE, PossibleGoalRealization, PossibleNewCrisscrossCreLocker, PossibleNewCrisscrossCre, BuildingNewCrisscrossARE);
             this.crisscrossNewPossiblesCreator = new CrisscrossNewPossiblesCreator(Owner.actions, BuildingNewCrisscrossARE, PossibleNewCrisscrossCre, PossibleNewCrisscrossCreLocker, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker);
-            this.crisscrossReducer = new CrisscrossReducer(Owner.states, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker, PossibleGoalRealization, CheckingGoalRealizationARE);
+            this.crisscrossReducer = new CrisscrossReducer(CurrentBuilded, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker, PossibleGoalRealization, CheckingGoalRealizationARE);
 
-            goalChecker.foundSols = Owner.foundSols;
+            goalChecker.foundSols = foundSols;
             goalChecker.NoNewData = NoNewDataCheck;
             crisscrossReducer.NoNewData = NoNewDataCheck;
             crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
-            //crisscrossNewPossiblesCreator.CurrentMinCumulativeCostUpdate = 
         }
 
         internal void Start(CancellationToken ExternalCancellationToken)
         {
-            //remember External CancelationToken to reuse it after reset
-            this.ExternalCancellation = ExternalCancellationToken;
-
-            //Token used to reset CrisscrossGenerator process when it is too big
-            InternalCancellationTokenSrc = new CancellationTokenSource();
-            //Invoke ReStart in case of internal cancelation
-            InternalCancellationTokenSrc.Token.Register(ReStart);
-            CurrentCancelTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellation, InternalCancellationTokenSrc.Token).Token;
-
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
             this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()); ;
             this.PossibleToCrisscrossReduce = new List<Crisscross>();
@@ -102,13 +91,11 @@ namespace SharpPDDL
 
         private void CheckAllGenerated()
         {
-            //lock (PossibleNewCrisscrossCreLocker)
-                if (PossibleNewCrisscrossCre.Any())
-                    return;
+            if (PossibleNewCrisscrossCre.Any())
+                return;
 
-            //lock(CrisscrossReduceLocker)
-                if (PossibleToCrisscrossReduce.Any())
-                    return;
+            if (PossibleToCrisscrossReduce.Any())
+                return;
 
             if (PossibleGoalRealization.Any())
                 return;
@@ -122,7 +109,6 @@ namespace SharpPDDL
             if (!crisscrossReducer.IsWaiting)
                 return;
 
-            Console.WriteLine("all states generated");
             CrisscrossesGenerated?.Invoke();
         }
     }
