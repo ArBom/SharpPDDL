@@ -61,8 +61,8 @@ namespace Water_pouring_puzzle
             WaterJug SourceJug = null;
             WaterJug DestinationJug = null;
 
-            DecantWater.AddAssignedParametr(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
-            DecantWater.AddAssignedParametr(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
+            DecantWater.AddPartOfActionSententia(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
+            DecantWater.AddPartOfActionSententia(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
 
             DecantWater.AddEffect(
                 "Reduce source jug flood",
@@ -79,6 +79,8 @@ namespace Water_pouring_puzzle
                 (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
 
             DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
+            DecantWater.UseEffectAlsoAsExecution("Reduce source jug flood");
+            DecantWater.UseEffectAlsoAsExecution("Increase destination jug flood");
             DecantWater.AddExecution("Let me know", () => Console.WriteLine("Decanted"), true);
 
             DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));

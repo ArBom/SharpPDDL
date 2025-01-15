@@ -93,7 +93,7 @@ namespace SharpPDDL
 
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
             {
-                //GoalsPDDP.CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
+                //CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
             }
         }
 
@@ -101,6 +101,6 @@ namespace SharpPDDL
         {
             this.domainGoals.CollectionChanged -= DomainGoals_CollectionChanged;
         }
-       
+      
     }
 }

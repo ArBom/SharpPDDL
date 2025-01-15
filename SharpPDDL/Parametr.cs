@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -70,13 +71,25 @@ namespace SharpPDDL
             }
         }
 
-        internal static void GetTheInstance<T> (ref T ToInstance) where T : class
+        internal static void GetTheInstance_TryAddToList<T> (List<Parametr> Parameters, ref T ToInstance) where T : class
         {
             if (typeof(T).IsAbstract)
                 throw new Exception("Sorry, You cannot to use abstract parameter at this version");
 
             if (ToInstance is null)
                 ToInstance = (T)FormatterServices.GetUninitializedObject(typeof(T));
+
+            Int32 HashCode = ToInstance.GetHashCode();
+
+            if (Parameters.Any(t => t.HashCode == HashCode))
+            {
+                Parametr p = Parameters.Where(t => t.HashCode == HashCode).First();
+                if (p.Oryginal.Equals(ToInstance))
+                    return;
+            }
+
+            Parametr TempParametr = new Parametr(HashCode, ToInstance);
+            Parameters.Add(TempParametr);
         }
 
         internal void RemoveUnuseValue()

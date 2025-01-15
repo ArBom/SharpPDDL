@@ -21,37 +21,57 @@ namespace SharpPDDL
         }
 
         internal string DestinationMemberName;
-        internal bool UsingAsExecution;
 
-        public void UseAsExecution() => this.UsingAsExecution = true;
+        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
 
-        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
-        {
-            UsingAsExecution = false;
-        }
-
-        internal static EffectPDDL Instance<T1>(string Name, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember, ValueType newValue_Static) //przypisanie wartosci ze stałej
+        internal static EffectPDDL Instance<T1>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember, ValueType newValue_Static) //przypisanie wartosci ze stałej
             where T1 : class
         {
-            return new EffectPDDL1<T1, T1>(Name, ref destinationObj, destinationMember, newValue_Static);
+            CheckExistEffectName(Effects, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref destinationObj);
+            EffectPDDL1<T1, T1> NewEffectPDDL = new EffectPDDL1<T1, T1>(Name, ref destinationObj, destinationMember, newValue_Static);
+            Effects?.Add(NewEffectPDDL);
+            return NewEffectPDDL;
         }
 
-        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T2p, ValueType>> Source)
+        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T2p, ValueType>> Source)
             where T1p : class
             where T1c : class, T1p
             where T2p : class
             where T2c : class, T2p
         {
-            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
+            CheckExistEffectName(Effects, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref sourceObj1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref DestinationObj);
+            EffectPDDL2<T1c, T1p, T2c, T2p> NewEffectPDDL = new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
+            Effects?.Add(NewEffectPDDL);
+            return NewEffectPDDL;
         }
 
-        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source)
+        internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source)
             where T1p : class
             where T1c : class, T1p
             where T2p : class
             where T2c : class, T2p
         {
-            return new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
+            CheckExistEffectName(Effects, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref sourceObj1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref DestinationObj);
+            EffectPDDL2<T1c, T1p, T2c, T2p> NewEffectPDDL = new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
+            Effects?.Add(NewEffectPDDL);
+            return NewEffectPDDL;
+        }
+
+        protected static void CheckExistEffectName(List<EffectPDDL> Effects, string Name)
+        {
+            if (Effects is null)
+                return;
+
+            if (String.IsNullOrEmpty(Name))
+                throw new Exception(); //is null or empty
+
+            if (Effects.Exists(effect => effect.Name == Name))
+                throw new Exception(); //juz istnieje efekt o takiej nazwie
         }
     }
 }

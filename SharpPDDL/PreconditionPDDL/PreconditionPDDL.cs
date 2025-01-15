@@ -21,24 +21,45 @@ namespace SharpPDDL
 
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
 
-        protected PreconditionPDDL(string Name, Expression func, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) 
+        protected PreconditionPDDL(string Name, Expression func, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null)
             : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
             => this.func = func;
 
-        internal static PreconditionPDDL Instance<T1c, T1p>(string Name, ref T1c obj1, Expression<Predicate<T1p>> func) 
+        internal static PreconditionPDDL Instance<T1c, T1p>(string Name, List<Parametr> Parameters, List<PreconditionPDDL> Preconditions, ref T1c obj1, Expression<Predicate<T1p>> func) 
             where T1p : class 
             where T1c : class, T1p
         {
-            return new PreconditionPDDL<T1c, T1p>(Name, ref obj1, func);
+            CheckExistPreconditionName(Preconditions, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref obj1);
+            PreconditionPDDL <T1c, T1p> NewPreconditionPDDL = new PreconditionPDDL<T1c, T1p>(Name, ref obj1, func);
+            Preconditions?.Add(NewPreconditionPDDL);
+            return NewPreconditionPDDL;
         }
 
-        internal static PreconditionPDDL Instance<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
+        internal static PreconditionPDDL Instance<T1c, T1p, T2c, T2p>(string Name, List<Parametr> Parameters, List<PreconditionPDDL> Preconditions, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
             where T1p : class 
             where T2p : class 
             where T1c : class, T1p 
             where T2c : class, T2p
         {
-            return new PreconditionPDDL<T1c, T1p, T2c, T2p>(Name, ref obj1, ref obj2, func);
+            CheckExistPreconditionName(Preconditions, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref obj1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref obj2);
+            PreconditionPDDL<T1c, T1p, T2c, T2p> NewPreconditionPDDL = new PreconditionPDDL<T1c, T1p, T2c, T2p>(Name, ref obj1, ref obj2, func);
+            Preconditions?.Add(NewPreconditionPDDL);
+            return NewPreconditionPDDL;
+        }
+
+        protected static void CheckExistPreconditionName(List<PreconditionPDDL> Preconditions, string Name)
+        {
+            if (Preconditions is null)
+                return;
+
+            if (String.IsNullOrEmpty(Name))
+                throw new Exception(); //is null or empty
+
+            if (Preconditions.Exists(precondition => precondition.Name == Name))
+                throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
     }
 }

@@ -13,6 +13,7 @@ namespace SharpPDDL
         private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
         internal ActionCost actionCost;
+        private List<string> EffectsUsedAlsoAsExecution;
         private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
@@ -38,7 +39,7 @@ namespace SharpPDDL
                 if (ToRet.Any())
                 {
                     var singleTypes = ToRet.Where(sT => sT.Type == parametr.Type);
-                    if (singleTypes.Count() != 0)
+                    if (singleTypes.Any())
                         singleType = singleTypes.First();
                 }
 
@@ -68,24 +69,21 @@ namespace SharpPDDL
             return ToRet;
         }
 
-        public void AddAssignedParametr<T>(ref T destination, string Text = null, params Expression<Func<T, object>>[] TextParams) where T : class
+        public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams) where T : class
         {
-            Parametr.GetTheInstance(ref destination);
-
-            Int32 HashCode = destination.GetHashCode();
-
-            if (Parameters.Any(t => t.HashCode == HashCode))
-            {
-                Parametr p = Parameters.Where(t => t.HashCode == HashCode).First();
-                if (p.Oryginal.Equals(destination))
-                    return;
-            }
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref destination);
 
             if (!String.IsNullOrEmpty(Text))
-                ActionSententia.Add((Parameters.Count, Text, TextParams));
-
-            Parametr TempParametr = new Parametr(HashCode, destination);
-            Parameters.Add(TempParametr);
+            {
+                int DestHashCode = destination.GetHashCode();
+                Parametr p = Parameters.Where(t => t.HashCode == DestHashCode).First();
+                int index = Parameters.IndexOf(p);
+                ActionSententia.Add((index, Text, TextParams));
+            }
+            else
+            {
+                //TODO jakiś komentarz w sprawie
+            }
         }
 
         private void CheckExistEffectName(string Name)
@@ -95,15 +93,6 @@ namespace SharpPDDL
 
             if (this.Effects.Exists(effect => effect.Name == Name))
                 throw new Exception(); //juz istnieje efekt o takiej nazwie
-        }
-
-        private void CheckExistPreconditionName(string Name)
-        {
-            if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
-
-            if (this.Preconditions.Exists(precondition => precondition.Name == Name))
-                throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
         }
 
         #region Adding Precondictions
@@ -124,7 +113,9 @@ namespace SharpPDDL
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj">Instance of T1 class (could be null) which representant parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1 class to check possibility of action ececute</param>
-        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) where T1 : class => AddPrecondiction<T1, T1>(Name, ref obj, func);
+        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) 
+            where T1 : class 
+            => AddPrecondiction<T1, T1>(Name, ref obj, func);
 
         /// <summary>
         /// This method adds a condition whose fulfillment is necessary to perform the action.
@@ -150,12 +141,7 @@ namespace SharpPDDL
         public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func) 
             where T1p : class 
             where T1c : class, T1p
-        {
-            CheckExistPreconditionName(Name);
-            this.AddAssignedParametr(ref obj);
-
-            Preconditions.Add(PreconditionPDDL.Instance(Name, ref obj, func));
-        }
+            => _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj, func);
 
         /// <summary>
         /// This method adds a condition (of 2 params) whose fulfillment is necessary to perform the action.
@@ -187,13 +173,8 @@ namespace SharpPDDL
             where T2p : class 
             where T1c : class, T1p 
             where T2c : class, T2p
-        {
-            CheckExistPreconditionName(Name);
-            this.AddAssignedParametr(ref obj1);
-            this.AddAssignedParametr(ref obj2);
-
-            Preconditions.Add(PreconditionPDDL.Instance(Name, ref obj1, ref obj2, func));
-        }
+            => _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, func);
+        
         #endregion
         #region Adding Effects
         /// <summary>
@@ -216,12 +197,7 @@ namespace SharpPDDL
         /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
         /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
         public void AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class 
-        {
-            CheckExistEffectName(Name);
-            this.AddAssignedParametr(ref destinationObj);
-
-            Effects.Add(EffectPDDL.Instance(Name, ref destinationObj, destinationMember, newValue_Static));
-        }
+            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref destinationObj, destinationMember, newValue_Static);       
 
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
@@ -238,13 +214,7 @@ namespace SharpPDDL
             where T2p : class
             where T1c : class, T1p
             where T2c : class, T2p
-        {
-            CheckExistEffectName(Name);
-            this.AddAssignedParametr(ref SourceObj);
-            this.AddAssignedParametr(ref DestinationObj);
-
-            Effects.Add(EffectPDDL.Instance(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source));
-        }
+            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
@@ -259,62 +229,54 @@ namespace SharpPDDL
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationMember, ref T2 SourceObj, Expression<Func<T2, ValueType>> Source)
             where T1 : class
             where T2 : class
-            =>
-            AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+            => AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
-        {
-            CheckExistEffectName(Name);
-            this.AddAssignedParametr(ref SourceObj);
-            this.AddAssignedParametr(ref DestinationObj);
-
-            Effects.Add(EffectPDDL.Instance(Name, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct));
-        }
+            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
         #endregion
         #region Adding Execution
-        public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues) => this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
+        public void UseEffectAlsoAsExecution(string ExecutionName) 
+            => EffectsUsedAlsoAsExecution.Add(ExecutionName);       
 
-        public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) => this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+        public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues) 
+            => this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
 
-        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) => this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+        public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) 
+            => this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+
+        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) 
+            => this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+
         #endregion
         #region ActionCost
         public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
-        {
-            this.actionCost = new ActionCost<T1>(ref In1, CostExpression, this.actionCost.defaultCost);
-        }
+            => this.actionCost = new ActionCost<T1>(ref In1, CostExpression, this.actionCost.defaultCost);
 
         public void DefineActionCost<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
             where T1 : class
             where T2 : class
-        {
-            this.actionCost = new ActionCost<T1, T2>(ref In1, ref In2, CostExpression, this.actionCost.defaultCost);
-        }
+            => this.actionCost = new ActionCost<T1, T2>(ref In1, ref In2, CostExpression, this.actionCost.defaultCost);
 
         public void DefineActionCost<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
             where T1 : class
             where T2 : class
             where T3 : class
-        {
-            this.actionCost = new ActionCost<T1, T2, T3>(ref In1, ref In2, ref In3, CostExpression, this.actionCost.defaultCost);
-        }
+            => this.actionCost = new ActionCost<T1, T2, T3>(ref In1, ref In2, ref In3, CostExpression, this.actionCost.defaultCost);
 
         public void DefineActionCost<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
              where T1 : class
              where T2 : class
              where T3 : class
              where T4 : class
-        {
-            this.actionCost = new ActionCost<T1, T2, T3, T4>(ref In1, ref In2, ref In3, ref In4, CostExpression, this.actionCost.defaultCost);
-        }
+             => this.actionCost = new ActionCost<T1, T2, T3, T4>(ref In1, ref In2, ref In3, ref In4, CostExpression, this.actionCost.defaultCost);
         #endregion
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
-            if (Parameters.Count == 0)
+            if (!Parameters.Any())
                 return;
 
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
@@ -327,23 +289,36 @@ namespace SharpPDDL
             }
 
             var EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
-            List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
             foreach (EffectPDDL Effect in Effects)
             {
                 Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
-
-                if (Effect.UsingAsExecution)
-                    EffectsUsingAsExecution.Add(Effect);
-            }
-
-            if (this.Executions.Count != 0 || EffectsUsingAsExecution.Count != 0)
-            {
-                var p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
             }
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
+
+            List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
+            foreach (string EffectAsExecution in EffectsUsedAlsoAsExecution)
+            {
+                EffectPDDL UsedAlso;
+                try
+                {
+                    UsedAlso = Effects.First(E => E.Name == EffectAsExecution);
+                }
+                catch (InvalidOperationException)
+                {
+                    continue;
+                }
+
+                EffectsUsingAsExecution.Add(UsedAlso);
+            }
+            EffectsUsedAlsoAsExecution = null;
+
+            if (this.Executions.Any() || EffectsUsingAsExecution.Any())
+            {
+                WholeActionExecutionLambda p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
+            }
 
             ActionSententiaLamdba actionSententiaLamdba = new ActionSententiaLamdba(allTypes, Parameters, ActionSententia);
             InstantActionSententia = actionSententiaLamdba.InstantFunct;
@@ -374,6 +349,7 @@ namespace SharpPDDL
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();
             this.Effects = new List<EffectPDDL>();
+            this.EffectsUsedAlsoAsExecution = new List<string>();
             this.Executions = new List<ExpressionExecution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
             this.actionCost = new ActionCost(actionCost);
