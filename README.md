@@ -1,17 +1,19 @@
 ![thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
 
 
-This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.3 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
+This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
 > [!WARNING]
-> Library has many bugs, works unstable so is not to use, still.
+> Library has several bugs, works unstable so is not to use, still.
 
 One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing to realize the goal. Examples of problems possible to solution by this algorithm:
 
 <details> 
   <summary>Tower of Hanoi</summary>
+  
 Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Tower_of_Hanoi)
-    
+
+In this problem, you will use two types of objects (brick and table). Both have some common features (HanoiObj).
 ```cs
 public class HanoiObj //It cannot be abstract
 {
@@ -128,49 +130,47 @@ Instances of class used to define action shouldn't be use in other part of progr
 For these classes one can define rules in library like "Move brick onto another brick" or "Move brick on table". Preconditions, effect etc. are phrased by library's user as Expressions (System.Linq.Expressions):
 
 ```cs
-DomeinPDDL newDomein = new DomeinPDDL("Hanoi");
+HanoiBrick MovedBrick = null; //you can take brick...
+HanoiObj ObjBelowMoved = null; //...from table or another brick... 
+HanoiBrick NewStandB = null; //...and put it into bigger brick...
+HanoiTable NewStandT = null; //...or empty table spot.
 
-HanoiBrick MovedBrick = null;
-HanoiObj ObjBelowMoved = null;
-HanoiBrick NewStandB = null;
-HanoiTable NewStandT = null;
-
-Expression<Predicate<HanoiObj>> MovedBrickIsNoUp = (HO => HO.IsEmptyUpSide);
-Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size));
+Expression<Predicate<HanoiObj>> ObjectIsNoUp = (HO => HO.IsEmptyUpSide); //Moved brick have to be empty up side
+Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size)); //you can put smaller brick onto bigger one
 Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
 
-ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick");
+ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick"); //1st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandB
 
-moveBrickOnBrick.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
-moveBrickOnBrick.AddAssignedParametr(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
+moveBrickOnBrick.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
+moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
 
-moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, MovedBrickIsNoUp);
-moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger);
-moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
+moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
+moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.IsEmptyUpSide == true
+moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger); //MovedBrick.Size < NewStandB.Size
+moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
 
-moveBrickOnBrick.AddEffect("New stand is full", false, ref NewStandB, NS => NS.IsEmptyUpSide);
-moveBrickOnBrick.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide);
-moveBrickOnBrick.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide);
-moveBrickOnBrick.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandB, NSB => NSB.HanoiObjSizeUpSide);
+moveBrickOnBrick.AddEffect("New stand is full", ref NewStandB, NS => NS.IsEmptyUpSide, false); //NewStandB.IsEmptyUpSide = false
+moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
+moveBrickOnBrick.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
+moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandB.HanoiObjSizeUpSide = MovedBrick.Size
 
-newDomein.AddAction(moveBrickOnBrick);
+newDomein.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
 
-ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table");
+ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table"); //2st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandT
 
-moveBrickOnTable.AddAssignedParametr(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
-moveBrickOnTable.AddAssignedParametr(ref NewStandT, "onto table no {0}.", NS => NS.no);
+moveBrickOnTable.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
+moveBrickOnTable.AddPartOfActionSententia(ref NewStandT, "onto table no {0}.", NS => NS.no);
 
-moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, MovedBrickIsNoUp);
-moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, MovedBrickIsNoUp);
-moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd);
+moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
+moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.IsEmptyUpSide == true
+moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
 
-moveBrickOnTable.AddEffect("New stand is full", false, ref NewStandT, NS => NS.IsEmptyUpSide);
-moveBrickOnTable.AddEffect("Old stand is empty", true, ref ObjBelowMoved, NS => NS.IsEmptyUpSide);
-moveBrickOnTable.AddEffect("UnConsociate Objs", 0, ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide);
-moveBrickOnTable.AddEffect("Consociate Bricks", ref MovedBrick, MB => MB.Size, ref NewStandT, NST => NST.HanoiObjSizeUpSide);
+moveBrickOnTable.AddEffect("New stand is full", ref NewStandT, NS => NS.IsEmptyUpSide, false); //NewStandT.IsEmptyUpSide = false
+moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
+moveBrickOnTable.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
+moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandT.HanoiObjSizeUpSide = MovedBrick.Size
 
-newDomein.AddAction(moveBrickOnTable);
+newDomein.AddAction(moveBrickOnTable); //Putting empty brick onto empty table spot
 ```
 
 Solution output for 3-bricks-hanoi-tower problem:
@@ -187,52 +187,44 @@ Move brick onto another brick: Place the 1-size brick onto 2-size brick.
 </details>
 <details> 
   <summary>Water pouring puzzle</summary>
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
+  
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle#Standard_example) 
     
   ```cs
 public class WaterJug
 {
     public readonly float Capacity;
     public float flood;
-
-    public static int DecantedWater (float SourceFlood, float DestinationCapacity, float DestinationFlood)
-    {
-        if (SourceFlood + DestinationFlood > DestinationCapacity)
-           return (int)(DestinationCapacity - DestinationFlood);
-        else
-           return (int)SourceFlood;
-    }
     ⁝
-
 }
 ```    
 ```cs
-DomeinPDDL DecantingDomein = new DomeinPDDL("decanting problems");
+DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems"); //In this problem...
 
-ActionPDDL DecantWater = new ActionPDDL("Decant water");
-WaterJug SourceJug = null;
-WaterJug DestinationJug = null;
+ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 arguments:
+WaterJug SourceJug = null; //The jug from which you pour,
+WaterJug DestinationJug = null; // and the jug you pour into.
 
-DecantWater.AddAssignedParametr(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
-DecantWater.AddAssignedParametr(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
+DecantWater.AddPartOfActionSententia(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
+DecantWater.AddPartOfActionSententia(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
 
-DecantWater.AddPrecondiction("Source Jug is not empty", ref SourceJug, Source_Jug => (Source_Jug.flood != 0));
-DecantWater.AddPrecondiction("Destination Jug is not full", ref DestinationJug, Destination_Jug => Destination_Jug.flood < Destination_Jug.Capacity);
-
-DecantWater.AddEffect(
-    "Reduce source jug flood", 
-    ref DestinationJug, 
-    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0,
-    ref SourceJug, 
-    Source_Jug => Source_Jug.flood );
-
-DecantWater.AddEffect(
-    "Increase destination jug flood",
+//In the effect of decanting the level in the jug from which you pour is maked smaller after that,...
+DecantWater.AddEffect( //SourceJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? SourceJug.flood - DestinationJug.Capacity + DestinationJug.flood : 0
+    "Reduce source jug flood",
     ref SourceJug,
-    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood,
+    Source_Jug => Source_Jug.flood,
     ref DestinationJug,
-    Destination_Jug => Destination_Jug.flood );
+    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
 
+//...the level in the jug you pour into is maked bigger.
+DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? DestinationJug.Capacity : DestinationJug.flood + SourceJug.flood
+    "Increase destination jug flood",
+    ref DestinationJug,
+    Destination_Jug => Destination_Jug.flood,
+    ref SourceJug,
+    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
+
+//One need to do as fast as possible
 DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 
 DecantingDomein.AddAction(DecantWater);
@@ -250,5 +242,81 @@ all states generated
 ```
 </details>
 
+<details> 
+  <summary>Travelling salesman problem</summary>
+   
+Treatment the problem: [wiki](https://en.wikipedia.org/wiki/Travelling_salesman_problem)
+
+Define the action:
+```cs
+ActionPDDL Travel = new ActionPDDL("Travel");
+City From = null; //Salesman leaves "From" city,
+City To = null; //and goes to "To" city.
+
+Travel.AddPartOfActionSententia(ref To, "Go to {0}.", T => T.Name);
+
+Travel.AddPrecondiction( // From.SalesmanHere == true
+    "Salesnam is in FROM city now",
+    ref From,
+    F => F.SalesmanHere);
+
+//Salesman visit city only one time
+Travel.AddPrecondiction( // To.Visiting == false
+    "Salesnam havent been in TO city",
+    ref To,
+    F => !F.Visited);
+
+Travel.AddEffect( // From.SalesmanHere = false
+    "Salesman leaves city",
+    ref From,
+    F => F.SalesmanHere,
+    false);
+
+Travel.AddEffect( // To.SalesmanHere = true
+    "Salesman arrives new city",
+    ref To,
+    T => T.SalesmanHere,
+    true);
+
+Travel.AddEffect( // To.Visited = true
+    "Salesman visit new city",
+    ref To,
+    T => T.Visited,
+    true);
+
+Travel.DefineActionCost(ref From, ref To, (F, T) => CitiesAPI.DistanceAPI(F.PostalCode, T.PostalCode));
+```
+Some DistanceMatrix / Travel action cost:
+
+| Distance | Koszalin | Gniezno | Kraków | Płock | Poznań | Warszawa | Lublin |
+| :---     | :---:    | :---:   | :---:  | :---: | :---:  | :---:    | :---:  |
+| Koszalin | 0        | 245     | 700    | 372   | 250    | 520      | 687    |
+| Gniezno  | 245      | 0       | 456    | 165   | 48     | 293      | 448    |
+| Kraków   | 700      | 456     | 0      | 364   | 458    | 290      | 304    |
+| Płock    | 372      | 165     | 364    | 0     | 227    | 109      | 295    |
+| Poznań   | 250      | 48      | 458    | 227   | 0      | 311      | 478    |
+| Warszawa | 520      | 293     | 290    | 109   | 311    | 0        | 173    |
+| Lublin   | 687      | 448     | 304    | 295   | 478    | 173      | 0      |
+
+```
+SharpPDDL : Visit all cities determined!!! Total Cost: 1806
+Travel: Go to Gniezno. Action cost: 245
+Travel: Go to Poznan. Action cost: 48
+Travel: Go to Plock. Action cost: 227
+Travel: Go to Warszawa. Action cost: 109
+Travel: Go to Lublin. Action cost: 173
+Travel: Go to Kraków. Action cost: 304
+Travel: Go to Koszalin. Action cost: 700
+```
+
+Make you sure about the solution with another program: [AtoZmath.com](https://cbom.atozmath.com/CBOM/Assignment.aspx?q=tsnn&q1=0%2C245%2C700%2C372%2C250%2C520%2C687%3B245%2C0%2C456%2C165%2C48%2C293%2C448%3B700%2C456%2C0%2C364%2C458%2C290%2C304%3B372%2C165%2C364%2C0%2C227%2C109%2C295%3B250%2C48%2C458%2C227%2C0%2C311%2C478%3B520%2C293%2C290%2C109%2C311%2C0%2C173%3B687%2C448%2C304%2C295%2C478%2C173%2C0%60MIN%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60false%60false&do=1#tblSolution)
+
+</details>
+
+> [!IMPORTANT]  
+> If you wanna wait for finish some execution, and than do the next one, you need to block thread. Don't use Tasks inside ExpressionExecution Funct. Program will not wait for it.
+
 ---
+<img align="right" src="https://github.com/user-attachments/assets/85f24e2f-18b7-417f-bd34-4fef48890ee2">
+
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
