@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace SharpPDDL
 {
@@ -16,9 +17,16 @@ namespace SharpPDDL
         private TypesPDDL types;
         internal List<ActionPDDL> actions;
         internal DomainPlanner DomainPlanner;
+        internal PlanImplementor PlanImplementor;
         internal PossibleState CurrentState;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
+        internal EventWaitHandle _PlanRealizationEventWaitHandle;
+        public EventWaitHandle PlanRealizationEventWaitHandle
+        {
+            get { return _PlanRealizationEventWaitHandle; }
+            set { _PlanRealizationEventWaitHandle = value; }
+        }
 
         public ListOfString PlanGenerated;
 
@@ -111,6 +119,8 @@ namespace SharpPDDL
 
             AllDomain.Add(name, this);
 
+            this.PlanImplementor = new PlanImplementor();
+
             this.Name = name;
             this.actions = new List<ActionPDDL>();
             this.domainGoals = new ObservableCollection<GoalPDDL>();
@@ -124,6 +134,25 @@ namespace SharpPDDL
             ExtensionMethods.traceLevel = LibTraceLevel;
 
             Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Tracing working.");
+        }
+
+        public void SetExecutionOptions(WaitHandle SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)
+        {
+            if (WaitOn is null)
+            {
+                if (askToAgrees.Any(a => a != AskToAgree.GO_AHEAD && a != AskToAgree.DONT_DO_IT))
+                {
+
+                }
+            }
+
+            int Asks = (int)AskToAgree.GO_AHEAD;
+            foreach (var A in askToAgrees)
+            {
+                Asks = (Asks | (int)A);
+            }
+
+            PlanImplementor.UpdateIt(SignalizeNeedAcception, WaitOn, (byte)Asks);
         }
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)

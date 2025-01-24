@@ -46,6 +46,7 @@ namespace SharpPDDL
         protected CrisscrossGenerator CurrentBuilder;
         readonly List<ActionPDDL> Actions;
         internal Action<uint> currentMinCumulativeCostUpdate;
+        internal Action<List<CrisscrossChildrenCon>> ToRealize;
         internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
 
@@ -131,6 +132,7 @@ namespace SharpPDDL
             }
         }
 
+        //List<CrisscrossChildrenCon>
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
         {
             Crisscross state = CurrentBuilded;
@@ -157,6 +159,7 @@ namespace SharpPDDL
                 }
 
                 PlanGeneratedInDomainPlanner?.Invoke(Plan);
+                ToRealize?.Invoke(FoKePo);
             }
         }
     }

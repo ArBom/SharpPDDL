@@ -16,6 +16,7 @@ namespace SharpPDDL
         private List<string> EffectsUsedAlsoAsExecution;
         private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
+        internal Delegate InstantExecution { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
         internal int InstantActionParamCount => Parameters.Count;
 
@@ -317,7 +318,12 @@ namespace SharpPDDL
 
             if (this.Executions.Any() || EffectsUsingAsExecution.Any())
             {
-                WholeActionExecutionLambda p = new WholeActionExecutionLambda(this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
+                WholeActionExecutionLambda p = new WholeActionExecutionLambda(this.Name, this.Parameters, this.Preconditions, EffectsUsingAsExecution, this.Executions);
+                InstantExecution = p.InstantExecutionPDDL;
+            }
+            else
+            {
+                //TODO;
             }
 
             ActionSententiaLamdba actionSententiaLamdba = new ActionSententiaLamdba(allTypes, Parameters, ActionSententia);
@@ -340,11 +346,15 @@ namespace SharpPDDL
         /// </summary>
         /// <param name="Name">Unique, non-empty action name</param>
         /// <param name="ActionCost">Resource consumption of the action, for example execution time. The smaller it is, the better it is to trigger the action</param>
-        public ActionPDDL(string Name, uint actionCost = 1)
+        public ActionPDDL(string Name, uint actionCost = 1/*, bool IsSpecial = false*/)
         {
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or emty
 
+            if (Name.StartsWith(ExtensionMethods.SpecialFuncPrefix))
+                throw new Exception(); //only for special
+
+            //this.Name = IsSpecial ? ExtensionMethods.SpecialFuncPrefix + Name : Name;
             this.Name = Name;
             this.Parameters = new List<Parametr>();
             this.Preconditions = new List<PreconditionPDDL>();

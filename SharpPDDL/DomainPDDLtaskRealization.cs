@@ -63,11 +63,13 @@ namespace SharpPDDL
             }
 
             DomainPlanner = new DomainPlanner(this);
+            PlanImplementor.UpdateIt(this);
+            PlanImplementor.cancelationToken = CancellationDomein;
 
             foreach (Delegate d in this.PlanGenerated.GetInvocationList())
                 DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)d;
 
-
+            DomainPlanner.ToRealize += PlanImplementor.RealizeIt;
             this.domainGoals.CollectionChanged += DomainGoals_CollectionChanged;
 
             DomainPlanner.Start(options);

@@ -19,7 +19,7 @@ namespace SharpPDDL
 
         internal readonly Delegate InstantExecutionPDDL;
 
-        internal WholeActionExecutionLambda(IReadOnlyList<Parametr> Parameters, IReadOnlyList<PreconditionPDDL> ExecutionPrecondition, IReadOnlyList<EffectPDDL> ExecutionEffects, IReadOnlyList<ExpressionExecution> executions )
+        internal WholeActionExecutionLambda(string Name, IReadOnlyList<Parametr> Parameters, IReadOnlyList<PreconditionPDDL> ExecutionPrecondition, IReadOnlyList<EffectPDDL> ExecutionEffects, IReadOnlyList<ExpressionExecution> executions)
         {
             foreach (ExpressionExecution execution in executions)
                 execution.CompleteClassPos(Parameters);
@@ -92,10 +92,10 @@ namespace SharpPDDL
                     }
                 }
 
-                lambdaExpression = Expression.Lambda(Checking, _parameters);
+                lambdaExpression = Expression.Lambda(Checking, Name, _parameters);
             }
             else
-                lambdaExpression = Expression.Lambda(ExecutingExpression, _parameters);
+                lambdaExpression = Expression.Lambda(ExecutingExpression, Name, _parameters);
 
             InstantExecutionPDDL = lambdaExpression.Compile();
         }

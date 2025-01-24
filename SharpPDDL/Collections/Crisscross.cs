@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SharpPDDL
 {
-    internal class CrisscrossChildrenCon
+    internal struct CrisscrossChildrenCon
     { 
         internal Crisscross Child;
         internal readonly int ActionNr;
@@ -18,6 +18,14 @@ namespace SharpPDDL
             this.ActionNr = ActionNr;
             this.ActionArgOryg = ActionArgOryg;
             this.ActionCost = ActionCost;
+        }
+
+        internal CrisscrossChildrenCon(CrisscrossChildrenCon OldOne, Crisscross Update)
+        {
+            this.Child = Update;
+            this.ActionNr = OldOne.ActionNr;
+            this.ActionArgOryg = OldOne.ActionArgOryg;
+            this.ActionCost = OldOne.ActionCost;
         }
     }
 
@@ -148,7 +156,6 @@ namespace SharpPDDL
             if (this.Root == null)
                 return previesly;
 
-            //CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => c.Child == this);
             CrisscrossChildrenCon thisOfRoot = this.Root.Children.First(c => eqComp.Equals(c.Child, this));
             List<CrisscrossChildrenCon> current = new List<CrisscrossChildrenCon>();
             current.Add(thisOfRoot);
@@ -216,7 +223,8 @@ namespace SharpPDDL
                 {
                     if (Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child.Equals(Annexed))
                     {
-                        Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child = Incorporating;
+                        CrisscrossChildrenCon Updated = new CrisscrossChildrenCon(Annexed.AlternativeRoots[AnnAltRootI].Children[i], Incorporating);
+                        Annexed.AlternativeRoots[AnnAltRootI].Children[i] = Updated;
                     }
                 }
 

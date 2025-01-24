@@ -19,7 +19,6 @@ namespace SharpPDDL
 
         internal void FigureCheckSum()
         {
-            //TODO sprawdzić poniższe
             string MD5input = Precursor.GetHashCode().ToString();
 
             for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
@@ -66,7 +65,8 @@ namespace SharpPDDL
 
     }
 
-    internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
+    internal class ThumbnailObject<TOriginalObj> : PossibleStateThumbnailObject 
+        where TOriginalObj : class
     {
         internal override object OriginalObj { get { return _Precursor.OriginalObj; } }
         internal PossibleStateThumbnailObject _Precursor;
@@ -103,7 +103,8 @@ namespace SharpPDDL
         }
     }
 
-    internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject where TOriginalObj : class
+    internal class ThumbnailObjectPrecursor<TOriginalObj> : PossibleStateThumbnailObject 
+        where TOriginalObj : class
     {       
         readonly internal TOriginalObj _OriginalObj;
         internal override Type OriginalObjType => _OriginalObj.GetType();

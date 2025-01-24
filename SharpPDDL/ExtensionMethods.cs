@@ -26,6 +26,7 @@ namespace SharpPDDL
         }
 
         internal static string LamdbaParamPrefix => "o";
+        internal static string SpecialFuncPrefix => "!";
 
         internal static TraceSwitch traceLevel;// = TraceLevel.Off;
         internal static string TracePrefix => "SharpPDDL : ";

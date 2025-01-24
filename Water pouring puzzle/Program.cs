@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SharpPDDL;
 
@@ -25,7 +26,7 @@ namespace Water_pouring_puzzle
             public void WaitForDecant (WaterJug DestinationWaterJug)
             {
                 int time = DecantedWater(this.flood, DestinationWaterJug.Capacity, DestinationWaterJug.flood);
-                Task.Delay(time * 2000);
+                Thread.Sleep(time * 1000);
             }
 
             public readonly float Capacity; //max level of fluid
@@ -90,6 +91,9 @@ namespace Water_pouring_puzzle
             DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 
             DecantingDomein.AddAction(DecantWater);
+
+            //Don't ask for agree in time of plan execution
+            DecantingDomein.SetExecutionOptions(null, null, AskToAgree.GO_AHEAD);
 
             //In the begin you have 3 jug of water.
             WaterJug waterJug8 = new WaterJug(8, 8); //8-litre jug is full,
