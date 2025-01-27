@@ -22,7 +22,7 @@ namespace SharpPDDL
             for (int i = 0; i != parameters.Count; i++)
             {
                 //creating parameters of lambda
-                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
                 _parameters.Add(CurrentPar);
 
                 //checking if types equals

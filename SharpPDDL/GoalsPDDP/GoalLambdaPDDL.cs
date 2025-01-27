@@ -8,7 +8,7 @@ namespace SharpPDDL
 {
     internal class GoalLambdaPDDL<T> : ExpressionVisitor where T : class
     {
-        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix);
+        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix);
         readonly Type OryginalObjectType;
         readonly T OryginalObject;
         private readonly List<SingleTypeOfDomein> allTypes;

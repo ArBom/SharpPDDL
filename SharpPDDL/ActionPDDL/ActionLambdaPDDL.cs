@@ -19,7 +19,7 @@ namespace SharpPDDL
             List<ParameterExpression> TempParams = new List<ParameterExpression>();
             for (int i = 0; i != parameters.Count; i++)
             {
-                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
                 TempParams.Add(CurrentPar);
                 
                 //checking if types equals
@@ -77,7 +77,7 @@ namespace SharpPDDL
 
             foreach (var effect in effects)
             {
-                string ParamNo = effect.Parameters[0].Name.Remove(0, ExtensionMethods.LamdbaParamPrefix.Length);
+                string ParamNo = effect.Parameters[0].Name.Remove(0, GloCla.LamdbaParamPrefix.Length);
                 int ChangedParamNo = Int32.Parse(ParamNo);
 
                 var result = VisitLambda(effect);

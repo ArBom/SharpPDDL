@@ -49,8 +49,8 @@ namespace SharpPDDL
             {
                 Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
                 {
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[0]),
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[1])
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[0]),
+                    Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[1])
                 };
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
 
@@ -84,7 +84,7 @@ namespace SharpPDDL
             ParameterExpression param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
 
-            return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
+            return GloCla.LamdbaParamPrefix + ParamsIndexesInAction[index];
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

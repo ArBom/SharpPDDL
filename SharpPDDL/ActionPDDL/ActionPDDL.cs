@@ -87,15 +87,6 @@ namespace SharpPDDL
             }
         }
 
-        private void CheckExistEffectName(string Name)
-        {
-            if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
-
-            if (this.Effects.Exists(effect => effect.Name == Name))
-                throw new Exception(); //juz istnieje efekt o takiej nazwie
-        }
-
         #region Adding Precondictions
 
         /// <summary>
@@ -351,7 +342,7 @@ namespace SharpPDDL
             if (String.IsNullOrEmpty(Name))
                 throw new Exception(); //is null or emty
 
-            if (Name.StartsWith(ExtensionMethods.SpecialFuncPrefix))
+            if (Name.StartsWith(GloCla.SpecialFuncPrefix))
                 throw new Exception(); //only for special
 
             //this.Name = IsSpecial ? ExtensionMethods.SpecialFuncPrefix + Name : Name;

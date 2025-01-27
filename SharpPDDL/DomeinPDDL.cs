@@ -129,11 +129,10 @@ namespace SharpPDDL
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
         }
 
-        public void DefineTrace(TraceSwitch LibTraceLevel)
+        public void DefineTrace(TraceSource LibTrace)
         {
-            ExtensionMethods.traceLevel = LibTraceLevel;
-
-            Trace.WriteLineIf(ExtensionMethods.traceLevel.TraceVerbose, ExtensionMethods.TracePrefix + "Tracing working.");
+            GloCla.Tracer = LibTrace;
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 0, GloCla.ResMan.GetString("I0"), GloCla.Tracer.Name);
         }
 
         public void SetExecutionOptions(WaitHandle SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)

@@ -78,7 +78,7 @@ namespace SharpPDDL
         {
             var param = OldParameters.First(p => p.Name == OldNodeName);
             int index = OldParameters.IndexOf(param);
-            return ExtensionMethods.LamdbaParamPrefix + ParamsIndexesInAction[index];
+            return GloCla.LamdbaParamPrefix + ParamsIndexesInAction[index];
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

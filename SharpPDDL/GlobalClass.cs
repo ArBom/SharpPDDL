@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Resources;
 
 namespace SharpPDDL
 {
-    internal static class ExtensionMethods
+    internal static class GloCla
     {
         /// <returns>List of Interfaces, List of Base Type; from orygilal type ToReturnBaseTypes[0], to object</returns>
         internal static (IReadOnlyList<Type> Interfaces, IReadOnlyList<Type> Types, IReadOnlyList<Type> TypesAndInterfaces) InheritedTypes(this Type type)
@@ -27,9 +29,9 @@ namespace SharpPDDL
 
         internal static string LamdbaParamPrefix => "o";
         internal static string SpecialFuncPrefix => "!";
-
-        internal static TraceSwitch traceLevel;// = TraceLevel.Off;
         internal static string TracePrefix => "SharpPDDL : ";
 
+        internal static ResourceManager ResMan = new ResourceManager("SharpPDDL.Properties.Resources", Assembly.GetExecutingAssembly());
+        internal static TraceSource Tracer = null;
     }
 }

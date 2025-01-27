@@ -29,7 +29,7 @@ namespace SharpPDDL
 
             for (int i = 0; i != Parameters.Count; i++)
             {
-                ParameterExpression Param = Expression.Parameter(Parameters[i].Type, ExtensionMethods.LamdbaParamPrefix + i);
+                ParameterExpression Param = Expression.Parameter(Parameters[i].Type, GloCla.LamdbaParamPrefix + i);
                 _parameters.Add(Param);
             }
 

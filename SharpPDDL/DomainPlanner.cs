@@ -138,7 +138,7 @@ namespace SharpPDDL
             Crisscross state = CurrentBuilded;
             List<CrisscrossChildrenCon> FoKePo = Found.Key.Position();
 
-            Console.WriteLine(ExtensionMethods.TracePrefix + Found.Value[0].Name + " determined!!! Total Cost: " + Found.Key.CumulativedTransitionCharge);
+            Console.WriteLine(GloCla.TracePrefix + GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
 
             if (!(FoKePo is null))
             {

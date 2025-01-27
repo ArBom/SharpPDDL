@@ -60,10 +60,11 @@ namespace Hanoi_Tower
 
             Stopwatch.Start();
 
-            newDomein.DefineTrace(new TraceSwitch("Default", "default")
-            {
-                Level = TraceLevel.Off
-            });
+            
+            var Ts = new TraceSource("st");
+            Ts.Switch.Level = SourceLevels.All;
+            Ts.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            newDomein.DefineTrace(Ts);
 
             HanoiBrick MovedBrick = null; //you can take brick...
             HanoiObj ObjBelowMoved = null; //...from table or another brick... 

@@ -23,7 +23,7 @@ namespace SharpPDDL
 
             List<ParameterExpression> param = new List<ParameterExpression>();
             for (int i = 0; i != InstantActionParamCount; i++)
-                param.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), ExtensionMethods.LamdbaParamPrefix + i.ToString()));
+                param.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString()));
             _parameters = new ReadOnlyCollection<ParameterExpression>(param);
 
             this.DefaultCost = Expression.Constant(defaultCost, typeof(uint));
