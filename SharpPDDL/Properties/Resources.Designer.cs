@@ -61,6 +61,123 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Some problem in adding goal..
+        /// </summary>
+        internal static string C0 {
+            get {
+                return ResourceManager.GetString("C0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Its impossible to find {0} param inside {1} node..
+        /// </summary>
+        internal static string C1 {
+            get {
+                return ResourceManager.GetString("C1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu uncaught bug of wrong (empty, or null) name.
+        /// </summary>
+        internal static string C2 {
+            get {
+                return ResourceManager.GetString("C2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Wrong object type - {0} it not a class.
+        /// </summary>
+        internal static string C3 {
+            get {
+                return ResourceManager.GetString("C3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of {0} action execution: {1}.
+        /// </summary>
+        internal static string C4 {
+            get {
+                return ResourceManager.GetString("C4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu This domain dont know the {0} class type.
+        /// </summary>
+        internal static string C5 {
+            get {
+                return ResourceManager.GetString("C5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create domein without name or with empty name..
+        /// </summary>
+        internal static string E0 {
+            get {
+                return ResourceManager.GetString("E0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Domein with {0} name is already existing..
+        /// </summary>
+        internal static string E1 {
+            get {
+                return ResourceManager.GetString("E1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create action without name or with empty name..
+        /// </summary>
+        internal static string E2 {
+            get {
+                return ResourceManager.GetString("E2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action with {0} name is already existing in {1} domein..
+        /// </summary>
+        internal static string E3 {
+            get {
+                return ResourceManager.GetString("E3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
+        /// </summary>
+        internal static string E4 {
+            get {
+                return ResourceManager.GetString("E4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu At this version of SharpPDDL you can to find only 1 goal..
+        /// </summary>
+        internal static string E5 {
+            get {
+                return ResourceManager.GetString("E5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Its sad. You cannot to use abstract parameter {0}, even if you really want :(.
+        /// </summary>
+        internal static string E6 {
+            get {
+                return ResourceManager.GetString("E6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Tracing of SharpPDDL lib. is working with &quot;{0}&quot; tracer.
         /// </summary>
         internal static string I0 {
@@ -79,11 +196,245 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu SharpPDDL: .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is not a class type, so it will be remove from domain objects..
         /// </summary>
-        internal static string TracePrefix {
+        internal static string I2 {
             get {
-                return ResourceManager.GetString("TracePrefix", resourceCulture);
+                return ResourceManager.GetString("I2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu New instance of {0} type initialized.
+        /// </summary>
+        internal static string I3 {
+            get {
+                return ResourceManager.GetString("I3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu It created a Thumbnail of {0} object from domain obj. with checksum: {1}.
+        /// </summary>
+        internal static string I4 {
+            get {
+                return ResourceManager.GetString("I4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} domain started to create actions&apos; programms.
+        /// </summary>
+        internal static string Sa0 {
+            get {
+                return ResourceManager.GetString("Sa0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Planner of domain started to work.
+        /// </summary>
+        internal static string Sa1 {
+            get {
+                return ResourceManager.GetString("Sa1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Start of realization of generated plan.
+        /// </summary>
+        internal static string Sa2 {
+            get {
+                return ResourceManager.GetString("Sa2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Begin of {0} action execution, with ID={1}.
+        /// </summary>
+        internal static string Sa3 {
+            get {
+                return ResourceManager.GetString("Sa3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Start to create Types tree.
+        /// </summary>
+        internal static string Sa4 {
+            get {
+                return ResourceManager.GetString("Sa4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} domain created actions&apos; programms.
+        /// </summary>
+        internal static string Sp0 {
+            get {
+                return ResourceManager.GetString("Sp0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Abort of plan realization without any action execution. There is DONT_DO_IT mode..
+        /// </summary>
+        internal static string Sp1 {
+            get {
+                return ResourceManager.GetString("Sp1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Current plan fully executed.
+        /// </summary>
+        internal static string Sp2 {
+            get {
+                return ResourceManager.GetString("Sp2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action execution with ID={0} finalized..
+        /// </summary>
+        internal static string Sp3 {
+            get {
+                return ResourceManager.GetString("Sp3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Types tree created.
+        /// </summary>
+        internal static string Sp4 {
+            get {
+                return ResourceManager.GetString("Sp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0}: .
+        /// </summary>
+        internal static string Txt1 {
+            get {
+                return ResourceManager.GetString("Txt1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action cost: {0}.
+        /// </summary>
+        internal static string Txt2 {
+            get {
+                return ResourceManager.GetString("Txt2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu External cancellation token at {0} domain.
+        /// </summary>
+        internal static string V0 {
+            get {
+                return ResourceManager.GetString("V0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} domein started to find solution..
+        /// </summary>
+        internal static string V1 {
+            get {
+                return ResourceManager.GetString("V1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Plan accepted..
+        /// </summary>
+        internal static string V2 {
+            get {
+                return ResourceManager.GetString("V2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Waiting for plan acceptation..
+        /// </summary>
+        internal static string V3 {
+            get {
+                return ResourceManager.GetString("V3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is NO agree to plan realization / cancellation of implementor working.
+        /// </summary>
+        internal static string V4 {
+            get {
+                return ResourceManager.GetString("V4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Waiting for special action {0} acceptation..
+        /// </summary>
+        internal static string V5 {
+            get {
+                return ResourceManager.GetString("V5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Waiting for action {0} acceptation..
+        /// </summary>
+        internal static string V6 {
+            get {
+                return ResourceManager.GetString("V6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is NO agree to {0} action realization / cancellation of implementor working.
+        /// </summary>
+        internal static string V7 {
+            get {
+                return ResourceManager.GetString("V7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is agree to {0} action realization.
+        /// </summary>
+        internal static string V8 {
+            get {
+                return ResourceManager.GetString("V8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You asked to accept some executions, but you didnt give the lib. any WaitHandle to do it..
+        /// </summary>
+        internal static string W0 {
+            get {
+                return ResourceManager.GetString("W0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected value change. Its impossible to realize {0} action, cause {1} precondition is unfulfilled..
+        /// </summary>
+        internal static string W1 {
+            get {
+                return ResourceManager.GetString("W1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu One of actions have no declared execution. SharpPDDL is trying realize plan without this action.
+        /// </summary>
+        internal static string W2 {
+            get {
+                return ResourceManager.GetString("W2", resourceCulture);
             }
         }
     }

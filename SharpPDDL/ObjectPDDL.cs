@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -25,9 +23,11 @@ namespace SharpPDDL
 
         protected ObjectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class=null, Int32? Hash2Class=null)
         {
-            //nazwa nie może być pusta
             if (String.IsNullOrEmpty(Name))
-                throw new Exception();
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 18, GloCla.ResMan.GetString("C2"));
+                throw new Exception(GloCla.ResMan.GetString("C2"));
+            }
 
             this.Name = Name;
             this.TypeOf1Class = TypeOf1Class;

@@ -60,8 +60,8 @@ namespace Hanoi_Tower
 
             Stopwatch.Start();
 
-            
-            var Ts = new TraceSource("st");
+            //Add a tracing of library
+            var Ts = new TraceSource("Tracing");
             Ts.Switch.Level = SourceLevels.All;
             Ts.Listeners.Add(new TextWriterTraceListener(Console.Out));
             newDomein.DefineTrace(Ts);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -41,7 +42,10 @@ namespace SharpPDDL
             Type = this.Oryginal.GetType();
 
             if (!Type.IsClass)
-                throw new Exception("Wrong object type - its not a class");
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 21, GloCla.ResMan.GetString("C3"), Type.ToString());
+                throw new Exception(GloCla.ResMan.GetString("C3"));
+            }
 
             this.HashCode = hashCode;
             values = new List<Value>();
@@ -74,10 +78,15 @@ namespace SharpPDDL
         internal static void GetTheInstance_TryAddToList<T> (List<Parametr> Parameters, ref T ToInstance) where T : class
         {
             if (typeof(T).IsAbstract)
-                throw new Exception("Sorry, You cannot to use abstract parameter at this version");
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 19, GloCla.ResMan.GetString("E6"), typeof(T).ToString());
+                throw new Exception(GloCla.ResMan.GetString("E6"));
+            }
 
             if (ToInstance is null)
                 ToInstance = (T)FormatterServices.GetUninitializedObject(typeof(T));
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 20, GloCla.ResMan.GetString("I3"), typeof(T).ToString());
 
             Int32 HashCode = ToInstance.GetHashCode();
 

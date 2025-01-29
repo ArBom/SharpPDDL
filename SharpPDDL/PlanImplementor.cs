@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,42 +51,102 @@ namespace SharpPDDL
 
         protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, CancellationToken cancelationToken)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 22, GloCla.ResMan.GetString("Sa2"));
+
             if ((PlanImplementor_Agrees & Agrees.DONT_DO_IT) != 0)
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 25, GloCla.ResMan.GetString("Sp1"));
                 return;
+            }
 
             if ((PlanImplementor_Agrees & Agrees.Plan) != 0)
-                WaitHandle.SignalAndWait(SignalizeNeedAcception, WaitOn);
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 26, GloCla.ResMan.GetString("V2"));
+
+                //SignalizeNeedAcception?.
+                WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });
+
+                if (cancelationToken.IsCancellationRequested)
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 29, GloCla.ResMan.GetString("V4"));
+                    return;
+                }
+                else
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 27, GloCla.ResMan.GetString("V3"));
+            }
 
             foreach (CrisscrossChildrenCon Act in ActionList)
             {
-                if ((PlanImplementor_Agrees & Agrees.EveryAction) != 0)  //nieco złożone pytanie
-                    WaitHandle.SignalAndWait(SignalizeNeedAcception, WaitOn);
-
                 if (InstantActionsExecutionPDDL[Act.ActionNr] is null)
                 {
-                    continue; //bardzo TODO
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 28, GloCla.ResMan.GetString("W2"));
+                    continue;
                 }
+
+                if (InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.StartsWith(GloCla.SpecialFuncPrefix) && (PlanImplementor_Agrees & Agrees.SpecialAction) != 0)
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
+                    //SignalizeNeedAcception?.
+                    WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                    
+                }
+                else if ((PlanImplementor_Agrees & Agrees.EveryAction) != 0)
+                { 
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
+                    //SignalizeNeedAcception?.
+                    WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                
+                }
+
+                if (cancelationToken.IsCancellationRequested)
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 32, GloCla.ResMan.GetString("V7"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
+                    return;
+                }
+
+                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 33, GloCla.ResMan.GetString("V8"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
+
+                int ExecutionTaskId = -1;
 
                 try
                 {
-                    var ExecutionTask = new Task(() =>
+                    Task ExecutionTask = new Task(() =>
                     {
                         InstantActionsExecutionPDDL[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg);
                     }, cancelationToken);
+
+                    if (!(GloCla.Tracer is null))
+                    {
+                        ExecutionTaskId = ExecutionTask.Id;
+                        GloCla.Tracer.TraceEvent(TraceEventType.Start, 34, GloCla.ResMan.GetString("Sa3"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, ExecutionTaskId);
+                    }
 
                     ExecutionTask.RunSynchronously();
                 }
                 catch (EffectExecutionException UnexpectedPrecondition)
                 {
-
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 23, GloCla.ResMan.GetString("W1"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, UnexpectedPrecondition.ToString());
+                    throw new NotImplementedException();
+                    //TODO no i co dalej?
                 }
                 catch (Exception exception)
                 {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 24, GloCla.ResMan.GetString("C4"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, exception.ToString());
+                    new Exception(exception.ToString());
+                }
+                finally
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 35, GloCla.ResMan.GetString("Sp3"), ExecutionTaskId);
+                }
 
+                if(!(GloCla.Tracer is null))
+                {
+                    //TraceEvent( 36
+                    //TODO sprawdzenie czy nowe wartości są ok i ew. zakomunikowanie problemów
                 }
 
                 CurrentState = Act.Child.Content;
             }
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
         }
 
         internal void RealizeIt(List<CrisscrossChildrenCon> ActionList)

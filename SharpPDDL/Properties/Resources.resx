@@ -117,6 +117,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="C0" xml:space="preserve">
+    <value>Some problem in adding goal.</value>
+    <comment>DomeinPDDL; Unknown error in time of adding goal in run</comment>
+  </data>
+  <data name="C1" xml:space="preserve">
+    <value>Its impossible to find {0} param inside {1} node.</value>
+    <comment>MemberofLambdaListerPDDL; error in time of finding param; 0-param name, 1-node</comment>
+  </data>
+  <data name="C2" xml:space="preserve">
+    <value>uncaught bug of wrong (empty, or null) name</value>
+    <comment>ObjectPDDL; null or empty string name</comment>
+  </data>
+  <data name="C3" xml:space="preserve">
+    <value>Wrong object type - {0} it not a class</value>
+    <comment>Paramert; wrong type - not a class obj; 0-type of object</comment>
+  </data>
+  <data name="C4" xml:space="preserve">
+    <value>Unexpected error in time of {0} action execution: {1}</value>
+    <comment>PlanImplementor; ; 0-action name, 1-comm. txt</comment>
+  </data>
+  <data name="C5" xml:space="preserve">
+    <value>This domain dont know the {0} class type</value>
+    <comment>ThumbnailObjectPrecursor; unknown class type; 0-class type</comment>
+  </data>
+  <data name="E0" xml:space="preserve">
+    <value>You cannot to create domein without name or with empty name.</value>
+    <comment>DomeinPDDL; trying to create new domain with wrong name</comment>
+  </data>
+  <data name="E1" xml:space="preserve">
+    <value>Domein with {0} name is already existing.</value>
+    <comment>DomeinPDDL; trying to create new domain with reused name; 0-name of domain</comment>
+  </data>
+  <data name="E2" xml:space="preserve">
+    <value>You cannot to create action without name or with empty name.</value>
+    <comment>DomeinPDDL; trying to create new action with wrong name</comment>
+  </data>
+  <data name="E3" xml:space="preserve">
+    <value>Action with {0} name is already existing in {1} domein.</value>
+    <comment>DomeinPDDL; trying to create new action with reused name; 0-name of action, 1-name of domain</comment>
+  </data>
+  <data name="E4" xml:space="preserve">
+    <value>You cannot to create goal without name or with empty name.</value>
+    <comment>DomeinPDDL; trying to create new goal with wrong name</comment>
+  </data>
+  <data name="E5" xml:space="preserve">
+    <value>At this version of SharpPDDL you can to find only 1 goal.</value>
+    <comment>DomeinPDDL(2 times); version</comment>
+  </data>
+  <data name="E6" xml:space="preserve">
+    <value>Its sad. You cannot to use abstract parameter {0}, even if you really want :(</value>
+    <comment>Parametr; trying to do instance of abstract parameter; 0-abstract class type</comment>
+  </data>
   <data name="I0" xml:space="preserve">
     <value>Tracing of SharpPDDL lib. is working with "{0}" tracer</value>
     <comment>DomeinPDDL; new TraceSource defined; 0-new TraceSource Neme</comment>
@@ -125,7 +177,112 @@
     <value>{0} determined! Total Cost: {1}</value>
     <comment>DomainPlanner; Goal determined info; 0-goal name, 1-plan cost</comment>
   </data>
-  <data name="TracePrefix" xml:space="preserve">
-    <value>SharpPDDL: </value>
+  <data name="I2" xml:space="preserve">
+    <value>{0} is not a class type, so it will be remove from domain objects.</value>
+    <comment>DomeinPDDL; wrong type of added object; 0-type of added object</comment>
+  </data>
+  <data name="I3" xml:space="preserve">
+    <value>New instance of {0} type initialized</value>
+    <comment>Parametr; successful init; 0-class type</comment>
+  </data>
+  <data name="I4" xml:space="preserve">
+    <value>It created a Thumbnail of {0} object from domain obj. with checksum: {1}</value>
+    <comment>ThumbnailObjectPrecursor; end of class constructor; 0-oryginal obj type, 1-checksum of thumbnail</comment>
+  </data>
+  <data name="Sa0" xml:space="preserve">
+    <value>{0} domain started to create actions' programms</value>
+    <comment>DomeinPDDL; Starting to do actions' progr.; 0-domain name</comment>
+  </data>
+  <data name="Sa1" xml:space="preserve">
+    <value>Planner of domain started to work</value>
+    <comment>DomainPlanner; Start planning the realization of domain's missin</comment>
+  </data>
+  <data name="Sa2" xml:space="preserve">
+    <value>Start of realization of generated plan</value>
+    <comment>PlanImplementor; Start of realization of generated plan</comment>
+  </data>
+  <data name="Sa3" xml:space="preserve">
+    <value>Begin of {0} action execution, with ID={1}</value>
+    <comment>PlanImplementor; Start action execution task; 0-action name, 1-task ID</comment>
+  </data>
+  <data name="Sa4" xml:space="preserve">
+    <value>Start to create Types tree</value>
+    <comment>TypesPDDL;</comment>
+  </data>
+  <data name="Sp0" xml:space="preserve">
+    <value>{0} domain created actions' programms</value>
+    <comment>DomeinPDDL; Finished to do actions' progr.; 0-domain name</comment>
+  </data>
+  <data name="Sp1" xml:space="preserve">
+    <value>Abort of plan realization without any action execution. There is DONT_DO_IT mode.</value>
+    <comment>PlanImplementor;</comment>
+  </data>
+  <data name="Sp2" xml:space="preserve">
+    <value>Current plan fully executed</value>
+    <comment>PlanImplementor;</comment>
+  </data>
+  <data name="Sp3" xml:space="preserve">
+    <value>Action execution with ID={0} finalized.</value>
+    <comment>PlanImplementor; Action finalized, no excetion; 0-action ex. task ID</comment>
+  </data>
+  <data name="Sp4" xml:space="preserve">
+    <value>Types tree created</value>
+    <comment>TypesPDDL;</comment>
+  </data>
+  <data name="Txt1" xml:space="preserve">
+    <value>{0}: </value>
+    <comment>DomainPlanner; 1st part of plan gen. list; 0-action name</comment>
+  </data>
+  <data name="Txt2" xml:space="preserve">
+    <value>Action cost: {0}</value>
+    <comment>DomainPlanner; 3rd part of plan gen. list; 0-cost of action</comment>
+  </data>
+  <data name="V0" xml:space="preserve">
+    <value>External cancellation token at {0} domain</value>
+    <comment>DomeinPDDL; Externat cancellation detected; 0-domain name</comment>
+  </data>
+  <data name="V1" xml:space="preserve">
+    <value>{0} domein started to find solution.</value>
+    <comment>DomeinPDDL; Start; 0-domain name</comment>
+  </data>
+  <data name="V2" xml:space="preserve">
+    <value>Plan accepted.</value>
+    <comment>PlanImplementor;</comment>
+  </data>
+  <data name="V3" xml:space="preserve">
+    <value>Waiting for plan acceptation.</value>
+    <comment>PlanImplementor;</comment>
+  </data>
+  <data name="V4" xml:space="preserve">
+    <value>There is NO agree to plan realization / cancellation of implementor working</value>
+    <comment>PlanImplementor; Cancellation before plan realization</comment>
+  </data>
+  <data name="V5" xml:space="preserve">
+    <value>Waiting for special action {0} acceptation.</value>
+    <comment>PlanImplementor; ; 0-special action name</comment>
+  </data>
+  <data name="V6" xml:space="preserve">
+    <value>Waiting for action {0} acceptation.</value>
+    <comment>PlanImplementor; ; 0-action name</comment>
+  </data>
+  <data name="V7" xml:space="preserve">
+    <value>There is NO agree to {0} action realization / cancellation of implementor working</value>
+    <comment>PlanImplementor; Cancellation before action realization; 0-action name</comment>
+  </data>
+  <data name="V8" xml:space="preserve">
+    <value>There is agree to {0} action realization</value>
+    <comment>PlanImplementor; ; 0-action name</comment>
+  </data>
+  <data name="W0" xml:space="preserve">
+    <value>You asked to accept some executions, but you didnt give the lib. any WaitHandle to do it.</value>
+    <comment>DomeinPDDL; AskToAgree with aksing without WaitHandle</comment>
+  </data>
+  <data name="W1" xml:space="preserve">
+    <value>Unexpected value change. Its impossible to realize {0} action, cause {1} precondition is unfulfilled.</value>
+    <comment>PlanImplementor; Some unexpected change without lib.; 0-action name, 1-precondition name</comment>
+  </data>
+  <data name="W2" xml:space="preserve">
+    <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>
+    <comment>PlanImplementor;</comment>
   </data>
 </root>

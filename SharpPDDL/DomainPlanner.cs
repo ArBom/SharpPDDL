@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -70,6 +71,8 @@ namespace SharpPDDL
 
         internal void Start(ParallelOptions options)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 15, GloCla.ResMan.GetString("Sa1"));
+
             //remember External CancelationToken to reuse it after reset
             this.ExternalCancellationDomein = options.CancellationToken;
 
@@ -138,7 +141,7 @@ namespace SharpPDDL
             Crisscross state = CurrentBuilded;
             List<CrisscrossChildrenCon> FoKePo = Found.Key.Position();
 
-            Console.WriteLine(GloCla.TracePrefix + GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 16, GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
 
             if (!(FoKePo is null))
             {
@@ -153,7 +156,7 @@ namespace SharpPDDL
                         arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
                     }
 
-                    Plan.Add(new List<string> { Actions[FoKePo[i].ActionNr].Name + ": ", (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), " Action cost: " + FoKePo[i].ActionCost });
+                    Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Actions[FoKePo[i].ActionNr].Name), (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
 
                     state = FoKePo[i].Child;
                 }

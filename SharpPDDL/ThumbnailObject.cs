@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -137,7 +138,10 @@ namespace SharpPDDL
             while (this.Model is null && !(originalObjTypeCand is null));
 
             if (this.Model is null)
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 38, GloCla.ResMan.GetString("C5"), OriginalObjType.ToString());
                 throw new Exception();
+            }
 
             foreach (Value VOT in Model.CumulativeValues)
             {
@@ -166,6 +170,8 @@ namespace SharpPDDL
             }
 
             FigureCheckSum();
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
         }
 
         new public ValueType this[ushort key]

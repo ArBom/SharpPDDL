@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -81,8 +82,11 @@ namespace SharpPDDL
             ParameterExpression t = _parameters.First(p => p.Name == memberExpressionName);
 
             if (t is null)
+            {
                 //there is no argument -> something went wrong
-                throw new Exception();
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 17, GloCla.ResMan.GetString("C1"), memberExpressionName, node.ToString());
+                throw new Exception(GloCla.ResMan.GetString("C1"));
+            }
 
             //...take index of it from all _parameters list...
             int index = _parameters.IndexOf(t);

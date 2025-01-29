@@ -29,7 +29,6 @@ namespace SharpPDDL
 
         internal static string LamdbaParamPrefix => "o";
         internal static string SpecialFuncPrefix => "!";
-        internal static string TracePrefix => "SharpPDDL : ";
 
         internal static ResourceManager ResMan = new ResourceManager("SharpPDDL.Properties.Resources", Assembly.GetExecutingAssembly());
         internal static TraceSource Tracer = null;

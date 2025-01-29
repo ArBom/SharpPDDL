@@ -32,6 +32,8 @@ namespace SharpPDDL
 
         internal void CheckActions(ParallelOptions parallelOptions = default)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 5, GloCla.ResMan.GetString("Sa0"), this.Name);
+
             this.types = new TypesPDDL();
             foreach (ActionPDDL act in actions)
             {
@@ -44,15 +46,23 @@ namespace SharpPDDL
             {
                 act.BuildAction(types.allTypes);
             }
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
         }
 
         private void CheckExistActionName(string Name)
         {
             if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 7, GloCla.ResMan.GetString("E2"));
+                throw new Exception(GloCla.ResMan.GetString("E2"));
+            }
 
             if (this.actions.Exists(action => action.Name == Name))
-                throw new Exception(); //juz istnieje efekt o takiej nazwie
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 8, GloCla.ResMan.GetString("E3"), Name, this.Name);
+                throw new Exception(GloCla.ResMan.GetString("E3"));
+            }
         }
 
         /// <summary>
@@ -77,10 +87,16 @@ namespace SharpPDDL
         private void CheckExistGoalName(string Name)
         {
             if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 9, GloCla.ResMan.GetString("E4"));
+                throw new Exception(GloCla.ResMan.GetString("E4"));
+            }
 
             if (this.domainGoals.Any())
-                throw new Exception();
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 10, GloCla.ResMan.GetString("E5"));
+                throw new Exception(GloCla.ResMan.GetString("E5"));
+            }
         }
 
         public void AddGoal(GoalPDDL newGoal)
@@ -108,14 +124,17 @@ namespace SharpPDDL
             if (AllDomain is null)
                 AllDomain = new Dictionary<string, DomeinPDDL>();
 
-            if (name is null)
-                throw new Exception();
-
-            if (name == "")
-                throw new Exception();
+            if (String.IsNullOrEmpty(name))
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 1, GloCla.ResMan.GetString("E0"));
+                throw new Exception(GloCla.ResMan.GetString("E0"));
+            }
 
             if (AllDomain.ContainsKey(name))
-                throw new Exception();
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 2, GloCla.ResMan.GetString("E1"), name);
+                throw new Exception(GloCla.ResMan.GetString("E1"));
+            }
 
             AllDomain.Add(name, this);
 
@@ -141,7 +160,7 @@ namespace SharpPDDL
             {
                 if (askToAgrees.Any(a => a != AskToAgree.GO_AHEAD && a != AskToAgree.DONT_DO_IT))
                 {
-
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 3, GloCla.ResMan.GetString("W0"));
                 }
             }
 
@@ -159,7 +178,10 @@ namespace SharpPDDL
             foreach (dynamic Obj in eventType.NewItems)
             {
                 if (!(Obj.GetType().IsClass))
-                    throw new Exception();
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Information, 4, GloCla.ResMan.GetString("I2"), Obj.GetType().ToString());
+                    domainObjects.Remove(Obj);
+                }
             }
         }
     }

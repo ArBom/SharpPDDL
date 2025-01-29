@@ -2,11 +2,15 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
     public class TypesPDDL
     {
+        /// <summary>
+        /// 0 value shouldn't occur in program run
+        /// </summary>
         protected ushort ValuesIndeksCount = 0;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
         internal TreeNode<SingleTypeOfDomein> Root;
@@ -138,7 +142,7 @@ namespace SharpPDDL
                             }
                             else
                             {
-                                SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<Value>()); //TODO lista
+                                SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<Value>());
 
                                 newType = new TreeNode<SingleTypeOfDomein>()
                                 {
@@ -307,6 +311,8 @@ namespace SharpPDDL
                 this.Root.Children.Add(ToAdd);
             }
 
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 39, GloCla.ResMan.GetString("Sa4"));
+
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);
             TagValues(Root);
@@ -318,6 +324,8 @@ namespace SharpPDDL
 
             foreach (var elem in allTypes)
                 elem.CreateValuesKeys();
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 40, GloCla.ResMan.GetString("Sp4"));
         }
     }
 }

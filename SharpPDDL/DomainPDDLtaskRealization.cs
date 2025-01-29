@@ -16,6 +16,7 @@ namespace SharpPDDL
         /// <param name="CancellationDomein"></param>
         public void Start(int? MaxDegreeOfParalleism = null, CancellationToken CancellationDomein = default)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 11, GloCla.ResMan.GetString("V1"), this.Name);
             CancellationDomein.Register(ExternalCancellationOfProc);
 
             ParallelOptions options = new ParallelOptions
@@ -81,16 +82,21 @@ namespace SharpPDDL
                 return;
 
             ICollection<GoalPDDL> ToCheckGoals;
-           
+
+            if (this.domainGoals.Any())
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
+                throw new Exception(GloCla.ResMan.GetString("E5"));
+            }
+
             try
             {
                 ToCheckGoals = (ICollection<GoalPDDL>)sender;
             }
             catch
             {
-                Console.WriteLine("Unknown error in time of adding goal in run");
-                Console.ReadKey();
-                throw new Exception();
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 13, GloCla.ResMan.GetString("C0"));
+                throw new Exception(GloCla.ResMan.GetString("C0"));
             }
 
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
@@ -101,8 +107,8 @@ namespace SharpPDDL
 
         protected void ExternalCancellationOfProc()
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 12, GloCla.ResMan.GetString("V0"), this.Name);
             this.domainGoals.CollectionChanged -= DomainGoals_CollectionChanged;
-        }
-      
+        }    
     }
 }
