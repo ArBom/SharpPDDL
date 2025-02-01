@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -56,7 +57,11 @@ namespace SharpPDDL
         public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
         {
             if (originalObj is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E30"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 107, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             GoalObject<T> temp = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, goalExpectations.ToList());
             GoalObjects.Add(temp);
@@ -77,8 +82,12 @@ namespace SharpPDDL
 
         internal void BUILDIT(List<SingleTypeOfDomein> allTypes)
         {
-            if (GoalObjects.Count == 0)
-                throw new Exception();
+            if (!GoalObjects.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C30"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 108, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             foreach (IGoalObject GoalObjects in GoalObjects)
             {

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -33,10 +34,18 @@ namespace SharpPDDL
         public GoalObject(T originalObj, Type originalObjType, DomeinPDDL newPDDLdomain, List<Expression<Predicate<T>>> excetptions)
         {
             if (excetptions is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E28"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 104, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (excetptions.Count == 0)
-                throw new Exception();
+            if (!excetptions.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E29"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 105, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             this._OriginalObj = originalObj;
             this._OriginalObjType = originalObjType;
@@ -54,7 +63,18 @@ namespace SharpPDDL
                 goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, allTypes, _OriginalObj);
 
             LambdaExpression ToRet = goalLambdaPDDL.ModifeidLambda;
-            _GoalPDDL = ToRet.Compile();
+
+            try
+            {
+                _GoalPDDL = ToRet.Compile();
+            }
+            catch (Exception e)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C29"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 106, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
             return ToRet;
         }
     }

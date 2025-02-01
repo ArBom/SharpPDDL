@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,6 +93,8 @@ namespace SharpPDDL.CrisscrossesGenerate
 
         private void CheckGoalProces(CancellationToken token)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 68, GloCla.ResMan.GetString("Sa9"), Task.CurrentId);
+
             while (!token.IsCancellationRequested)
             {
                 CheckingGoalRealizationARE.WaitOne();
@@ -129,6 +132,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                 NoNewData.BeginInvoke(null, null);
                 IsWaiting = true;
             }
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 69, GloCla.ResMan.GetString("Sp9"), Task.CurrentId);
         }
     }
 }

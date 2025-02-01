@@ -79,6 +79,96 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in EffectLambdaPDDL constructor: allTypes collection is null.
+        /// </summary>
+        internal static string C10 {
+            get {
+                return ResourceManager.GetString("C10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in EffectLambdaPDDL constructor: allTypes collection is empty.
+        /// </summary>
+        internal static string C11 {
+            get {
+                return ResourceManager.GetString("C11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in EffectLambdaPDDL constructor: paramsIndexesInAction collection is null.
+        /// </summary>
+        internal static string C12 {
+            get {
+                return ResourceManager.GetString("C12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in EffectLambdaPDDL constructor: paramsIndexesInAction collection is empty.
+        /// </summary>
+        internal static string C13 {
+            get {
+                return ResourceManager.GetString("C13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of Effect&apos;s function changing: {0}.
+        /// </summary>
+        internal static string C14 {
+            get {
+                return ResourceManager.GetString("C14", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Wrong / Unknown type: {0} inside Effect funct.
+        /// </summary>
+        internal static string C15 {
+            get {
+                return ResourceManager.GetString("C15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to use object method call to create model of object. Try to write this method ({0}) as new lambda which uses only ValueType member(s) of object..
+        /// </summary>
+        internal static string C16 {
+            get {
+                return ResourceManager.GetString("C16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Effects 1-arg; There is no {0} param at list. {1}.
+        /// </summary>
+        internal static string C17 {
+            get {
+                return ResourceManager.GetString("C17", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Effects 2-arg; There is no 1st {0} param at list. {1}.
+        /// </summary>
+        internal static string C18 {
+            get {
+                return ResourceManager.GetString("C18", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Effects 2-arg; There is no 2nd {0} param at list. {1}.
+        /// </summary>
+        internal static string C19 {
+            get {
+                return ResourceManager.GetString("C19", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu uncaught bug of wrong (empty, or null) name.
         /// </summary>
         internal static string C2 {
@@ -88,11 +178,191 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expression Execution 1-arg; There is no {0} param at list. {1}.
+        /// </summary>
+        internal static string C20 {
+            get {
+                return ResourceManager.GetString("C20", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expression Execution 2-arg; There is no 1st {0} param at list. {1}.
+        /// </summary>
+        internal static string C21 {
+            get {
+                return ResourceManager.GetString("C21", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expression Execution 2-arg; There is no 2nd {0} param at list. {1}.
+        /// </summary>
+        internal static string C22 {
+            get {
+                return ResourceManager.GetString("C22", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of {0} action execution function building.
+        /// </summary>
+        internal static string C23 {
+            get {
+                return ResourceManager.GetString("C23", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu allTypes cannot be the null while goal lambda building.
+        /// </summary>
+        internal static string C24 {
+            get {
+                return ResourceManager.GetString("C24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu allTypes cannot be empty collection while goal lambda building.
+        /// </summary>
+        internal static string C25 {
+            get {
+                return ResourceManager.GetString("C25", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu OryginalObjectType cannot be null while goal lambda building.
+        /// </summary>
+        internal static string C26 {
+            get {
+                return ResourceManager.GetString("C26", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of goal function building.
+        /// </summary>
+        internal static string C27 {
+            get {
+                return ResourceManager.GetString("C27", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Wrong / Unknown type: {0} inside Goal funct.
+        /// </summary>
+        internal static string C28 {
+            get {
+                return ResourceManager.GetString("C28", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of goal function changing {0}.
+        /// </summary>
+        internal static string C29 {
+            get {
+                return ResourceManager.GetString("C29", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Wrong object type - {0} it not a class.
         /// </summary>
         internal static string C3 {
             get {
                 return ResourceManager.GetString("C3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu GoalObjects cannot be a empty collection in time of Goal build.
+        /// </summary>
+        internal static string C30 {
+            get {
+                return ResourceManager.GetString("C30", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition 1-arg; There is no {0} param at list. {1}.
+        /// </summary>
+        internal static string C31 {
+            get {
+                return ResourceManager.GetString("C31", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition 2-arg; There is no 1st {0} param at list. {1}.
+        /// </summary>
+        internal static string C32 {
+            get {
+                return ResourceManager.GetString("C32", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition 2-arg; There is no 2nd {0} param at list. {1}.
+        /// </summary>
+        internal static string C33 {
+            get {
+                return ResourceManager.GetString("C33", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in PreconditionLambdaPDDL constructor: allTypes collection is null.
+        /// </summary>
+        internal static string C34 {
+            get {
+                return ResourceManager.GetString("C34", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in PreconditionLambdaPDDL constructor: allTypes collection is empty.
+        /// </summary>
+        internal static string C35 {
+            get {
+                return ResourceManager.GetString("C35", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in PreconditionLambdaPDDL constructor: paramsIndexesInAction collection is null.
+        /// </summary>
+        internal static string C36 {
+            get {
+                return ResourceManager.GetString("C36", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu internal error in PreconditionLambdaPDDL constructor: paramsIndexesInAction collection is empty.
+        /// </summary>
+        internal static string C37 {
+            get {
+                return ResourceManager.GetString("C37", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of Precondition&apos;s function changing: {0}.
+        /// </summary>
+        internal static string C38 {
+            get {
+                return ResourceManager.GetString("C38", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to use object method call to create model of object. Try to write this method ({0}) as new lambda which uses only ValueType member(s) of object..
+        /// </summary>
+        internal static string C39 {
+            get {
+                return ResourceManager.GetString("C39", resourceCulture);
             }
         }
         
@@ -115,6 +385,42 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of Action Cost function compilation: {0}.
+        /// </summary>
+        internal static string C6 {
+            get {
+                return ResourceManager.GetString("C6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of Action function compilation: {0}.
+        /// </summary>
+        internal static string C7 {
+            get {
+                return ResourceManager.GetString("C7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of Action&apos;s cost function compilation: {0}.
+        /// </summary>
+        internal static string C8 {
+            get {
+                return ResourceManager.GetString("C8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Failed in merge Crisscrosses.
+        /// </summary>
+        internal static string C9 {
+            get {
+                return ResourceManager.GetString("C9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create domein without name or with empty name..
         /// </summary>
         internal static string E0 {
@@ -133,6 +439,96 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action name cannot to be empty or undefined..
+        /// </summary>
+        internal static string E10 {
+            get {
+                return ResourceManager.GetString("E10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Use only dereferencing of value then: {0}.
+        /// </summary>
+        internal static string E11 {
+            get {
+                return ResourceManager.GetString("E11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Use only dereferencing of value then: {0}.
+        /// </summary>
+        internal static string E12 {
+            get {
+                return ResourceManager.GetString("E12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In this version of SharpPDDL its possible to use to 2 params inside Effect function.
+        /// </summary>
+        internal static string E13 {
+            get {
+                return ResourceManager.GetString("E13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Effect name cannot to be empty or undefined..
+        /// </summary>
+        internal static string E14 {
+            get {
+                return ResourceManager.GetString("E14", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Effect with {0} name is already existing..
+        /// </summary>
+        internal static string E15 {
+            get {
+                return ResourceManager.GetString("E15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In this version of SharpPDDL its possible to use to 2 params inside action.
+        /// </summary>
+        internal static string E16 {
+            get {
+                return ResourceManager.GetString("E16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Goal obj. cannot be null.
+        /// </summary>
+        internal static string E17 {
+            get {
+                return ResourceManager.GetString("E17", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Object used to define goal must be a class. {0} is not a class..
+        /// </summary>
+        internal static string E18 {
+            get {
+                return ResourceManager.GetString("E18", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expectations of goal cannot be null value.
+        /// </summary>
+        internal static string E19 {
+            get {
+                return ResourceManager.GetString("E19", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create action without name or with empty name..
         /// </summary>
         internal static string E2 {
@@ -142,11 +538,137 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expectations of goal cannot be empty collection.
+        /// </summary>
+        internal static string E20 {
+            get {
+                return ResourceManager.GetString("E20", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You need use 1 parameter to build goal exception. {0} is wrong.
+        /// </summary>
+        internal static string E21 {
+            get {
+                return ResourceManager.GetString("E21", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Member {0} is not a field or property and cannot be use in finding a goal.
+        /// </summary>
+        internal static string E22 {
+            get {
+                return ResourceManager.GetString("E22", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to use object method call to create model of object. Try to write this method ({0})as new lambda which uses only ValueType member(s) of object..
+        /// </summary>
+        internal static string E23 {
+            get {
+                return ResourceManager.GetString("E23", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} field have to be: constant / readonly / used as action argument if its not use in param. previesly.
+        /// </summary>
+        internal static string E24 {
+            get {
+                return ResourceManager.GetString("E24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} field variable used in goal checking have to be string or ValueType.
+        /// </summary>
+        internal static string E25 {
+            get {
+                return ResourceManager.GetString("E25", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} property variable cannot be changed in time of programm run or have to be used as action argument.
+        /// </summary>
+        internal static string E26 {
+            get {
+                return ResourceManager.GetString("E26", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} property variable used in goal checking have to be string or ValueType.
+        /// </summary>
+        internal static string E27 {
+            get {
+                return ResourceManager.GetString("E27", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Excetptions inside Goal definition cannot be null.
+        /// </summary>
+        internal static string E28 {
+            get {
+                return ResourceManager.GetString("E28", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Excetptions inside Goal definition cannot be empty collection.
+        /// </summary>
+        internal static string E29 {
+            get {
+                return ResourceManager.GetString("E29", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action with {0} name is already existing in {1} domein..
         /// </summary>
         internal static string E3 {
             get {
                 return ResourceManager.GetString("E3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu null value cannot be a goal expected abject.
+        /// </summary>
+        internal static string E30 {
+            get {
+                return ResourceManager.GetString("E30", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition name cannot to be empty or undefined..
+        /// </summary>
+        internal static string E31 {
+            get {
+                return ResourceManager.GetString("E31", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition with {0} name is already existing..
+        /// </summary>
+        internal static string E32 {
+            get {
+                return ResourceManager.GetString("E32", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In this version of SharpPDDL its possible to use to 2 params inside Precondition function.
+        /// </summary>
+        internal static string E33 {
+            get {
+                return ResourceManager.GetString("E33", resourceCulture);
             }
         }
         
@@ -174,6 +696,33 @@ namespace SharpPDDL.Properties {
         internal static string E6 {
             get {
                 return ResourceManager.GetString("E6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Some parameter of Action Cost is not used in time of action define (precodition or effect).
+        /// </summary>
+        internal static string E7 {
+            get {
+                return ResourceManager.GetString("E7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is incorrect type to use inside Action Cost function.
+        /// </summary>
+        internal static string E8 {
+            get {
+                return ResourceManager.GetString("E8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no possibility of use un-static method like {0} inside of Action Cost funct..
+        /// </summary>
+        internal static string E9 {
+            get {
+                return ResourceManager.GetString("E9", resourceCulture);
             }
         }
         
@@ -223,6 +772,33 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal reset of Crisscross generator.
+        /// </summary>
+        internal static string I5 {
+            get {
+                return ResourceManager.GetString("I5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Checking if all possible state generated.
+        /// </summary>
+        internal static string I6 {
+            get {
+                return ResourceManager.GetString("I6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu all possible state probably generated.
+        /// </summary>
+        internal static string I7 {
+            get {
+                return ResourceManager.GetString("I7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} domain started to create actions&apos; programms.
         /// </summary>
         internal static string Sa0 {
@@ -268,6 +844,51 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Creation of {0} action begin..
+        /// </summary>
+        internal static string Sa5 {
+            get {
+                return ResourceManager.GetString("Sa5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Starting of Crisscross Generator..
+        /// </summary>
+        internal static string Sa6 {
+            get {
+                return ResourceManager.GetString("Sa6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Begin of new possible states gen., with ID={0}.
+        /// </summary>
+        internal static string Sa7 {
+            get {
+                return ResourceManager.GetString("Sa7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Begin of possible states reducing, with ID={0}.
+        /// </summary>
+        internal static string Sa8 {
+            get {
+                return ResourceManager.GetString("Sa8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Begin goal checking, with ID={0}.
+        /// </summary>
+        internal static string Sa9 {
+            get {
+                return ResourceManager.GetString("Sa9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} domain created actions&apos; programms.
         /// </summary>
         internal static string Sp0 {
@@ -309,6 +930,51 @@ namespace SharpPDDL.Properties {
         internal static string Sp4 {
             get {
                 return ResourceManager.GetString("Sp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} action created.
+        /// </summary>
+        internal static string Sp5 {
+            get {
+                return ResourceManager.GetString("Sp5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Crisscross Generator stoped inside reset function.
+        /// </summary>
+        internal static string Sp6 {
+            get {
+                return ResourceManager.GetString("Sp6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Stop of new possible states building proces, with ID={0}.
+        /// </summary>
+        internal static string Sp7 {
+            get {
+                return ResourceManager.GetString("Sp7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Stop of possible states reducing proces, with ID={0}.
+        /// </summary>
+        internal static string Sp8 {
+            get {
+                return ResourceManager.GetString("Sp8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Stop of goal checking proces, with ID={0}.
+        /// </summary>
+        internal static string Sp9 {
+            get {
+                return ResourceManager.GetString("Sp9", resourceCulture);
             }
         }
         
@@ -435,6 +1101,69 @@ namespace SharpPDDL.Properties {
         internal static string W2 {
             get {
                 return ResourceManager.GetString("W2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Added part of action sententia is empty..
+        /// </summary>
+        internal static string W3 {
+            get {
+                return ResourceManager.GetString("W3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Lack of parameters inside {0} action. It will not be use..
+        /// </summary>
+        internal static string W4 {
+            get {
+                return ResourceManager.GetString("W4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no executions of {0} action..
+        /// </summary>
+        internal static string W5 {
+            get {
+                return ResourceManager.GetString("W5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action name cannot to start with &quot;{0}&quot;. New action name is {1}.
+        /// </summary>
+        internal static string W6 {
+            get {
+                return ResourceManager.GetString("W6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no {0} key inside {1} action sententia..
+        /// </summary>
+        internal static string W7 {
+            get {
+                return ResourceManager.GetString("W7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is {0} key inside {1} action sententia, but is less param to this.
+        /// </summary>
+        internal static string W8 {
+            get {
+                return ResourceManager.GetString("W8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Precondition funct is without parameter. Its constant result of that..
+        /// </summary>
+        internal static string W9 {
+            get {
+                return ResourceManager.GetString("W9", resourceCulture);
             }
         }
     }

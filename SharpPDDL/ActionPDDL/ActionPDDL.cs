@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -83,7 +84,7 @@ namespace SharpPDDL
             }
             else
             {
-                //TODO jakiś komentarz w sprawie
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 46, GloCla.ResMan.GetString("W3"));
             }
         }
 
@@ -268,8 +269,13 @@ namespace SharpPDDL
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 48, GloCla.ResMan.GetString("Sa5"), Name);
+
             if (!Parameters.Any())
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 47, GloCla.ResMan.GetString("W4"), Name);
                 return;
+            }
 
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
 
@@ -314,11 +320,13 @@ namespace SharpPDDL
             }
             else
             {
-                //TODO;
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 50, GloCla.ResMan.GetString("W5"), Name);
             }
 
             ActionSententiaLamdba actionSententiaLamdba = new ActionSententiaLamdba(allTypes, Parameters, ActionSententia);
             InstantActionSententia = actionSententiaLamdba.InstantFunct;
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 49, GloCla.ResMan.GetString("Sp5"), Name);
         }
 
         /// <summary>
@@ -340,10 +348,20 @@ namespace SharpPDDL
         public ActionPDDL(string Name, uint actionCost = 1/*, bool IsSpecial = false*/)
         {
             if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or emty
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 51, GloCla.ResMan.GetString("E10"));
+                throw new Exception(GloCla.ResMan.GetString("E10"));
+            }
 
             if (Name.StartsWith(GloCla.SpecialFuncPrefix))
-                throw new Exception(); //only for special
+            {
+                do
+                    Name = Name.Substring(1);
+                while
+                (!Name.StartsWith(GloCla.SpecialFuncPrefix));
+
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 52, GloCla.ResMan.GetString("W6"), GloCla.SpecialFuncPrefix, Name);
+            }           
 
             //this.Name = IsSpecial ? ExtensionMethods.SpecialFuncPrefix + Name : Name;
             this.Name = Name;

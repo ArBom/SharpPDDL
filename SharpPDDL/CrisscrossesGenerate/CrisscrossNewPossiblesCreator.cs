@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,6 +53,8 @@ namespace SharpPDDL.CrisscrossesGenerate
 
         protected void BuildNewState(CancellationToken token)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 64, GloCla.ResMan.GetString("Sa7"), Task.CurrentId);
+
             bool CheckPossibleOfRealization()
             {
                 if (token.IsCancellationRequested)
@@ -161,6 +164,8 @@ namespace SharpPDDL.CrisscrossesGenerate
                 NoNewData.BeginInvoke(null, null);
                 IsWaiting = true;
             }
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 65, GloCla.ResMan.GetString("Sp7"), Task.CurrentId);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SharpPDDL
@@ -61,7 +62,8 @@ namespace SharpPDDL
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
-            this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg, AddedTransitionCharge));
+            lock(Children)
+                this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg, AddedTransitionCharge));
         }
 
         public Crisscross this[int key]
@@ -251,7 +253,8 @@ namespace SharpPDDL
                     }
                 }
             }
-                       
+
+            lock(Annexed.Children)
             foreach (var child in Annexed.Children)
             {
                 if (child.Child.Root.Equals(Annexed))
@@ -278,7 +281,10 @@ namespace SharpPDDL
                 MergeK(ref Merge2, ref Merge1);
 
             if (!Merge1.Equals(Merge2))
-                throw new Exception();
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 58, GloCla.ResMan.GetString("C9"));
+                throw new Exception(GloCla.ResMan.GetString("C9"));
+            }
         }
 
         public void CopyTo(Array array, int index)

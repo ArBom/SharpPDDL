@@ -56,7 +56,7 @@ namespace SharpPDDL
 
         public bool MoveNext()
         {
-            if (current.Children.Count != 0)
+            if (current.Children.Any())
             {
                 if (current.Children[0].Child.Root != current)
                 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -62,16 +63,32 @@ namespace SharpPDDL
                     List<string>[] used = memberofLambdaListerPDDL.used;
 
                     if (used.Length > 1)
-                        throw new Exception("Use only dereferencing of value then: " + actionSententia[i].Item3[j].ToString());
+                    {
+                        string ExceptionMess = String.Format(GloCla.ResMan.GetString("E11"), actionSententia[i].Item3[j].ToString());
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Error, 53, ExceptionMess);
+                        throw new Exception(ExceptionMess);
+                    }
 
                     if (used.Length == 1)
                         if (used[0].Count > 1)
-                            throw new Exception("Use only dereferencing of value then: " + actionSententia[i].Item3[j].ToString());
+                        {
+                            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E12"), actionSententia[i].Item3[j].ToString());
+                            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 54, ExceptionMess);
+                            throw new Exception(ExceptionMess);
+                        }
 
-                    Expression OldTxt = Expression.Constant("{" + j + "}", typeof(string));
+                    string Key = "{" + j + "}";
+
+                    if (!actionSententia[i].Item2.Contains(Key))
+                    {
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 55, GloCla.ResMan.GetString("W7"), Key, actionSententia[i].Item2);
+                        continue;
+                    }
+
+                    Expression OldTxt = Expression.Constant(Key, typeof(string));
                     var VoT = singleTypeOfDomein.CumulativeValues.Where(v => v.Name == used[0][0]).ToList();
 
-                    if (VoT.Count == 0)
+                    if (!VoT.Any())
                     {
                         Expression OrygObjExpression = Expression.Property(_parameters[ParamNo], "OriginalObj");
                         Expression Converted = Expression.Convert(OrygObjExpression, paramType);
@@ -92,6 +109,13 @@ namespace SharpPDDL
 
                     texts[i] = textC;
                 }
+
+                if (!(GloCla.Tracer is null))
+                {
+                    string ExtraKey = "{" + (actionSententia[i].Item3.Length) + "}";
+                    if (actionSententia[i].Item2.Contains(ExtraKey))
+                        GloCla.Tracer.TraceEvent(TraceEventType.Warning, 56, GloCla.ResMan.GetString("W8"), ExtraKey, actionSententia[i].Item2);
+                }
             }
 
             LabelTarget retLabelTarget = Expression.Label(typeof(string), null);
@@ -108,9 +132,11 @@ namespace SharpPDDL
             {
                 InstantFunct = WholeFunc.Compile();
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C8"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 57, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
         }
     }

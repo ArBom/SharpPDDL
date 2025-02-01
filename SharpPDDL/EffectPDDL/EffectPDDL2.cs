@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -121,10 +122,18 @@ namespace SharpPDDL
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
             if (TXIndex(t1, 1, Parameters) == false)
-                throw new Exception("There is no that param at list.");
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C18"), typeof(T1c), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 81, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (TXIndex(t2, 2, Parameters) == false)
-                throw new Exception("There is no that param at list.");
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C19"), typeof(T2c), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 82, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
     }
 }

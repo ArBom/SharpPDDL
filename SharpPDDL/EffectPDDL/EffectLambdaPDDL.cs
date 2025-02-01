@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,16 +20,32 @@ namespace SharpPDDL
         public EffectLambdaPDDL(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction, ushort funcOutKey)
         {
             if (allTypes is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C10"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 70, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (allTypes.Count == 0)
-                throw new Exception();
+            if (!allTypes.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C11"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 71, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (paramsIndexesInAction is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C12"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 72, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (paramsIndexesInAction.Length == 0)
-                throw new Exception();
+            if (!paramsIndexesInAction.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C13"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 73, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             this.allTypes = allTypes;
             this.ParamsIndexesInAction = paramsIndexesInAction;
@@ -42,7 +59,11 @@ namespace SharpPDDL
 
             //the library use only 1- or 2-Parameter lambdas
             if (OldParameters.Count() > 2)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E13"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 74, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             //make 2-Parameters lambda
             if (OldParameters.Count() == 1 && ParamsIndexesInAction[0] != ParamsIndexesInAction[1])
@@ -71,9 +92,11 @@ namespace SharpPDDL
             {
                 _ = ModifiedFunct.Compile();
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("New func cannot be compilated.");
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C14"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 75, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             return ModifiedFunct;
@@ -119,7 +142,9 @@ namespace SharpPDDL
 
             if (ParameterModel is null)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C15"), node.Expression.Type.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 76, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             ///TODO in next versipn
@@ -163,7 +188,9 @@ namespace SharpPDDL
             if (node.Method.IsStatic)
                 return node;
 
-            throw new Exception("You cannot to use object method call to create model of object. Try to write this method (" + node.ToString() + ")as new lambda which uses only ValueType member(s) of object.");
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("C16"), node.Method.Name);
+            GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 77, ExceptionMess);
+            throw new Exception(ExceptionMess);
         }
     }
 }

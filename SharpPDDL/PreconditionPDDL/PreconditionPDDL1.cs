@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -45,7 +46,11 @@ namespace SharpPDDL
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
             if (TXIndex(t1, 1, Parameters) == false)
-                throw new Exception("There is no that param at list.");
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C31"), typeof(T1c), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 111, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
 
         internal override Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)

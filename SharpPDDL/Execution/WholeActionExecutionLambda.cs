@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -79,7 +80,7 @@ namespace SharpPDDL
 
             LambdaExpression lambdaExpression;
 
-            if (ExecutionPrecondition.Count != 0)
+            if (ExecutionPrecondition.Any())
             {
                 ActualObjectPDDL = ExecutionPrecondition[0];
                 Expression Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[0].func), ExecutingExpression, Expression.Throw(Expression.Constant(new EffectExecutionException(ExecutionPrecondition[0].Name))));
@@ -97,7 +98,16 @@ namespace SharpPDDL
             else
                 lambdaExpression = Expression.Lambda(ExecutingExpression, Name, _parameters);
 
-            InstantExecutionPDDL = lambdaExpression.Compile();
+            try
+            {
+                InstantExecutionPDDL = lambdaExpression.Compile();
+            }
+            catch
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C23"), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 86, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -129,7 +139,9 @@ namespace SharpPDDL
                     return _parameters[ActualObjectPDDL.AllParamsOfAct2ClassPos.Value];  
             }
 
-            throw new Exception();
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E16"));
+            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 87, ExceptionMess);
+            throw new Exception(ExceptionMess);
         }
     }
 }

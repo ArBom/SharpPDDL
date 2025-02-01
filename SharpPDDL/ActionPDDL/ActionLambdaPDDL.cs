@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -41,7 +42,7 @@ namespace SharpPDDL
             }       
             _parameters = TempParams.AsReadOnly();
 
-            if (ChecksParam.Count == 0)
+            if (!ChecksParam.Any())
                 return;
 
             BinaryExpression CheckAllParam = ChecksParam[0];
@@ -59,7 +60,7 @@ namespace SharpPDDL
             }
 
             Expression CheckAllPreco;
-            if (ChecksPrecondition.Count != 0)
+            if (ChecksPrecondition.Any())
             {
                 CheckAllPreco = ChecksPrecondition[0];
                 for (int a = 1; a != ChecksPrecondition.Count; a++)
@@ -89,7 +90,7 @@ namespace SharpPDDL
 
             for (int a = 0; a!= parameters.Count; a++)
             {
-                if (EffectsPais[a].Count != 0)
+                if (EffectsPais[a].Any())
                     singleEffectsList[a] = Expression.ListInit(newDictionaryExpression, EffectsPais[a]);
                 else
                     singleEffectsList[a] = Expression.Constant(new List<KeyValuePair<ushort, ValueType>>());
@@ -111,9 +112,11 @@ namespace SharpPDDL
             {
                 InstantFunct = WholeFunc.Compile();
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C7"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 45, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
         }
 

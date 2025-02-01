@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SharpPDDL.CrisscrossesGenerate;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -63,6 +64,8 @@ namespace SharpPDDL
 
         internal void Start(CancellationToken ExternalCancellationToken)
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 59, GloCla.ResMan.GetString("Sa6"));
+            
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
             this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()); ;
             this.PossibleToCrisscrossReduce = new List<Crisscross>();
@@ -78,6 +81,8 @@ namespace SharpPDDL
 
         private void ReStart()
         {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
+
             //make sure there is no task wainting for buffor add element
             goalChecker.CheckingGoalRealizationARE.Set();
             crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
@@ -86,11 +91,15 @@ namespace SharpPDDL
             //wait for all task finish
             Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100 );
 
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
+
             Start(ExternalCancellation);
         }
 
         private void CheckAllGenerated()
         {
+            //GloCla.Tracer?.TraceEvent(TraceEventType.Information, 62, GloCla.ResMan.GetString("I6"));
+
             if (PossibleNewCrisscrossCre.Any())
                 return;
 
@@ -109,6 +118,7 @@ namespace SharpPDDL
             if (!crisscrossReducer.IsWaiting)
                 return;
 
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 63, GloCla.ResMan.GetString("I7"));
             CrisscrossesGenerated?.Invoke();
         }
     }

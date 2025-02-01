@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -66,7 +67,9 @@ namespace SharpPDDL
             }
             catch (Exception e)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C6"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 42, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             return WholeFunc;
@@ -93,7 +96,9 @@ namespace SharpPDDL
 
             if (ParameterModel is null)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E8"), node.Expression.Type.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 43, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             var ValueOfIndexes = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).First();
@@ -144,7 +149,9 @@ namespace SharpPDDL
                 return Nnode;          
             }
 
-            throw new Exception();
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E9"), node.Method.Name.ToString());
+            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 44, ExceptionMess);
+            throw new Exception(ExceptionMess);
         }
     }
 }

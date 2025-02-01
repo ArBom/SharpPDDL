@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -56,10 +57,18 @@ namespace SharpPDDL
                 return;
 
             if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E31"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 109, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (Preconditions.Exists(precondition => precondition.Name == Name))
-                throw new Exception(); //juz istnieje warunek poczatkowy o takiej nazwie
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E32"), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 110, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -49,7 +49,9 @@ namespace SharpPDDL
                 if (Args[CArg].IndexInAction.HasValue)
                     continue;
 
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E7"), Args[CArg].ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 41, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
         }
 

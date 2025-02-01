@@ -125,13 +125,133 @@
     <value>Its impossible to find {0} param inside {1} node.</value>
     <comment>MemberofLambdaListerPDDL; error in time of finding param; 0-param name, 1-node</comment>
   </data>
+  <data name="C10" xml:space="preserve">
+    <value>internal error in EffectLambdaPDDL constructor: allTypes collection is null</value>
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
+  <data name="C11" xml:space="preserve">
+    <value>internal error in EffectLambdaPDDL constructor: allTypes collection is empty</value>
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
+  <data name="C12" xml:space="preserve">
+    <value>internal error in EffectLambdaPDDL constructor: paramsIndexesInAction collection is null</value>
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
+  <data name="C13" xml:space="preserve">
+    <value>internal error in EffectLambdaPDDL constructor: paramsIndexesInAction collection is empty</value>
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
+  <data name="C14" xml:space="preserve">
+    <value>Unexpected error in time of Effect's function changing: {0}</value>
+    <comment>EffectLambdaPDDL; exception in time of new f. compile; 0-exception txt</comment>
+  </data>
+  <data name="C15" xml:space="preserve">
+    <value>Wrong / Unknown type: {0} inside Effect funct</value>
+    <comment>EffectLambdaPDDL; ; 0-wrong type without previesly model</comment>
+  </data>
+  <data name="C16" xml:space="preserve">
+    <value>You cannot to use object method call to create model of object. Try to write this method ({0}) as new lambda which uses only ValueType member(s) of object.</value>
+    <comment>EffectLambdaPDDL; Its possible to use only static method here; 0-unstatic method name</comment>
+  </data>
+  <data name="C17" xml:space="preserve">
+    <value>Effects 1-arg; There is no {0} param at list. {1}</value>
+    <comment>EffectPDDL1; Wrong completion of param; 0-param type, 1-Effect name</comment>
+  </data>
+  <data name="C18" xml:space="preserve">
+    <value>Effects 2-arg; There is no 1st {0} param at list. {1}</value>
+    <comment>EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+  </data>
+  <data name="C19" xml:space="preserve">
+    <value>Effects 2-arg; There is no 2nd {0} param at list. {1}</value>
+    <comment>EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+  </data>
   <data name="C2" xml:space="preserve">
     <value>uncaught bug of wrong (empty, or null) name</value>
     <comment>ObjectPDDL; null or empty string name</comment>
   </data>
+  <data name="C20" xml:space="preserve">
+    <value>Expression Execution 1-arg; There is no {0} param at list. {1}</value>
+    <comment>ExpressionExecution; Wrong completion of param; 0-param type, 1-Expression name</comment>
+  </data>
+  <data name="C21" xml:space="preserve">
+    <value>Expression Execution 2-arg; There is no 1st {0} param at list. {1}</value>
+    <comment>ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
+  </data>
+  <data name="C22" xml:space="preserve">
+    <value>Expression Execution 2-arg; There is no 2nd {0} param at list. {1}</value>
+    <comment>ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
+  </data>
+  <data name="C23" xml:space="preserve">
+    <value>Unexpected error in time of {0} action execution function building</value>
+    <comment>WholeActionExecutionLambda; Impossible to lambda compile; 0-action name</comment>
+  </data>
+  <data name="C24" xml:space="preserve">
+    <value>allTypes cannot be the null while goal lambda building</value>
+    <comment>GoalLambdaPDDL; wrong class constructor argument (null)</comment>
+  </data>
+  <data name="C25" xml:space="preserve">
+    <value>allTypes cannot be empty collection while goal lambda building</value>
+    <comment>GoalLambdaPDDL; wrong class constructor argument (empty collection)</comment>
+  </data>
+  <data name="C26" xml:space="preserve">
+    <value>OryginalObjectType cannot be null while goal lambda building</value>
+    <comment>GoalLambdaPDDL; wrong class constructor argument (null)</comment>
+  </data>
+  <data name="C27" xml:space="preserve">
+    <value>Unexpected error in time of goal function building</value>
+    <comment>GoalLambdaPDDL;</comment>
+  </data>
+  <data name="C28" xml:space="preserve">
+    <value>Wrong / Unknown type: {0} inside Goal funct</value>
+    <comment>GoalLambdaPDDL; ; 0-wrong type without previesly model</comment>
+  </data>
+  <data name="C29" xml:space="preserve">
+    <value>Unexpected error in time of goal function changing {0}</value>
+    <comment>GoalObject; ; 0-exception details</comment>
+  </data>
   <data name="C3" xml:space="preserve">
     <value>Wrong object type - {0} it not a class</value>
     <comment>Paramert; wrong type - not a class obj; 0-type of object</comment>
+  </data>
+  <data name="C30" xml:space="preserve">
+    <value>GoalObjects cannot be a empty collection in time of Goal build</value>
+    <comment>GoalObject;</comment>
+  </data>
+  <data name="C31" xml:space="preserve">
+    <value>Precondition 1-arg; There is no {0} param at list. {1}</value>
+    <comment>PreconditionPDDL1; Wrong completion of param; 0-param type, 1-Expression name</comment>
+  </data>
+  <data name="C32" xml:space="preserve">
+    <value>Precondition 2-arg; There is no 1st {0} param at list. {1}</value>
+    <comment>Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+  </data>
+  <data name="C33" xml:space="preserve">
+    <value>Precondition 2-arg; There is no 2nd {0} param at list. {1}</value>
+    <comment>Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+  </data>
+  <data name="C34" xml:space="preserve">
+    <value>internal error in PreconditionLambdaPDDL constructor: allTypes collection is null</value>
+    <comment>PreconditionLambdaModif;</comment>
+  </data>
+  <data name="C35" xml:space="preserve">
+    <value>internal error in PreconditionLambdaPDDL constructor: allTypes collection is empty</value>
+    <comment>PreconditionLambdaModif;</comment>
+  </data>
+  <data name="C36" xml:space="preserve">
+    <value>internal error in PreconditionLambdaPDDL constructor: paramsIndexesInAction collection is null</value>
+    <comment>PreconditionLambdaModif;</comment>
+  </data>
+  <data name="C37" xml:space="preserve">
+    <value>internal error in PreconditionLambdaPDDL constructor: paramsIndexesInAction collection is empty</value>
+    <comment>PreconditionLambdaModif;</comment>
+  </data>
+  <data name="C38" xml:space="preserve">
+    <value>Unexpected error in time of Precondition's function changing: {0}</value>
+    <comment>PreconditionLambdaModif; exception in time of new f. compile; 0-exception txt</comment>
+  </data>
+  <data name="C39" xml:space="preserve">
+    <value>You cannot to use object method call to create model of object. Try to write this method ({0}) as new lambda which uses only ValueType member(s) of object.</value>
+    <comment>PreconditionLambdaPDDL; ; 0-node</comment>
   </data>
   <data name="C4" xml:space="preserve">
     <value>Unexpected error in time of {0} action execution: {1}</value>
@@ -141,6 +261,22 @@
     <value>This domain dont know the {0} class type</value>
     <comment>ThumbnailObjectPrecursor; unknown class type; 0-class type</comment>
   </data>
+  <data name="C6" xml:space="preserve">
+    <value>Unexpected error in time of Action Cost function compilation: {0}</value>
+    <comment>ActionCostLambda; Impossible to lambda compile; 0-exception's message</comment>
+  </data>
+  <data name="C7" xml:space="preserve">
+    <value>Unexpected error in time of Action function compilation: {0}</value>
+    <comment>ActionLambdaPDDL; Impossible to lambda compile; 0-exception's message</comment>
+  </data>
+  <data name="C8" xml:space="preserve">
+    <value>Unexpected error in time of Action's cost function compilation: {0}</value>
+    <comment>ActionSententiaLambda; exception in time of new f. compile; 0-exception's message</comment>
+  </data>
+  <data name="C9" xml:space="preserve">
+    <value>Failed in merge Crisscrosses</value>
+    <comment>Crisscross; wrong effect of megring check</comment>
+  </data>
   <data name="E0" xml:space="preserve">
     <value>You cannot to create domein without name or with empty name.</value>
     <comment>DomeinPDDL; trying to create new domain with wrong name</comment>
@@ -149,13 +285,109 @@
     <value>Domein with {0} name is already existing.</value>
     <comment>DomeinPDDL; trying to create new domain with reused name; 0-name of domain</comment>
   </data>
+  <data name="E10" xml:space="preserve">
+    <value>Action name cannot to be empty or undefined.</value>
+    <comment>ActionPDDL;</comment>
+  </data>
+  <data name="E11" xml:space="preserve">
+    <value>Use only dereferencing of value then: {0}</value>
+    <comment>ActionSententiaLamdba; ; 0-action sententia txt param lambda</comment>
+  </data>
+  <data name="E12" xml:space="preserve">
+    <value>Use only dereferencing of value then: {0}</value>
+    <comment>ActionSententiaLamdba; ; 0-action sententia txt param lambda</comment>
+  </data>
+  <data name="E13" xml:space="preserve">
+    <value>In this version of SharpPDDL its possible to use to 2 params inside Effect function</value>
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
+  <data name="E14" xml:space="preserve">
+    <value>Effect name cannot to be empty or undefined.</value>
+    <comment>EffectPDDL;</comment>
+  </data>
+  <data name="E15" xml:space="preserve">
+    <value>Effect with {0} name is already existing.</value>
+    <comment>EffectPDDL; ; 0-used effect name</comment>
+  </data>
+  <data name="E16" xml:space="preserve">
+    <value>In this version of SharpPDDL its possible to use to 2 params inside action</value>
+    <comment>WholeActionExecutionLambda;</comment>
+  </data>
+  <data name="E17" xml:space="preserve">
+    <value>Goal obj. cannot be null</value>
+    <comment>GoalLambdaPDDL;</comment>
+  </data>
+  <data name="E18" xml:space="preserve">
+    <value>Object used to define goal must be a class. {0} is not a class.</value>
+    <comment>GoalLambdaPDDL; ; 0-Oryginal Object Type</comment>
+  </data>
+  <data name="E19" xml:space="preserve">
+    <value>Expectations of goal cannot be null value</value>
+    <comment>GoalLambdaPDDL;</comment>
+  </data>
   <data name="E2" xml:space="preserve">
     <value>You cannot to create action without name or with empty name.</value>
     <comment>DomeinPDDL; trying to create new action with wrong name</comment>
   </data>
+  <data name="E20" xml:space="preserve">
+    <value>Expectations of goal cannot be empty collection</value>
+    <comment>GoalLambdaPDDL;</comment>
+  </data>
+  <data name="E21" xml:space="preserve">
+    <value>You need use 1 parameter to build goal exception. {0} is wrong</value>
+    <comment>GoalLambdaPDDL; ; 0-incorrect node</comment>
+  </data>
+  <data name="E22" xml:space="preserve">
+    <value>Member {0} is not a field or property and cannot be use in finding a goal</value>
+    <comment>GoalLambdaPDDL; ; 0-Member Name</comment>
+  </data>
+  <data name="E23" xml:space="preserve">
+    <value>You cannot to use object method call to create model of object. Try to write this method ({0})as new lambda which uses only ValueType member(s) of object.</value>
+    <comment>GoalLambdaPDDL; ; 0-node</comment>
+  </data>
+  <data name="E24" xml:space="preserve">
+    <value>{0} field have to be: constant / readonly / used as action argument if its not use in param. previesly</value>
+    <comment>GoalLambdaPDDL; ; 0-Member Name</comment>
+  </data>
+  <data name="E25" xml:space="preserve">
+    <value>{0} field variable used in goal checking have to be string or ValueType</value>
+    <comment>GoalLambdaPDDL; ; 0-Member Name</comment>
+  </data>
+  <data name="E26" xml:space="preserve">
+    <value>{0} property variable cannot be changed in time of programm run or have to be used as action argument</value>
+    <comment>GoalLambdaPDDL; ; 0-Member Name</comment>
+  </data>
+  <data name="E27" xml:space="preserve">
+    <value>{0} property variable used in goal checking have to be string or ValueType</value>
+    <comment>GoalLambdaPDDL; ; 0-Member Name</comment>
+  </data>
+  <data name="E28" xml:space="preserve">
+    <value>Excetptions inside Goal definition cannot be null</value>
+    <comment>GoalObject;</comment>
+  </data>
+  <data name="E29" xml:space="preserve">
+    <value>Excetptions inside Goal definition cannot be empty collection</value>
+    <comment>GoalObject;</comment>
+  </data>
   <data name="E3" xml:space="preserve">
     <value>Action with {0} name is already existing in {1} domein.</value>
     <comment>DomeinPDDL; trying to create new action with reused name; 0-name of action, 1-name of domain</comment>
+  </data>
+  <data name="E30" xml:space="preserve">
+    <value>null value cannot be a goal expected abject</value>
+    <comment>GoalObject;</comment>
+  </data>
+  <data name="E31" xml:space="preserve">
+    <value>Precondition name cannot to be empty or undefined.</value>
+    <comment>PreconditionPDDL;</comment>
+  </data>
+  <data name="E32" xml:space="preserve">
+    <value>Precondition with {0} name is already existing.</value>
+    <comment>PreconditionPDDL; ; 0-used effect name</comment>
+  </data>
+  <data name="E33" xml:space="preserve">
+    <value>In this version of SharpPDDL its possible to use to 2 params inside Precondition function</value>
+    <comment>PreconditionLambdaModif;</comment>
   </data>
   <data name="E4" xml:space="preserve">
     <value>You cannot to create goal without name or with empty name.</value>
@@ -168,6 +400,18 @@
   <data name="E6" xml:space="preserve">
     <value>Its sad. You cannot to use abstract parameter {0}, even if you really want :(</value>
     <comment>Parametr; trying to do instance of abstract parameter; 0-abstract class type</comment>
+  </data>
+  <data name="E7" xml:space="preserve">
+    <value>Some parameter of Action Cost is not used in time of action define (precodition or effect)</value>
+    <comment>ActionCost;</comment>
+  </data>
+  <data name="E8" xml:space="preserve">
+    <value>{0} is incorrect type to use inside Action Cost function</value>
+    <comment>ActionCostLambda; ; 0-unknown type</comment>
+  </data>
+  <data name="E9" xml:space="preserve">
+    <value>There is no possibility of use un-static method like {0} inside of Action Cost funct.</value>
+    <comment>ActionCostLambda; ; 0-unstatic method name</comment>
   </data>
   <data name="I0" xml:space="preserve">
     <value>Tracing of SharpPDDL lib. is working with "{0}" tracer</value>
@@ -189,6 +433,18 @@
     <value>It created a Thumbnail of {0} object from domain obj. with checksum: {1}</value>
     <comment>ThumbnailObjectPrecursor; end of class constructor; 0-oryginal obj type, 1-checksum of thumbnail</comment>
   </data>
+  <data name="I5" xml:space="preserve">
+    <value>Internal reset of Crisscross generator</value>
+    <comment>CrisscrossGenerator;</comment>
+  </data>
+  <data name="I6" xml:space="preserve">
+    <value>Checking if all possible state generated</value>
+    <comment>CrisscrossGenerator; //commented in normal // it take to many time of program run</comment>
+  </data>
+  <data name="I7" xml:space="preserve">
+    <value>all possible state probably generated</value>
+    <comment>CrisscrossGenerator;</comment>
+  </data>
   <data name="Sa0" xml:space="preserve">
     <value>{0} domain started to create actions' programms</value>
     <comment>DomeinPDDL; Starting to do actions' progr.; 0-domain name</comment>
@@ -209,6 +465,26 @@
     <value>Start to create Types tree</value>
     <comment>TypesPDDL;</comment>
   </data>
+  <data name="Sa5" xml:space="preserve">
+    <value>Creation of {0} action begin.</value>
+    <comment>ActionPDDL; ; 0-action Name</comment>
+  </data>
+  <data name="Sa6" xml:space="preserve">
+    <value>Starting of Crisscross Generator.</value>
+    <comment>CrisscrossGenerator;</comment>
+  </data>
+  <data name="Sa7" xml:space="preserve">
+    <value>Begin of new possible states gen., with ID={0}</value>
+    <comment>CrisscrossNewPossiblesCreator; ; 0-task ID</comment>
+  </data>
+  <data name="Sa8" xml:space="preserve">
+    <value>Begin of possible states reducing, with ID={0}</value>
+    <comment>CrisscrossReducer; ; 0-task ID</comment>
+  </data>
+  <data name="Sa9" xml:space="preserve">
+    <value>Begin goal checking, with ID={0}</value>
+    <comment>GoalChecker; ; 0-task ID</comment>
+  </data>
   <data name="Sp0" xml:space="preserve">
     <value>{0} domain created actions' programms</value>
     <comment>DomeinPDDL; Finished to do actions' progr.; 0-domain name</comment>
@@ -228,6 +504,26 @@
   <data name="Sp4" xml:space="preserve">
     <value>Types tree created</value>
     <comment>TypesPDDL;</comment>
+  </data>
+  <data name="Sp5" xml:space="preserve">
+    <value>{0} action created</value>
+    <comment>ActionPDDL; ; 0-action name</comment>
+  </data>
+  <data name="Sp6" xml:space="preserve">
+    <value>Crisscross Generator stoped inside reset function</value>
+    <comment>CrisscrossGenerator;</comment>
+  </data>
+  <data name="Sp7" xml:space="preserve">
+    <value>Stop of new possible states building proces, with ID={0}</value>
+    <comment>CrisscrossNewPossiblesCreator; ; 0-finishing task ID</comment>
+  </data>
+  <data name="Sp8" xml:space="preserve">
+    <value>Stop of possible states reducing proces, with ID={0}</value>
+    <comment>CrisscrossReducer; ; 0-finishing task ID</comment>
+  </data>
+  <data name="Sp9" xml:space="preserve">
+    <value>Stop of goal checking proces, with ID={0}</value>
+    <comment>GoalChecker; ; 0-finishing task ID</comment>
   </data>
   <data name="Txt1" xml:space="preserve">
     <value>{0}: </value>
@@ -284,5 +580,33 @@
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>
     <comment>PlanImplementor;</comment>
+  </data>
+  <data name="W3" xml:space="preserve">
+    <value>Added part of action sententia is empty.</value>
+    <comment>ActionPDDL;</comment>
+  </data>
+  <data name="W4" xml:space="preserve">
+    <value>Lack of parameters inside {0} action. It will not be use.</value>
+    <comment>ActionPDDL; ; 0-action name</comment>
+  </data>
+  <data name="W5" xml:space="preserve">
+    <value>There is no executions of {0} action.</value>
+    <comment>ActionPDDL; ; 0-action name</comment>
+  </data>
+  <data name="W6" xml:space="preserve">
+    <value>Action name cannot to start with "{0}". New action name is {1}</value>
+    <comment>ActionPDDL; ;0-SpecialFuncPrefix , 1-new action name</comment>
+  </data>
+  <data name="W7" xml:space="preserve">
+    <value>There is no {0} key inside {1} action sententia.</value>
+    <comment>ActionSententiaLamdba; ; 0-key like {X}, 0-whole txt</comment>
+  </data>
+  <data name="W8" xml:space="preserve">
+    <value>There is {0} key inside {1} action sententia, but is less param to this</value>
+    <comment>ActionSententiaLamdba; ; 0-extra key like {X}, 0-whole txt</comment>
+  </data>
+  <data name="W9" xml:space="preserve">
+    <value>Precondition funct is without parameter. Its constant result of that.</value>
+    <comment>PreconditionLambdaModif;</comment>
   </data>
 </root>

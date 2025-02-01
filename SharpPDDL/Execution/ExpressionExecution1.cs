@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace SharpPDDL
@@ -16,7 +17,12 @@ namespace SharpPDDL
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            TXIndex(t1, 1, Parameters);
+            if (TXIndex(t1, 1, Parameters) == false)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C20"), typeof(T1), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 83, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
     }
 }

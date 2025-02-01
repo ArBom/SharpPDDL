@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -68,10 +69,18 @@ namespace SharpPDDL
                 return;
 
             if (String.IsNullOrEmpty(Name))
-                throw new Exception(); //is null or empty
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E14"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 78, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (Effects.Exists(effect => effect.Name == Name))
-                throw new Exception(); //juz istnieje efekt o takiej nazwie
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E15"), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 79, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,16 +19,32 @@ namespace SharpPDDL
         public PreconditionLambdaModif(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction)
         {
             if (allTypes is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C34"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 114, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (allTypes.Count == 0)
-                throw new Exception();
+            if (!allTypes.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C35"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 115, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (paramsIndexesInAction is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C36"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 116, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (paramsIndexesInAction.Length == 0)
-                throw new Exception();
+            if (!paramsIndexesInAction.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C37"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 117, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             this.allTypes = allTypes;
             this.ParamsIndexesInAction = paramsIndexesInAction;
@@ -37,21 +54,21 @@ namespace SharpPDDL
         {
             OldParameters = node.Parameters;
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
+            int _parametersCount = _parameters.Count();
 
-            if (_parameters.Count() == 0)
-            {
-                //its no sens; its always true or always false
-                throw new Exception();
-            }
+            if (_parametersCount == 0)          
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 118, GloCla.ResMan.GetString("W8"));
 
             //the library use only 1- or 2-Parameter lambdas
-            if (_parameters.Count() > 2)
+            if (_parametersCount > 2)
             {
-                throw new Exception();
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E33"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 119, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             //make 2-Parameters lambda
-            if (_parameters.Count() == 1)
+            if (_parametersCount == 1)
             {
                 string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
                 List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
@@ -66,9 +83,11 @@ namespace SharpPDDL
             {
                 _ = ModifeidLambda.Compile();
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("New func cannot be compilated.");
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C38"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 120, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             return ModifeidLambda;
@@ -154,7 +173,9 @@ namespace SharpPDDL
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            throw new Exception("You cannot to use object method call to create model of object. Try to write this method (" + node.ToString() + ")as new lambda which uses only ValueType member(s) of object.");
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("C39"), node.ToString());
+            GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 121, ExceptionMess);
+            throw new Exception(ExceptionMess);
         }
     }
 }

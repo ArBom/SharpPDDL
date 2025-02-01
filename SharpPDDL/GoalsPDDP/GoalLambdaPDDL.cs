@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,8 +20,12 @@ namespace SharpPDDL
         public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, T oryginalObject)
         {
             if (oryginalObject is null)
-                throw new Exception();
-            
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E17"), typeof(T));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 88, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
             this.allTypes = allTypes;
             this.OryginalObjectType = typeof(T);
             this.OryginalObject = oryginalObject;
@@ -76,27 +81,51 @@ namespace SharpPDDL
         protected void CheckConstructorParam()
         {
             if (allTypes is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C24"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 89, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
-            if (allTypes.Count == 0)
-                throw new Exception();
+            if (!allTypes.Any())
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C25"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 90, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (OryginalObjectType is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C26"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 91, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             if (!OryginalObjectType.IsClass)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E18"), OryginalObjectType.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 92, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
         }
 
         Expression CheckPredicates(List<Expression<Predicate<T>>> GoalExpectations)
         {
             if (GoalExpectations is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E19"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 93, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             int GoalExpectationsCount = GoalExpectations.Count;
 
             if (GoalExpectationsCount == 0)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E20"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 94, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             Expression CheckAllPreco = VisitLambda(GoalExpectations[0]);
 
@@ -113,7 +142,9 @@ namespace SharpPDDL
             }
             catch
             {
-                throw new Exception("New func cannot be compilated.");
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C27"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 95, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             return ModifeidLambda;
@@ -122,7 +153,11 @@ namespace SharpPDDL
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             if (node.Parameters.Count != 1)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E21"), node.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 96, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             return Visit(node.Body);
         }
@@ -137,7 +172,7 @@ namespace SharpPDDL
             do
             {
                 IEnumerator<SingleTypeOfDomein> ModelsEnum = allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
-                //IEnumerator<SingleTypeOfDomein> ModelsEnum = Models.GetEnumerator();
+
                 if (ModelsEnum.MoveNext())
                     ParameterModel = ModelsEnum.Current;
 
@@ -146,7 +181,11 @@ namespace SharpPDDL
             while (ParameterModel is null && !(originalObjTypeCand is null));
 
             if (ParameterModel is null)
-                throw new Exception();
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C28"), node.Expression.Type);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 97, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
@@ -154,7 +193,7 @@ namespace SharpPDDL
             IEnumerable<ushort> Values = ParameterModel.CumulativeValues.Where(v => v.Name == MemberName).Select(v => v.ValueOfIndexesKey);
 
             //thumbnailObj allows for it already
-            if (Values.Count() != 0)
+            if (Values.Any())
             {
                 Expression[] argument = new[] { Expression.Constant(Values.First()) };
 
@@ -188,10 +227,18 @@ namespace SharpPDDL
                             FieldInfo FieldType = typeof(T).GetField(MemberName);
 
                             if(!FieldType.IsInitOnly)
-                                throw new Exception(MemberName + " have to be: constant / readonly / used as action argument");
+                            {
+                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E24"), MemberName);
+                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 100, ExceptionMess);
+                                throw new Exception(ExceptionMess);
+                            }
 
                             if (!FieldType.FieldType.IsValueType && FieldType.FieldType != typeof(string))
-                                throw new Exception("Variable used in goal checking have to be string or ValueType");
+                            {
+                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E25"), MemberName);
+                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 101, ExceptionMess);
+                                throw new Exception(ExceptionMess);
+                            }
 
                             Expression FieldAccess = Expression.Field(Converted, FieldType);
 
@@ -203,10 +250,18 @@ namespace SharpPDDL
                             PropertyInfo PropertyType = typeof(T).GetProperty(MemberName);
 
                             if (PropertyType.CanWrite || !PropertyType.CanRead)
-                                throw new Exception(MemberName + " cannot be changed in time of programm run or have to be used as action argument");
+                            {
+                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E26"), MemberName);
+                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 102, ExceptionMess);
+                                throw new Exception(ExceptionMess);
+                            }
 
                             if (!PropertyType.PropertyType.IsValueType && PropertyType.PropertyType != typeof(string))
-                                throw new Exception("Variable used in goal checking have to be string or ValueType");
+                            {
+                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E27"), MemberName);
+                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 103, ExceptionMess);
+                                throw new Exception(ExceptionMess);
+                            }
 
                             Expression PropertyAccess = Expression.Property(Converted, PropertyType);
 
@@ -216,7 +271,9 @@ namespace SharpPDDL
                         }
                     default:
                         {
-                            throw new Exception();
+                            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E22"), MemberName);
+                            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 98, ExceptionMess);
+                            throw new Exception(ExceptionMess);
                         }
                 }
 
@@ -226,7 +283,9 @@ namespace SharpPDDL
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            throw new Exception("You cannot to use object method call to create model of object. Try to write this method (" + node.ToString() + ")as new lambda which uses only ValueType member(s) of object.");
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E23"), node.ToString());
+            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 99, ExceptionMess);
+            throw new Exception(ExceptionMess);
         }
     }
 }
