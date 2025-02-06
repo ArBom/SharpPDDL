@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace SharpPDDL
 {
@@ -45,6 +46,7 @@ namespace SharpPDDL
         protected Dictionary<Crisscross, List<GoalPDDL>> FoundedCrisscrosses;
         protected Crisscross CurrentBuilded;
         protected CrisscrossGenerator CurrentBuilder;
+        protected ObservableCollection<GoalPDDL> Goals;
         readonly List<ActionPDDL> Actions;
         internal Action<uint> currentMinCumulativeCostUpdate;
         internal Action<List<CrisscrossChildrenCon>> ToRealize;
@@ -52,12 +54,13 @@ namespace SharpPDDL
         internal ListOfString PlanGeneratedInDomainPlanner;
 
         CancellationToken ExternalCancellationDomein;
-        CancellationTokenSource InternalCancellationTokenSrc;
+        internal CancellationTokenSource InternalCancellationTokenSrc;
         CancellationToken CurrentCancelTokenS;
 
         internal DomainPlanner(DomeinPDDL Owner)
         {
             Actions = Owner.actions;
+            Goals = Owner.domainGoals;
             FoundSols += FoundSolsVoid;
             CurrentBuilded = new Crisscross
             {
@@ -99,26 +102,44 @@ namespace SharpPDDL
                 {
                     FoundedGoals.Add(TempFoungingGoalDetail, new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) { Found.Key });
 
-                    //if (currentMinCumulativeCostUpdate == null)
-                      //  currentMinCumulativeCostUpdate += f;
+                    if (currentMinCumulativeCostUpdate is null)
+                        currentMinCumulativeCostUpdate += f;
                 }
             }
         }
 
         private void f(uint i)
         {
-            var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
-            var FoundedChippest = NOTIsFoundingChippest.Where(FG => (FG.Value.First().CumulativedTransitionCharge < i));
-            foreach (var foundedChippest in FoundedChippest)
-            {
-                foundedChippest.Key.IsFoundingChippest = true;
-                GenList(FoundedCrisscrosses.First(FC => FC.Key.Equals(foundedChippest.Key.GoalPDDL)));
-            }
+            //check if still exists cheaper state in pool
+            uint t = CurrentBuilder.CheckCost();
+            if (i >= t)
+                return;
 
-            if (NOTIsFoundingChippest.Count() == FoundedChippest.Count())
+            var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
+            if (NOTIsFoundingChippest is null)
             {
                 currentMinCumulativeCostUpdate -= f;
+                //TODO jakiś błąd tu program nie powinien wejść
+                return;
             }
+
+            var FoundedChippestStates = NOTIsFoundingChippest.Where(FG => (1.02 * FG.Value.First().CumulativedTransitionCharge < i));
+            if (FoundedChippestStates is null)
+                return;
+
+            int MaxSol = FoundedChippestStates.Max(FG => FG.Value.Count);
+
+            var sol = FoundedChippestStates.First(FG => FG.Value.Count == MaxSol);
+            var g = sol.Value.Min();
+            currentMinCumulativeCostUpdate -= f;
+
+            KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == g);
+            FoundedCrisscrosses.Clear();
+
+            foreach (GoalPDDL goalPDDL in GenerList.Value)
+                Goals.Remove(goalPDDL);
+
+            GenList(GenerList);
         }
 
         object AtAllStateGeneratedLocker = new object();

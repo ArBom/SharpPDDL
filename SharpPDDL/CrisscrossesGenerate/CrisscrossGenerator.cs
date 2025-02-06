@@ -32,6 +32,23 @@ namespace SharpPDDL
         protected readonly Action NoNewDataCheck;
         internal Action CrisscrossesGenerated;
 
+        internal uint CheckCost()
+        {
+            uint ret1, ret2;
+
+            lock(PossibleNewCrisscrossCreLocker)
+            {
+                ret1 = PossibleNewCrisscrossCre.Any() ? PossibleNewCrisscrossCre.First().CumulativedTransitionCharge : uint.MaxValue;
+            }
+
+            lock (CrisscrossReduceLocker)
+            {
+                ret2 = PossibleToCrisscrossReduce.Any() ? PossibleToCrisscrossReduce.First().CumulativedTransitionCharge : uint.MaxValue;
+            }
+
+            return Math.Min(ret1, ret2);
+        }
+
         internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
         {
             this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();

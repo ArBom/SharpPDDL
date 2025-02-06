@@ -151,10 +151,16 @@ namespace SharpPDDL.CrisscrossesGenerate
                     if (ToAddList.Any())
                     {
                         ToAddList = ToAddList.OrderBy(c => c.CumulativedTransitionCharge).ToList();
+                        bool any;
 
                         lock (CrisscrossReduceLocker)
                         {
+                            any = PossibleToCrisscrossReduce.Any();
                             PossibleToCrisscrossReduce.AddRange(ToAddList);
+
+                            if(any)
+                                PossibleToCrisscrossReduce.Sort(Crisscross.SortCumulativedTransitionCharge());
+
                             ReducingCrisscrossARE.Set();
                         }
 

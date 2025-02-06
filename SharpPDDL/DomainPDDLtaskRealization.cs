@@ -78,8 +78,13 @@ namespace SharpPDDL
 
         private void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                if (!domainGoals.Any())
+                    DomainPlanner.InternalCancellationTokenSrc.Cancel();
+
                 return;
+            }                
 
             ICollection<GoalPDDL> ToCheckGoals;
 
