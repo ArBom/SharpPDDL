@@ -817,6 +817,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Begin transcribing the state crisscross.
+        /// </summary>
+        internal static string Sa10 {
+            get {
+                return ResourceManager.GetString("Sa10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Start of realization of generated plan.
         /// </summary>
         internal static string Sa2 {
@@ -903,6 +912,15 @@ namespace SharpPDDL.Properties {
         internal static string Sp1 {
             get {
                 return ResourceManager.GetString("Sp1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu State crisscross transcribed.
+        /// </summary>
+        internal static string Sp10 {
+            get {
+                return ResourceManager.GetString("Sp10", resourceCulture);
             }
         }
         

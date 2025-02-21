@@ -11,7 +11,7 @@ namespace SharpPDDL.CrisscrossesGenerate
 {
     class GoalChecker
     {
-        ObservableCollection<GoalPDDL> domainGoals;
+        internal readonly ObservableCollection<GoalPDDL> domainGoals;
         internal Task CheckingGoal;
         internal bool IsWaiting = false;
         internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols;

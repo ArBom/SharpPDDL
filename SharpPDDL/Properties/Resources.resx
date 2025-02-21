@@ -453,6 +453,9 @@
     <value>Planner of domain started to work</value>
     <comment>DomainPlanner; Start planning the realization of domain's missin</comment>
   </data>
+  <data name="Sa10" xml:space="preserve">
+    <value>Begin transcribing the state crisscross</value>
+  </data>
   <data name="Sa2" xml:space="preserve">
     <value>Start of realization of generated plan</value>
     <comment>PlanImplementor; Start of realization of generated plan</comment>
@@ -492,6 +495,9 @@
   <data name="Sp1" xml:space="preserve">
     <value>Abort of plan realization without any action execution. There is DONT_DO_IT mode.</value>
     <comment>PlanImplementor;</comment>
+  </data>
+  <data name="Sp10" xml:space="preserve">
+    <value>State crisscross transcribed</value>
   </data>
   <data name="Sp2" xml:space="preserve">
     <value>Current plan fully executed</value>

@@ -64,56 +64,19 @@ namespace SharpPDDL
             }
 
             DomainPlanner = new DomainPlanner(this);
-            PlanImplementor.UpdateIt(this);
-            PlanImplementor.cancelationToken = CancellationDomein;
 
             foreach (Delegate d in this.PlanGenerated.GetInvocationList())
                 DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)d;
 
-            DomainPlanner.ToRealize += PlanImplementor.RealizeIt;
-            this.domainGoals.CollectionChanged += DomainGoals_CollectionChanged;
+            this.domainGoals.CollectionChanged += DomainPlanner.DomainGoals_CollectionChanged;
 
             DomainPlanner.Start(options);
-        }
-
-        private void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-            {
-                if (!domainGoals.Any())
-                    DomainPlanner.InternalCancellationTokenSrc.Cancel();
-
-                return;
-            }                
-
-            ICollection<GoalPDDL> ToCheckGoals;
-
-            if (this.domainGoals.Any())
-            {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
-                throw new Exception(GloCla.ResMan.GetString("E5"));
-            }
-
-            try
-            {
-                ToCheckGoals = (ICollection<GoalPDDL>)sender;
-            }
-            catch
-            {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 13, GloCla.ResMan.GetString("C0"));
-                throw new Exception(GloCla.ResMan.GetString("C0"));
-            }
-
-            foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
-            {
-                //CheckGoalInCol.CheckNewGoal(CancellationDomein, states, ToCheckGoal, foundSols);
-            }
         }
 
         protected void ExternalCancellationOfProc()
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 12, GloCla.ResMan.GetString("V0"), this.Name);
-            this.domainGoals.CollectionChanged -= DomainGoals_CollectionChanged;
+            this.domainGoals.CollectionChanged -= DomainPlanner.DomainGoals_CollectionChanged;
         }    
     }
 }

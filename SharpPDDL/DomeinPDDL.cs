@@ -9,6 +9,13 @@ using System.Threading;
 
 namespace SharpPDDL
 {
+    internal struct ImplementorUpdater
+    {
+        internal WaitHandle SignalizeNeedAcception;
+        internal WaitHandle WaitOn;
+        internal byte PlanImplementor_Agrees;
+    }
+
     public partial class DomeinPDDL
     {
         static Dictionary<string, DomeinPDDL> AllDomain;
@@ -17,7 +24,7 @@ namespace SharpPDDL
         private TypesPDDL types;
         internal List<ActionPDDL> actions;
         internal DomainPlanner DomainPlanner;
-        internal PlanImplementor PlanImplementor;
+        internal ImplementorUpdater ImplementorUpdate;
         internal PossibleState CurrentState;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
@@ -138,8 +145,6 @@ namespace SharpPDDL
 
             AllDomain.Add(name, this);
 
-            this.PlanImplementor = new PlanImplementor();
-
             this.Name = name;
             this.actions = new List<ActionPDDL>();
             this.domainGoals = new ObservableCollection<GoalPDDL>();
@@ -170,7 +175,14 @@ namespace SharpPDDL
                 Asks = (Asks | (int)A);
             }
 
-            PlanImplementor.UpdateIt(SignalizeNeedAcception, WaitOn, (byte)Asks);
+            ImplementorUpdate = new ImplementorUpdater
+            {
+                SignalizeNeedAcception = SignalizeNeedAcception,
+                WaitOn = WaitOn,
+                PlanImplementor_Agrees = (byte)Asks
+            };
+
+            DomainPlanner?.PlanImplementor.UpdateIt(SignalizeNeedAcception, WaitOn, (byte)Asks);
         }
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)

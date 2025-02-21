@@ -9,7 +9,7 @@ namespace SharpPDDL.CrisscrossesGenerate
 {
     class CrisscrossNewPossiblesCreator
     {
-        protected readonly IReadOnlyList<ActionPDDL> Actions;
+        internal readonly IReadOnlyList<ActionPDDL> Actions;
         protected readonly Dictionary<int, int[]> actionsByParamCount;
         protected readonly int MinActionParamCount;
         protected readonly int MaxActionParamCount;

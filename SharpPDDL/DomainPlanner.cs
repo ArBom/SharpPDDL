@@ -46,10 +46,10 @@ namespace SharpPDDL
         protected Dictionary<Crisscross, List<GoalPDDL>> FoundedCrisscrosses;
         protected Crisscross CurrentBuilded;
         protected CrisscrossGenerator CurrentBuilder;
+        internal PlanImplementor PlanImplementor;
         protected ObservableCollection<GoalPDDL> Goals;
         readonly List<ActionPDDL> Actions;
         internal Action<uint> currentMinCumulativeCostUpdate;
-        internal Action<List<CrisscrossChildrenCon>> ToRealize;
         internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
 
@@ -67,6 +67,7 @@ namespace SharpPDDL
                 Content = Owner.CurrentState
             };
 
+            PlanImplementor = new PlanImplementor(Owner);
             CurrentBuilder = new CrisscrossGenerator(CurrentBuilded, Owner, FoundSols, currentMinCumulativeCostUpdate);
             FoundedGoals = new Dictionary<FoungingGoalDetail, SortedSet<Crisscross>>();
             FoundedCrisscrosses = new Dictionary<Crisscross, List<GoalPDDL>>(Crisscross.IContentEqualityComparer);
@@ -86,6 +87,42 @@ namespace SharpPDDL
 
             CurrentBuilder.CrisscrossesGenerated += AtAllStateGenerated;
             CurrentBuilder.Start(CurrentCancelTokenS);
+        }
+
+        internal void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                if (!Goals.Any())
+                    InternalCancellationTokenSrc.Cancel();
+
+                return;
+            }
+
+            ICollection<GoalPDDL> ToCheckGoals;
+
+            if (Goals.Any())
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
+                throw new Exception(GloCla.ResMan.GetString("E5"));
+            }
+
+            try
+            {
+                ToCheckGoals = (ICollection<GoalPDDL>)sender;
+            }
+            catch
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 13, GloCla.ResMan.GetString("C0"));
+                throw new Exception(GloCla.ResMan.GetString("C0"));
+            }
+
+            CurrentBuilder.Stop().Wait();
+            foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
+            {
+                CheckGoalInCol.CheckNewGoal(CurrentCancelTokenS, CurrentBuilded, ToCheckGoal, FoundSols);
+            }
+            CurrentBuilder.ReStart(CurrentBuilded);
         }
 
         private void FoundSolsVoid(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -183,7 +220,13 @@ namespace SharpPDDL
                 }
 
                 PlanGeneratedInDomainPlanner?.Invoke(Plan);
-                ToRealize?.Invoke(FoKePo);
+
+                Task Stopping = CurrentBuilder.Stop();
+                Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
+                //Task Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+
+                Task.WaitAll(Stopping, Realizing);
+                int AO = 1500;
             }
         }
     }

@@ -32,14 +32,17 @@ namespace SharpPDDL
         internal byte PlanImplementor_Agrees = 0b_1111;
         internal IReadOnlyList<Delegate> InstantActionsExecutionPDDL;
         private PossibleState CurrentState;
-        internal CancellationToken cancelationToken;
+        internal CancellationTokenSource InternalCancelationTokenSource;
 
-        Task ImplementorTask;
+        internal Task ImplementorTask { get; private set; }
 
-        internal void UpdateIt(DomeinPDDL Owner)
+        internal PlanImplementor(DomeinPDDL Owner)
         {
-            InstantActionsExecutionPDDL = Owner.actions.Select(a => a.InstantExecution).ToList();
-            CurrentState = Owner.CurrentState;
+            this.InstantActionsExecutionPDDL = Owner.actions.Select(a => a.InstantExecution).ToList();
+            this.CurrentState = Owner.CurrentState;
+            this.SignalizeNeedAcception = Owner.ImplementorUpdate.SignalizeNeedAcception;
+            this.WaitOn = Owner.ImplementorUpdate.WaitOn;
+            this.PlanImplementor_Agrees = Owner.ImplementorUpdate.PlanImplementor_Agrees;
         }
 
         internal void UpdateIt(WaitHandle SignalizeNeedAcception, WaitHandle WaitOn, byte PlanImplementor_Agrees)
@@ -149,10 +152,14 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
         }
 
-        internal void RealizeIt(List<CrisscrossChildrenCon> ActionList)
+        internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, CancellationToken ExternalCancellationToken)
         {
-            Action actions = () => ActionListRealize(ActionList, cancelationToken);
-            ImplementorTask = Task.Factory.StartNew(actions, cancelationToken);
+            InternalCancelationTokenSource = new CancellationTokenSource();
+            var PlanImplementorTokens = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationToken, InternalCancelationTokenSource.Token).Token;
+
+            void actions() => ActionListRealize(ActionList, PlanImplementorTokens);
+            ImplementorTask = Task.Factory.StartNew(actions, PlanImplementorTokens);
+            return ImplementorTask;
         }
     }
 }

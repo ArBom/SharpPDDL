@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -104,10 +103,10 @@ namespace SharpPDDL.CrisscrossesGenerate
                         continue;
                     }
 
-                    PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
+                    PossibleGoalRealization?.Enqueue(possibleToCrisscrossReduce);
                     CheckingGoalRealizationARE.Set();
                 }
-                NoNewData.BeginInvoke(null, null);
+                NoNewData?.BeginInvoke(null, null);
                 IsWaiting = true;
             }
 
