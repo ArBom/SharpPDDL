@@ -376,6 +376,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no {0} parameter inside list..
+        /// </summary>
+        internal static string C40 {
+            get {
+                return ResourceManager.GetString("C40", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu This domain dont know the {0} class type.
         /// </summary>
         internal static string C5 {
@@ -1110,6 +1119,15 @@ namespace SharpPDDL.Properties {
         internal static string W1 {
             get {
                 return ResourceManager.GetString("W1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You asked to accept some executions, but you didnt give the lib. any Event to inform you about waiting on it..
+        /// </summary>
+        internal static string W10 {
+            get {
+                return ResourceManager.GetString("W10", resourceCulture);
             }
         }
         

@@ -202,52 +202,49 @@ namespace SharpPDDL
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Start, 122, GloCla.ResMan.GetString("Sa10"));
 
-                SortedSet<Crisscross> TempPossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
-
+                SortedSet<Crisscross> TempPossibleNewCrisscrossCre = new SortedSet<Crisscross>();
                 Crisscross NewOne = new Crisscross
                 {
-                    Content = NewRoot.Content
+                    Content = new PossibleState(NewRoot.Content.ThumbnailObjects)
                 };
 
-                AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false);
-                List<Crisscross> PossibleToCrisscrossReduce = new List<Crisscross>();
+                var cmp = Crisscross.IContentEqualityComparer;
 
-                void TranscribeChild(Crisscross Source, Crisscross Destination)
+                CrisscrossRefEnum NewOneEnum = new CrisscrossRefEnum(ref NewOne);
+                CrisscrossEnum Enum = new CrisscrossEnum(NewRoot);
+                Crisscross PrevAdded = NewOne;
+
+                while (Enum.MoveNext() && !cancellationToken.IsCancellationRequested)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        return;
+                    Crisscross EnumCurr = Enum.Current;
+                    Crisscross ToAddAt = NewOne;
 
-                    foreach (CrisscrossChildrenCon SourceCCC in Source.Children)
+                    if (cmp.Equals(Enum.CurrentConnector.Child, PrevAdded))
+                        ToAddAt = PrevAdded;
+                    else
+                        foreach (ChainStruct CS in Enum.UsedAlternativeRoots)
+                            ToAddAt = ToAddAt.Children.First(CCC => cmp.Equals(CCC.Child, CS.Chain)).Child;
+
+                    ToAddAt.Add(EnumCurr.Content, Enum.CurrentConnector.ActionNr, Enum.CurrentConnector.ActionArgOryg, Enum.CurrentConnector.ActionCost, out PrevAdded);
+
+                    if (EnumCurr.AlternativeRoots.Any())
                     {
-                        if (Destination.Children.Exists(c => c.Child.Content.CheckSum == SourceCCC.Child.Content.CheckSum))
-                            if (Destination.Children.Exists(c => (c.Child.Content.CheckSum == SourceCCC.Child.Content.CheckSum && c.ActionNr == SourceCCC.ActionNr && c.ActionArgOryg.ToString() == SourceCCC.ActionArgOryg.ToString())))
-                                continue;
+                        while (NewOneEnum.MoveNext())
+                        {
+                            if (cmp.Equals(NewOneEnum.Current, EnumCurr))
+                            {
+                                Enum.Repeated = true;
+                                Crisscross.Merge(ref NewOneEnum.Current, ref EnumCurr);
+                                break;
+                            }
+                        }
+                    }
 
-                        Destination.Add(SourceCCC.Child.Content, SourceCCC.ActionNr, SourceCCC.ActionArgOryg, SourceCCC.ActionCost, out Crisscross crisscross);
-
-                        if (SourceCCC.Child.AlternativeRoots.Any())
-                            PossibleToCrisscrossReduce.Add(crisscross);
-
-                        if (SourceCCC.Child.Children.Any())
-                            TranscribeChild(SourceCCC.Child, crisscross);
-                        else
-                            TempPossibleNewCrisscrossCre.Add(SourceCCC.Child);
-                    };
-
-                    ReducingCrisscrossARE.Set();
-                }
-
-                CrisscrossReducer TempCrisscrossReducer = new CrisscrossReducer(NewOne, ReducingCrisscrossARE, PossibleToCrisscrossReduce, new object(), null, new AutoResetEvent(true));
-                TempCrisscrossReducer.Start(cancellationToken);
-                TranscribeChild(NewRoot, NewOne);
-
-                while (!TempCrisscrossReducer.IsWaiting)
-                    Thread.Sleep(30);
-
-                TempCrisscrossReducer.BuildingNewCrisscross.Dispose();
+                    if(!EnumCurr.Children.Any())
+                        TempPossibleNewCrisscrossCre.Add(EnumCurr);
+                }             
 
                 GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));
-
                 return new Tuple<Crisscross, SortedSet<Crisscross>>(NewOne, TempPossibleNewCrisscrossCre);
             });
 

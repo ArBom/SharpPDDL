@@ -257,6 +257,10 @@
     <value>Unexpected error in time of {0} action execution: {1}</value>
     <comment>PlanImplementor; ; 0-action name, 1-comm. txt</comment>
   </data>
+  <data name="C40" xml:space="preserve">
+    <value>There is no {0} parameter inside list.</value>
+    <comment>WholeActionExecutionLambda; Creating Action Lambda is impossible cause lack of param; 0-param name</comment>
+  </data>
   <data name="C5" xml:space="preserve">
     <value>This domain dont know the {0} class type</value>
     <comment>ThumbnailObjectPrecursor; unknown class type; 0-class type</comment>
@@ -582,6 +586,10 @@
   <data name="W1" xml:space="preserve">
     <value>Unexpected value change. Its impossible to realize {0} action, cause {1} precondition is unfulfilled.</value>
     <comment>PlanImplementor; Some unexpected change without lib.; 0-action name, 1-precondition name</comment>
+  </data>
+  <data name="W10" xml:space="preserve">
+    <value>You asked to accept some executions, but you didnt give the lib. any Event to inform you about waiting on it.</value>
+    <comment>DomeinPDDL; AskToAgree with aksing without Action</comment>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

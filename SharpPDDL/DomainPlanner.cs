@@ -140,37 +140,36 @@ namespace SharpPDDL
                     FoundedGoals.Add(TempFoungingGoalDetail, new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) { Found.Key });
 
                     if (currentMinCumulativeCostUpdate is null)
-                        currentMinCumulativeCostUpdate += f;
+                        currentMinCumulativeCostUpdate += CheckingIfGenerateActionList;
                 }
             }
         }
 
-        private void f(uint i)
+        private void CheckingIfGenerateActionList(uint ActMinCumulativeCost)
         {
             //check if still exists cheaper state in pool
-            uint t = CurrentBuilder.CheckCost();
-            if (i >= t)
+            if (ActMinCumulativeCost >= CurrentBuilder.CheckCost())
                 return;
 
             var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
             if (NOTIsFoundingChippest is null)
             {
-                currentMinCumulativeCostUpdate -= f;
+                currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
                 //TODO jakiś błąd tu program nie powinien wejść
                 return;
             }
 
-            var FoundedChippestStates = NOTIsFoundingChippest.Where(FG => (1.02 * FG.Value.First().CumulativedTransitionCharge < i));
-            if (FoundedChippestStates is null)
+            var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.02 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
+            if (FoundedChipStates is null)
                 return;
 
-            int MaxSol = FoundedChippestStates.Max(FG => FG.Value.Count);
+            int MaxCountSolution = FoundedChipStates.Max(FG => FG.Value.Count);
 
-            var sol = FoundedChippestStates.First(FG => FG.Value.Count == MaxSol);
-            var g = sol.Value.Min();
-            currentMinCumulativeCostUpdate -= f;
+            var Solution = FoundedChipStates.First(FG => FG.Value.Count == MaxCountSolution);
+            Crisscross StateToHit = Solution.Value.Min();
+            currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
 
-            KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == g);
+            KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == StateToHit);
             FoundedCrisscrosses.Clear();
 
             foreach (GoalPDDL goalPDDL in GenerList.Value)
@@ -188,12 +187,10 @@ namespace SharpPDDL
             {
                 CurrentBuilder.CrisscrossesGenerated -= AtAllStateGenerated;
                 int Mfounded = FoundedCrisscrosses.Max(K => K.Value.Count());
-                var t = FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First();
-                GenList(t);
+                GenList(FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First());
             }
         }
 
-        //List<CrisscrossChildrenCon>
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
         {
             Crisscross state = CurrentBuilded;
@@ -210,9 +207,7 @@ namespace SharpPDDL
                     PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[Actions[FoKePo[i].ActionNr].InstantActionParamCount];
 
                     for (int j = 0; j != arg.Length; j++)
-                    {
                         arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
-                    }
 
                     Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Actions[FoKePo[i].ActionNr].Name), (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
 
@@ -223,9 +218,9 @@ namespace SharpPDDL
 
                 Task Stopping = CurrentBuilder.Stop();
                 Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
-                //Task Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+                Task Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
 
-                Task.WaitAll(Stopping, Realizing);
+                Task.WaitAll(Stopping, Realizing, Transcribing);
                 int AO = 1500;
             }
         }

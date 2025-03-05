@@ -27,7 +27,7 @@ namespace SharpPDDL
 
     class PlanImplementor
     {
-        internal WaitHandle SignalizeNeedAcception;
+        internal Action<string, object[]> NeedAcception;
         internal WaitHandle WaitOn;
         internal byte PlanImplementor_Agrees = 0b_1111;
         internal IReadOnlyList<Delegate> InstantActionsExecutionPDDL;
@@ -40,14 +40,14 @@ namespace SharpPDDL
         {
             this.InstantActionsExecutionPDDL = Owner.actions.Select(a => a.InstantExecution).ToList();
             this.CurrentState = Owner.CurrentState;
-            this.SignalizeNeedAcception = Owner.ImplementorUpdate.SignalizeNeedAcception;
+            this.NeedAcception = Owner.ImplementorUpdate.SignalizeNeedAcception;
             this.WaitOn = Owner.ImplementorUpdate.WaitOn;
             this.PlanImplementor_Agrees = Owner.ImplementorUpdate.PlanImplementor_Agrees;
         }
 
-        internal void UpdateIt(WaitHandle SignalizeNeedAcception, WaitHandle WaitOn, byte PlanImplementor_Agrees)
+        internal void UpdateIt(Action<string, object[]> SignalizeNeedAcception, WaitHandle WaitOn, byte PlanImplementor_Agrees)
         {
-            this.SignalizeNeedAcception = SignalizeNeedAcception;
+            this.NeedAcception = SignalizeNeedAcception;
             this.WaitOn = WaitOn;
             this.PlanImplementor_Agrees = PlanImplementor_Agrees;
         }
@@ -66,7 +66,8 @@ namespace SharpPDDL
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 26, GloCla.ResMan.GetString("V2"));
 
-                //SignalizeNeedAcception?.
+                object[] ActionsNameArray = ActionList.Select(AL => (object)(InstantActionsExecutionPDDL[AL.ActionNr].Method.Name)).ToArray();
+                NeedAcception?.Invoke(GloCla.PlanToAcceptation, ActionsNameArray);
                 WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });
 
                 if (cancelationToken.IsCancellationRequested)
@@ -89,13 +90,13 @@ namespace SharpPDDL
                 if (InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.StartsWith(GloCla.SpecialFuncPrefix) && (PlanImplementor_Agrees & Agrees.SpecialAction) != 0)
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
-                    //SignalizeNeedAcception?.
+                    NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1), Act.ActionArgOryg);
                     WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                    
                 }
                 else if ((PlanImplementor_Agrees & Agrees.EveryAction) != 0)
                 { 
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
-                    //SignalizeNeedAcception?.
+                    NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, Act.ActionArgOryg);
                     WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                
                 }
 

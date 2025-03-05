@@ -125,18 +125,25 @@ namespace SharpPDDL
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example string("Parameter") 
-            string memberExpressionName = node.Name;
-
-            int index = Parameters.FindIndex(p => p.Name == node.Name);
-            //TODO zabezpieczyć jak w Parametrach nie bedzie parametru
+            int index = -1;
+            try
+            {
+                index = Parameters.FindIndex(p => p.Name == node.Name);
+            }
+            catch
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 124, GloCla.ResMan.GetString("C40"), node.Name);
+                throw new Exception();
+            }
 
             switch (index)
             {
                 case 0:
                     return _parameters[ActualObjectPDDL.AllParamsOfAct1ClassPos.Value];
                 case 1:
-                    return _parameters[ActualObjectPDDL.AllParamsOfAct2ClassPos.Value];  
+                    return _parameters[ActualObjectPDDL.AllParamsOfAct2ClassPos.Value];
+                default:
+                    break;
             }
 
             string ExceptionMess = String.Format(GloCla.ResMan.GetString("E16"));

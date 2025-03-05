@@ -1,23 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace SharpPDDL
 {
-    internal class ChainStruct
-    {
-        internal Crisscross Chain;
-        internal int ChainChildNo;
-
-        internal ChainStruct(Crisscross chain, int ChainChildNo)
-        {
-            this.Chain = chain;
-            this.ChainChildNo = ChainChildNo;
-        }
-    }
-
     public struct CrisscrossRefEnum
     {
         internal ref Crisscross Current => ref Chains[chainInd].Chain;

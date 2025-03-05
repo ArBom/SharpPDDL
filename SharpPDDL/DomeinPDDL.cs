@@ -11,7 +11,7 @@ namespace SharpPDDL
 {
     internal struct ImplementorUpdater
     {
-        internal WaitHandle SignalizeNeedAcception;
+        internal Action<string, object[]> SignalizeNeedAcception;
         internal WaitHandle WaitOn;
         internal byte PlanImplementor_Agrees;
     }
@@ -159,14 +159,15 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 0, GloCla.ResMan.GetString("I0"), GloCla.Tracer.Name);
         }
 
-        public void SetExecutionOptions(WaitHandle SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)
+        public void SetExecutionOptions(Action<string, object[]> SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)
         {
-            if (WaitOn is null)
+            if (askToAgrees.Any(a => (a != AskToAgree.GO_AHEAD) && (a != AskToAgree.DONT_DO_IT)))
             {
-                if (askToAgrees.Any(a => a != AskToAgree.GO_AHEAD && a != AskToAgree.DONT_DO_IT))
-                {
+                if (SignalizeNeedAcception is null)
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 125, GloCla.ResMan.GetString("W10"));
+
+                if (WaitOn is null)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 3, GloCla.ResMan.GetString("W0"));
-                }
             }
 
             int Asks = (int)AskToAgree.GO_AHEAD;

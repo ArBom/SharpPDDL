@@ -100,6 +100,9 @@ namespace SharpPDDL
         {
             public bool Equals(Crisscross x, Crisscross y)
             {
+                if ((x.Content is null) || (y.Content is null))
+                    return false;
+
                 if (x.Content.CheckSum != y.Content.CheckSum)
                     return false;
 
@@ -190,6 +193,14 @@ namespace SharpPDDL
 
         internal static void MergeK(ref Crisscross Incorporating, ref Crisscross Annexed)
         {
+            bool CheckChildRoor(CrisscrossChildrenCon child, Crisscross AnnexedA)
+            {
+                if (child.Child.Root is null)
+                    return false;
+
+                return child.Child.Root.Equals(AnnexedA);
+            }
+
             //uint costDiff = Annexed.CumulativedTransitionCharge - Incorporating.CumulativedTransitionCharge;
             Annexed.AlternativeRoots.Add(Annexed.Root);
 
@@ -233,7 +244,7 @@ namespace SharpPDDL
             lock(Annexed.Children)
             foreach (var child in Annexed.Children)
             {
-                if (child.Child.Root.Equals(Annexed))
+                if (CheckChildRoor(child, Annexed))
                     child.Child.Root = Incorporating;
                 else
                     for (int i = 0; i != child.Child.AlternativeRoots.Count; i++)
