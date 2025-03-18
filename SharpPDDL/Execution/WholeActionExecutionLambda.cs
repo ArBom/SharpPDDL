@@ -7,9 +7,16 @@ using System.Reflection;
 
 namespace SharpPDDL
 {
-    internal class EffectExecutionException : Exception
+    internal class PrecondExecutionException : Exception
     {
-        public EffectExecutionException(string message) : base(message) { }
+        internal const string ActionName = "ActionName";
+        internal const string ExecutionPreconditionName = "ExecutionPrecondition";
+
+        public PrecondExecutionException(string ActionName, string ExecutionPreconditionName) : base("Unexpected value in time of trying realize " + ActionName + " action; unfulfil " + ExecutionPreconditionName + " precondition")
+        {
+            Data.Add(PrecondExecutionException.ActionName, ActionName);
+            Data.Add(PrecondExecutionException.ExecutionPreconditionName, ExecutionPreconditionName);
+        }
     }
 
     internal class WholeActionExecutionLambda : ExpressionVisitor
@@ -83,13 +90,13 @@ namespace SharpPDDL
             if (ExecutionPrecondition.Any())
             {
                 ActualObjectPDDL = ExecutionPrecondition[0];
-                Expression Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[0].func), ExecutingExpression, Expression.Throw(Expression.Constant(new EffectExecutionException(ExecutionPrecondition[0].Name))));
+                Expression Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[0].func), ExecutingExpression, Expression.Throw(Expression.Constant(new PrecondExecutionException(Name, ExecutionPrecondition[0].Name))));
                 if (ExecutionPrecondition.Count > 1)
                 {
                     for (int i = 1; i != ExecutionPrecondition.Count; i++)
                     {
                         ActualObjectPDDL = ExecutionPrecondition[i];
-                        Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[i].func), Checking, Expression.Throw(Expression.Constant(new EffectExecutionException(ExecutionPrecondition[i].Name))));
+                        Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[i].func), Checking, Expression.Throw(Expression.Constant(new PrecondExecutionException(Name, ExecutionPrecondition[i].Name))));
                     }
                 }
 

@@ -49,12 +49,16 @@ namespace SharpPDDL
             return Math.Min(ret1, ret2);
         }
 
+        internal void InitBuffors (IEnumerable<Crisscross> PossibleGoalRealization, IEnumerable<Crisscross> PossibleNewCrisscrossCre, IEnumerable<Crisscross> PossibleToCrisscrossReduce)
+        {
+            this.PossibleGoalRealization = (PossibleGoalRealization is null)? new ConcurrentQueue<Crisscross>() : new ConcurrentQueue<Crisscross>(PossibleGoalRealization);
+            this.PossibleNewCrisscrossCre = (PossibleNewCrisscrossCre is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleNewCrisscrossCre, Crisscross.SortCumulativedTransitionCharge());
+            this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new List<Crisscross>() : new List<Crisscross>(PossibleToCrisscrossReduce);
+        }
+
         internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
         {
-            this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-            this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
-            this.PossibleToCrisscrossReduce = new List<Crisscross>();
-
+            InitBuffors(null, null, null);
             this.NoNewDataCheck = new Action(CheckAllGenerated);
 
             //Creating AutoResetEvents
@@ -93,11 +97,6 @@ namespace SharpPDDL
             //Cancellation Tokens
             Definetoken(ExternalCancellationToken);
 
-            //init working class
-            this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
-            this.PossibleNewCrisscrossCre = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
-            this.PossibleToCrisscrossReduce = new List<Crisscross>();
-
             //Get ready all Tasks of this process
             goalChecker.Start(CurrentCancelToken);
             crisscrossNewPossiblesCreator.Start(CurrentCancelToken);
@@ -113,7 +112,7 @@ namespace SharpPDDL
                 throw new Exception();
 
             if (!CurrentCancelToken.IsCancellationRequested)
-                Stop().Wait();
+                Stop().Wait(90);
 
             Definetoken(this.ExternalCancellation);
 
@@ -146,7 +145,7 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
 
                 //use internal Cancellation Token
-                if(!CrisscrossGeneratorCancellationTokenSrc.IsCancellationRequested)
+                if(!CurrentCancelToken.IsCancellationRequested)
                     CrisscrossGeneratorCancellationTokenSrc.Cancel();
 
                 //make sure there is no task wainting for buffor add element
@@ -191,18 +190,13 @@ namespace SharpPDDL
             CrisscrossesGenerated?.Invoke();
         }
 
-        //internal Task TranscribeStateTask(Crisscross NewRoot, out Crisscross NewOne, out SortedSet<Crisscross> PossibleNewCrisscrossCre, CancellationToken cancellationToken)
-        //{
-        //    return Task.Factory.StartNew(() => TranscribeState(NewRoot, cancellationToken));
-        //}
-
-        internal Task<Tuple<Crisscross, SortedSet<Crisscross>>> TranscribeState(Crisscross NewRoot, CancellationToken cancellationToken)
+        internal Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> TranscribeState(Crisscross NewRoot, CancellationToken cancellationToken)
         {
-            Task<Tuple<Crisscross, SortedSet<Crisscross>>> Transcribing = new Task<Tuple<Crisscross, SortedSet<Crisscross>>>(() =>
+            Task<(Crisscross, SortedSet<Crisscross>)> Transcribing = new Task<(Crisscross, SortedSet<Crisscross>)>(() =>
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Start, 122, GloCla.ResMan.GetString("Sa10"));
 
-                SortedSet<Crisscross> TempPossibleNewCrisscrossCre = new SortedSet<Crisscross>();
+                SortedSet<Crisscross> ChildlessCrisscrosses = new SortedSet<Crisscross>();
                 Crisscross NewOne = new Crisscross
                 {
                     Content = new PossibleState(NewRoot.Content.ThumbnailObjects)
@@ -229,6 +223,8 @@ namespace SharpPDDL
 
                     if (EnumCurr.AlternativeRoots.Any())
                     {
+                        //TODO jeśli EnumCurr już wykrył powtórzenie, to można to wykorzystać
+
                         while (NewOneEnum.MoveNext())
                         {
                             if (cmp.Equals(NewOneEnum.Current, EnumCurr))
@@ -241,11 +237,11 @@ namespace SharpPDDL
                     }
 
                     if(!EnumCurr.Children.Any())
-                        TempPossibleNewCrisscrossCre.Add(EnumCurr);
+                        ChildlessCrisscrosses.Add(EnumCurr);
                 }             
 
                 GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));
-                return new Tuple<Crisscross, SortedSet<Crisscross>>(NewOne, TempPossibleNewCrisscrossCre);
+                return (NewOne, ChildlessCrisscrosses);
             });
 
             Transcribing.Start();

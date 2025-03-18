@@ -591,6 +591,10 @@
     <value>You asked to accept some executions, but you didnt give the lib. any Event to inform you about waiting on it.</value>
     <comment>DomeinPDDL; AskToAgree with aksing without Action</comment>
   </data>
+  <data name="W11" xml:space="preserve">
+    <value>You forgot to define of acceptation of action realize param. It will ask of everything.</value>
+    <comment>DomeinPDDL; There is no realization asking params - set to ask everything</comment>
+  </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>
     <comment>PlanImplementor;</comment>

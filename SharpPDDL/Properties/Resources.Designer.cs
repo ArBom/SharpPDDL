@@ -1132,6 +1132,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You forgot to define of acceptation of action realize param. It will ask of everything..
+        /// </summary>
+        internal static string W11 {
+            get {
+                return ResourceManager.GetString("W11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu One of actions have no declared execution. SharpPDDL is trying realize plan without this action.
         /// </summary>
         internal static string W2 {

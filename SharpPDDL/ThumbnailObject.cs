@@ -109,7 +109,7 @@ namespace SharpPDDL
     {       
         readonly internal TOriginalObj _OriginalObj;
         internal override Type OriginalObjType => _OriginalObj.GetType();
-        readonly SingleTypeOfDomein Model;
+        internal readonly SingleTypeOfDomein Model;
         public override PossibleStateThumbnailObject Precursor { get { return this; } }
         internal override ushort[] ValuesIndeksesKeys
         {
@@ -118,6 +118,44 @@ namespace SharpPDDL
 
         internal override object OriginalObj { get { return this._OriginalObj; } }
 
+        public ThumbnailObjectPrecursor(PossibleStateThumbnailObject brokenEl)
+        {
+            this.Model = ((ThumbnailObjectPrecursor<TOriginalObj>)brokenEl.Precursor).Model;
+            this.Parent = null;
+            this._OriginalObj = (TOriginalObj)brokenEl.Precursor.OriginalObj;
+            this.Dict = new Dictionary<ushort, ValueType>();
+            this.child = new List<PossibleStateThumbnailObject>();
+
+            foreach (Value VOT in Model.CumulativeValues)
+            {
+                ValueType value;
+
+                if (VOT.IsField)
+                {
+                    FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
+
+                    if (myFieldInfo is null)
+                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
+
+                    value = (ValueType)myFieldInfo.GetValue(OriginalObj);
+                }
+                else
+                {
+                    PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
+
+                    if (propertyInfo is null)
+                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
+
+                    value = (ValueType)propertyInfo.GetValue(OriginalObj);
+                }
+
+                Dict.Add(VOT.ValueOfIndexesKey, value);
+            }
+
+            FigureCheckSum();
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
+        }
 
         public ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {

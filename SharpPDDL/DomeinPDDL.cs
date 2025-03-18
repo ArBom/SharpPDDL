@@ -161,7 +161,7 @@ namespace SharpPDDL
 
         public void SetExecutionOptions(Action<string, object[]> SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)
         {
-            if (askToAgrees.Any(a => (a != AskToAgree.GO_AHEAD) && (a != AskToAgree.DONT_DO_IT)))
+            if (!askToAgrees.Any() || askToAgrees.Any(a => (a != AskToAgree.GO_AHEAD) && (a != AskToAgree.DONT_DO_IT)))
             {
                 if (SignalizeNeedAcception is null)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 125, GloCla.ResMan.GetString("W10"));
@@ -171,10 +171,17 @@ namespace SharpPDDL
             }
 
             int Asks = (int)AskToAgree.GO_AHEAD;
-            foreach (var A in askToAgrees)
+
+            if (!askToAgrees.Any())
             {
-                Asks = (Asks | (int)A);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 126, GloCla.ResMan.GetString("W11"));
+                Asks = (Agrees.Plan | Agrees.SpecialAction | Agrees.EveryAction);
             }
+            else
+                foreach (var A in askToAgrees)
+                {
+                    Asks = (Asks | (int)A);
+                }
 
             ImplementorUpdate = new ImplementorUpdater
             {
@@ -188,12 +195,20 @@ namespace SharpPDDL
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)
         {
-            foreach (dynamic Obj in eventType.NewItems)
+            foreach (object Obj in eventType.NewItems)
             {
                 if (!(Obj.GetType().IsClass))
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Information, 4, GloCla.ResMan.GetString("I2"), Obj.GetType().ToString());
                     domainObjects.Remove(Obj);
+                    continue;
+                }
+
+                if (!(DomainPlanner is null))
+                if (!(DomainPlanner.OneUnuseObjects is null))
+                {
+                    PossibleStateThumbnailObject TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.allTypes);
+                    DomainPlanner.OneUnuseObjects.Add(TempNewOne);
                 }
             }
         }

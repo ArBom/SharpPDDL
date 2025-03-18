@@ -125,16 +125,16 @@ namespace SharpPDDL
 
                     ExecutionTask.RunSynchronously();
                 }
-                catch (EffectExecutionException UnexpectedPrecondition)
+                catch (PrecondExecutionException UnexpectedPrecondition)
                 {
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 23, GloCla.ResMan.GetString("W1"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, UnexpectedPrecondition.ToString());
-                    throw new NotImplementedException();
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 23, GloCla.ResMan.GetString("W1"), UnexpectedPrecondition.Data[PrecondExecutionException.ActionName], UnexpectedPrecondition.Data[PrecondExecutionException.ExecutionPreconditionName]);
+                    throw UnexpectedPrecondition;
                     //TODO no i co dalej?
                 }
                 catch (Exception exception)
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 24, GloCla.ResMan.GetString("C4"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, exception.ToString());
-                    new Exception(exception.ToString());
+                    throw exception;
                 }
                 finally
                 {
