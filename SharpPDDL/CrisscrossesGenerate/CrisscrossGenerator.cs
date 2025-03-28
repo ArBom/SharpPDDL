@@ -11,13 +11,41 @@ namespace SharpPDDL
 {
     internal class CrisscrossGenerator
     {
+        //////////////////////////////////////////////////
+        //                                              //
+        // CrisscrossGenerator(CurrentBuilded)          //
+        //                           ⋮                  //
+        //  ┌──┐                     ⋮     ┌──┐         //
+        //  │crisscrossReducer       ⋮     │goalChecker //
+        //  ├──┴──┐                  ▼     ├──┴──┐      //
+        //  │ ⤺   │PossibleGoalRealization│ ⤺   │      //
+        //  │⤹  🚦③│   (ConcurrentQueue)   │⤹  🚦①│      //
+        //  │ ⤻   │⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯▶│ ⤻  │      //
+        //  └─────┘                        └─────┘      //
+        //     ▼                               ⋰        //
+        //       ⋱             PossibleNewCrisscrossCre //
+        // PossibleToCrisscrossReduce      ⋰(SortedSet) //
+        //   (List)  ⋱                   ⋰              //
+        //             ⋱               ⋰                //
+        //               ⋱           ⋰                  //
+        //               ┌──┐     ▲                     //
+        //               │crisscrossNewPossiblesCreator //
+        //               ├──┴──┐                        //
+        //               │ ⤺   │                       //
+        //               │⤹  🚦②│                       //
+        //               │ ⤻   │                       //
+        //               └─────┘                       //
+        //                                             //
+        /////////////////////////////////////////////////
+
         //Cancelation Tokens
         internal CancellationTokenSource CrisscrossGeneratorCancellationTokenSrc;
         protected CancellationToken ExternalCancellation;
         protected CancellationToken CurrentCancelToken;
 
-        object PossibleNewCrisscrossCreLocker;
-        object CrisscrossReduceLocker;
+        //Lockers
+        protected readonly object PossibleNewCrisscrossCreLocker;
+        protected readonly object CrisscrossReduceLocker;
 
         //Buffors between consuments-procucents
         protected ConcurrentQueue<Crisscross> PossibleGoalRealization;
@@ -62,9 +90,9 @@ namespace SharpPDDL
             this.NoNewDataCheck = new Action(CheckAllGenerated);
 
             //Creating AutoResetEvents
-            AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(false);
-            AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(false);
-            AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false);
+            AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(false); //🚦①
+            AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(false); //🚦②
+            AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(false); //🚦③
 
             //add the root of whole tree to check at the begining
             PossibleGoalRealization.Enqueue(CurrentBuilded);

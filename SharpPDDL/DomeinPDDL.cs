@@ -12,7 +12,7 @@ namespace SharpPDDL
     internal struct ImplementorUpdater
     {
         internal Action<string, object[]> SignalizeNeedAcception;
-        internal WaitHandle WaitOn;
+        internal EventWaitHandle WaitOn;
         internal byte PlanImplementor_Agrees;
     }
 
@@ -153,13 +153,26 @@ namespace SharpPDDL
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
         }
 
+        /// <summary>
+        /// This method defines TraceSource to allow application to trace the execution of code and associate trace messages with their source.
+        /// </summary>
+        /// <param name="LibTrace">TraceSource which will be let known about messages from library</param>
         public void DefineTrace(TraceSource LibTrace)
         {
             GloCla.Tracer = LibTrace;
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 0, GloCla.ResMan.GetString("I0"), GloCla.Tracer.Name);
         }
 
-        public void SetExecutionOptions(Action<string, object[]> SignalizeNeedAcception, WaitHandle WaitOn, params AskToAgree[] askToAgrees)
+        /// <summary>
+        /// Its make possible to realize determined plan. Default: DONT_DO_IT, it means: plan is not realizing
+        /// </summary>
+        /// <param name="SignalizeNeedAcception">
+        /// This action will be Invoke to inform about necessity to accept some realization step. If you set <c>null</c> value, it will be sight unseen acceptation.<br/>
+        /// In case of plan acceptation: "Plan to acceptation", actions names array<br/>
+        /// In case of action acceptation: Action name, objects to use in action array<br/></param>
+        /// <param name="WaitOn"><c>Set()</c> it to realize plan / action. In other case needs cancel it all with <c>CancellationTokenSource</c></param>
+        /// <param name="askToAgrees">Array of <c>AskToAgree</c> objects defines cases of realization asking. Default: DONT_DO_IT</param>
+        public void SetExecutionOptions(Action<string, object[]> SignalizeNeedAcception, EventWaitHandle WaitOn, params AskToAgree[] askToAgrees)
         {
             if (!askToAgrees.Any() || askToAgrees.Any(a => (a != AskToAgree.GO_AHEAD) && (a != AskToAgree.DONT_DO_IT)))
             {

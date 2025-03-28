@@ -28,7 +28,7 @@ namespace SharpPDDL
     class PlanImplementor
     {
         internal Action<string, object[]> NeedAcception;
-        internal WaitHandle WaitOn;
+        internal EventWaitHandle WaitOn;
         internal byte PlanImplementor_Agrees = 0b_1111;
         internal IReadOnlyList<Delegate> InstantActionsExecutionPDDL;
         private PossibleState CurrentState;
@@ -45,7 +45,7 @@ namespace SharpPDDL
             this.PlanImplementor_Agrees = Owner.ImplementorUpdate.PlanImplementor_Agrees;
         }
 
-        internal void UpdateIt(Action<string, object[]> SignalizeNeedAcception, WaitHandle WaitOn, byte PlanImplementor_Agrees)
+        internal void UpdateIt(Action<string, object[]> SignalizeNeedAcception, EventWaitHandle WaitOn, byte PlanImplementor_Agrees)
         {
             this.NeedAcception = SignalizeNeedAcception;
             this.WaitOn = WaitOn;
@@ -68,6 +68,10 @@ namespace SharpPDDL
 
                 object[] ActionsNameArray = ActionList.Select(AL => (object)(InstantActionsExecutionPDDL[AL.ActionNr].Method.Name)).ToArray();
                 NeedAcception?.Invoke(GloCla.PlanToAcceptation, ActionsNameArray);
+
+                if (WaitOn is null)
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 127, GloCla.ResMan.GetString("C41"));
+
                 WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });
 
                 if (cancelationToken.IsCancellationRequested)
@@ -76,7 +80,10 @@ namespace SharpPDDL
                     return;
                 }
                 else
+                {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 27, GloCla.ResMan.GetString("V3"));
+                    WaitOn.Reset();
+                }
             }
 
             foreach (CrisscrossChildrenCon Act in ActionList)
@@ -91,12 +98,20 @@ namespace SharpPDDL
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
                     NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1), Act.ActionArgOryg);
+
+                    if (WaitOn is null)
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 128, GloCla.ResMan.GetString("C42"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
+
                     WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                    
                 }
                 else if ((PlanImplementor_Agrees & Agrees.EveryAction) != 0)
                 { 
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
                     NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, Act.ActionArgOryg);
+
+                    if (WaitOn is null)
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 129, GloCla.ResMan.GetString("C43"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
+
                     WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                
                 }
 
@@ -105,6 +120,8 @@ namespace SharpPDDL
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 32, GloCla.ResMan.GetString("V7"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
                     return;
                 }
+                else
+                    WaitOn.Reset();
 
                 GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 33, GloCla.ResMan.GetString("V8"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
 

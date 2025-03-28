@@ -230,7 +230,6 @@ namespace SharpPDDL
                 {
                     if (Realizing.Exception.InnerException is PrecondExecutionException)
                     {
-                        //ActionPDDL un = Actions.First(a => a.Name == Realizing.Exception.InnerException.Data[PrecondExecutionException.ActionName]);
                         List<PossibleStateThumbnailObject> RefreshedThumbnails = new List<PossibleStateThumbnailObject>(OneUnuseObjects);
                         OneUnuseObjects.Clear();
 

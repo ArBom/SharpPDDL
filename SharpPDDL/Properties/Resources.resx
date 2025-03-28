@@ -261,6 +261,18 @@
     <value>There is no {0} parameter inside list.</value>
     <comment>WholeActionExecutionLambda; Creating Action Lambda is impossible cause lack of param; 0-param name</comment>
   </data>
+  <data name="C41" xml:space="preserve">
+    <value>Its impossible to plan implement agree, cause EventWaitHandle (flon SetExecutionOptions method) is null</value>
+    <comment>PlanImplementor;</comment>
+  </data>
+  <data name="C42" xml:space="preserve">
+    <value>Its impossible to special function agree, cause EventWaitHandle (flon SetExecutionOptions method) is null</value>
+    <comment>PlanImplementor; ; 0-method name</comment>
+  </data>
+  <data name="C43" xml:space="preserve">
+    <value>Its impossible to function agree, cause EventWaitHandle (flon SetExecutionOptions method) is null</value>
+    <comment>PlanImplementor; ; 0-method name</comment>
+  </data>
   <data name="C5" xml:space="preserve">
     <value>This domain dont know the {0} class type</value>
     <comment>ThumbnailObjectPrecursor; unknown class type; 0-class type</comment>

@@ -385,6 +385,33 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Its impossible to plan implement agree, cause EventWaitHandle (flon SetExecutionOptions method) is null.
+        /// </summary>
+        internal static string C41 {
+            get {
+                return ResourceManager.GetString("C41", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Its impossible to special function agree, cause EventWaitHandle (flon SetExecutionOptions method) is null.
+        /// </summary>
+        internal static string C42 {
+            get {
+                return ResourceManager.GetString("C42", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Its impossible to function agree, cause EventWaitHandle (flon SetExecutionOptions method) is null.
+        /// </summary>
+        internal static string C43 {
+            get {
+                return ResourceManager.GetString("C43", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu This domain dont know the {0} class type.
         /// </summary>
         internal static string C5 {
