@@ -1,10 +1,16 @@
 ![thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
 
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo=github)
+![GitHub repo lines](https://tokei.rs/b1/github/ArBom/SharpPDDL)
+[![NuGet Version](https://img.shields.io/nuget/vpre/SharpPDDL?style=plastic&logo=nuget&label=NuGet&color=004880&cacheSeconds=7200)](https://www.nuget.org/packages/SharpPDDL)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://www.nuget.org/stats/packages/SharpPDDL?groupby=Version)
 
-This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
+---
+
+This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.1 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
 > [!WARNING]
-> Library has several bugs, works unstable so is not to use, still.
+> Library has some bugs, so it may works unstable.
 
 One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing to realize the goal. Examples of problems possible to solution by this algorithm:
 
@@ -12,8 +18,6 @@ One can to use previously defined classes which are using in other part of one's
   <summary>Tower of Hanoi</summary>
   
 Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Tower_of_Hanoi)
-
-In this problem, you will use two types of objects (brick and table). Both have some common features (HanoiObj).
 ```cs
 public class HanoiObj //It cannot be abstract
 {
@@ -188,7 +192,7 @@ Move brick onto another brick: Place the 1-size brick onto 2-size brick.
 <details> 
   <summary>Water pouring puzzle</summary>
   
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle#Standard_example) 
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
     
   ```cs
 public class WaterJug
@@ -312,9 +316,6 @@ Travel: Go to Koszalin. Action cost: 700
 Make you sure about the solution with another program: [AtoZmath.com](https://cbom.atozmath.com/CBOM/Assignment.aspx?q=tsnn&q1=0%2C245%2C700%2C372%2C250%2C520%2C687%3B245%2C0%2C456%2C165%2C48%2C293%2C448%3B700%2C456%2C0%2C364%2C458%2C290%2C304%3B372%2C165%2C364%2C0%2C227%2C109%2C295%3B250%2C48%2C458%2C227%2C0%2C311%2C478%3B520%2C293%2C290%2C109%2C311%2C0%2C173%3B687%2C448%2C304%2C295%2C478%2C173%2C0%60MIN%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60false%60false&do=1#tblSolution)
 
 </details>
-
-> [!IMPORTANT]  
-> If you wanna wait for finish some execution, and than do the next one, you need to block thread. Don't use Tasks inside ExpressionExecution Funct. Program will not wait for it.
 
 ---
 <img align="right" src="https://github.com/user-attachments/assets/85f24e2f-18b7-417f-bd34-4fef48890ee2">
