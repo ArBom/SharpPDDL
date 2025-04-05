@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ namespace SharpPDDL
         internal const byte EveryAction = 0b_0011;
         internal const byte Plan = 0b_0100;
         internal const byte DONT_DO_IT = 0b_1000;
+
+        internal const byte DONT_EVEN_TRY = 0b_1111;
     }
 
     public enum AskToAgree : byte
@@ -27,52 +30,37 @@ namespace SharpPDDL
 
     class PlanImplementor
     {
-        internal Action<string, object[]> NeedAcception;
-        internal EventWaitHandle WaitOn;
-        internal byte PlanImplementor_Agrees = 0b_1111;
-        internal IReadOnlyList<Delegate> InstantActionsExecutionPDDL;
-        private PossibleState CurrentState;
+        internal readonly DomeinPDDL Owner;
         internal CancellationTokenSource InternalCancelationTokenSource;
 
         internal Task ImplementorTask { get; private set; }
 
         internal PlanImplementor(DomeinPDDL Owner)
         {
-            this.InstantActionsExecutionPDDL = Owner.actions.Select(a => a.InstantExecution).ToList();
-            this.CurrentState = Owner.CurrentState;
-            this.NeedAcception = Owner.ImplementorUpdate.SignalizeNeedAcception;
-            this.WaitOn = Owner.ImplementorUpdate.WaitOn;
-            this.PlanImplementor_Agrees = Owner.ImplementorUpdate.PlanImplementor_Agrees;
-        }
-
-        internal void UpdateIt(Action<string, object[]> SignalizeNeedAcception, EventWaitHandle WaitOn, byte PlanImplementor_Agrees)
-        {
-            this.NeedAcception = SignalizeNeedAcception;
-            this.WaitOn = WaitOn;
-            this.PlanImplementor_Agrees = PlanImplementor_Agrees;
+            this.Owner = Owner;
         }
 
         protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, CancellationToken cancelationToken)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 22, GloCla.ResMan.GetString("Sa2"));
 
-            if ((PlanImplementor_Agrees & Agrees.DONT_DO_IT) != 0)
+            if ((Owner.ImplementorUpdate.PlanImplementor_Agrees & Agrees.DONT_DO_IT) != 0)
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 25, GloCla.ResMan.GetString("Sp1"));
                 return;
             }
 
-            if ((PlanImplementor_Agrees & Agrees.Plan) != 0)
+            if ((Owner.ImplementorUpdate.PlanImplementor_Agrees & Agrees.Plan) != 0)
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 26, GloCla.ResMan.GetString("V2"));
 
-                object[] ActionsNameArray = ActionList.Select(AL => (object)(InstantActionsExecutionPDDL[AL.ActionNr].Method.Name)).ToArray();
-                NeedAcception?.Invoke(GloCla.PlanToAcceptation, ActionsNameArray);
+                object[] ActionsNameArray = ActionList.Select(AL => (object)(Owner.actions[AL.ActionNr].InstantExecution.Method.Name)).ToArray();
+                Owner.ImplementorUpdate.SignalizeNeedAcception?.Invoke(GloCla.PlanToAcceptation, ActionsNameArray);
 
-                if (WaitOn is null)
+                if (Owner.ImplementorUpdate.WaitOn is null)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 127, GloCla.ResMan.GetString("C41"));
 
-                WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });
+                WaitHandle.WaitAny(new WaitHandle[] { Owner.ImplementorUpdate.WaitOn, cancelationToken.WaitHandle });
 
                 if (cancelationToken.IsCancellationRequested)
                 {
@@ -82,48 +70,48 @@ namespace SharpPDDL
                 else
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 27, GloCla.ResMan.GetString("V3"));
-                    WaitOn.Reset();
+                    Owner.ImplementorUpdate.WaitOn.Reset();
                 }
             }
 
             foreach (CrisscrossChildrenCon Act in ActionList)
             {
-                if (InstantActionsExecutionPDDL[Act.ActionNr] is null)
+                if (Owner.actions[Act.ActionNr].InstantExecution is null)
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 28, GloCla.ResMan.GetString("W2"));
                     continue;
                 }
 
-                if (InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.StartsWith(GloCla.SpecialFuncPrefix) && (PlanImplementor_Agrees & Agrees.SpecialAction) != 0)
+                if (Owner.actions[Act.ActionNr].InstantExecution.Method.Name.StartsWith(GloCla.SpecialFuncPrefix) && (Owner.ImplementorUpdate.PlanImplementor_Agrees & Agrees.SpecialAction) != 0)
                 {
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
-                    NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1), Act.ActionArgOryg);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name.Substring(1));
+                    Owner.ImplementorUpdate.SignalizeNeedAcception?.Invoke(Owner.actions[Act.ActionNr].InstantExecution.Method.Name.Substring(1), Act.ActionArgOryg);
 
-                    if (WaitOn is null)
-                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 128, GloCla.ResMan.GetString("C42"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
+                    if (Owner.ImplementorUpdate.WaitOn is null)
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 128, GloCla.ResMan.GetString("C42"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name.Substring(1));
 
-                    WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                    
+                    WaitHandle.WaitAny(new WaitHandle[] { Owner.ImplementorUpdate.WaitOn, cancelationToken.WaitHandle });                    
                 }
-                else if ((PlanImplementor_Agrees & Agrees.EveryAction) != 0)
+                else if ((Owner.ImplementorUpdate.PlanImplementor_Agrees & Agrees.EveryAction) != 0)
                 { 
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
-                    NeedAcception?.Invoke(InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, Act.ActionArgOryg);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name);
+                    Owner.ImplementorUpdate.SignalizeNeedAcception?.Invoke(Owner.actions[Act.ActionNr].InstantExecution.Method.Name, Act.ActionArgOryg);
 
-                    if (WaitOn is null)
-                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 129, GloCla.ResMan.GetString("C43"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name.Substring(1));
+                    if (Owner.ImplementorUpdate.WaitOn is null)
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 129, GloCla.ResMan.GetString("C43"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name.Substring(1));
 
-                    WaitHandle.WaitAny(new WaitHandle[] { WaitOn, cancelationToken.WaitHandle });                
+                    WaitHandle.WaitAny(new WaitHandle[] { Owner.ImplementorUpdate.WaitOn, cancelationToken.WaitHandle });                
                 }
 
                 if (cancelationToken.IsCancellationRequested)
                 {
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 32, GloCla.ResMan.GetString("V7"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 32, GloCla.ResMan.GetString("V7"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name);
                     return;
                 }
                 else
-                    WaitOn.Reset();
+                    Owner.ImplementorUpdate.WaitOn?.Reset();
 
-                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 33, GloCla.ResMan.GetString("V8"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 33, GloCla.ResMan.GetString("V8"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name);
 
                 int ExecutionTaskId = -1;
 
@@ -131,13 +119,13 @@ namespace SharpPDDL
                 {
                     Task ExecutionTask = new Task(() =>
                     {
-                        InstantActionsExecutionPDDL[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg);
+                        Owner.actions[Act.ActionNr].InstantExecution.DynamicInvoke(Act.ActionArgOryg);
                     }, cancelationToken);
 
                     if (!(GloCla.Tracer is null))
                     {
                         ExecutionTaskId = ExecutionTask.Id;
-                        GloCla.Tracer.TraceEvent(TraceEventType.Start, 34, GloCla.ResMan.GetString("Sa3"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, ExecutionTaskId);
+                        GloCla.Tracer.TraceEvent(TraceEventType.Start, 34, GloCla.ResMan.GetString("Sa3"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name, ExecutionTaskId);
                     }
 
                     ExecutionTask.RunSynchronously();
@@ -150,7 +138,7 @@ namespace SharpPDDL
                 }
                 catch (Exception exception)
                 {
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 24, GloCla.ResMan.GetString("C4"), InstantActionsExecutionPDDL[Act.ActionNr].Method.Name, exception.ToString());
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 24, GloCla.ResMan.GetString("C4"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name, exception.ToString());
                     throw exception;
                 }
                 finally
@@ -164,7 +152,7 @@ namespace SharpPDDL
                     //TODO sprawdzenie czy nowe wartości są ok i ew. zakomunikowanie problemów
                 }
 
-                CurrentState = Act.Child.Content;
+                Owner.CurrentState = Act.Child.Content;
             }
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));

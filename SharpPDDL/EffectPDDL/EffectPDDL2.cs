@@ -15,29 +15,25 @@ namespace SharpPDDL
         protected T1c t1;
         protected T2c t2;
 
-        Expression<Func<T1p, ValueType>> DestinationFunct;
-
         internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) :
-        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
+        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), DestinationFunct, SourceObj.GetType(), SourceObj.GetHashCode())
         {
             this.t1 = DestinationObj;
             this.t2 = SourceObj;
 
             this.SourceFunc = SourceFunct;
-            this.DestinationFunct = DestinationFunct;
         }
 
         internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) : 
-        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), SourceObj.GetType(), SourceObj.GetHashCode())
+        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), DestinationFunct, SourceObj.GetType(), SourceObj.GetHashCode())
         {
             this.t1 = DestinationObj;
             this.t2 = SourceObj;
 
             this.SourceFunc = SourceFunct;
-            this.DestinationFunct = DestinationFunct;
         }
 
-        private string MutualPartOfConstructors(Expression<Func<T1p, ValueType>> DestinationFunct)
+        private string MutualPartOfConstructors(Expression DestinationFunct)
         {
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(DestinationFunct);
@@ -65,7 +61,7 @@ namespace SharpPDDL
                 this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
             }
 
-            this.DestinationMemberName = MutualPartOfConstructors(DestinationFunct);
+            this.DestinationMemberName = MutualPartOfConstructors(DestinationMember);
 
             //Tag destination parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)

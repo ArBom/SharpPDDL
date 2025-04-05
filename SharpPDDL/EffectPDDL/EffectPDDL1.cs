@@ -11,20 +11,18 @@ namespace SharpPDDL
         where T1p : class 
         where T1c : class, T1p
     {
-        internal readonly Expression<Func<T1p, ValueType>> Destination;
         protected readonly T1c t1;
 
-        internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue) : base(Name, obj1.GetType(), obj1.GetHashCode())
+        internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue) : base(Name, obj1.GetType(), obj1.GetHashCode(), Destination)
         {
             this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
-            this.Destination = Destination;
             this.t1 = obj1;
         }
 
         override internal void CompleteActinParams(IList<Parametr> Parameters)
         {
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
-            DestLambdaListerPDDL.Visit(Destination);
+            DestLambdaListerPDDL.Visit(DestinationMember);
             this.usedMembers1Class = DestLambdaListerPDDL.used[0];
             this.DestinationMemberName = usedMembers1Class[0];
 

@@ -311,7 +311,6 @@ namespace SharpPDDL
 
                 EffectsUsingAsExecution.Add(UsedAlso);
             }
-            EffectsUsedAlsoAsExecution = null;
 
             if (this.Executions.Any() || EffectsUsingAsExecution.Any())
             {

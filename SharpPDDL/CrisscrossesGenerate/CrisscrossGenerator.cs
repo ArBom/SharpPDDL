@@ -196,11 +196,13 @@ namespace SharpPDDL
         {
             //GloCla.Tracer?.TraceEvent(TraceEventType.Information, 62, GloCla.ResMan.GetString("I6"));
 
-            if (PossibleNewCrisscrossCre.Any())
-                return;
+            lock (PossibleNewCrisscrossCreLocker)
+                if (PossibleNewCrisscrossCre.Any())
+                    return;
 
-            if (PossibleToCrisscrossReduce.Any())
-                return;
+            lock (CrisscrossReduceLocker)
+                if (PossibleToCrisscrossReduce.Any())
+                    return;
 
             if (PossibleGoalRealization.Any())
                 return;

@@ -24,18 +24,24 @@ namespace SharpPDDL
         private TypesPDDL types;
         internal List<ActionPDDL> actions;
         internal DomainPlanner DomainPlanner;
-        internal ImplementorUpdater ImplementorUpdate;
         internal PossibleState CurrentState;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
         internal EventWaitHandle _PlanRealizationEventWaitHandle;
+        public ListOfString PlanGenerated;
+
         public EventWaitHandle PlanRealizationEventWaitHandle
         {
             get { return _PlanRealizationEventWaitHandle; }
             set { _PlanRealizationEventWaitHandle = value; }
         }
 
-        public ListOfString PlanGenerated;
+        internal ImplementorUpdater ImplementorUpdate = new ImplementorUpdater
+        {
+            SignalizeNeedAcception = null,
+            WaitOn = null,
+            PlanImplementor_Agrees = Agrees.DONT_EVEN_TRY
+        };
 
         internal void CheckActions(ParallelOptions parallelOptions = default)
         {
@@ -202,8 +208,6 @@ namespace SharpPDDL
                 WaitOn = WaitOn,
                 PlanImplementor_Agrees = (byte)Asks
             };
-
-            DomainPlanner?.PlanImplementor.UpdateIt(SignalizeNeedAcception, WaitOn, (byte)Asks);
         }
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)

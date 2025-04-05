@@ -9,6 +9,7 @@ namespace SharpPDDL
     abstract internal class EffectPDDL : ObjectPDDL
     {
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
+        internal Expression DestinationMember;
 
         internal Expression _SourceFunc;
         internal protected virtual Expression SourceFunc
@@ -23,14 +24,18 @@ namespace SharpPDDL
 
         internal string DestinationMemberName;
 
-        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class) { }
+        protected EffectPDDL(string Name, Type TypeOf1Class, Int32 Hash1Class, Expression DestinationMember, Type TypeOf2Class = null, Int32? Hash2Class = null) : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        {
+            this.DestinationMember = DestinationMember;
+        }
 
-        internal static EffectPDDL Instance<T1>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1 destinationObj, Expression<Func<T1, ValueType>> destinationMember, ValueType newValue_Static) //przypisanie wartosci ze stałej
-            where T1 : class
+        internal static EffectPDDL Instance<T1c, T1p>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1c destinationObj, Expression<Func<T1p, ValueType>> destinationMember, ValueType newValue_Static) //przypisanie wartosci ze stałej
+            where T1p : class
+            where T1c : class, T1p
         {
             CheckExistEffectName(Effects, Name);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref destinationObj);
-            EffectPDDL1<T1, T1> NewEffectPDDL = new EffectPDDL1<T1, T1>(Name, ref destinationObj, destinationMember, newValue_Static);
+            EffectPDDL1<T1c, T1p> NewEffectPDDL = new EffectPDDL1<T1c, T1p>(Name, ref destinationObj, destinationMember, newValue_Static);
             Effects?.Add(NewEffectPDDL);
             return NewEffectPDDL;
         }

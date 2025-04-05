@@ -10,38 +10,39 @@
     <Authors>Arkadiusz Bomba</Authors>
     <PackageReleaseNotes>β</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.2.0.0</Version>
+    <Version>0.2.0.1</Version>
     <PackageTags>GOAP;planning;AI</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
     <Description>Generic, multi-threading GOAP (Goal Oriented Action Planning) library based on λ-expressions processing.</Description>
-    <Copyright>Copyright (c) Arkadiusz Bomba 2025</Copyright>
+    <Copyright>Copyright © Arkadiusz Bomba 2025</Copyright>
     <Win32Resource />
     <PackageIcon>SharpPDDL.png</PackageIcon>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
+    <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <DocumentationFile></DocumentationFile>
     <Optimize>false</Optimize>
+    <NoWarn>1701;1702;IDE0011</NoWarn>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ImplementationChecker.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="LICENSE.txt" />
     <None Remove="README.md" />
-    <None Remove="SharpPDDL.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SharpPDDL.ico">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
