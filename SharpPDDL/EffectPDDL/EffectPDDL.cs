@@ -9,7 +9,7 @@ namespace SharpPDDL
     abstract internal class EffectPDDL : ObjectPDDL
     {
         internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
-        internal Expression DestinationMember;
+        readonly internal Expression DestinationMember;
 
         internal Expression _SourceFunc;
         internal protected virtual Expression SourceFunc

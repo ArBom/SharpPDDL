@@ -405,6 +405,10 @@
     <value>In this version of SharpPDDL its possible to use to 2 params inside Precondition function</value>
     <comment>PreconditionLambdaModif;</comment>
   </data>
+  <data name="E34" xml:space="preserve">
+    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to check the condition of the next actions.</value>
+    <comment>ActionCheckerLambda; incorrect value assignment - variable used in PreconditionIn; 0-DestinationMemberName, 1-current Value, 2-expected value, 3-effect name, 4-action name</comment>
+  </data>
   <data name="E4" xml:space="preserve">
     <value>You cannot to create goal without name or with empty name.</value>
     <comment>DomeinPDDL; trying to create new goal with wrong name</comment>
@@ -460,6 +464,9 @@
   <data name="I7" xml:space="preserve">
     <value>all possible state probably generated</value>
     <comment>CrisscrossGenerator;</comment>
+  </data>
+  <data name="I8" xml:space="preserve">
+    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action.</value>
   </data>
   <data name="Sa0" xml:space="preserve">
     <value>{0} domain started to create actions' programms</value>
@@ -606,6 +613,9 @@
   <data name="W11" xml:space="preserve">
     <value>You forgot to define of acceptation of action realize param. It will ask of everything.</value>
     <comment>DomeinPDDL; There is no realization asking params - set to ask everything</comment>
+  </data>
+  <data name="W12" xml:space="preserve">
+    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect, or aproximate a cost of action.</value>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

@@ -296,6 +296,8 @@ namespace SharpPDDL
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
 
+            //ActionCheckerLambda actionCheckerLambda = new ActionCheckerLambda(this.Name, this.Effects, allTypes);
+
             List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
             foreach (string EffectAsExecution in EffectsUsedAlsoAsExecution)
             {

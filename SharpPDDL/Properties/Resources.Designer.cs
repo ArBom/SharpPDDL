@@ -709,6 +709,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to check the condition of the next actions..
+        /// </summary>
+        internal static string E34 {
+            get {
+                return ResourceManager.GetString("E34", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
         /// </summary>
         internal static string E4 {
@@ -831,6 +840,15 @@ namespace SharpPDDL.Properties {
         internal static string I7 {
             get {
                 return ResourceManager.GetString("I7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action..
+        /// </summary>
+        internal static string I8 {
+            get {
+                return ResourceManager.GetString("I8", resourceCulture);
             }
         }
         
@@ -1164,6 +1182,15 @@ namespace SharpPDDL.Properties {
         internal static string W11 {
             get {
                 return ResourceManager.GetString("W11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect, or aproximate a cost of action..
+        /// </summary>
+        internal static string W12 {
+            get {
+                return ResourceManager.GetString("W12", resourceCulture);
             }
         }
         

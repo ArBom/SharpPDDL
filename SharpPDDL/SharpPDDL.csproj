@@ -10,7 +10,7 @@
     <Authors>Arkadiusz Bomba</Authors>
     <PackageReleaseNotes>β</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.2.0.1</Version>
+    <Version>0.2.0.2</Version>
     <PackageTags>GOAP;planning;AI</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
