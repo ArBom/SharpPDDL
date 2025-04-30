@@ -71,7 +71,15 @@ namespace SharpPDDL
             return ToRet;
         }
 
-        public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams) where T : class
+        /// <summary>
+        //TODO
+        /// </summary>
+        /// <typeparam name="T">Non-abstract class</typeparam>
+        /// <param name="destination">Instance of class used in actionPDDL, the owner of parameter(s) used in this Sententia</param>
+        /// <param name="Text">This text will be shown in plan to realization</param>
+        /// <param name="TextParams">Function(s) of destionation class, it/these replace the {n} substring(s) in Text</param>
+        public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams) 
+            where T : class
         {
             Parametr.GetTheInstance_TryAddToList(Parameters, ref destination);
 
@@ -83,9 +91,7 @@ namespace SharpPDDL
                 ActionSententia.Add((index, Text, TextParams));
             }
             else
-            {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 46, GloCla.ResMan.GetString("W3"));
-            }
         }
 
         #region Adding Precondictions
@@ -215,7 +221,7 @@ namespace SharpPDDL
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
         /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
-        /// <param name="SourceObj">One of action parametr from which is taken value</param>
+        /// <param name="SourceObj">Action parametr from which is taken value</param>
         /// <param name="Source">Point of source value to take</param>
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
@@ -224,21 +230,66 @@ namespace SharpPDDL
             where T2 : class
             => AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
 
+        /// <summary>
+        /// This method uses one object to assigning new value to another parameter's member after the action is performed
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="DestinationObj">One of action parametr to which is moved value</param>
+        /// <param name="DestinationFunct">Point of destination value to assingnation</param>
+        /// <param name="SourceObj">One of action parametr from which is taken value</param>
+        /// <param name="SourceFunct">Function of DestinationObj and SourceObj the source value to take</param>
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
             => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
         #endregion
         #region Adding Execution
-        public void UseEffectAlsoAsExecution(string ExecutionName) 
-            => EffectsUsedAlsoAsExecution.Add(ExecutionName);       
 
+        [Obsolete("This method is deprecated use AddExecution(string EffectName)", false)]
+        public void UseEffectAlsoAsExecution(string EffectName)
+        {
+            Trace.WriteLine("SharpPDDL: Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
+            GloCla.Tracer?.TraceEvent(TraceEventType.Warning, -1, "Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
+            EffectsUsedAlsoAsExecution.Add(EffectName);
+        }
+
+        
+        /// <summary>
+        /// Use EffectPDDL also as execution
+        /// </summary>
+        /// <param name="EffectName">Name of Effect which will be use by SharpPDDL as execution too</param>
+        public void AddExecution(string EffectName)
+            => EffectsUsedAlsoAsExecution.Add(EffectName);
+
+        /// <summary>
+        /// Add the action to do in time of this point of plan realization
+        /// </summary>
+        /// <param name="Name">Execution's name</param>
+        /// <param name="action">Action to do</param>
+        /// <param name="WorkEithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues) 
             => this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
 
+        /// <summary>
+        /// Add the action to do in time of this point of plan realization
+        /// </summary>
+        /// <param name="Name">Execution's name</param>
+        /// <param name="t1">Instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
+        /// <param name="action">Action of t1 class which will be called in this execution</param>
+        /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) 
             => this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
 
+        /// <summary>
+        /// Add the action to do in time of this point of plan realization
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="t1">1st instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
+        /// <param name="t2">2nd instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
+        /// <param name="action">Action of t1 and t2 classes which will be called in this execution</param>
+        /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) 
             => this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
 

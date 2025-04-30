@@ -478,6 +478,7 @@
   </data>
   <data name="Sa10" xml:space="preserve">
     <value>Begin transcribing the state crisscross</value>
+    <comment>CrisscrossGenerator;</comment>
   </data>
   <data name="Sa2" xml:space="preserve">
     <value>Start of realization of generated plan</value>
@@ -521,6 +522,7 @@
   </data>
   <data name="Sp10" xml:space="preserve">
     <value>State crisscross transcribed</value>
+    <comment>CrisscrossGenerator;</comment>
   </data>
   <data name="Sp2" xml:space="preserve">
     <value>Current plan fully executed</value>
@@ -615,7 +617,10 @@
     <comment>DomeinPDDL; There is no realization asking params - set to ask everything</comment>
   </data>
   <data name="W12" xml:space="preserve">
-    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect, or aproximate a cost of action.</value>
+    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect.</value>
+  </data>
+  <data name="W13" xml:space="preserve">
+    <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to aproximate a cost of action.</value>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

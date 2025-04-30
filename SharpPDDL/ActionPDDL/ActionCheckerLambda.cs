@@ -23,7 +23,7 @@ namespace SharpPDDL
             ConstantExpression TrueExp = Expression.Constant(true, typeof(bool));
             ConstantExpression FalseExp = Expression.Constant(false, typeof(bool));
 
-            Expression[] EffectsArray = new Expression[Effects.Count];
+            Expression[] EffectsArray = new Expression[Effects.Count + 1];
 
             ParameterExpression ef = Expression.Parameter(typeof(bool), "IsOK");
             LabelTarget Correct = Expression.Label(typeof(bool));
@@ -64,6 +64,8 @@ namespace SharpPDDL
 
             MethodInfo ItemOfPSTO = typeof(PossibleStateThumbnailObject).GetMethod("get_Item", new Type[] { typeof(UInt16) });
 
+            MethodInfo VTTostring = typeof(ValueType).GetMethod("ToString", new Type[] { });
+
 
             MethodInfo TraceEventMethod = typeof(TraceSource).GetMethod("TraceEvent", new Type[]{typeof(TraceEventType), typeof(int), typeof(string), typeof(object[])});
             MethodInfo GetString = typeof(ResourceManager).GetMethod("GetString", new Type[] { typeof(string) });
@@ -76,33 +78,40 @@ namespace SharpPDDL
             MemberExpression ContentExp = Expression.Field(ChildExp, ContentF);
             MemberExpression ThumbnailObjectsExp = Expression.Field(ContentExp, ThumbnailObjectsF);
 
-
             Expression ActionArgOrygExp = Expression.Field(Input_parameter, ActionArgOrygF);
 
-            #region 
             //Wrong assignation of value used in Precondition
             ConstantExpression ErrorExp = Expression.Constant(TraceEventType.Error, typeof(TraceEventType));
             ConstantExpression EventId130 = Expression.Constant(130, typeof(int)); 
             ConstantExpression E34 = Expression.Constant("E34", typeof(string));
             MethodCallExpression stringGetterE34 = Expression.Call(ResManExp, GetString, E34);
 
-            //Wrong assignation of value used in Effect and/or Cost
             ConstantExpression WarningExp = Expression.Constant(TraceEventType.Warning, typeof(TraceEventType));
+
+            //Wrong assignation of value used in Effect
             ConstantExpression EventId131 = Expression.Constant(131, typeof(int));
             ConstantExpression W12 = Expression.Constant("W12", typeof(string));
             MethodCallExpression stringGetterW12 = Expression.Call(ResManExp, GetString, W12);
+
+            //Wrong assignation of value used in Cost
+            ConstantExpression EventId133 = Expression.Constant(133, typeof(int));
+            ConstantExpression W13 = Expression.Constant("W13", typeof(string));
+            MethodCallExpression stringGetterW13 = Expression.Call(ResManExp, GetString, W13);
 
             //Wrong assignation of value not used as input
             ConstantExpression InfoExp = Expression.Constant(TraceEventType.Information, typeof(TraceEventType));
             ConstantExpression EventId132 = Expression.Constant(132, typeof(int));
             ConstantExpression I8 = Expression.Constant("I8", typeof(string));
             MethodCallExpression stringGetterI8 = Expression.Call(ResManExp, GetString, I8);
-            #endregion
 
             MethodInfo Find = typeof(List<PossibleStateThumbnailObject>).GetMethod("Find", new Type[] { typeof(Predicate<PossibleStateThumbnailObject>) });
             MethodInfo CheckForEqualsMethodInfo = this.GetType().GetMethod("LambdaOfEq", BindingFlags.NonPublic | BindingFlags.Static);
 
-            var SortedEffects = Effects.Select(e => (Eff: e, Val: allTypes.First(t => t.Type == e.TypeOf1Class).CumulativeValues.First(v => v.Name == e.DestinationMemberName))).OrderBy(k => k.Val.IsInUse_PreconditionIn).ThenBy(k => k.Val.IsInUse_EffectIn).ThenBy(k => k.Val.IsInUse_ActionCostIn);
+            var SortedEffects = Effects.Select(e => (Eff: e, Val: allTypes.First(t => t.Type == e.TypeOf1Class).CumulativeValues.First(v => v.Name == e.DestinationMemberName))).
+                OrderBy(k => k.Val.IsInUse_PreconditionIn).
+                ThenBy(k => k.Val.IsInUse_EffectIn).
+                ThenBy(k => k.Val.IsInUse_ActionCostIn).
+                ToList();
 
             for (int EfC = 0; EfC != Effects.Count; EfC++)
             {
@@ -128,9 +137,7 @@ namespace SharpPDDL
                 //numer na tablicy gdzie zapisywana jest wartość       
                 ConstantExpression FuncOutKeyExp = Expression.Constant(DestMember.ValueOfIndexesKey, typeof(ushort));
 
-                //ParameterExpression ParamVar = Expression.Variable(Effects[EfC].TypeOf1Class, "RealObj_" + EfC);
-
-                var parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "invoice");
+                ParameterExpression parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "invoice");
 
                 MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
 
@@ -139,35 +146,40 @@ namespace SharpPDDL
 
                 MethodCallExpression FieldCondition = Expression.Call(memberExpressionList, Find, CheckForEqualsExp);
                 MethodCallExpression toread = Expression.Call(FieldCondition, ItemOfPSTO, FuncOutKeyExp);
-                var ToReadC = Expression.Convert(toread, DestMember.Type);
+                UnaryExpression ToReadC = Expression.Convert(toread, DestMember.Type);
 
                 MethodInfo ToString = DestMember.Type.GetMethod("ToString", new Type[] { });
-                MethodInfo VTTostring = typeof(ValueType).GetMethod("ToString", new Type[] { });
 
                 BinaryExpression Test = Expression.NotEqual(ToReadC, OrygInput);
 
                 ConstantExpression DestName = Expression.Constant(Effects[EfC].DestinationMemberName, typeof(string));
-                var CurrV = Expression.Call(OrygInput, ToString);
-                var ExpeV = Expression.Call(toread, VTTostring);
+                MethodCallExpression CurrV = Expression.Call(OrygInput, ToString);
+                MethodCallExpression ExpeV = Expression.Call(toread, VTTostring);
                 Expression NamesArray = Expression.NewArrayInit(typeof(string), new Expression[]{ DestName, CurrV, ExpeV, EffectNameExp, ActionNameExp });
 
-                if(DestMember.IsInUse_PreconditionIn)
+                ConditionalExpression CallIfCan = null;
+                if (DestMember.IsInUse_PreconditionIn)
                 {
                     MethodCallExpression callId130 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { ErrorExp, EventId130, stringGetterE34, NamesArray });
-                    ConditionalExpression callId130IfCan = Expression.IfThenElse(TracerNotNull, callId130, Expression.Empty());
+                    CallIfCan = Expression.IfThen(TracerNotNull, callId130);
                 }
-                else if (DestMember.IsInUse_EffectIn || DestMember.IsInUse_ActionCostIn)
+                else if (DestMember.IsInUse_EffectIn)
                 {
                     MethodCallExpression callId131 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { WarningExp, EventId131, stringGetterW12, NamesArray });
-                    ConditionalExpression callId131IfCan = Expression.IfThen(TracerNotNull, callId131);
+                    CallIfCan = Expression.IfThen(TracerNotNull, callId131);
+                }
+                else if (DestMember.IsInUse_ActionCostIn)
+                {
+                    MethodCallExpression callId133 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { WarningExp, EventId133, stringGetterW13, NamesArray });
+                    CallIfCan = Expression.IfThen(TracerNotNull, callId133);
                 }
                 else
                 {
                     MethodCallExpression callId132 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { InfoExp, EventId132, stringGetterI8, NamesArray });
-                    ConditionalExpression callId132IfCan = Expression.IfThen(TracerNotNull, callId132);
+                    CallIfCan = Expression.IfThen(TracerNotNull, callId132);
                 }
 
-                BlockExpression IfNotEqual = Expression.Block(Expression.Empty());
+                BlockExpression IfNotEqual = Expression.Block(CallIfCan);
 
                 Expression expression = Expression.IfThen(Test, IfNotEqual);
 

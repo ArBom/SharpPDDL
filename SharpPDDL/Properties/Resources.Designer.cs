@@ -1186,11 +1186,20 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect, or aproximate a cost of action..
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect..
         /// </summary>
         internal static string W12 {
             get {
                 return ResourceManager.GetString("W12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to aproximate a cost of action..
+        /// </summary>
+        internal static string W13 {
+            get {
+                return ResourceManager.GetString("W13", resourceCulture);
             }
         }
         

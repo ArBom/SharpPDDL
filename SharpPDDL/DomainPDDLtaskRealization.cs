@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Diagnostics;
 
 namespace SharpPDDL
@@ -10,7 +9,7 @@ namespace SharpPDDL
     public partial class DomeinPDDL
     {
         /// <summary>
-        /// 
+        /// Start algorithm in this domain
         /// </summary>
         /// <param name="MaxDegreeOfParalleism">Not in use yet</param>
         /// <param name="CancellationDomein"></param>
@@ -59,14 +58,12 @@ namespace SharpPDDL
             CurrentState = new PossibleState(allObjects);
 
             foreach (var goal in domainGoals)
-            {
                 goal.BUILDIT(this.types.allTypes);
-            }
 
             DomainPlanner = new DomainPlanner(this);
 
-            foreach (Delegate d in this.PlanGenerated.GetInvocationList())
-                DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)d;
+            foreach (Delegate GeneratedPlan in this.PlanGenerated.GetInvocationList())
+                DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)GeneratedPlan;
 
             this.domainGoals.CollectionChanged += DomainPlanner.DomainGoals_CollectionChanged;
 

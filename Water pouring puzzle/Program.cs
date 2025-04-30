@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using SharpPDDL;
 
 namespace Water_pouring_puzzle
@@ -83,8 +82,8 @@ namespace Water_pouring_puzzle
 
             //Decanting needs time to realize
             DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
-            DecantWater.UseEffectAlsoAsExecution("Reduce source jug flood"); //assign new value of SourceJug in the same way as effect funct
-            DecantWater.UseEffectAlsoAsExecution("Increase destination jug flood"); //assign new value of DestinatioJug in the same way as effect funct
+            DecantWater.AddExecution("Reduce source jug flood"); //assign new value of SourceJug in the same way as effect funct
+            DecantWater.AddExecution("Increase destination jug flood"); //assign new value of DestinatioJug in the same way as effect funct
             DecantWater.AddExecution("Let me know", () => Console.WriteLine("Decanted"), true);
 
             //One need to do as fast as possible
