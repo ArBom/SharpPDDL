@@ -3,16 +3,16 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo=github)
 ![GitHub repo lines](https://tokei.rs/b1/github/ArBom/SharpPDDL)
 [![NuGet Version](https://img.shields.io/nuget/vpre/SharpPDDL?style=plastic&logo=nuget&label=NuGet&color=004880&cacheSeconds=7200)](https://www.nuget.org/packages/SharpPDDL)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://www.nuget.org/stats/packages/SharpPDDL?groupby=Version)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=6)
 
 ---
 
 This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.1 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
 > [!WARNING]
-> Library has some bugs, so it may works unstable.
+> Library is in β version still, it may works little unstable.
 
-One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing to realize the goal. Examples of problems possible to solution by this algorithm:
+One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal. Examples of problems possible to solution by this algorithm:
 
 <details> 
   <summary>Tower of Hanoi</summary>
