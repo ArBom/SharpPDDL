@@ -18,6 +18,7 @@ namespace SharpPDDL
         private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantExecution { get; private set; }
+        internal Delegate InstantExecutionChecker { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
         internal int InstantActionParamCount => Parameters.Count;
 
@@ -72,7 +73,7 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        //TODO
+        /// It make possible to define text describe the action execution in actions plan
         /// </summary>
         /// <typeparam name="T">Non-abstract class</typeparam>
         /// <param name="destination">Instance of class used in actionPDDL, the owner of parameter(s) used in this Sententia</param>
@@ -347,7 +348,8 @@ namespace SharpPDDL
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
 
-            //ActionCheckerLambda actionCheckerLambda = new ActionCheckerLambda(this.Name, this.Effects, allTypes);
+            //Generate correction of execution checker delegate
+            //InstantExecutionChecker = ActionChecker.ActionCheckerDel(this.Name, this.Effects, allTypes);
 
             List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
             foreach (string EffectAsExecution in EffectsUsedAlsoAsExecution)

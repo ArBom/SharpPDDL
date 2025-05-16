@@ -1,7 +1,7 @@
 This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool). One can to use previously defined classes which are using in other part of one's programm. At this version you can use single instance of algorithm to solve single problem.
 
-> **WARNING!** 
-> Library has some bugs. It's beta version - possible to works unstable.
+> **WARNING** 
+> Library has some bugs. It's beta version still.
 
 ## How to use:
 Include the library namespace with `using SharpPDDL`.
@@ -24,6 +24,10 @@ Include the library namespace with `using SharpPDDL`.
 | GoalPDDL.`AddExpectedObjectState()` | Defines a state of one of obj. manned by lib. as alg. goal. |
 
 ### Possible applications:
+
+> **TIP**
+> First use of it could seems a little unintuitive. Get familiar with ready examples.
+
 * [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/blob/master/Hanoi%20Tower/Program.cs)
 * [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/blob/master/Water%20pouring%20puzzle/Program.cs)
 * [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/blob/master/Travelling%20Salesman%20Problem/Program.cs)

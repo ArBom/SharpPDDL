@@ -718,6 +718,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is some problem in creating the checker of &quot;{0}&quot; action. .
+        /// </summary>
+        internal static string E35 {
+            get {
+                return ResourceManager.GetString("E35", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
         /// </summary>
         internal static string E4 {

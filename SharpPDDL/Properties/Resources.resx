@@ -407,7 +407,11 @@
   </data>
   <data name="E34" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to check the condition of the next actions.</value>
-    <comment>ActionCheckerLambda; incorrect value assignment - variable used in PreconditionIn; 0-DestinationMemberName, 1-current Value, 2-expected value, 3-effect name, 4-action name</comment>
+    <comment>ActionChecker; incorrect value assignment - variable used in PreconditionIn; 0-DestinationMemberName, 1-current Value, 2-expected value, 3-effect name, 4-action name</comment>
+  </data>
+  <data name="E35" xml:space="preserve">
+    <value>There is some problem in creating the checker of "{0}" action. </value>
+    <comment>ActionChecker; ; 0-action name</comment>
   </data>
   <data name="E4" xml:space="preserve">
     <value>You cannot to create goal without name or with empty name.</value>

@@ -8,12 +8,12 @@ using System.Resources;
 
 namespace SharpPDDL
 {
-    class ActionCheckerLambda : ExpressionVisitor
+    internal static class ActionChecker
     {
         static private Predicate<PossibleStateThumbnailObject> LambdaOfEq(object value)
             => PSTO => PSTO.OriginalObj.Equals(value);
 
-        internal ActionCheckerLambda(String ActionName, List<EffectPDDL> Effects, List<SingleTypeOfDomein> allTypes)
+        internal static Delegate ActionCheckerDel(String ActionName, List<EffectPDDL> Effects, List<SingleTypeOfDomein> allTypes)
         {
             ParameterExpression Input_parameter = Expression.Parameter(typeof(CrisscrossChildrenCon), "input");
             LabelTarget retLabel = Expression.Label(typeof(bool));
@@ -23,7 +23,7 @@ namespace SharpPDDL
             ConstantExpression TrueExp = Expression.Constant(true, typeof(bool));
             ConstantExpression FalseExp = Expression.Constant(false, typeof(bool));
 
-            Expression[] EffectsArray = new Expression[Effects.Count + 1];
+            Expression[] EffectsArray = new Expression[Effects.Count + 2];
 
             ParameterExpression ef = Expression.Parameter(typeof(bool), "IsOK");
             LabelTarget Correct = Expression.Label(typeof(bool));
@@ -105,13 +105,10 @@ namespace SharpPDDL
             MethodCallExpression stringGetterI8 = Expression.Call(ResManExp, GetString, I8);
 
             MethodInfo Find = typeof(List<PossibleStateThumbnailObject>).GetMethod("Find", new Type[] { typeof(Predicate<PossibleStateThumbnailObject>) });
-            MethodInfo CheckForEqualsMethodInfo = this.GetType().GetMethod("LambdaOfEq", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo CheckForEqualsMethodInfo = typeof(ActionChecker).GetMethod("LambdaOfEq", BindingFlags.NonPublic | BindingFlags.Static);
 
-            var SortedEffects = Effects.Select(e => (Eff: e, Val: allTypes.First(t => t.Type == e.TypeOf1Class).CumulativeValues.First(v => v.Name == e.DestinationMemberName))).
-                OrderBy(k => k.Val.IsInUse_PreconditionIn).
-                ThenBy(k => k.Val.IsInUse_EffectIn).
-                ThenBy(k => k.Val.IsInUse_ActionCostIn).
-                ToList();
+            EffectsArray[0] = Expression.Assign(ef, TrueExp);
+            var AssignFalse = Expression.Assign(ef, FalseExp);
 
             for (int EfC = 0; EfC != Effects.Count; EfC++)
             {
@@ -141,7 +138,6 @@ namespace SharpPDDL
 
                 MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
 
-
                 MethodCallExpression CheckForEqualsExp = Expression.Call(null, CheckForEqualsMethodInfo, arrayAccessExpr);
 
                 MethodCallExpression FieldCondition = Expression.Call(memberExpressionList, Find, CheckForEqualsExp);
@@ -157,34 +153,48 @@ namespace SharpPDDL
                 MethodCallExpression ExpeV = Expression.Call(toread, VTTostring);
                 Expression NamesArray = Expression.NewArrayInit(typeof(string), new Expression[]{ DestName, CurrV, ExpeV, EffectNameExp, ActionNameExp });
 
-                ConditionalExpression CallIfCan = null;
+                Expression IfNotEqual = null;
                 if (DestMember.IsInUse_PreconditionIn)
                 {
                     MethodCallExpression callId130 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { ErrorExp, EventId130, stringGetterE34, NamesArray });
-                    CallIfCan = Expression.IfThen(TracerNotNull, callId130);
+                    IfNotEqual = Expression.Block(Expression.IfThen(TracerNotNull, callId130), AssignFalse);
                 }
                 else if (DestMember.IsInUse_EffectIn)
                 {
                     MethodCallExpression callId131 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { WarningExp, EventId131, stringGetterW12, NamesArray });
-                    CallIfCan = Expression.IfThen(TracerNotNull, callId131);
+                    IfNotEqual = Expression.Block(Expression.IfThen(TracerNotNull, callId131), AssignFalse);
                 }
                 else if (DestMember.IsInUse_ActionCostIn)
                 {
                     MethodCallExpression callId133 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { WarningExp, EventId133, stringGetterW13, NamesArray });
-                    CallIfCan = Expression.IfThen(TracerNotNull, callId133);
+                    IfNotEqual = Expression.IfThen(TracerNotNull, callId133);
                 }
                 else
                 {
                     MethodCallExpression callId132 = Expression.Call(TracerExp, TraceEventMethod, new Expression[] { InfoExp, EventId132, stringGetterI8, NamesArray });
-                    CallIfCan = Expression.IfThen(TracerNotNull, callId132);
+                    IfNotEqual = Expression.IfThen(TracerNotNull, callId132);
                 }
 
-                BlockExpression IfNotEqual = Expression.Block(CallIfCan);
-
                 Expression expression = Expression.IfThen(Test, IfNotEqual);
-
-                int AO = 1500100900;
+                EffectsArray[EfC + 1] = expression;
             }
+
+            EffectsArray[EffectsArray.Length - 1] = Expression.Return(retLabel, ef);
+            BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ef}, EffectsArray);
+
+            LambdaExpression WholeLambda = Expression.Lambda(CheckingBlock, Input_parameter);
+            Delegate DelRes;
+            try
+            {
+                DelRes = WholeLambda.Compile();
+            }
+            catch
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 36, GloCla.ResMan.GetString("E35"), ActionName);
+                DelRes = Expression.Lambda(Expression.Empty(), Input_parameter).Compile();
+            }
+
+            return DelRes;
         }
     }
 }
