@@ -799,6 +799,33 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string I10 {
+            get {
+                return ResourceManager.GetString("I10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string I11 {
+            get {
+                return ResourceManager.GetString("I11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string I12 {
+            get {
+                return ResourceManager.GetString("I12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is not a class type, so it will be remove from domain objects..
         /// </summary>
         internal static string I2 {
@@ -858,6 +885,15 @@ namespace SharpPDDL.Properties {
         internal static string I8 {
             get {
                 return ResourceManager.GetString("I8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string I9 {
+            get {
+                return ResourceManager.GetString("I9", resourceCulture);
             }
         }
         
@@ -1249,7 +1285,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action name cannot to start with &quot;{0}&quot;. New action name is {1}.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Action name cannot to start with &apos;{0}&apos;. New action name is {1}.
         /// </summary>
         internal static string W6 {
             get {

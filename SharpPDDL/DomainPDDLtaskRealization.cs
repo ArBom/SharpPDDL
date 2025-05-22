@@ -74,6 +74,9 @@ namespace SharpPDDL
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 12, GloCla.ResMan.GetString("V0"), this.Name);
             this.domainGoals.CollectionChanged -= DomainPlanner.DomainGoals_CollectionChanged;
+
+            foreach (ActionPDDL act in this.actions)
+                act.ClearActionDelegates();
         }    
     }
 }

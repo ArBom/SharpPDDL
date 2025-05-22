@@ -8,14 +8,80 @@ namespace SharpPDDL
 {
     internal class ActionCost
     {
-        protected LambdaExpression CostExpression;
+        protected LambdaExpression _CostExpression;
+        protected LambdaExpression CostExpression
+        {
+            get { return _CostExpression; }
+            set
+            {
+                if (!(CostExpressionFunc is null))
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Information, 137, GloCla.ResMan.GetString("I12"));
+
+                _CostExpression = value;
+            }
+        }
+
         protected List<(object Param, int? IndexInAction)> Args;
         internal readonly uint defaultCost;
         internal Delegate CostExpressionFunc;
 
         internal ActionCost(uint DefaultCost)
+            => this.defaultCost = DefaultCost;
+
+        internal void DefineActionCostF<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
+            where T1 : class
         {
-            this.defaultCost = DefaultCost;
+            this.CostExpression = CostExpression;
+
+            Args = new List<(object Param, int? IndexInAction)>
+            {
+                (In1, null)
+            };
+        }
+
+        internal void DefineActionCostF<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
+            where T1 : class
+            where T2 : class
+        {
+            this.CostExpression = CostExpression;
+
+            Args = new List<(object Param, int? IndexInAction)>
+            {
+                (In1, null),
+                (In2, null)
+            };
+        }
+
+        internal void DefineActionCostF<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            this.CostExpression = CostExpression;
+
+            Args = new List<(object Param, int? IndexInAction)>
+            {
+                (In1, null),
+                (In2, null),
+                (In3, null)
+            };
+        }
+
+        internal void DefineActionCostF<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+        {
+            this.CostExpression = CostExpression;
+
+            Args = new List<(object Param, int? IndexInAction)>
+            {
+                (In1, null),
+                (In2, null),
+                (In3, null),
+                (In4, null)
+            };
         }
 
         internal void CompleteActinParams(IList<Parametr> Parameters)
@@ -67,74 +133,6 @@ namespace SharpPDDL
             actionCostLambda.Visit(CostExpression);
 
             CostExpressionFunc = actionCostLambda.ToRet;
-        }
-    }
-
-    internal class ActionCost<T1> : ActionCost 
-        where T1 : class
-    { 
-        public ActionCost(ref T1 In1, Expression<Func<T1, int>> CostExpression, uint DefaultCost) : base (DefaultCost)
-        {
-            this.CostExpression = CostExpression;
-
-            Args = new List<(object Param, int? IndexInAction)>
-            {
-                (In1, null)
-            };
-        }
-    }
-
-    internal class ActionCost<T1, T2> : ActionCost
-         where T1 : class
-         where T2 : class
-    {
-        public ActionCost(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression, uint DefaultCost) : base(DefaultCost)
-        {
-            this.CostExpression = CostExpression;
-
-            Args = new List<(object Param, int? IndexInAction)>
-            {
-                (In1, null),
-                (In2, null)
-            };
-        }
-    }
-
-    internal class ActionCost<T1, T2, T3> : ActionCost
-        where T1 : class
-        where T2 : class
-        where T3 : class 
-    {
-        public ActionCost(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression, uint DefaultCost) : base(DefaultCost)
-        {
-            this.CostExpression = CostExpression;
-
-            Args = new List<(object Param, int? IndexInAction)>
-            {
-                (In1, null),
-                (In2, null),
-                (In3, null)
-            };
-        }
-    }
-
-    internal class ActionCost<T1, T2, T3, T4> : ActionCost
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-    {
-        public ActionCost(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression, uint DefaultCost) : base(DefaultCost)
-        {
-            this.CostExpression = CostExpression;
-
-            Args = new List<(object Param, int? IndexInAction)>
-            {
-                (In1, null),
-                (In2, null),
-                (In3, null),
-                (In4, null)
-            };
         }
     }
 }

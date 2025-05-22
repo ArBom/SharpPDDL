@@ -445,6 +445,18 @@
     <value>{0} determined! Total Cost: {1}</value>
     <comment>DomainPlanner; Goal determined info; 0-goal name, 1-plan cost</comment>
   </data>
+  <data name="I10" xml:space="preserve">
+    <value />
+    <comment>ActionPDDL; Effect added in time of algorith work; 0-domein name, 1-precondition name</comment>
+  </data>
+  <data name="I11" xml:space="preserve">
+    <value />
+    <comment>ActionPDDL; Execution added in time of algorith work; 0-domein name, 1-execution name</comment>
+  </data>
+  <data name="I12" xml:space="preserve">
+    <value />
+    <comment>ActionCost; Action cost changed in time of algorith work;</comment>
+  </data>
   <data name="I2" xml:space="preserve">
     <value>{0} is not a class type, so it will be remove from domain objects.</value>
     <comment>DomeinPDDL; wrong type of added object; 0-type of added object</comment>
@@ -471,6 +483,10 @@
   </data>
   <data name="I8" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action.</value>
+  </data>
+  <data name="I9" xml:space="preserve">
+    <value />
+    <comment>ActionPDDL; Precondition added in time of algorith work; 0-domein name, 1-precondition name</comment>
   </data>
   <data name="Sa0" xml:space="preserve">
     <value>{0} domain started to create actions' programms</value>
@@ -643,7 +659,7 @@
     <comment>ActionPDDL; ; 0-action name</comment>
   </data>
   <data name="W6" xml:space="preserve">
-    <value>Action name cannot to start with "{0}". New action name is {1}</value>
+    <value>Action name cannot to start with '{0}'. New action name is {1}</value>
     <comment>ActionPDDL; ;0-SpecialFuncPrefix , 1-new action name</comment>
   </data>
   <data name="W7" xml:space="preserve">

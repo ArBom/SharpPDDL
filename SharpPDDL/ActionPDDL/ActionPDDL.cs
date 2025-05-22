@@ -138,10 +138,14 @@ namespace SharpPDDL
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj">Instance of T1c class (could be null) which representant parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1p class to check possibility of action ececute</param>
-        public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func) 
-            where T1p : class 
+        public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func)
+            where T1p : class
             where T1c : class, T1p
-            => _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj, func);
+        {
+            _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj, func);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 134, GloCla.ResMan.GetString("I9"), this.Name, Name);
+        }
 
         /// <summary>
         /// This method adds a condition (of 2 params) whose fulfillment is necessary to perform the action.
@@ -173,8 +177,12 @@ namespace SharpPDDL
             where T2p : class 
             where T1c : class, T1p 
             where T2c : class, T2p
-            => _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, func);
-        
+        {
+            _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, func);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 134, GloCla.ResMan.GetString("I9"), this.Name, Name);
+        }
+
         #endregion
         #region Adding Effects
         /// <summary>
@@ -196,8 +204,12 @@ namespace SharpPDDL
         /// <param name="newValue_Static">New value assigning to <c>destinationObj</c>>'s member</param>
         /// <param name="destinationObj">Instance of T1 class which representant parameter which we assign the member value to</param>
         /// <param name="destinationMember">A description of the parameter member to whom one is assigning <c>newValue_Static</c> value</param>
-        public void AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class 
-            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref destinationObj, destinationMember, newValue_Static);       
+        public void AddEffect<T>(string Name, ref T destinationObj, Expression<Func<T, ValueType>> destinationMember, ValueType newValue_Static) where T : class
+        {
+            _ = EffectPDDL.Instance(Name, Parameters, Effects, ref destinationObj, destinationMember, newValue_Static);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
 
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
@@ -214,7 +226,11 @@ namespace SharpPDDL
             where T2p : class
             where T1c : class, T1p
             where T2c : class, T2p
-            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+        { 
+             _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
 
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
@@ -229,7 +245,11 @@ namespace SharpPDDL
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationMember, ref T2 SourceObj, Expression<Func<T2, ValueType>> Source)
             where T1 : class
             where T2 : class
-            => AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+        {
+            AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
 
         /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
@@ -244,16 +264,19 @@ namespace SharpPDDL
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
             where T1 : class 
             where T2 : class
-            => _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
-        #endregion
-        #region Adding Execution
-
+        { 
+            _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
+    #endregion
+    #region Adding Execution
         [Obsolete("This method is deprecated use AddExecution(string EffectName)", false)]
         public void UseEffectAlsoAsExecution(string EffectName)
         {
             Trace.WriteLine("SharpPDDL: Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
             GloCla.Tracer?.TraceEvent(TraceEventType.Warning, -1, "Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
-            EffectsUsedAlsoAsExecution.Add(EffectName);
+            AddExecution(EffectName);
         }
 
         
@@ -262,16 +285,24 @@ namespace SharpPDDL
         /// </summary>
         /// <param name="EffectName">Name of Effect which will be use by SharpPDDL as execution too</param>
         public void AddExecution(string EffectName)
-            => EffectsUsedAlsoAsExecution.Add(EffectName);
-
+        {
+            EffectsUsedAlsoAsExecution.Add(EffectName);
+            if (!(InstantExecution is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
+        }
+            
         /// <summary>
         /// Add the action to do in time of this point of plan realization
         /// </summary>
         /// <param name="Name">Execution's name</param>
         /// <param name="action">Action to do</param>
         /// <param name="WorkEithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
-        public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues) 
-            => this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
+        public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues)
+        {
+            this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
+            if (!(InstantExecution is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
+        }
 
         /// <summary>
         /// Add the action to do in time of this point of plan realization
@@ -280,8 +311,12 @@ namespace SharpPDDL
         /// <param name="t1">Instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
         /// <param name="action">Action of t1 class which will be called in this execution</param>
         /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
-        public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues) 
-            => this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+        public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues)
+        {
+            this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+            if (!(InstantExecution is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
+        }
 
         /// <summary>
         /// Add the action to do in time of this point of plan realization
@@ -291,32 +326,37 @@ namespace SharpPDDL
         /// <param name="t2">2nd instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
         /// <param name="action">Action of t1 and t2 classes which will be called in this execution</param>
         /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
-        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues) 
-            => this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues)
+        {
+            this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+            if (!(InstantExecution is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
+        }
 
         #endregion
         #region ActionCost
         public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
-            => this.actionCost = new ActionCost<T1>(ref In1, CostExpression, this.actionCost.defaultCost);
+            => actionCost.DefineActionCostF(ref In1, CostExpression);
+
 
         public void DefineActionCost<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
             where T1 : class
             where T2 : class
-            => this.actionCost = new ActionCost<T1, T2>(ref In1, ref In2, CostExpression, this.actionCost.defaultCost);
+            => actionCost.DefineActionCostF(ref In1, ref In2, CostExpression);
 
         public void DefineActionCost<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
             where T1 : class
             where T2 : class
             where T3 : class
-            => this.actionCost = new ActionCost<T1, T2, T3>(ref In1, ref In2, ref In3, CostExpression, this.actionCost.defaultCost);
+            => actionCost.DefineActionCostF(ref In1, ref In2, ref In3, CostExpression);
 
         public void DefineActionCost<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
              where T1 : class
              where T2 : class
              where T3 : class
              where T4 : class
-             => this.actionCost = new ActionCost<T1, T2, T3, T4>(ref In1, ref In2, ref In3, ref In4, CostExpression, this.actionCost.defaultCost);
+            => actionCost.DefineActionCostF(ref In1, ref In2, ref In3, ref In4, CostExpression);
         #endregion
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)
@@ -383,6 +423,15 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 49, GloCla.ResMan.GetString("Sp5"), Name);
         }
 
+        internal void ClearActionDelegates()
+        {
+            InstantActionPDDL = null;
+            InstantExecution = null;
+            InstantExecutionChecker = null;
+            InstantActionSententia = null;
+            actionCost.CostExpressionFunc = null;
+        }
+
         /// <summary>
         /// A class representing a possible action within the domain.<br/>
         /// Conditions necessary for its execution and effects must be added to the action. Then join to the domain.<br/>
@@ -412,10 +461,10 @@ namespace SharpPDDL
                 do
                     Name = Name.Substring(1);
                 while
-                (!Name.StartsWith(GloCla.SpecialFuncPrefix));
+                    (!Name.StartsWith(GloCla.SpecialFuncPrefix));
 
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 52, GloCla.ResMan.GetString("W6"), GloCla.SpecialFuncPrefix, Name);
-            }           
+            }
 
             //this.Name = IsSpecial ? ExtensionMethods.SpecialFuncPrefix + Name : Name;
             this.Name = Name;
@@ -426,6 +475,8 @@ namespace SharpPDDL
             this.Executions = new List<ExpressionExecution>();
             this.ActionSententia = new List<(int, string, Expression[])>();
             this.actionCost = new ActionCost(actionCost);
+
+            ClearActionDelegates();
         }
     }
 }

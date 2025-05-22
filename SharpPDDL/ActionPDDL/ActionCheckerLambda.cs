@@ -71,13 +71,25 @@ namespace SharpPDDL
             MethodInfo GetString = typeof(ResourceManager).GetMethod("GetString", new Type[] { typeof(string) });
             ConstantExpression NullExp = Expression.Constant(null);
 
+            //GloCla.Tracer
             MemberExpression TracerExp = Expression.Field(null, TracerF);
+
+            //(GloCla.Tracer != null)
             BinaryExpression TracerNotNull = Expression.NotEqual(TracerExp, NullExp);
+
+            //GloCla.ResMan
             MemberExpression ResManExp = Expression.Field(null, ResManF);
+
+            //input.Child
             MemberExpression ChildExp = Expression.Field(Input_parameter, ChildF);
+
+            //input.Child.Content
             MemberExpression ContentExp = Expression.Field(ChildExp, ContentF);
+
+            //input.Child.Content.ThumbnailObjects
             MemberExpression ThumbnailObjectsExp = Expression.Field(ContentExp, ThumbnailObjectsF);
 
+            //input.ActionArgOryg
             Expression ActionArgOrygExp = Expression.Field(Input_parameter, ActionArgOrygF);
 
             //Wrong assignation of value used in Precondition
@@ -107,6 +119,10 @@ namespace SharpPDDL
             MethodInfo Find = typeof(List<PossibleStateThumbnailObject>).GetMethod("Find", new Type[] { typeof(Predicate<PossibleStateThumbnailObject>) });
             MethodInfo CheckForEqualsMethodInfo = typeof(ActionChecker).GetMethod("LambdaOfEq", BindingFlags.NonPublic | BindingFlags.Static);
 
+            ///TOTO
+            ParameterExpression parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "invoice");
+            MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
+
             EffectsArray[0] = Expression.Assign(ef, TrueExp);
             var AssignFalse = Expression.Assign(ef, FalseExp);
 
@@ -134,13 +150,10 @@ namespace SharpPDDL
                 //numer na tablicy gdzie zapisywana jest wartość       
                 ConstantExpression FuncOutKeyExp = Expression.Constant(DestMember.ValueOfIndexesKey, typeof(ushort));
 
-                ParameterExpression parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "invoice");
-
-                MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
-
                 MethodCallExpression CheckForEqualsExp = Expression.Call(null, CheckForEqualsMethodInfo, arrayAccessExpr);
 
-                MethodCallExpression FieldCondition = Expression.Call(memberExpressionList, Find, CheckForEqualsExp);
+                //input.Child.Content.ThumbnailObject.Find()
+                MethodCallExpression FieldCondition = Expression.Call(ThumbnailObjectsExp, Find, CheckForEqualsExp);
                 MethodCallExpression toread = Expression.Call(FieldCondition, ItemOfPSTO, FuncOutKeyExp);
                 UnaryExpression ToReadC = Expression.Convert(toread, DestMember.Type);
 
@@ -180,7 +193,7 @@ namespace SharpPDDL
             }
 
             EffectsArray[EffectsArray.Length - 1] = Expression.Return(retLabel, ef);
-            BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ef}, EffectsArray);
+            BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ parameter, ef }, EffectsArray);
 
             LambdaExpression WholeLambda = Expression.Lambda(CheckingBlock, Input_parameter);
             Delegate DelRes;
@@ -188,8 +201,9 @@ namespace SharpPDDL
             {
                 DelRes = WholeLambda.Compile();
             }
-            catch
+            catch (Exception e)
             {
+                string m = e.ToString();
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 36, GloCla.ResMan.GetString("E35"), ActionName);
                 DelRes = Expression.Lambda(Expression.Empty(), Input_parameter).Compile();
             }
