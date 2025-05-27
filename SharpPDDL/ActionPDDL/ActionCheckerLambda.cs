@@ -23,10 +23,9 @@ namespace SharpPDDL
             ConstantExpression TrueExp = Expression.Constant(true, typeof(bool));
             ConstantExpression FalseExp = Expression.Constant(false, typeof(bool));
 
-            Expression[] EffectsArray = new Expression[Effects.Count + 2];
+            Expression[] EffectsArray = new Expression[Effects.Count + 3];
 
             ParameterExpression ef = Expression.Parameter(typeof(bool), "IsOK");
-            LabelTarget Correct = Expression.Label(typeof(bool));
 
             FieldInfo TracerF = typeof(GloCla).GetField("Tracer",
                 BindingFlags.NonPublic |
@@ -161,9 +160,15 @@ namespace SharpPDDL
 
                 BinaryExpression Test = Expression.NotEqual(ToReadC, OrygInput);
 
+                //Name of destination variable
                 ConstantExpression DestName = Expression.Constant(Effects[EfC].DestinationMemberName, typeof(string));
+
+                //Current (after assignation) value of destination variable
                 MethodCallExpression CurrV = Expression.Call(OrygInput, ToString);
+
+                //expected value of destination variable
                 MethodCallExpression ExpeV = Expression.Call(toread, VTTostring);
+
                 Expression NamesArray = Expression.NewArrayInit(typeof(string), new Expression[]{ DestName, CurrV, ExpeV, EffectNameExp, ActionNameExp });
 
                 Expression IfNotEqual = null;
@@ -192,7 +197,9 @@ namespace SharpPDDL
                 EffectsArray[EfC + 1] = expression;
             }
 
-            EffectsArray[EffectsArray.Length - 1] = Expression.Return(retLabel, ef);
+            EffectsArray[EffectsArray.Length - 2] = Expression.Return(retLabel, ef);
+            EffectsArray[EffectsArray.Length - 1] = Expression.Label(retLabel, FalseExp);
+
             BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ parameter, ef }, EffectsArray);
 
             LambdaExpression WholeLambda = Expression.Lambda(CheckingBlock, Input_parameter);

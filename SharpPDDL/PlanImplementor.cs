@@ -146,10 +146,7 @@ namespace SharpPDDL
                 }
 
                 if(!(GloCla.Tracer is null))
-                {
-                    //TraceEvent( 36
-                    //TODO sprawdzenie czy nowe wartości są ok i ew. zakomunikowanie problemów
-                }
+                    Owner.actions[Act.ActionNr].InstantExecutionChecker.DynamicInvoke(Act);        
 
                 Owner.CurrentState = Act.Child.Content;
             }

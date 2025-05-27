@@ -389,7 +389,7 @@ namespace SharpPDDL
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
 
             //Generate correction of execution checker delegate
-            //InstantExecutionChecker = ActionChecker.ActionCheckerDel(this.Name, this.Effects, allTypes);
+            InstantExecutionChecker = ActionChecker.ActionCheckerDel(this.Name, this.Effects, allTypes);
 
             List<EffectPDDL> EffectsUsingAsExecution = new List<EffectPDDL>();
             foreach (string EffectAsExecution in EffectsUsedAlsoAsExecution)

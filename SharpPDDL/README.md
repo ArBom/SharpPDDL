@@ -1,4 +1,4 @@
-This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool). One can to use previously defined classes which are using in other part of one's programm. At this version you can use single instance of algorithm to solve single problem.
+This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. Algorithm was made as decision-meker and optimalizer for IIoT (as part of MES) small environment, but it could be use as other problem solver too. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool). One can to use previously defined classes which are using in other part of one's programm. At this version you can use single instance of algorithm to solve single problem.
 
 > **WARNING** 
 > Library has some bugs. It's beta version still.

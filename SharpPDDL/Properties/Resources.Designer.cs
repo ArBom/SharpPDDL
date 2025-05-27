@@ -799,7 +799,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In time of &apos;{0}&apos; domain works one add &apos;{1}&apos; - the new effect to it. Algorith will take this new effect on board after external rerun..
         /// </summary>
         internal static string I10 {
             get {
@@ -808,7 +808,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In time of &apos;{0}&apos; domain works one add &apos;{1}&apos; - the new execution to it. Algorith will take this new ececution on board after external rerun..
         /// </summary>
         internal static string I11 {
             get {
@@ -817,7 +817,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu One changed the action cost in time of domain (which is the owner of it) works. Algorith will take this new action cost on board after external rerun..
         /// </summary>
         internal static string I12 {
             get {
@@ -889,7 +889,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In time of &apos;{0}&apos; domain works one add &apos;{1}&apos; - the new precondition to it. Algorith will take this new precondition on board after external rerun..
         /// </summary>
         internal static string I9 {
             get {

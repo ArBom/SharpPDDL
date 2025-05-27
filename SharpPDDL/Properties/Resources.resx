@@ -446,15 +446,15 @@
     <comment>DomainPlanner; Goal determined info; 0-goal name, 1-plan cost</comment>
   </data>
   <data name="I10" xml:space="preserve">
-    <value />
+    <value>In time of '{0}' domain works one add '{1}' - the new effect to it. Algorith will take this new effect on board after external rerun.</value>
     <comment>ActionPDDL; Effect added in time of algorith work; 0-domein name, 1-precondition name</comment>
   </data>
   <data name="I11" xml:space="preserve">
-    <value />
+    <value>In time of '{0}' domain works one add '{1}' - the new execution to it. Algorith will take this new ececution on board after external rerun.</value>
     <comment>ActionPDDL; Execution added in time of algorith work; 0-domein name, 1-execution name</comment>
   </data>
   <data name="I12" xml:space="preserve">
-    <value />
+    <value>One changed the action cost in time of domain (which is the owner of it) works. Algorith will take this new action cost on board after external rerun.</value>
     <comment>ActionCost; Action cost changed in time of algorith work;</comment>
   </data>
   <data name="I2" xml:space="preserve">
@@ -483,9 +483,10 @@
   </data>
   <data name="I8" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action.</value>
+    <comment>ActionCheckerLambda; Wrong assignation of value not used as input; 0-Name of destination variable, 1-ssigned value of destination variable, 2-expected value of destination variable, 3-Effect name, 4-action name</comment>
   </data>
   <data name="I9" xml:space="preserve">
-    <value />
+    <value>In time of '{0}' domain works one add '{1}' - the new precondition to it. Algorith will take this new precondition on board after external rerun.</value>
     <comment>ActionPDDL; Precondition added in time of algorith work; 0-domein name, 1-precondition name</comment>
   </data>
   <data name="Sa0" xml:space="preserve">
@@ -638,9 +639,11 @@
   </data>
   <data name="W12" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to figure another value of effect.</value>
+    <comment>ActionCheckerLambda; Wrong assignation of value used in Effect; 0-Name of destination variable, 1-ssigned value of destination variable, 2-expected value of destination variable, 3-Effect name, 4-action name</comment>
   </data>
   <data name="W13" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to aproximate a cost of action.</value>
+    <comment>ActionCheckerLambda; Wrong assignation of value used in Cost; 0-Name of destination variable, 1-ssigned value of destination variable, 2-expected value of destination variable, 3-Effect name, 4-action name</comment>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

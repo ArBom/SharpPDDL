@@ -265,8 +265,6 @@ namespace SharpPDDL
                     CurrentBuilder.InitBuffors(null, Transcribing.Result.ChildlessCrisscrosses, null);                   
                     CurrentBuilder.ReStart(CurrentBuilded);
                 }
-
-                int AO = 1500;
             }
         }
     }
