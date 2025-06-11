@@ -43,22 +43,23 @@ namespace SharpPDDL
             PlanImplementor_Agrees = Agrees.DONT_EVEN_TRY
         };
 
-        internal void CheckActions(ParallelOptions parallelOptions = default)
+        internal void CheckActions(ParallelOptions parallelOptions)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 5, GloCla.ResMan.GetString("Sa0"), this.Name);
 
             this.types = new TypesPDDL();
-            foreach (ActionPDDL act in actions)
+
+            Parallel.ForEach(actions, parallelOptions, act =>
             {
                 types.CompleteTypes(act.TakeSingleTypes());
-            }
+            });
 
             types.CreateTypesTree();
 
-            foreach (ActionPDDL act in actions)
+            Parallel.ForEach(actions, parallelOptions, act =>
             {
                 act.BuildAction(types.allTypes);
-            }
+            });
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
         }

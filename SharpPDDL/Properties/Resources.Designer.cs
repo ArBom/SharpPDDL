@@ -1195,6 +1195,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You added action sententia with reference to object, but without params. Try to use: AddPartOfActionSententia({0});.
+        /// </summary>
+        internal static string V9 {
+            get {
+                return ResourceManager.GetString("V9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You asked to accept some executions, but you didnt give the lib. any WaitHandle to do it..
         /// </summary>
         internal static string W0 {
@@ -1245,6 +1254,15 @@ namespace SharpPDDL.Properties {
         internal static string W13 {
             get {
                 return ResourceManager.GetString("W13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu You added {0}-th action sententia, with action text &quot;{1}&quot;. Didn&apos;t you forget about params?.
+        /// </summary>
+        internal static string W14 {
+            get {
+                return ResourceManager.GetString("W14", resourceCulture);
             }
         }
         

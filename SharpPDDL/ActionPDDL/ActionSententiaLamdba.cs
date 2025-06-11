@@ -51,6 +51,12 @@ namespace SharpPDDL
             actionSententia.OrderBy(AS => AS.Item1);
             for (int i = 0; i != actionSententia.Count; i++)
             {
+                if (actionSententia[i].Item3 is null)
+                {
+                    texts[i] = Expression.Constant(actionSententia[i].Item2, typeof(string));
+                    continue;
+                }
+
                 int ParamNo = actionSententia[i].Item1;
                 Type paramType = parameters[ParamNo].Type;
                 SingleTypeOfDomein singleTypeOfDomein = allTypes.First(T => T.Type == paramType);

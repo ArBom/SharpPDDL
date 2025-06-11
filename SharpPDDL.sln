@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Wat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Travelling Salesman Problem", "Travelling Salesman Problem\Travelling Salesman Problem.csproj", "{FEF85876-0789-4FE0-A3B0-F60B997D6988}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "River crossing puzzle", "River crossing puzzle\River crossing puzzle.csproj", "{E8AEA702-3FFD-4A99-9834-DE8425F02218}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

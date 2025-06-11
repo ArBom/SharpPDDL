@@ -621,6 +621,10 @@
     <value>There is agree to {0} action realization</value>
     <comment>PlanImplementor; ; 0-action name</comment>
   </data>
+  <data name="V9" xml:space="preserve">
+    <value>You added action sententia with reference to object, but without params. Try to use: AddPartOfActionSententia({0});</value>
+    <comment>ActionPDDL; Action sententia with obj. reference, but without params to paste; 0-text</comment>
+  </data>
   <data name="W0" xml:space="preserve">
     <value>You asked to accept some executions, but you didnt give the lib. any WaitHandle to do it.</value>
     <comment>DomeinPDDL; AskToAgree with aksing without WaitHandle</comment>
@@ -644,6 +648,10 @@
   <data name="W13" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action. This variable could be use to aproximate a cost of action.</value>
     <comment>ActionCheckerLambda; Wrong assignation of value used in Cost; 0-Name of destination variable, 1-ssigned value of destination variable, 2-expected value of destination variable, 3-Effect name, 4-action name</comment>
+  </data>
+  <data name="W14" xml:space="preserve">
+    <value>You added {0}-th action sententia, with action text "{1}". Didn't you forget about params?</value>
+    <comment>ActionPDDL; Action sententia with "{0}", but without params to paste; 0-position at list, 1-text</comment>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

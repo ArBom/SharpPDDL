@@ -14,14 +14,16 @@ Include the library namespace with `using SharpPDDL`.
 | DomeinPDDL.`AddGoal()` | Adds goal to do. |
 | DomeinPDDL.`DefineTrace()` | Defines TraceSource to do trace the code execution. |
 | DomeinPDDL.`planGenerated` | delegate of List<List<string>> type. It shows a generated plan. |
+| DomeinPDDL.`SetExecutionOptions()` | Defines options of plan realization |
 | DomeinPDDL.`Start()` | Starts the algorithm. |
 | `new ActionPDDL()` | Creates the action to use in domein. |
 | ActionPDDL.`AddPrecondiction()` | Adds precondition of action doing. |
 | ActionPDDL.`AddEffect()` | Adds effect of action doing. |
 | ActionPDDL.`DefineActionCost()` | Defines action cost. |
+| ActionPDDL.`AddPartOfActionSententia()` | Adds description of action in generated plan. |
 | ActionPDDL.`AddExecution()` | Adds action execution of algorithm realization. |
 | `new GoalPDDL()` | Creates the goal of algorithm run. |
-| GoalPDDL.`AddExpectedObjectState()` | Defines a state of one of obj. manned by lib. as alg. goal. |
+| GoalPDDL.`AddExpectedObjectState()` | Defines a state of one of obj. manned by library as alg. goal. |
 
 ### Possible applications:
 
@@ -29,6 +31,7 @@ Include the library namespace with `using SharpPDDL`.
 > First use of it could seems a little unintuitive. Get familiar with ready examples.
 
 * [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/blob/master/Hanoi%20Tower/Program.cs)
+* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/blob/master/River%20crossing%20puzzle/Program.cs)
 * [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/blob/master/Water%20pouring%20puzzle/Program.cs)
 * [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/blob/master/Travelling%20Salesman%20Problem/Program.cs)
 

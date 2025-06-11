@@ -75,6 +75,18 @@ namespace SharpPDDL
         /// <summary>
         /// It make possible to define text describe the action execution in actions plan
         /// </summary>
+        /// <param name="Text">This text will be shown in plan to realization</param>
+        public void AddPartOfActionSententia(string Text)
+        {
+            if (String.IsNullOrEmpty(Text))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 46, GloCla.ResMan.GetString("W3"));
+            else
+                ActionSententia.Add((-1, Text, null));
+        }
+
+        /// <summary>
+        /// It make possible to define text describe the action execution in actions plan
+        /// </summary>
         /// <typeparam name="T">Non-abstract class</typeparam>
         /// <param name="destination">Instance of class used in actionPDDL, the owner of parameter(s) used in this Sententia</param>
         /// <param name="Text">This text will be shown in plan to realization</param>
@@ -82,6 +94,17 @@ namespace SharpPDDL
         public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams) 
             where T : class
         {
+            if (TextParams.Length == 0)
+            {
+                if (Text.Contains("{0}"))
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 138, GloCla.ResMan.GetString("W14"), ActionSententia.Count, Text);
+                else
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 139, GloCla.ResMan.GetString("V9"), Text);
+
+                AddPartOfActionSententia(Text);
+                return;
+            }
+
             Parametr.GetTheInstance_TryAddToList(Parameters, ref destination);
 
             if (!String.IsNullOrEmpty(Text))
