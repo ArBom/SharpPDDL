@@ -11,7 +11,7 @@ namespace River_crossing_puzzle
 {
     class Program
     {
-        public class PlaceForGoods
+        public abstract class PlaceForGoods
         {
             public bool IsCabbage = false;
             public bool IsGoat = false;

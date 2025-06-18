@@ -27,7 +27,7 @@ namespace SharpPDDL
             }
 
             this.allTypes = allTypes;
-            this.OryginalObjectType = typeof(T);
+            this.OryginalObjectType = oryginalObject.GetType();
             this.OryginalObject = oryginalObject;
             this.GoalExpectations = GoalExpectations;
             CheckConstructorParam();
@@ -150,7 +150,7 @@ namespace SharpPDDL
             return ModifeidLambda;
         }
 
-        protected override Expression VisitLambda<T>(Expression<T> node)
+        protected override Expression VisitLambda<Tp>(Expression<Tp> node)
         {
             if (node.Parameters.Count != 1)
             {

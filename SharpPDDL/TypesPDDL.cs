@@ -172,67 +172,52 @@ namespace SharpPDDL
 
             void PopulateInheritedTypes(TreeNode<SingleTypeOfDomein> node)
             {
-                if (!node.Children.Any())
-                    return;
+                //Go to every end of tree...
+                if (node.Children.Any())
+                    foreach (TreeNode<SingleTypeOfDomein> Ch in node.Children)
+                        PopulateInheritedTypes(Ch);
 
-                //take number of node's content inhered types
-                int NumbofValueInherNodeTypes = node.Content is null ? 0 : node.Content.Type.InheritedTypes().Types.Count;
-                //take members of node's content
-                var NodeMembers = node.Content?.Type.GetMembers().Where(memb => (memb.MemberType == MemberTypes.Field || memb.MemberType == MemberTypes.Property));
-
-                for (int a = 0; a < node.Children.Count; ++a)
+                //...in the end
+                else
                 {
-                    //take number of child's content inhered types
-                    int NumbofValueInherChildTypes = node.Children[a].Content.Type.InheritedTypes().Types.Count;
-                    TreeNode<SingleTypeOfDomein> AnalysedNode = node.Children[a];
+                    bool SomethingAdded = false;
+                    TreeNode<SingleTypeOfDomein> TempNode = node;
+                    TreeNode<SingleTypeOfDomein> TempRoot = TempNode.Root;
 
-                    while (NumbofValueInherNodeTypes + 1 != NumbofValueInherChildTypes)
+                    while(!(TempRoot.Content is null))
                     {
-                        Type TypeUp = AnalysedNode.Content?.Type.BaseType;
-                        Type TypeUp2 = AnalysedNode.Content.Type.BaseType;
-                        List<(Value m, string Name)> AnalysedNodeValuesTuple = AnalysedNode.Content.Values.Select(m => (m, m.Name)).ToList();
-                        List<Value> newSingleTypeMembers = TypeUp.GetMembers().Select(mtmember => AnalysedNodeValuesTuple.FirstOrDefault(anvt => (anvt.Name == mtmember.Name && (mtmember.MemberType == MemberTypes.Field || mtmember.MemberType == MemberTypes.Property))))?.Where(el => !(el.m is null)).Select(el => el.m).ToList();
+                        //take Fields and Properties of root content
+                        IEnumerable<MemberInfo> RootMembers = TempRoot.Content.Type.GetMembers().Where(M => M.MemberType == MemberTypes.Field || M.MemberType == MemberTypes.Property);
 
-                        foreach (Value newSingleTypeMember in newSingleTypeMembers)
+                        //for every value of content
+                        for (int i = node.Content.Values.Count()-1; i != 0; i--)
                         {
-                            AnalysedNode.Content.Values.Remove(newSingleTypeMember);
-                            newSingleTypeMember.OwnerType = TypeUp;
+                            //take i-th value from node's content
+                            Value TempValue = node.Content.Values[i];
+
+                            //if its just added - go ahead
+                            if (TempRoot.Content.Values.Any(v => v.Name == TempValue.Name))
+                            {
+                                TempNode.Content.Values.Remove(TempValue);
+                                continue;
+                            }
+
+                            //if its in root too - move it to the root
+                            if (RootMembers.Any(M => M.Name == TempValue.Name))
+                            {
+                                TempRoot.Content.Values.Add(TempValue);
+                                TempNode.Content.Values.Remove(TempValue);
+                                SomethingAdded = true;
+                            }
                         }
 
-                        SingleTypeOfDomein newSingleType = new SingleTypeOfDomein(TypeUp, newSingleTypeMembers);
-                        TreeNode<SingleTypeOfDomein> NewTreeNode = new TreeNode<SingleTypeOfDomein>()
-                        {
-                            Content = newSingleType
-                        };
-                        AnalysedNode.AddAbove(NewTreeNode);
-                        AnalysedNode = NewTreeNode;
-                        NumbofValueInherChildTypes--;
-
-                        if (NumbofValueInherChildTypes == 0)
+                        //if no value added stop to work here
+                        if (!SomethingAdded)
                             break;
-                    }
 
-                    if (node.Content is null)
-                        continue;
-
-                    for (int ValueCount = node.Children[a].Content.Values.Count - 1; ValueCount >= 0; --ValueCount)
-                    {
-                        Value tempChVal = node.Children[a].Content.Values[ValueCount];
-
-                        //value znajduje się u child i w node
-                        if (node.Content.Values.Any(v => (v.Name == tempChVal.Name && v.OwnerType == tempChVal.OwnerType)))
-                        {
-                            node.Children[a].Content.Values.Remove(tempChVal);
-                            continue;
-                        }
-
-                        //node zawiera takiego members, ale nie value
-                        if (NodeMembers.Any(nm => (nm.Name == tempChVal.Name)))
-                        {
-                            node.Children[a].Content.Values.Remove(tempChVal);
-                            tempChVal.OwnerType = node.Content.Type;
-                            node.Content.Values.Add(tempChVal);
-                        }
+                        //new value of root and actual node
+                        TempNode = TempRoot;
+                        TempRoot = TempRoot.Root;
                     }
                 }
             }
