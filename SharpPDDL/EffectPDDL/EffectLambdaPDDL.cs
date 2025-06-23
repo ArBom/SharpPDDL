@@ -66,20 +66,34 @@ namespace SharpPDDL
             }
 
             //make 2-Parameters lambda
-            if (OldParameters.Count() == 1 && ParamsIndexesInAction[0] != ParamsIndexesInAction[1])
+            else if (OldParameters.Count() == 1)
             {
-                Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
+                Collection<ParameterExpression> parameterExpressions;
+
+                if (ParamsIndexesInAction[0] != ParamsIndexesInAction[1])
                 {
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[0]),
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[1])
-                };
+                    parameterExpressions = new Collection<ParameterExpression>
+                    {
+                        Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[0]),
+                        Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[1])
+                    };
+                }
+                else
+                {
+                    parameterExpressions = new Collection<ParameterExpression>
+                    {
+                        Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[0]),
+                        Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty")
+                    };
+                }
+
                 _parameters = new ReadOnlyCollection<ParameterExpression>(parameterExpressions);
 
                 Collection<ParameterExpression> OldParameterExpressions = new Collection<ParameterExpression>
-                {
-                    Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty"),
-                    OldParameters[0]
-                };
+                    {
+                        Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty"),
+                        OldParameters[0]
+                    };
                 OldParameters = new ReadOnlyCollection<ParameterExpression>(OldParameterExpressions);
             }
 
