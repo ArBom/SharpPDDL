@@ -215,7 +215,6 @@ namespace SharpPDDL
             if (!crisscrossReducer.IsWaiting)
                 return;
 
-            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 63, GloCla.ResMan.GetString("I7"));
             CrisscrossesGenerated?.Invoke();
         }
 

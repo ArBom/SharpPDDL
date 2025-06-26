@@ -457,6 +457,18 @@
     <value>One changed the action cost in time of domain (which is the owner of it) works. Algorith will take this new action cost on board after external rerun.</value>
     <comment>ActionCost; Action cost changed in time of algorith work;</comment>
   </data>
+  <data name="I13" xml:space="preserve">
+    <value>Currently, it is not possible to achieve {0} goals. Including it {1} top high priority goals, and {2} high priority goal.</value>
+    <comment>CrisscrossGenerator; statistics of unnattainables goals shown after gen. all states; 0-count of all unnattainables goals, 1-count of top high priority goals, 2-count of high priority goals</comment>
+  </data>
+  <data name="I14" xml:space="preserve">
+    <value>There is no possible to achieve some TOP HIGH priority goal {0}: '{1}'</value>
+    <comment>CrisscrossGenerator; unnattainable top high goal shown after gen. all states; 0-record number of T.H.G., 1-name of T.H.G.</comment>
+  </data>
+  <data name="I15" xml:space="preserve">
+    <value>There is no possible to achieve some high priority goal {0}: '{1}'</value>
+    <comment>CrisscrossGenerator; unnattainable high goal shown after gen. all states; 0-record number of H.G., 1-name of H.G.</comment>
+  </data>
   <data name="I2" xml:space="preserve">
     <value>{0} is not a class type, so it will be remove from domain objects.</value>
     <comment>DomeinPDDL; wrong type of added object; 0-type of added object</comment>
@@ -479,7 +491,7 @@
   </data>
   <data name="I7" xml:space="preserve">
     <value>all possible state probably generated</value>
-    <comment>CrisscrossGenerator;</comment>
+    <comment>DomainPlanner;</comment>
   </data>
   <data name="I8" xml:space="preserve">
     <value>Unexpected assiged value to {0}; current value: {1}, expected: {2}. Issue of {3} effect occurred during the execution of {4} action.</value>

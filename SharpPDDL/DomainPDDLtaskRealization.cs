@@ -62,8 +62,8 @@ namespace SharpPDDL
 
             DomainPlanner = new DomainPlanner(this);
 
-            if(!(this.PlanGenerated is null))
-                foreach (Delegate GeneratedPlan in this.PlanGenerated.GetInvocationList())
+            if(!(this._PlanGenerated is null))
+                foreach (Delegate GeneratedPlan in this._PlanGenerated.GetInvocationList())
                     DomainPlanner.PlanGeneratedInDomainPlanner += (ListOfString)GeneratedPlan;
 
             this.domainGoals.CollectionChanged += DomainPlanner.DomainGoals_CollectionChanged;

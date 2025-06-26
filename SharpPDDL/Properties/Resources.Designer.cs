@@ -826,6 +826,33 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Currently, it is not possible to achieve {0} goals. Including it {1} top high priority goals, and {2} high priority goal..
+        /// </summary>
+        internal static string I13 {
+            get {
+                return ResourceManager.GetString("I13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no possible to achieve some TOP HIGH priority goal {0}: &apos;{1}&apos;.
+        /// </summary>
+        internal static string I14 {
+            get {
+                return ResourceManager.GetString("I14", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no possible to achieve some high priority goal {0}: &apos;{1}&apos;.
+        /// </summary>
+        internal static string I15 {
+            get {
+                return ResourceManager.GetString("I15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is not a class type, so it will be remove from domain objects..
         /// </summary>
         internal static string I2 {

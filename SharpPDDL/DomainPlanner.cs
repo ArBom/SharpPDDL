@@ -181,16 +181,56 @@ namespace SharpPDDL
             GenList(GenerList);
         }
 
-        object AtAllStateGeneratedLocker = new object();
-
+        private object AtAllStateGeneratedLocker = new object();
         private void AtAllStateGenerated()
         {
+            //Do not use this whole function again
             lock (AtAllStateGeneratedLocker)
-            if (FoundedCrisscrosses.Any() && !(CurrentBuilder.CrisscrossesGenerated is null))
             {
+                if (CurrentBuilder.CrisscrossesGenerated is null)
+                    return;
+
+                if (!CurrentBuilder.CrisscrossesGenerated.GetInvocationList().Any())
+                    return;
+
                 CurrentBuilder.CrisscrossesGenerated -= AtAllStateGenerated;
+            }
+
+            //info about generated all attainable states
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 63, GloCla.ResMan.GetString("I7"));
+
+            //realize goals if plan is found
+            if (FoundedCrisscrosses.Any())
+            {
                 int Mfounded = FoundedCrisscrosses.Max(K => K.Value.Count());
                 GenList(FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First());
+            }
+
+            if (GloCla.Tracer is null)
+                return;
+
+            //Info about unattainable goals
+            IEnumerable<GoalPDDL> UNattainable = Goals.Where(G => !(FoundedGoals.Keys.Any(K => K.GoalPDDL.Name == G.Name)));
+            if (UNattainable.Any())
+            {
+                //unattainable goals with top high priority
+                IList<GoalPDDL> UNattTHP = UNattainable.Where(G => G.goalPriority == GoalPriority.TopHihtPriority).ToList();
+                int UNattTHPcount = UNattTHP.Count();
+
+                //unattainable goals with high priority
+                IList<GoalPDDL> UNattHP = UNattainable.Where(G => G.goalPriority == GoalPriority.HighPriority).ToList();
+                int UNattHPcount = UNattHP.Count();
+
+                //statistics of unnattainables goals
+                GloCla.Tracer.TraceEvent(TraceEventType.Information, 140, GloCla.ResMan.GetString("I13"), UNattainable.Count(), UNattTHP, UNattHP);
+
+                //enumerate unnattainable top high goals
+                for (int i = 0; i != UNattTHPcount; i++)
+                    GloCla.Tracer.TraceEvent(TraceEventType.Information, 141, GloCla.ResMan.GetString("I14"), i, UNattTHP[i].Name);
+
+                //enumerate unnattainable high goals
+                for (int i = 0; i != UNattHPcount; i++)
+                    GloCla.Tracer.TraceEvent(TraceEventType.Information, 142, GloCla.ResMan.GetString("I15"), i, UNattHP[i].Name);
             }
         }
 

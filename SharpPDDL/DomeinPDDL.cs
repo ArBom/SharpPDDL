@@ -27,9 +27,20 @@ namespace SharpPDDL
         internal PossibleState CurrentState;
         public ObservableCollection<object> domainObjects;
         internal ObservableCollection<GoalPDDL> domainGoals;
-        internal EventWaitHandle _PlanRealizationEventWaitHandle;
-        public ListOfString PlanGenerated;
 
+        private ListOfString _PlanGenerated;
+        public ListOfString PlanGenerated
+        {
+            get { return _PlanGenerated; }
+            set
+            {
+                _PlanGenerated = value;
+                if (!(this.DomainPlanner is null))
+                    this.DomainPlanner.PlanGeneratedInDomainPlanner += value;
+            }
+        }
+
+        internal EventWaitHandle _PlanRealizationEventWaitHandle;
         public EventWaitHandle PlanRealizationEventWaitHandle
         {
             get { return _PlanRealizationEventWaitHandle; }
