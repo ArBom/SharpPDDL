@@ -233,13 +233,21 @@ namespace SharpPDDL
                     continue;
                 }
 
-                if (!(DomainPlanner is null))
+                if (DomainPlanner is null)
+                    continue;
+
                 if (!(DomainPlanner.OneUnuseObjects is null))
                 {
                     PossibleStateThumbnailObject TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.allTypes);
                     DomainPlanner.OneUnuseObjects.Add(TempNewOne);
                 }
             }
+
+            if (this.DomainPlanner is null)
+                return;
+
+            if (this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated is null)
+                this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated += this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated;
         }
     }
 }

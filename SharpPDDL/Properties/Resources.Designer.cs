@@ -1294,6 +1294,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Goal: {0} is added to finding the solution of it. You cannot to change it now. New part will be ignored..
+        /// </summary>
+        internal static string W15 {
+            get {
+                return ResourceManager.GetString("W15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu One of actions have no declared execution. SharpPDDL is trying realize plan without this action.
         /// </summary>
         internal static string W2 {

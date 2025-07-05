@@ -46,12 +46,12 @@ namespace SharpPDDL
         protected Dictionary<FoungingGoalDetail, SortedSet<Crisscross>> FoundedGoals;
         protected Dictionary<Crisscross, List<GoalPDDL>> FoundedCrisscrosses;
         protected Crisscross CurrentBuilded;
-        protected CrisscrossGenerator CurrentBuilder;
-        internal PlanImplementor PlanImplementor;
+        internal CrisscrossGenerator CurrentBuilder { get; private set; }
+        protected PlanImplementor PlanImplementor;
         protected ObservableCollection<GoalPDDL> Goals;
         readonly List<ActionPDDL> Actions;
         internal Action<uint> currentMinCumulativeCostUpdate;
-        internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
+        protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
         internal List<PossibleStateThumbnailObject> OneUnuseObjects;
 
@@ -104,12 +104,6 @@ namespace SharpPDDL
 
             ICollection<GoalPDDL> ToCheckGoals;
 
-            if (Goals.Any())
-            {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
-                throw new Exception(GloCla.ResMan.GetString("E5"));
-            }
-
             try
             {
                 ToCheckGoals = (ICollection<GoalPDDL>)sender;
@@ -120,11 +114,16 @@ namespace SharpPDDL
                 throw new Exception(GloCla.ResMan.GetString("C0"));
             }
 
+            if (ToCheckGoals.Any(TCG => Goals.Any(G => TCG.Name != G.Name)))
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
+                throw new Exception(GloCla.ResMan.GetString("E5"));
+            }
+
             CurrentBuilder.Stop().Wait(100);
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
-            {
                 CheckGoalInCol.CheckNewGoal(CurrentCancelTokenS, CurrentBuilded, ToCheckGoal, FoundSols);
-            }
+
             CurrentBuilder.ReStart(CurrentBuilded);
         }
 

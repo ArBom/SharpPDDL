@@ -6,7 +6,14 @@ using System.Diagnostics;
 
 namespace SharpPDDL
 {
-    public enum GoalPriority { Ignore = 0, LowPriority = 1, MediumPriority = 3, HighPriority = 7, TopHihtPriority = 17 };
+    public enum GoalPriority
+    {
+        Ignore = 0,
+        LowPriority = 1,
+        MediumPriority = 3,
+        HighPriority = 7,
+        TopHihtPriority = 17
+    }
 
     public class GoalPDDL
     {
@@ -64,20 +71,49 @@ namespace SharpPDDL
             }
 
             GoalObject<T> temp = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, goalExpectations.ToList());
-            GoalObjects.Add(temp);
+            AddGoalObject(temp);
         }
 
-        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
-        {
-            //todo sprawdzenie dziedziczenia typów
+        [Obsolete("This method is deprecated.", true)]
+        private void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
 
-            GoalObject<T> temp = new GoalObject<T>(null, originalObjType, newPDDLdomain, goalExpectations.ToList());
-            GoalObjects.Add(temp);
+        /// <summary>
+        /// Method adds a description of object of given type or inherited of them which attributes' attainment is goal.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="goalExpectations">Preconditions which must be fillen for T-type object to realize the goal</param>
+        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations/*, DomeinPDDL newPDDLdomain = null*/) 
+            where T : class
+        {
+            GoalObject<T> temp = new GoalObject<T>(null, typeof(T), null, goalExpectations.ToList());
+            AddGoalObject(temp);
         }
 
-        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
+        /// <summary>
+        /// Method adds a description of object of given type or inherited of them which attribute's attainment is goal.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="goalExpectations">Precondition which must be fillen for T-type object to realize the goal</param>
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations/*, DomeinPDDL newPDDLdomain = null*/) 
+            where T : class
         {
-            AddExpectedObjectState(typeof(T), goalExpectations, newPDDLdomain);
+            ICollection<Expression<Predicate<T>>> Predications = new List<Expression<Predicate<T>>>
+            {
+                goalExpectations
+            };
+
+            AddExpectedObjectState<T>(Predications);
+        }
+
+        private void AddGoalObject(IGoalObject NewOne)
+        {
+            if (GoalObjects.Any(GO => !(GO.GoalPDDL is null)))
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 140, GloCla.ResMan.GetString("W15"), Name);
+                return;
+            }
+
+            GoalObjects.Add(NewOne);
         }
 
         internal void BUILDIT(List<SingleTypeOfDomein> allTypes)

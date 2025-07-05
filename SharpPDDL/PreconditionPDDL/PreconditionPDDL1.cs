@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -16,10 +15,8 @@ namespace SharpPDDL
             : base(Name, func, obj1.GetType(), obj1.GetHashCode())
             => this.t1 = obj1;
 
-
         override internal void CompleteActinParams(IList<Parametr> Parameters)
         {
-
             MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
             _ = memberofLambdaListerPDDL.Visit(func);
             this.usedMembers1Class = memberofLambdaListerPDDL.used[0];

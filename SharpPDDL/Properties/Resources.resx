@@ -665,6 +665,10 @@
     <value>You added {0}-th action sententia, with action text "{1}". Didn't you forget about params?</value>
     <comment>ActionPDDL; Action sententia with "{0}", but without params to paste; 0-position at list, 1-text</comment>
   </data>
+  <data name="W15" xml:space="preserve">
+    <value>Goal: {0} is added to finding the solution of it. You cannot to change it now. New part will be ignored.</value>
+    <comment>GoalPDDL; try to add some part of goal in time of finding the solution of it; 0-goal name</comment>
+  </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>
     <comment>PlanImplementor;</comment>

@@ -27,7 +27,7 @@ namespace SharpPDDL
         public DomeinPDDL newPDDLdomain { get { return _newPDDLdomain; } }
 
         private Delegate _GoalPDDL = null;
-        public Delegate GoalPDDL { get { return _GoalPDDL ?? throw new Exception(); } }
+        public Delegate GoalPDDL => _GoalPDDL;
 
         private List<Expression<Predicate<T>>> Expectations;
 
