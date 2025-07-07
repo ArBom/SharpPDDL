@@ -1,5 +1,6 @@
 ![thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
 
+[![CodeFactor](https://www.codefactor.io/repository/github/arbom/sharppddl/badge/master)](https://www.codefactor.io/repository/github/arbom/sharppddl/overview/master)
 [![.NET class library](https://github.com/ArBom/SharpPDDL/actions/workflows/dotnet.yml/badge.svg)](https://github.com/ArBom/SharpPDDL/actions/workflows/dotnet.yml)
 [![LoC](https://raw.githubusercontent.com/ArBom/SharpPDDL/refs/heads/loc/badge.svg)](https://github.com/ArBom/SharpPDDL/blob/master/.github/workflows/loc.yml)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo&color=4bc721)
