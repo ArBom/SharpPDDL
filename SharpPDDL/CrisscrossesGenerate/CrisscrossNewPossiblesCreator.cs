@@ -88,7 +88,7 @@ namespace SharpPDDL
                         PossibleNewCrisscrossCre.Remove(stateToCheck);
                     }
 
-                    void TryActionPossibility(PossibleStateThumbnailObject[] SetToCheck, int actionPos)
+                    void TryActionPossibility(ThumbnailObject[] SetToCheck, int actionPos)
                     {
                         object ResultOfCheck = Actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
 
@@ -96,7 +96,7 @@ namespace SharpPDDL
                             return;
 
                         var ResultOfCheckasList = (List<List<KeyValuePair<ushort, ValueType>>>)ResultOfCheck;
-                        var ChangedThObs = new List<PossibleStateThumbnailObject>();
+                        var ChangedThObs = new List<ThumbnailObject>();
                         object[] ActionArg = new object[SetToCheck.Length];
 
                         for (int j = 0; j < SetToCheck.Length; j++)
@@ -113,16 +113,16 @@ namespace SharpPDDL
                         ToAddList.Add(AddedItem);
                     }
 
-                    void VariationsWithoutRepetition(List<PossibleStateThumbnailObject> Source, List<PossibleStateThumbnailObject> PrevHead, int ExpectedSLenght)
+                    void VariationsWithoutRepetition(List<ThumbnailObject> Source, List<ThumbnailObject> PrevHead, int ExpectedSLenght)
                     {
                         for (int i = 0; i < Source.Count; i++)
                         {
-                            List<PossibleStateThumbnailObject> Head = new List<PossibleStateThumbnailObject>(PrevHead)
+                            List<ThumbnailObject> Head = new List<ThumbnailObject>(PrevHead)
                             {
                                 Source[i]
                             };
 
-                            var tail = new List<PossibleStateThumbnailObject>();
+                            var tail = new List<ThumbnailObject>();
                             tail.AddRange(Source);
                             tail.RemoveAt(i);
 
@@ -132,7 +132,7 @@ namespace SharpPDDL
                                 continue;
                             }
 
-                            PossibleStateThumbnailObject[] SetToCheck = Head.ToArray();
+                            ThumbnailObject[] SetToCheck = Head.ToArray();
                             foreach (int actionPos in actionsByParamCount[ExpectedSLenght])
                             {
                                 TryActionPossibility(SetToCheck, actionPos);
@@ -146,7 +146,7 @@ namespace SharpPDDL
                         }
                     }
 
-                    VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<PossibleStateThumbnailObject>(), MinActionParamCount);
+                    VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<ThumbnailObject>(), MinActionParamCount);
 
                     if (ToAddList.Any())
                     {

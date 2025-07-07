@@ -27,7 +27,7 @@ namespace SharpPDDL
         DONT_DO_IT = Agrees.DONT_DO_IT
     }
 
-    class PlanImplementor
+    internal class PlanImplementor
     {
         internal readonly DomeinPDDL Owner;
         internal CancellationTokenSource InternalCancelationTokenSource;

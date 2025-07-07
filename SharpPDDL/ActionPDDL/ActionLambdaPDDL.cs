@@ -13,24 +13,24 @@ namespace SharpPDDL
         public readonly Delegate InstantFunct;
         public readonly LambdaExpression WholeFunc;
 
-        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
         // Parameters below
             List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
             List<ParameterExpression> TempParams = new List<ParameterExpression>();
             for (int i = 0; i != parameters.Count; i++)
             {
-                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
                 TempParams.Add(CurrentPar);
                 
                 //checking if types equals
                 var ConType = Expression.Constant(parameters[i].Type, typeof(Type));
-                var keyOrygObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
+                var keyOrygObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
                 var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, keyOrygObjType);
                 var TypeEqals = Expression.Equal(ThObOryginalType, ConType);
 
                 //checking if type is inherited
-                var keyOrygObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
+                var keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
                 var OrygObj = Expression.MakeMemberAccess(CurrentPar, keyOrygObj);
                 var ISCorrectType = Expression.TypeIs(OrygObj, parameters[i].Type);
 

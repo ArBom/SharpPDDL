@@ -18,9 +18,9 @@ namespace SharpPDDL
         /// <returns>
         /// TRUE if so, FALSE if not, NULL if its incorrect
         /// </returns>
-        protected Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> CheckPDDP;
+        protected Expression<Func<ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
 
-        internal abstract Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
+        internal abstract Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
 
         protected PreconditionPDDL(string Name, Expression func, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null)
             : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)

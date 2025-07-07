@@ -24,7 +24,7 @@ namespace SharpPDDL
 
             List<ParameterExpression> param = new List<ParameterExpression>();
             for (int i = 0; i != InstantActionParamCount; i++)
-                param.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString()));
+                param.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString()));
             _parameters = new ReadOnlyCollection<ParameterExpression>(param);
 
             this.DefaultCost = Expression.Constant(defaultCost, typeof(uint));
@@ -34,7 +34,7 @@ namespace SharpPDDL
         {
             OldParameters = node.Parameters;
 
-            //Modified function with PossibleStateThumbnailObject as a Parameters
+            //Modified function with ThumbnailObject as a Parameters
             Expression ModifBody = Visit(node.Body);
 
             //Variable for modified function result
@@ -106,7 +106,7 @@ namespace SharpPDDL
             Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
-            PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
+            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
 
             //To expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
             IndexExpression IndexAccessExpr;
@@ -120,7 +120,7 @@ namespace SharpPDDL
             //In the other case take the value from precursor
             else
             {
-                PropertyInfo PrecursorPropertyInfo = typeof(PossibleStateThumbnailObject).GetProperty("Precursor");
+                PropertyInfo PrecursorPropertyInfo = typeof(ThumbnailObject).GetProperty("Precursor");
                 Expression PrecursorAccessExpression = Expression.MakeMemberAccess(newParam, PrecursorPropertyInfo);
                 IndexAccessExpr = Expression.MakeIndex(PrecursorAccessExpression, TO_indekser, argument);
             }

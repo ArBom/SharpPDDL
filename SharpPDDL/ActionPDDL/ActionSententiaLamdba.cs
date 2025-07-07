@@ -23,17 +23,17 @@ namespace SharpPDDL
             for (int i = 0; i != parameters.Count; i++)
             {
                 //creating parameters of lambda
-                ParameterExpression CurrentPar = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
+                ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
                 _parameters.Add(CurrentPar);
 
                 //checking if types equals
                 var ConType = Expression.Constant(parameters[i].Type, typeof(Type));
-                var keyOrygObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
+                var keyOrygObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
                 var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, keyOrygObjType);
                 var TypeEqals = Expression.Equal(ThObOryginalType, ConType);
 
                 //checking if type is inherited
-                var keyOrygObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
+                var keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
                 var OrygObj = Expression.MakeMemberAccess(CurrentPar, keyOrygObj);
                 var ISCorrectType = Expression.TypeIs(OrygObj, parameters[i].Type);
 
@@ -107,7 +107,7 @@ namespace SharpPDDL
                         Expression[] argument = new[] { Expression.Constant(VoT[0].ValueOfIndexesKey)};
 
                         //Property of ThumbnailObject.this[uint key]
-                        PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
+                        PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
                         IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameters[ParamNo], TO_indekser, argument);
                         Expression IndexAccessExprString = Expression.Call(IndexAccessExpr, IndexAccessExpr.Type.GetMethod("ToString", new Type[] { }));
                         textC = Expression.Call(textC, ReplaceMethod, new Expression[] { OldTxt, IndexAccessExprString });

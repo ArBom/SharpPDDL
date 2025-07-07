@@ -10,7 +10,7 @@ namespace SharpPDDL
 {
     internal static class ActionChecker
     {
-        static private Predicate<PossibleStateThumbnailObject> LambdaOfEq(object value)
+        static private Predicate<ThumbnailObject> LambdaOfEq(object value)
             => PSTO => PSTO.OriginalObj.Equals(value);
 
         internal static Delegate ActionCheckerDel(String ActionName, List<EffectPDDL> Effects, List<SingleTypeOfDomein> allTypes)
@@ -57,11 +57,11 @@ namespace SharpPDDL
                 BindingFlags.NonPublic |
                 BindingFlags.Instance);
 
-            FieldInfo ChildList = typeof(PossibleStateThumbnailObject).GetField("child",
+            FieldInfo ChildList = typeof(ThumbnailObject).GetField("child",
                 BindingFlags.NonPublic |
                 BindingFlags.Instance);
 
-            MethodInfo ItemOfPSTO = typeof(PossibleStateThumbnailObject).GetMethod("get_Item", new Type[] { typeof(UInt16) });
+            MethodInfo ItemOfPSTO = typeof(ThumbnailObject).GetMethod("get_Item", new Type[] { typeof(UInt16) });
 
             MethodInfo VTTostring = typeof(ValueType).GetMethod("ToString", new Type[] { });
 
@@ -115,11 +115,11 @@ namespace SharpPDDL
             ConstantExpression I8 = Expression.Constant("I8", typeof(string));
             MethodCallExpression stringGetterI8 = Expression.Call(ResManExp, GetString, I8);
 
-            MethodInfo Find = typeof(List<PossibleStateThumbnailObject>).GetMethod("Find", new Type[] { typeof(Predicate<PossibleStateThumbnailObject>) });
+            MethodInfo Find = typeof(List<ThumbnailObject>).GetMethod("Find", new Type[] { typeof(Predicate<ThumbnailObject>) });
             MethodInfo CheckForEqualsMethodInfo = typeof(ActionChecker).GetMethod("LambdaOfEq", BindingFlags.NonPublic | BindingFlags.Static);
 
             ///TOTO
-            ParameterExpression parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), "invoice");
+            ParameterExpression parameter = Expression.Parameter(typeof(ThumbnailObject), "invoice");
             MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
 
             EffectsArray[0] = Expression.Assign(ef, TrueExp);

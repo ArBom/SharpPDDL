@@ -53,7 +53,7 @@ namespace SharpPDDL
         internal Action<uint> currentMinCumulativeCostUpdate;
         protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
-        internal List<PossibleStateThumbnailObject> OneUnuseObjects;
+        internal List<ThumbnailObject> OneUnuseObjects;
 
         CancellationToken ExternalCancellationDomein;
         internal CancellationTokenSource InternalCancellationTokenSrc;
@@ -87,7 +87,7 @@ namespace SharpPDDL
 
             CurrentCancelTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationDomein, InternalCancellationTokenSrc.Token).Token;
 
-            OneUnuseObjects = new List<PossibleStateThumbnailObject>();
+            OneUnuseObjects = new List<ThumbnailObject>();
             CurrentBuilder.CrisscrossesGenerated += AtAllStateGenerated;
             CurrentBuilder.Start(CurrentCancelTokenS);
         }
@@ -240,70 +240,70 @@ namespace SharpPDDL
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 16, GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
 
-            if (!(FoKePo is null))
+            if (FoKePo is null)
+                return;
+
+            List<List<string>> Plan = new List<List<string>>();
+
+            for (int i = 0; i != FoKePo.Count; i++)
             {
-                List<List<string>> Plan = new List<List<string>>();
+                ThumbnailObject[] arg = new ThumbnailObject[Actions[FoKePo[i].ActionNr].InstantActionParamCount];
 
-                for (int i = 0; i != FoKePo.Count; i++)
+                for (int j = 0; j != arg.Length; j++)
+                    arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
+
+                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Actions[FoKePo[i].ActionNr].Name), (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
+
+                state = FoKePo[i].Child;
+            }
+
+            PlanGeneratedInDomainPlanner?.Invoke(Plan);
+
+            Task Stopping = CurrentBuilder.Stop();
+            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
+            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+
+            Task.WaitAll(Stopping, Realizing, Transcribing);
+
+            //internal fault
+            if(Realizing.IsFaulted)
+            {
+                if (Realizing.Exception.InnerException is PrecondExecutionException)
                 {
-                    PossibleStateThumbnailObject[] arg = new PossibleStateThumbnailObject[Actions[FoKePo[i].ActionNr].InstantActionParamCount];
+                    List<ThumbnailObject> RefreshedThumbnails = new List<ThumbnailObject>(OneUnuseObjects);
+                    OneUnuseObjects.Clear();
 
-                    for (int j = 0; j != arg.Length; j++)
-                        arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
-
-                    Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Actions[FoKePo[i].ActionNr].Name), (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
-
-                    state = FoKePo[i].Child;
-                }
-
-                PlanGeneratedInDomainPlanner?.Invoke(Plan);
-
-                Task Stopping = CurrentBuilder.Stop();
-                Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
-                Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
-
-                Task.WaitAll(Stopping, Realizing, Transcribing);
-
-                //internal fault
-                if(Realizing.IsFaulted)
-                {
-                    if (Realizing.Exception.InnerException is PrecondExecutionException)
+                    foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
                     {
-                        List<PossibleStateThumbnailObject> RefreshedThumbnails = new List<PossibleStateThumbnailObject>(OneUnuseObjects);
-                        OneUnuseObjects.Clear();
-
-                        foreach (PossibleStateThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
-                        {
-                            PossibleStateThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj) as PossibleStateThumbnailObject;
-                            RefreshedThumbnails.Add(UpdatedThObj);
-                        }
-
-                        CurrentBuilded = new Crisscross()
-                        {
-                            Content = new PossibleState(RefreshedThumbnails)
-                        };
-
-                        var ToGoalCheck = new ConcurrentQueue<Crisscross>();
-                        ToGoalCheck.Enqueue(CurrentBuilded);
-
-                        CurrentBuilder.InitBuffors(ToGoalCheck, null, null);
-                        CurrentBuilder.ReStart(CurrentBuilded);
+                        ThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj) as ThumbnailObject;
+                        RefreshedThumbnails.Add(UpdatedThObj);
                     }
-                    else
-                        throw Realizing.Exception.InnerException;
-                }
-                //Canceled
-                else if (Realizing.IsCanceled)
-                {
-                    //TODO
-                }
-                //OK
-                else
-                {
-                    CurrentBuilded = Transcribing.Result.NewRoot;
-                    CurrentBuilder.InitBuffors(null, Transcribing.Result.ChildlessCrisscrosses, null);                   
+
+                    CurrentBuilded = new Crisscross()
+                    {
+                        Content = new PossibleState(RefreshedThumbnails)
+                    };
+
+                    var ToGoalCheck = new ConcurrentQueue<Crisscross>();
+                    ToGoalCheck.Enqueue(CurrentBuilded);
+
+                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null);
                     CurrentBuilder.ReStart(CurrentBuilded);
                 }
+                else
+                    throw Realizing.Exception.InnerException;
+            }
+            //Canceled
+            else if (Realizing.IsCanceled)
+            {
+                //TODO
+            }
+            //OK
+            else
+            {
+                CurrentBuilded = Transcribing.Result.NewRoot;
+                CurrentBuilder.InitBuffors(null, Transcribing.Result.ChildlessCrisscrosses, null);                   
+                CurrentBuilder.ReStart(CurrentBuilded);
             }
         }
     }

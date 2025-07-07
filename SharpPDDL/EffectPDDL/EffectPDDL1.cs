@@ -52,7 +52,7 @@ namespace SharpPDDL
             }
         }
 
-        internal override Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
 
@@ -61,16 +61,16 @@ namespace SharpPDDL
 
             Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
             {
-                Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix + AllParamsOfAct1ClassPos.Value),
-                Expression.Parameter(typeof(PossibleStateThumbnailObject), "empty")
+                Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + AllParamsOfAct1ClassPos.Value),
+                Expression.Parameter(typeof(ThumbnailObject), "empty")
             };
 
             var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];
             Expression[] param = { FuncOutKeyExpression, Expression.Convert(SourceFunc, typeof(ValueType)) };
             NewExpression expectedTypeExpression = Expression.New(ResultType, param);
-            Expression ModifiedFunct = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, parameterExpressions);
+            Expression ModifiedFunct = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>(expectedTypeExpression, parameterExpressions);
 
-            return (Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>)ModifiedFunct;
+            return (Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>)ModifiedFunct;
         }
     }
 }

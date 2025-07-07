@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -64,9 +62,8 @@ namespace SharpPDDL
             {
                 int count = 1;
                 foreach (var child in this.Children)
-                {
                     count = count + child.Count;
-                }
+
                 return count;
             }
         }

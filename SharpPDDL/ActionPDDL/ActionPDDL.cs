@@ -394,17 +394,17 @@ namespace SharpPDDL
 
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
 
-            var PrecondidionExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>>();
+            var PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
-                Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
+                Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
                 PrecondidionExpressions.Add(ExpressionOfPrecondition);
             }
 
-            var EffectExpressions = new List<Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
+            var EffectExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>>();
             foreach (EffectPDDL Effect in Effects)
             {
-                Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
+                Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
             }
 

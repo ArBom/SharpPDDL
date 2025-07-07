@@ -12,7 +12,7 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        public Expression<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>> ModifeidLambda;
+        public Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda;
         private readonly int[] ParamsIndexesInAction;
         private readonly List<SingleTypeOfDomein> allTypes;
 
@@ -72,12 +72,12 @@ namespace SharpPDDL
             {
                 string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
                 List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
-                parameters.Add(Expression.Parameter(typeof(PossibleStateThumbnailObject), NameOfNewOne));
+                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), NameOfNewOne));
                 _parameters = parameters.AsReadOnly();
             }
 
             Expression PrecoLambdaBody = Visit(node.Body);
-            ModifeidLambda = Expression.Lambda<Func<PossibleStateThumbnailObject, PossibleStateThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
+            ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
 
             try
             {
@@ -103,7 +103,7 @@ namespace SharpPDDL
         protected override Expression VisitParameter(ParameterExpression node)
         {
             string NewParamname = NewParamName(node.Name);
-            return Expression.Parameter(typeof(PossibleStateThumbnailObject), NewParamname);
+            return Expression.Parameter(typeof(ThumbnailObject), NewParamname);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -148,7 +148,7 @@ namespace SharpPDDL
             Expression[] argument = new[] { Expression.Constant(ValueOfIndexesKey) };
 
             //Property of ThumbnailObject.this[uint key]
-            PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
+            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
 
             //To expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
             IndexExpression IndexAccessExpr;
@@ -162,7 +162,7 @@ namespace SharpPDDL
             //In the other case take the value from precursor
             else
             {
-                PropertyInfo PrecursorPropertyInfo = typeof(PossibleStateThumbnailObject).GetProperty("Precursor");
+                PropertyInfo PrecursorPropertyInfo = typeof(ThumbnailObject).GetProperty("Precursor");
                 Expression PrecursorAccessExpression = Expression.MakeMemberAccess(newParam, PrecursorPropertyInfo);
                 IndexAccessExpr = Expression.MakeIndex(PrecursorAccessExpression, TO_indekser, argument);
             }

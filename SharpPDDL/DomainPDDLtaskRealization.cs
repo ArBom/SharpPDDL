@@ -26,14 +26,14 @@ namespace SharpPDDL
 
             CheckActions(options);
 
-            List<PossibleStateThumbnailObject> allObjects = new List<PossibleStateThumbnailObject>();
+            List<ThumbnailObject> allObjects = new List<ThumbnailObject>();
 
             object locker = new object();
             /*Parallel.ForEach
             (
                 domainObjects,
                 options,
-                () => new List<PossibleStateThumbnailObject>(), // initialize aggregate for every thread 
+                () => new List<ThumbnailObject>(), // initialize aggregate for every thread 
                 (Obj, loopState, subtotal) =>
                 {
                     ThumbnailObjectPrecursor<dynamic> k = new ThumbnailObjectPrecursor<dynamic>(Obj, types.allTypes); //TODO dodać zabezpieczenie na wypadek braku typu obj na liście allTypes

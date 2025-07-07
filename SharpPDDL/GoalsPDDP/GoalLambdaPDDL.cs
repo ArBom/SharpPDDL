@@ -9,7 +9,7 @@ namespace SharpPDDL
 {
     internal class GoalLambdaPDDL<T> : ExpressionVisitor where T : class
     {
-        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(PossibleStateThumbnailObject), GloCla.LamdbaParamPrefix);
+        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix);
         readonly Type OryginalObjectType;
         readonly T OryginalObject;
         private readonly List<SingleTypeOfDomein> allTypes;
@@ -38,12 +38,12 @@ namespace SharpPDDL
         protected Expression CheckingTheParametrsEquals()
         {
             //Checking Oryginal Object Type
-            PropertyInfo keyOfOriginalObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
+            PropertyInfo keyOfOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
             MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOfOriginalObjType);
             Expression TypeIs = Expression.Equal(ThObOryginalType, Expression.Constant(OryginalObjectType));
 
             //Checking equals of objects
-            PropertyInfo keyOfOriginalObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
+            PropertyInfo keyOfOriginalObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
             MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfOriginalObj);
             ConstantExpression ConOrygObj = Expression.Constant(OryginalObject, typeof(T));
             Expression Equals = Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConOrygObj, ThObPrecursor);
@@ -66,7 +66,7 @@ namespace SharpPDDL
         protected Expression CheckingTheParametrType()
         {
             //Checking the Oryginal Object Type of _parameter is like expected
-            PropertyInfo keyOriginalObjType = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
+            PropertyInfo keyOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
             MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOriginalObjType);
             Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
 
@@ -198,7 +198,7 @@ namespace SharpPDDL
                 Expression[] argument = new[] { Expression.Constant(Values.First()) };
 
                 //Property of ThumbnailObject.this[uint key]
-                PropertyInfo TO_indekser = typeof(PossibleStateThumbnailObject).GetProperty("Item");
+                PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
 
                 //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
                 IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameter, TO_indekser, argument);
@@ -210,7 +210,7 @@ namespace SharpPDDL
             else
             {
                 //it will be check constant value of it
-                MemberInfo keyOrygObj = typeof(PossibleStateThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
+                MemberInfo keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
                 Expression OrygObj = Expression.MakeMemberAccess(_parameter, keyOrygObj);
                 Expression Converted = Expression.Convert(OrygObj, ParameterModel.Type);
 

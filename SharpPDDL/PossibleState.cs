@@ -8,31 +8,31 @@ namespace SharpPDDL
     internal class PossibleState
     {
         internal PossibleState PreviousPossibleState;
-        internal List<PossibleStateThumbnailObject> ThumbnailObjects;
-        internal List<PossibleStateThumbnailObject> ChangedThumbnailObjects;
+        internal List<ThumbnailObject> ThumbnailObjects;
+        internal List<ThumbnailObject> ChangedThumbnailObjects;
         internal string CheckSum;
 
         /// <summary>
         /// Root
         /// </summary>
-        internal PossibleState(List<PossibleStateThumbnailObject> NewThumbnailObjects)
+        internal PossibleState(List<ThumbnailObject> NewThumbnailObjects)
         {
             this.PreviousPossibleState = null;
             this.ChangedThumbnailObjects = NewThumbnailObjects;
-            this.ThumbnailObjects = new List<PossibleStateThumbnailObject>(NewThumbnailObjects);
+            this.ThumbnailObjects = new List<ThumbnailObject>(NewThumbnailObjects);
             FigureCheckSum();
         }
 
         /// <summary>
         /// Next Gen.
         /// </summary>
-        internal PossibleState(PossibleState PreviousPossibleState, List<PossibleStateThumbnailObject> ChangedThumbnailObjects)
+        internal PossibleState(PossibleState PreviousPossibleState, List<ThumbnailObject> ChangedThumbnailObjects)
         {
             this.PreviousPossibleState = PreviousPossibleState;
             this.ChangedThumbnailObjects = ChangedThumbnailObjects;
-            this.ThumbnailObjects = new List<PossibleStateThumbnailObject>(this.PreviousPossibleState.ThumbnailObjects);
+            this.ThumbnailObjects = new List<ThumbnailObject>(this.PreviousPossibleState.ThumbnailObjects);
 
-            foreach (PossibleStateThumbnailObject Change in ChangedThumbnailObjects)
+            foreach (ThumbnailObject Change in ChangedThumbnailObjects)
             {
                 var index = ThumbnailObjects.FindIndex(TO => TO.OriginalObj == Change.OriginalObj);
                 ThumbnailObjects[index] = Change;
