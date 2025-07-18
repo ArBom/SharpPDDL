@@ -61,6 +61,7 @@ namespace SharpPDDL
                 goal.BUILDIT(this.types.allTypes);
 
             DomainPlanner = new DomainPlanner(this);
+            DomainPlanner.allTypes = this.types.allTypes;
 
             if(!(this._PlanGenerated is null))
                 foreach (Delegate GeneratedPlan in this._PlanGenerated.GetInvocationList())

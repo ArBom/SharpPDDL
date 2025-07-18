@@ -10,36 +10,6 @@ using System.Collections.Concurrent;
 namespace SharpPDDL
 {
     public delegate void ListOfString(List<List<string>> planGenerated);
-    internal delegate void FoundSols(KeyValuePair<Crisscross, List<GoalPDDL>> foundSolutions);
-
-    internal class FoungingGoalDetail
-    {
-        internal readonly GoalPDDL GoalPDDL;
-        internal bool IsFoundingChippest;
-
-        internal FoungingGoalDetail(GoalPDDL goalPDDL)
-        {
-            this.GoalPDDL = goalPDDL;
-            IsFoundingChippest = false;
-        }
-
-        public override int GetHashCode()
-        {
-            return GoalPDDL.GetHashCode();
-        }
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as FoungingGoalDetail);
-        }
-
-        public bool Equals(FoungingGoalDetail obj)
-        {
-            if (obj != null && GoalPDDL != null && obj.GoalPDDL != null)
-                return obj.GoalPDDL.Name.Equals(GoalPDDL.Name);
-
-            return false;
-        }
-    }
 
     internal class DomainPlanner
     {
@@ -50,6 +20,7 @@ namespace SharpPDDL
         protected PlanImplementor PlanImplementor;
         protected ObservableCollection<GoalPDDL> Goals;
         readonly List<ActionPDDL> Actions;
+        internal List<SingleTypeOfDomein> allTypes;
         internal Action<uint> currentMinCumulativeCostUpdate;
         protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
@@ -122,7 +93,13 @@ namespace SharpPDDL
 
             CurrentBuilder.Stop().Wait(100);
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
+            {
+                ToCheckGoal.BUILDIT(allTypes);
                 CheckGoalInCol.CheckNewGoal(CurrentCancelTokenS, CurrentBuilded, ToCheckGoal, FoundSols);
+            }
+
+            if (this.CurrentBuilder.CrisscrossesGenerated is null)
+                this.RealizeGoalsPlanifFound();
 
             CurrentBuilder.ReStart(CurrentBuilded);
         }
@@ -181,7 +158,7 @@ namespace SharpPDDL
         }
 
         private object AtAllStateGeneratedLocker = new object();
-        private void AtAllStateGenerated()
+        internal void AtAllStateGenerated()
         {
             //Do not use this whole function again
             lock (AtAllStateGeneratedLocker)
@@ -198,6 +175,11 @@ namespace SharpPDDL
             //info about generated all attainable states
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 63, GloCla.ResMan.GetString("I7"));
 
+            RealizeGoalsPlanifFound();
+        }
+
+        private void RealizeGoalsPlanifFound()
+        {
             //realize goals if plan is found
             if (FoundedCrisscrosses.Any())
             {
@@ -259,11 +241,21 @@ namespace SharpPDDL
 
             PlanGeneratedInDomainPlanner?.Invoke(Plan);
 
-            Task Stopping = CurrentBuilder.Stop();
-            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
-            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+            List<Task> ToWait = new List<Task>();
 
-            Task.WaitAll(Stopping, Realizing, Transcribing);
+            Task Stopping = CurrentBuilder.Stop();
+            if (Stopping.Status == TaskStatus.Running)
+                ToWait.Add(Stopping);
+
+            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
+            if (Realizing.Status == TaskStatus.Running)
+                ToWait.Add(Realizing);
+
+            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+            if (Transcribing.Status == TaskStatus.Running)
+                ToWait.Add(Transcribing);
+
+            Task.WaitAll(ToWait.ToArray());
 
             //internal fault
             if(Realizing.IsFaulted)

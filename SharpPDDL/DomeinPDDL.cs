@@ -247,7 +247,7 @@ namespace SharpPDDL
                 return;
 
             if (this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated is null)
-                this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated += this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated;
+                this.DomainPlanner.CurrentBuilder.CrisscrossesGenerated += this.DomainPlanner.AtAllStateGenerated;
         }
     }
 }

@@ -8,11 +8,10 @@ namespace SharpPDDL
 {
     internal static class CheckGoalInCol
     {
-        internal static Task CheckNewGoal(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols)
+        internal static void CheckNewGoal(CancellationToken cancellationToken, Crisscross states, GoalPDDL Goal, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols)
         {
             Task CheckItAsTask = new Task(() => CheckIt(cancellationToken, states, Goal, foundSols));
-            CheckItAsTask.Start();
-            return CheckItAsTask;
+            CheckItAsTask.RunSynchronously();
         }
 
         private static bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
