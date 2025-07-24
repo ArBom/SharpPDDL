@@ -120,14 +120,11 @@ namespace SharpPDDL
                     }
 
                     if (!possibleStatesCrisscross.Children.Any())
-                    {
                         lock (PossibleNewCrisscrossCreLocker)
                         {
                             PossibleNewCrisscrossCre.Add(possibleStatesCrisscross);
-
                             BuildingNewCrisscrossARE.Set();
                         }
-                    }
                 }
                 NoNewData.BeginInvoke(null, null);
                 IsWaiting = true;

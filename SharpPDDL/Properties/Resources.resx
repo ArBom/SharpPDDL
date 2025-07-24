@@ -605,6 +605,9 @@
     <value>{0} domein started to find solution.</value>
     <comment>DomeinPDDL; Start; 0-domain name</comment>
   </data>
+  <data name="V10" xml:space="preserve">
+    <value>{0} the goal was removed from goals to realize list.</value>
+  </data>
   <data name="V2" xml:space="preserve">
     <value>Plan accepted.</value>
     <comment>PlanImplementor;</comment>

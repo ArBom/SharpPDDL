@@ -65,6 +65,10 @@ namespace SharpPDDL
 
         internal void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                foreach (var RemGoal in e.OldItems)
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 141, GloCla.ResMan.GetString("V10"), ((GoalPDDL)RemGoal).Name);
+
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
                 if (!Goals.Any())
@@ -122,6 +126,14 @@ namespace SharpPDDL
                         currentMinCumulativeCostUpdate += CheckingIfGenerateActionList;
                 }
             }
+
+            if (this.PlanImplementor.ImplementorTask?.Status == TaskStatus.Running)
+                return;
+
+            if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority) || Found.Value.Count() == Goals.Count())
+            {
+                this.GenList(Found);
+            }
         }
 
         private void CheckingIfGenerateActionList(uint ActMinCumulativeCost)
@@ -138,7 +150,7 @@ namespace SharpPDDL
                 return;
             }
 
-            var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.02 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
+            var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.05 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
             if (FoundedChipStates is null)
                 return;
 
@@ -212,6 +224,30 @@ namespace SharpPDDL
                 //enumerate unnattainable high goals
                 for (int i = 0; i != UNattHPcount; i++)
                     GloCla.Tracer.TraceEvent(TraceEventType.Information, 142, GloCla.ResMan.GetString("I15"), i, UNattHP[i].Name);
+            }
+        }
+
+        internal void RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
+        {
+            if (FoundedCrisscrosses.ContainsKey(GainedCrisscross))
+            {
+                List<GoalPDDL> goals = FoundedCrisscrosses[GainedCrisscross];
+
+                foreach (GoalPDDL goalPDDL in goals)
+                {
+                    goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
+                    KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> r = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
+
+                    r.Value.Remove(GainedCrisscross);
+                    this.Goals.Remove(goalPDDL);
+
+                    if (r.Value.Any())
+                        continue;
+
+                    FoundedGoals.Remove(r.Key);
+                }
+
+                FoundedCrisscrosses.Remove(GainedCrisscross);
             }
         }
 

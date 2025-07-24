@@ -19,6 +19,7 @@ namespace SharpPDDL
     {
         public readonly string Name;
         public readonly GoalPriority goalPriority;
+        public EventHandler GoalRealized;
         internal List<IGoalObject> GoalObjects;
 
         /// <summary>

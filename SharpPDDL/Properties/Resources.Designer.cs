@@ -1159,6 +1159,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} the goal was removed from goals to realize list..
+        /// </summary>
+        internal static string V10 {
+            get {
+                return ResourceManager.GetString("V10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Plan accepted..
         /// </summary>
         internal static string V2 {

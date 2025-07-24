@@ -149,6 +149,7 @@ namespace SharpPDDL
                     Owner.actions[Act.ActionNr].InstantExecutionChecker.DynamicInvoke(Act);        
 
                 Owner.CurrentState = Act.Child.Content;
+                Owner.DomainPlanner.RemoveRealizedGoalsOfCrisscross(Act.Child);
             }
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
