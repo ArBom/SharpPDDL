@@ -58,10 +58,9 @@ namespace SharpPDDL
             CurrentState = new PossibleState(allObjects);
 
             foreach (var goal in domainGoals)
-                goal.BUILDIT(this.types.allTypes);
+                goal.BuildIt(this);
 
             DomainPlanner = new DomainPlanner(this);
-            DomainPlanner.allTypes = this.types.allTypes;
 
             if(!(this._PlanGenerated is null))
                 foreach (Delegate GeneratedPlan in this._PlanGenerated.GetInvocationList())

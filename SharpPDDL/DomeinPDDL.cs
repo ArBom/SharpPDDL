@@ -21,7 +21,7 @@ namespace SharpPDDL
         static Dictionary<string, DomeinPDDL> AllDomain;
 
         public readonly string Name;
-        private TypesPDDL types;
+        internal TypesPDDL types;
         internal List<ActionPDDL> actions;
         internal DomainPlanner DomainPlanner;
         internal PossibleState CurrentState;

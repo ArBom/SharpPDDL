@@ -11,27 +11,32 @@ namespace SharpPDDL
         object OriginalObj { get; }
         Type OriginalObjType { get; }
         Delegate GoalPDDL { get; }
-        LambdaExpression BuildGoalPDDP(List<SingleTypeOfDomein> allTypes);
+        LambdaExpression BuildGoalPDDP(DomeinPDDL GoalOwner);
         DomeinPDDL newPDDLdomain { get; }
+        bool MigrateIntheEnd { get; }
     }
 
     internal class GoalObject<T> : IGoalObject where T : class
     {
         private readonly T _OriginalObj;
-        public object OriginalObj { get { return _OriginalObj; } }
+        public object OriginalObj => _OriginalObj;
 
         private readonly Type _OriginalObjType;
-        public Type OriginalObjType { get { return _OriginalObjType; } }
+        public Type OriginalObjType => _OriginalObjType;
 
         private readonly DomeinPDDL _newPDDLdomain;
-        public DomeinPDDL newPDDLdomain { get { return _newPDDLdomain; } }
+        public DomeinPDDL newPDDLdomain => _newPDDLdomain;
 
         private Delegate _GoalPDDL = null;
         public Delegate GoalPDDL => _GoalPDDL;
 
+        private bool _MigrateIntheEnd;
+        public bool MigrateIntheEnd => _MigrateIntheEnd;
+
+        private readonly bool MigrateAccordingtoConstructor;
         private List<Expression<Predicate<T>>> Expectations;
 
-        public GoalObject(T originalObj, Type originalObjType, DomeinPDDL newPDDLdomain, List<Expression<Predicate<T>>> excetptions)
+        public GoalObject(T originalObj, Type originalObjType, DomeinPDDL newPDDLdomain, List<Expression<Predicate<T>>> excetptions, bool MigrateIt = false)
         {
             if (excetptions is null)
             {
@@ -51,16 +56,19 @@ namespace SharpPDDL
             this._OriginalObjType = originalObjType;
             this._newPDDLdomain = newPDDLdomain;
             this.Expectations = excetptions;
+            this.MigrateAccordingtoConstructor = MigrateIt;
         }
 
-        public LambdaExpression BuildGoalPDDP(List<SingleTypeOfDomein> allTypes)
+        public LambdaExpression BuildGoalPDDP(DomeinPDDL GoalOwner)
         {
             GoalLambdaPDDL<T> goalLambdaPDDL;
 
             if (_OriginalObj is null)
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, allTypes, _OriginalObjType);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, GoalOwner.types.allTypes, _OriginalObjType);
             else
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, allTypes, _OriginalObj);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, GoalOwner.types.allTypes, _OriginalObj);
+
+            _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(newPDDLdomain) : false;
 
             LambdaExpression ToRet = goalLambdaPDDL.ModifeidLambda;
 

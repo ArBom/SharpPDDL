@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Diagnostics;
-using System.Collections.ObjectModel;
 using System.Collections.Concurrent;
 
 namespace SharpPDDL
@@ -18,9 +17,7 @@ namespace SharpPDDL
         protected Crisscross CurrentBuilded;
         internal CrisscrossGenerator CurrentBuilder { get; private set; }
         protected PlanImplementor PlanImplementor;
-        protected ObservableCollection<GoalPDDL> Goals;
-        readonly List<ActionPDDL> Actions;
-        internal List<SingleTypeOfDomein> allTypes;
+        protected readonly DomeinPDDL Owner;
         internal Action<uint> currentMinCumulativeCostUpdate;
         protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
@@ -32,8 +29,7 @@ namespace SharpPDDL
 
         internal DomainPlanner(DomeinPDDL Owner)
         {
-            Actions = Owner.actions;
-            Goals = Owner.domainGoals;
+            this.Owner = Owner;
             FoundSols += FoundSolsVoid;
             CurrentBuilded = new Crisscross
             {
@@ -71,7 +67,7 @@ namespace SharpPDDL
 
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                if (!Goals.Any())
+                if (!Owner.domainGoals.Any())
                     InternalCancellationTokenSrc.Cancel();
 
                 return;
@@ -89,7 +85,7 @@ namespace SharpPDDL
                 throw new Exception(GloCla.ResMan.GetString("C0"));
             }
 
-            if (ToCheckGoals.Any(TCG => Goals.Any(G => TCG.Name != G.Name)))
+            if (ToCheckGoals.Any(TCG => Owner.domainGoals.Any(G => TCG.Name != G.Name)))
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
                 throw new Exception(GloCla.ResMan.GetString("E5"));
@@ -98,7 +94,7 @@ namespace SharpPDDL
             CurrentBuilder.Stop().Wait(100);
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
             {
-                ToCheckGoal.BUILDIT(allTypes);
+                ToCheckGoal.BuildIt(Owner);
                 CheckGoalInCol.CheckNewGoal(CurrentCancelTokenS, CurrentBuilded, ToCheckGoal, FoundSols);
             }
 
@@ -130,7 +126,7 @@ namespace SharpPDDL
             if (this.PlanImplementor.ImplementorTask?.Status == TaskStatus.Running)
                 return;
 
-            if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority) || Found.Value.Count() == Goals.Count())
+            if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority) || Found.Value.Count() == Owner.domainGoals.Count())
             {
                 this.GenList(Found);
             }
@@ -164,7 +160,7 @@ namespace SharpPDDL
             FoundedCrisscrosses.Clear();
 
             foreach (GoalPDDL goalPDDL in GenerList.Value)
-                Goals.Remove(goalPDDL);
+                Owner.domainGoals.Remove(goalPDDL);
 
             GenList(GenerList);
         }
@@ -203,7 +199,7 @@ namespace SharpPDDL
                 return;
 
             //Info about unattainable goals
-            IEnumerable<GoalPDDL> UNattainable = Goals.Where(G => !(FoundedGoals.Keys.Any(K => K.GoalPDDL.Name == G.Name)));
+            IEnumerable<GoalPDDL> UNattainable = Owner.domainGoals.Where(G => !(FoundedGoals.Keys.Any(K => K.GoalPDDL.Name == G.Name)));
             if (UNattainable.Any())
             {
                 //unattainable goals with top high priority
@@ -227,7 +223,7 @@ namespace SharpPDDL
             }
         }
 
-        internal void RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
+        internal bool RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
         {
             if (FoundedCrisscrosses.ContainsKey(GainedCrisscross))
             {
@@ -239,7 +235,7 @@ namespace SharpPDDL
                     KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> r = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
 
                     r.Value.Remove(GainedCrisscross);
-                    this.Goals.Remove(goalPDDL);
+                    this.Owner.domainGoals.Remove(goalPDDL);
 
                     if (r.Value.Any())
                         continue;
@@ -248,7 +244,11 @@ namespace SharpPDDL
                 }
 
                 FoundedCrisscrosses.Remove(GainedCrisscross);
+
+                return true;
             }
+
+            return false;
         }
 
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -265,12 +265,12 @@ namespace SharpPDDL
 
             for (int i = 0; i != FoKePo.Count; i++)
             {
-                ThumbnailObject[] arg = new ThumbnailObject[Actions[FoKePo[i].ActionNr].InstantActionParamCount];
+                ThumbnailObject[] arg = new ThumbnailObject[Owner.actions[FoKePo[i].ActionNr].InstantActionParamCount];
 
                 for (int j = 0; j != arg.Length; j++)
                     arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
 
-                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Actions[FoKePo[i].ActionNr].Name), (string)Actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
+                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Owner.actions[FoKePo[i].ActionNr].Name), (string)Owner.actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
 
                 state = FoKePo[i].Child;
             }

@@ -76,7 +76,7 @@ namespace SharpPDDL
         }
 
         [Obsolete("This method is deprecated.", true)]
-        private void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
+        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
 
         /// <summary>
         /// Method adds a description of object of given type or inherited of them which attributes' attainment is goal.
@@ -117,7 +117,7 @@ namespace SharpPDDL
             GoalObjects.Add(NewOne);
         }
 
-        internal void BUILDIT(List<SingleTypeOfDomein> allTypes)
+        internal void BuildIt(DomeinPDDL GoalOwner)
         {
             if (!GoalObjects.Any())
             {
@@ -128,7 +128,7 @@ namespace SharpPDDL
 
             foreach (IGoalObject GoalObjects in GoalObjects)
             {
-                _ = GoalObjects.BuildGoalPDDP(allTypes);
+                _ = GoalObjects.BuildGoalPDDP(GoalOwner); //List<SingleTypeOfDomein> allTypes
             }
         }
     }
