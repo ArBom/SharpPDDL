@@ -8,7 +8,7 @@ namespace SharpPDDL
 {
     internal interface IGoalObject
     {
-        object OriginalObj { get; }
+        object OriginalObj { get; set; }
         Type OriginalObjType { get; }
         Delegate GoalPDDL { get; }
         LambdaExpression BuildGoalPDDP(DomeinPDDL GoalOwner);
@@ -18,20 +18,28 @@ namespace SharpPDDL
 
     internal class GoalObject<T> : IGoalObject where T : class
     {
-        private readonly T _OriginalObj;
-        public object OriginalObj => _OriginalObj;
+        private T _OriginalObj;
+        public object OriginalObj
+        {
+            get { return _OriginalObj; }
+            set
+            {
+                if (_OriginalObj is null)
+                    _OriginalObj = (T)value;
+            }
+        }
 
         private readonly Type _OriginalObjType;
         public Type OriginalObjType => _OriginalObjType;
-
-        private readonly DomeinPDDL _newPDDLdomain;
-        public DomeinPDDL newPDDLdomain => _newPDDLdomain;
 
         private Delegate _GoalPDDL = null;
         public Delegate GoalPDDL => _GoalPDDL;
 
         private bool _MigrateIntheEnd;
         public bool MigrateIntheEnd => _MigrateIntheEnd;
+
+        private readonly DomeinPDDL _newPDDLdomain;
+        public DomeinPDDL newPDDLdomain => _newPDDLdomain;
 
         private readonly bool MigrateAccordingtoConstructor;
         private List<Expression<Predicate<T>>> Expectations;
@@ -71,7 +79,6 @@ namespace SharpPDDL
             _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(newPDDLdomain) : false;
 
             LambdaExpression ToRet = goalLambdaPDDL.ModifeidLambda;
-
             try
             {
                 _GoalPDDL = ToRet.Compile();

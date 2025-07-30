@@ -223,32 +223,51 @@ namespace SharpPDDL
             }
         }
 
-        internal bool RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
+        private void SetObjToMigrate(GoalPDDL goalPDDL, Crisscross GainedCrisscross)
         {
-            if (FoundedCrisscrosses.ContainsKey(GainedCrisscross))
+            foreach (IGoalObject goalObject in goalPDDL.GoalObjects)
             {
-                List<GoalPDDL> goals = FoundedCrisscrosses[GainedCrisscross];
+                if (!goalObject.MigrateIntheEnd)
+                    continue;
 
-                foreach (GoalPDDL goalPDDL in goals)
+                if (!(goalObject.OriginalObj is null))
+                    continue;
+
+                foreach (ThumbnailObject ThObj in GainedCrisscross.Content.ChangedThumbnailObjects)
                 {
-                    goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
-                    KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> r = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
-
-                    r.Value.Remove(GainedCrisscross);
-                    this.Owner.domainGoals.Remove(goalPDDL);
-
-                    if (r.Value.Any())
-                        continue;
-
-                    FoundedGoals.Remove(r.Key);
+                    foreach (IGoalObject goalObj in goalPDDL.GoalObjects)
+                        if ((bool)goalObj.GoalPDDL.DynamicInvoke(ThObj))
+                        {
+                            goalObj.OriginalObj = ThObj.OriginalObj;
+                        }
                 }
+            }
+        }
 
-                FoundedCrisscrosses.Remove(GainedCrisscross);
+        internal List<GoalPDDL> RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
+        {
+            if (!FoundedCrisscrosses.ContainsKey(GainedCrisscross))
+                return null;
 
-                return true;
+            //copy list of realized goals
+            List<GoalPDDL> goals = new List<GoalPDDL>(FoundedCrisscrosses[GainedCrisscross]);
+
+            foreach (GoalPDDL goalPDDL in goals)
+            {
+                //Let external program know, some part is realized
+                goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
+                SetObjToMigrate(goalPDDL, GainedCrisscross);
+                KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> FoGo = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
+                FoGo.Value.Remove(GainedCrisscross);
+                this.Owner.domainGoals.Remove(goalPDDL);
+                if (FoGo.Value.Any())
+                    continue;
+
+                FoundedGoals.Remove(FoGo.Key);
             }
 
-            return false;
+            FoundedCrisscrosses.Remove(GainedCrisscross);
+            return goals;
         }
 
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)

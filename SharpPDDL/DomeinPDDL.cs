@@ -51,7 +51,7 @@ namespace SharpPDDL
         {
             SignalizeNeedAcception = null,
             WaitOn = null,
-            PlanImplementor_Agrees = Agrees.DONT_EVEN_TRY
+            PlanImplementor_Agrees = ExecutionAgrees.DONT_EVEN_TRY
         };
 
         internal void CheckActions(ParallelOptions parallelOptions)
@@ -206,7 +206,7 @@ namespace SharpPDDL
             if (!askToAgrees.Any())
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 126, GloCla.ResMan.GetString("W11"));
-                Asks = (Agrees.Plan | Agrees.SpecialAction | Agrees.EveryAction);
+                Asks = (ExecutionAgrees.Plan | ExecutionAgrees.SpecialAction | ExecutionAgrees.EveryAction);
             }
             else
                 foreach (var A in askToAgrees)
