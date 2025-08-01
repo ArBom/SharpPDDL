@@ -1,5 +1,10 @@
-on: [push]
 name: Lines of Code
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   loc_job:
@@ -18,7 +23,7 @@ jobs:
           badge_label: lines of code
           badge_color: green
           badge: ./output/badge.svg
-          ignore: '.github|README.md|LICENSE.txt'
+          ignore: '.png|.github|README.md|LICENSE.txt'
 
       - name: Print the output
         run: |
