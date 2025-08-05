@@ -1168,6 +1168,24 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Object of {0}-type was removed from {1} domain..
+        /// </summary>
+        internal static string V11 {
+            get {
+                return ResourceManager.GetString("V11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Object of {0}-type was added to {1} domain..
+        /// </summary>
+        internal static string V12 {
+            get {
+                return ResourceManager.GetString("V12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Plan accepted..
         /// </summary>
         internal static string V2 {
@@ -1308,6 +1326,15 @@ namespace SharpPDDL.Properties {
         internal static string W15 {
             get {
                 return ResourceManager.GetString("W15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Expectations for {1}-type object inside {0} the goal was defined previously. Redefinition / add new ones is ignored..
+        /// </summary>
+        internal static string W16 {
+            get {
+                return ResourceManager.GetString("W16", resourceCulture);
             }
         }
         

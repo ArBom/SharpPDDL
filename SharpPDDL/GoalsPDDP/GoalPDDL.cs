@@ -49,9 +49,10 @@ namespace SharpPDDL
         /// <param name="goalExpectation">Description of expected attribute</param>
         /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
         /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain = null) where T : class
+        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain) 
+            where T : class
         {
-            List<Expression<Predicate<T>>> goalExpectations = new List<Expression<Predicate<T>>>() { goalExpectation };
+            ICollection<Expression<Predicate<T>>> goalExpectations = new Expression<Predicate<T>>[1] { goalExpectation };
             AddExpectedObjectState(originalObj, new List<Expression<Predicate<T>>>(goalExpectations), newPDDLdomain);
         }
 
@@ -62,7 +63,7 @@ namespace SharpPDDL
         /// <param name="goalExpectation">Collection of description of expected attributes</param>
         /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
         /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain) where T : class
         {
             if (originalObj is null)
             {
@@ -71,23 +72,60 @@ namespace SharpPDDL
                 throw new Exception(ExceptionMess);
             }
 
-            GoalObject<T> temp = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, goalExpectations.ToList());
-            AddGoalObject(temp);
+            AddGoalObject(originalObj, newPDDLdomain, goalExpectations, true);
         }
 
-        [Obsolete("This method is deprecated.", true)]
-        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
+        /// <summary>
+        /// Method adds a description of a specific object previously added to domainObjects which attribute's attainment is goal.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="goalExpectation">Description of expected attribute</param>
+        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
+        /// <param name="newPDDLdomain">Not in use yet</param>
+        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation) 
+            where T : class
+        {
+            ICollection<Expression<Predicate<T>>> goalExpectations = new Expression<Predicate<T>>[1] { goalExpectation };
+            AddExpectedObjectState(originalObj, goalExpectations);
+        }
+
+        /// <summary>
+        /// Method adds a description of a specific object previously added to domainObjects which attributes' attainment is goal.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="goalExpectation">Collection of description of expected attributes</param>
+        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
+        /// <param name="newPDDLdomain">Not in use yet</param>
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations) where T : class
+        {
+            if (originalObj is null)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E30"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 107, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            AddGoalObject(originalObj, null, goalExpectations, false);
+        }
 
         /// <summary>
         /// Method adds a description of object of given type or inherited of them which attributes' attainment is goal.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="goalExpectations">Preconditions which must be fillen for T-type object to realize the goal</param>
-        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations/*, DomeinPDDL newPDDLdomain = null*/) 
+        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations) 
+            where T : class
+        => AddGoalObject(null, null, goalExpectations, false);        
+
+        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomein)
+            where T : class
+        => AddGoalObject(null, newPDDLdomein, goalExpectations, true);       
+
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations, DomeinPDDL newPDDLdomain)
             where T : class
         {
-            GoalObject<T> temp = new GoalObject<T>(null, typeof(T), null, goalExpectations.ToList());
-            AddGoalObject(temp);
+            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectations };
+            AddExpectedObjectState<T>(Predications, newPDDLdomain);
         }
 
         /// <summary>
@@ -95,25 +133,35 @@ namespace SharpPDDL
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="goalExpectations">Precondition which must be fillen for T-type object to realize the goal</param>
-        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations/*, DomeinPDDL newPDDLdomain = null*/) 
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations) 
             where T : class
         {
-            ICollection<Expression<Predicate<T>>> Predications = new List<Expression<Predicate<T>>>
-            {
-                goalExpectations
-            };
-
+            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectations };
             AddExpectedObjectState<T>(Predications);
         }
 
-        private void AddGoalObject(IGoalObject NewOne)
+        [Obsolete("This method is deprecated.", true)]
+        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
+
+        private void AddGoalObject<T>(T originalObj, DomeinPDDL newPDDLdomain, ICollection<Expression<Predicate<T>>> goalExpectations, bool Migrate)
+            where T : class
         {
+            if (!(originalObj is null))
+            {
+                if (GoalObjects.Any(GO => GO.OriginalObj.Equals(originalObj)))
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 144, GloCla.ResMan.GetString("W16"), Name, typeof(T));
+                    return;
+                }
+            }
+
             if (GoalObjects.Any(GO => !(GO.GoalPDDL is null)))
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 140, GloCla.ResMan.GetString("W15"), Name);
                 return;
             }
 
+            GoalObject<T> NewOne = new GoalObject<T>(originalObj, typeof(T), newPDDLdomain, goalExpectations, Migrate);
             GoalObjects.Add(NewOne);
         }
 
@@ -128,7 +176,7 @@ namespace SharpPDDL
 
             foreach (IGoalObject GoalObjects in GoalObjects)
             {
-                _ = GoalObjects.BuildGoalPDDP(GoalOwner); //List<SingleTypeOfDomein> allTypes
+                _ = GoalObjects.BuildGoalPDDP(GoalOwner);
             }
         }
     }

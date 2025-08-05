@@ -12,7 +12,7 @@ namespace SharpPDDL
         Type OriginalObjType { get; }
         Delegate GoalPDDL { get; }
         LambdaExpression BuildGoalPDDP(DomeinPDDL GoalOwner);
-        DomeinPDDL newPDDLdomain { get; }
+        DomeinPDDL NewPDDLdomain { get; }
         bool MigrateIntheEnd { get; }
     }
 
@@ -39,12 +39,12 @@ namespace SharpPDDL
         public bool MigrateIntheEnd => _MigrateIntheEnd;
 
         private readonly DomeinPDDL _newPDDLdomain;
-        public DomeinPDDL newPDDLdomain => _newPDDLdomain;
+        public DomeinPDDL NewPDDLdomain => _newPDDLdomain;
 
         private readonly bool MigrateAccordingtoConstructor;
-        private List<Expression<Predicate<T>>> Expectations;
+        private readonly ICollection<Expression<Predicate<T>>> Expectations;
 
-        public GoalObject(T originalObj, Type originalObjType, DomeinPDDL newPDDLdomain, List<Expression<Predicate<T>>> excetptions, bool MigrateIt = false)
+        internal GoalObject(T originalObj, Type originalObjType, DomeinPDDL newPDDLdomain, ICollection<Expression<Predicate<T>>> excetptions, bool MigrateIt)
         {
             if (excetptions is null)
             {
@@ -76,7 +76,7 @@ namespace SharpPDDL
             else
                 goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, GoalOwner.types.allTypes, _OriginalObj);
 
-            _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(newPDDLdomain) : false;
+            _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(NewPDDLdomain) : false;
 
             LambdaExpression ToRet = goalLambdaPDDL.ModifeidLambda;
             try

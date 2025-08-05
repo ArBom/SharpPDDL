@@ -15,9 +15,9 @@ namespace SharpPDDL
         private readonly List<SingleTypeOfDomein> allTypes;
         readonly Expression CheckingTheParametr;
         internal LambdaExpression ModifeidLambda;
-        readonly List<Expression<Predicate<T>>> GoalExpectations;
+        readonly ICollection<Expression<Predicate<T>>> GoalExpectations;
 
-        public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, T oryginalObject)
+        public GoalLambdaPDDL(ICollection<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, T oryginalObject)
         {
             if (oryginalObject is null)
             {
@@ -52,7 +52,7 @@ namespace SharpPDDL
             return Expression.AndAlso(TypeIs, Equals);
         }
 
-        public GoalLambdaPDDL(List<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, Type oryginalObjectType)
+        public GoalLambdaPDDL(ICollection<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, Type oryginalObjectType)
         {
             this.allTypes = allTypes;
             this.OryginalObjectType = oryginalObjectType;
@@ -109,7 +109,7 @@ namespace SharpPDDL
             }
         }
 
-        Expression CheckPredicates(List<Expression<Predicate<T>>> GoalExpectations)
+        Expression CheckPredicates(ICollection<Expression<Predicate<T>>> GoalExpectations)
         {
             if (GoalExpectations is null)
             {
@@ -118,20 +118,21 @@ namespace SharpPDDL
                 throw new Exception(ExceptionMess);
             }
 
+            IEnumerator<Expression<Predicate<T>>> Enumerator = GoalExpectations.GetEnumerator();
             int GoalExpectationsCount = GoalExpectations.Count;
 
-            if (GoalExpectationsCount == 0)
+            //if its empty
+            if (!Enumerator.MoveNext())
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("E20"));
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 94, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
+            
+            Expression CheckAllPreco = VisitLambda(Enumerator.Current);
 
-            Expression CheckAllPreco = VisitLambda(GoalExpectations[0]);
-
-            if (GoalExpectationsCount != 1)
-                for (int i = 1; i!= GoalExpectationsCount; i++)
-                    CheckAllPreco = Expression.AndAlso(CheckAllPreco, VisitLambda(GoalExpectations[i]));
+            while (Enumerator.MoveNext())
+                CheckAllPreco = Expression.AndAlso(CheckAllPreco, VisitLambda(Enumerator.Current));
 
             //To poniższe jest wykorzystywane dalej
             ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, CheckAllPreco), _parameter);

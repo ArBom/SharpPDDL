@@ -608,6 +608,14 @@
   <data name="V10" xml:space="preserve">
     <value>{0} the goal was removed from goals to realize list.</value>
   </data>
+  <data name="V11" xml:space="preserve">
+    <value>Object of {0}-type was removed from {1} domain.</value>
+    <comment>DomeinPDDL; Remove obj. from domain objects list; 0-object type 1-domain name</comment>
+  </data>
+  <data name="V12" xml:space="preserve">
+    <value>Object of {0}-type was added to {1} domain.</value>
+    <comment>DomeinPDDL; Add obj. to domain objects list; 0-object type 1-domain name</comment>
+  </data>
   <data name="V2" xml:space="preserve">
     <value>Plan accepted.</value>
     <comment>PlanImplementor;</comment>
@@ -671,6 +679,10 @@
   <data name="W15" xml:space="preserve">
     <value>Goal: {0} is added to finding the solution of it. You cannot to change it now. New part will be ignored.</value>
     <comment>GoalPDDL; try to add some part of goal in time of finding the solution of it; 0-goal name</comment>
+  </data>
+  <data name="W16" xml:space="preserve">
+    <value>Expectations for {1}-type object inside {0} the goal was defined previously. Redefinition / add new ones is ignored.</value>
+    <comment>GoalPDDL; ;0-goal name, 1-repeated object's type</comment>
   </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>

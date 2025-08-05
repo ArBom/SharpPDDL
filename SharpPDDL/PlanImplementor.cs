@@ -155,9 +155,31 @@ namespace SharpPDDL
 
                 ExecuteTheAction(Act, cancelationToken);
 
-                if (!(Owner.DomainPlanner.RemoveRealizedGoalsOfCrisscross(Act.Child) is null))
+                List<GoalPDDL> RealizedGoals = Owner.DomainPlanner.RemoveRealizedGoalsOfCrisscross(Act.Child);
+                if (!(RealizedGoals is null))
                 {
-                    //todo migracja do innych domen / usunięcie
+                    //for every realized goal...
+                    foreach (GoalPDDL goalPDDL in RealizedGoals)
+                    {
+                        //...check every GoalObject of its
+                        foreach (IGoalObject goalObject in goalPDDL.GoalObjects)
+                        {
+                            //ignore if its not migrate
+                            if (!goalObject.MigrateIntheEnd)
+                                continue;
+
+                            //ignore if its removed early
+                            if (!Owner.domainObjects.Contains(goalObject.OriginalObj))
+                                continue;
+
+                            //move oryginal obj. to new domain if its needed
+                            if (!(goalObject.NewPDDLdomain is null))
+                                goalObject.NewPDDLdomain.domainObjects.Add(goalObject.OriginalObj);
+
+                            //remove it from here
+                            Owner.domainObjects.Remove(goalObject.OriginalObj);
+                        }
+                    }
                 }
 
                 Owner.CurrentState = Act.Child.Content;

@@ -224,6 +224,13 @@ namespace SharpPDDL
 
         private void DomainObjects_CollectionChanged(object sender, NotifyCollectionChangedEventArgs eventType)
         {
+            if (eventType.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (!(GloCla.Tracer is null))
+                    foreach (object Obj in eventType.OldItems)
+                        GloCla.Tracer.TraceEvent(TraceEventType.Verbose, 143, GloCla.ResMan.GetString("V11"), Obj.GetType().ToString(), this.Name);
+            }
+
             foreach (object Obj in eventType.NewItems)
             {
                 if (!(Obj.GetType().IsClass))
@@ -232,6 +239,8 @@ namespace SharpPDDL
                     domainObjects.Remove(Obj);
                     continue;
                 }
+
+                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 142, GloCla.ResMan.GetString("V12"), Obj.GetType().ToString(), this.Name);
 
                 if (DomainPlanner is null)
                     continue;
