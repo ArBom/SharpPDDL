@@ -293,7 +293,7 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
         }
     #endregion
-    #region Adding Execution
+        #region Adding Execution
         [Obsolete("This method is deprecated use AddExecution(string EffectName)", false)]
         public void UseEffectAlsoAsExecution(string EffectName)
         {

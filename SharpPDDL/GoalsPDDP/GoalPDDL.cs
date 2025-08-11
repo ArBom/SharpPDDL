@@ -43,12 +43,12 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// Method adds a description of a specific object previously added to domainObjects which attribute's attainment is goal.
+        /// Method adds a description of a specific object added to domainObjects which attribute's attainment is goal, and where move object to after reach they.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
         /// <param name="goalExpectation">Description of expected attribute</param>
-        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
-        /// <param name="newPDDLdomain">Not in use yet</param>
+        /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
         public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain) 
             where T : class
         {
@@ -57,13 +57,14 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// Method adds a description of a specific object previously added to domainObjects which attributes' attainment is goal.
+        /// Method adds a description of a specific object added to domainObjects which attributes' attainment is goal, and where move object to after reach they.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="goalExpectation">Collection of description of expected attributes</param>
-        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
-        /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain) where T : class
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
+        /// <param name="goalExpectations">Collection of description of expected attributes</param>
+        /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain) 
+            where T : class
         {
             if (originalObj is null)
             {
@@ -76,12 +77,11 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// Method adds a description of a specific object previously added to domainObjects which attribute's attainment is goal.
+        /// Method adds a description of a specific object added to domainObjects which attribute's attainment is goal. Object stay in this domain after reach the goal.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
         /// <param name="goalExpectation">Description of expected attribute</param>
-        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
-        /// <param name="newPDDLdomain">Not in use yet</param>
         public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation) 
             where T : class
         {
@@ -90,13 +90,13 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// Method adds a description of a specific object previously added to domainObjects which attributes' attainment is goal.
+        /// Method adds a description of a specific object added to domainObjects which attributes' attainment is goal. Object stay in this domain after reach the goal.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="goalExpectation">Collection of description of expected attributes</param>
-        /// <param name="originalObj">One of object used previesly at domein.domainObjects.Add(...) method</param>
-        /// <param name="newPDDLdomain">Not in use yet</param>
-        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations) where T : class
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
+        /// <param name="goalExpectations">Collection of description of expected attributes</param>
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations) 
+            where T : class
         {
             if (originalObj is null)
             {
@@ -109,34 +109,46 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// Method adds a description of object of given type or inherited of them which attributes' attainment is goal.
+        /// Method adds a description of object (added to domainObjects) of given type, which attributes' attainment is goal. Object stay in this domain after reach the goal.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="goalExpectations">Preconditions which must be fillen for T-type object to realize the goal</param>
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="goalExpectations">Collection of description of expected attributes</param>
         public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations) 
             where T : class
-        => AddGoalObject(null, null, goalExpectations, false);        
+        => AddGoalObject(null, null, goalExpectations, false);
 
+        /// <summary>
+        /// Method adds a description of object (added to domainObjects) of given type, which attributes' attainment is goal, and where move object to after reach they.
+        /// </summary>
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="goalExpectations">Collection of description of expected attributes</param>
+        /// <param name="newPDDLdomein">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
         public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomein)
             where T : class
-        => AddGoalObject(null, newPDDLdomein, goalExpectations, true);       
+        => AddGoalObject(null, newPDDLdomein, goalExpectations, true);
 
-        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations, DomeinPDDL newPDDLdomain)
+        /// <summary>
+        /// Method adds a description of object (added to domainObjects) of given type, which attribute's attainment is goal, and where move object to after reach they.
+        /// </summary>
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="goalExpectation">Description of expected attribute</param>
+        /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain)
             where T : class
         {
-            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectations };
+            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectation };
             AddExpectedObjectState<T>(Predications, newPDDLdomain);
         }
 
         /// <summary>
-        /// Method adds a description of object of given type or inherited of them which attribute's attainment is goal.
+        /// Method adds a description of object (added to domainObjects) of given type, which attribute's attainment is goal. Object stay in this domain after reach the goal.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="goalExpectations">Precondition which must be fillen for T-type object to realize the goal</param>
-        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectations) 
+        /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
+        /// <param name="goalExpectation">Description of expected attribute</param>
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation) 
             where T : class
         {
-            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectations };
+            ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectation };
             AddExpectedObjectState<T>(Predications);
         }
 
