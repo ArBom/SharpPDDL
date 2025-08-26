@@ -11,6 +11,7 @@ namespace SharpPDDL
     class CrisscrossReducer
     {
         Crisscross states;
+        private SortedList<string, Crisscross> IndexedStates;
 
         internal Task BuildingNewCrisscross;
         internal bool IsWaiting = true;
@@ -26,6 +27,7 @@ namespace SharpPDDL
         internal CrisscrossReducer(Crisscross states, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker, ConcurrentQueue<Crisscross> PossibleGoalRealization, AutoResetEvent CheckingGoalRealizationARE)
         {
             this.states = states;
+            IndexStates();
 
             this.ReducingCrisscrossARE = ReducingCrisscrossARE;
             this.PossibleToCrisscrossReduce = PossibleToCrisscrossReduce;
@@ -39,6 +41,17 @@ namespace SharpPDDL
         {
             BuildingNewCrisscross = new Task(() => TryMergeCrisscross(token));
             BuildingNewCrisscross.Start();
+        }
+
+        private void IndexStates()
+        {
+            IndexedStates = new SortedList<string, Crisscross>();
+
+            CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
+            while (crisscrossRefEnum.MoveNext())
+            {
+                IndexedStates.Add(crisscrossRefEnum.Current.Content.CheckSum, crisscrossRefEnum.Current);
+            }
         }
 
         private void TryMergeCrisscross(CancellationToken token)
@@ -76,33 +89,37 @@ namespace SharpPDDL
                         continue;
                     }
 
-                    bool Merged = false;
-
-                    CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
-                    while (crisscrossRefEnum.MoveNext())
-                    //foreach (ref Crisscross s in states) it throw cs1510
+                    if (IndexedStates.ContainsKey(possibleToCrisscrossReduce.Content.CheckSum))
                     {
-                        if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
+                        Crisscross Candidate = IndexedStates[possibleToCrisscrossReduce.Content.CheckSum];
+                        if (Candidate.Content.Compare(ref possibleToCrisscrossReduce.Content))
                         {
-                            if (crisscrossRefEnum.Current.Root is null)
-                            {
-                                Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
-                            }
-                            else
-                            {
-                                Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
-                            }
-
-                            Merged = true;
-                            break;
+                            Crisscross.Merge(ref Candidate, ref possibleToCrisscrossReduce);
+                            continue;
                         }
+
+                        bool Merged = false;
+                        CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
+                        while (crisscrossRefEnum.MoveNext())
+                        //foreach (ref Crisscross s in states) it throw cs1510
+                        {
+                            if (crisscrossRefEnum.Current.Content.Compare(ref possibleToCrisscrossReduce.Content))
+                            {
+                                if (crisscrossRefEnum.Current.Root is null)
+                                    Crisscross.MergeK(ref states, ref possibleToCrisscrossReduce);
+                                else
+                                    Crisscross.Merge(ref crisscrossRefEnum.Current, ref possibleToCrisscrossReduce);
+
+                                Merged = true;
+                                break;
+                            }
+                        }
+
+                        if (Merged)
+                            continue;
                     }
 
-                    if (Merged)
-                    {
-                        continue;
-                    }
-
+                    IndexedStates.Add(possibleToCrisscrossReduce.Content.CheckSum, possibleToCrisscrossReduce);
                     PossibleGoalRealization?.Enqueue(possibleToCrisscrossReduce);
                     CheckingGoalRealizationARE.Set();
                 }
