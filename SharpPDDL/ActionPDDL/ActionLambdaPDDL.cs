@@ -13,7 +13,7 @@ namespace SharpPDDL
         public readonly Delegate InstantFunct;
         public readonly LambdaExpression WholeFunc;
 
-        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
         // Parameters below
             List<BinaryExpression> ChecksParam = new List<BinaryExpression>();

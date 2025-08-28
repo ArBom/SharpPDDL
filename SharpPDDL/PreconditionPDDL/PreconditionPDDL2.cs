@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 namespace SharpPDDL
 {
     internal class PreconditionPDDL<T1c, T1p, T2c, T2p> : PreconditionPDDL
+        where T1p : class
         where T2p : class
         where T1c : class, T1p 
         where T2c : class, T2p
@@ -13,7 +14,8 @@ namespace SharpPDDL
         protected readonly T1c t1;
         protected readonly T2c t2;
 
-        internal PreconditionPDDL(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) : base(Name, func, obj1.GetType(), obj1.GetHashCode(), obj2.GetType(), obj2.GetHashCode())
+        internal PreconditionPDDL(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func) 
+            : base(Name, func, obj1.GetType(), obj1.GetHashCode(), obj2.GetType(), obj2.GetHashCode())
         {
             this.t1 = obj1;
             this.t2 = obj2;
@@ -80,12 +82,12 @@ namespace SharpPDDL
             }
         }
 
-        internal override Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value, AllParamsOfAct2ClassPos.Value };
             PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
-            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModifList.Visit(this.func);
+            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModifList.Visit(this.func);
             return CheckPDDP;
         }
     }

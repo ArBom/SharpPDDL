@@ -62,7 +62,7 @@ namespace SharpPDDL
             Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
             {
                 Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + AllParamsOfAct1ClassPos.Value),
-                Expression.Parameter(typeof(ThumbnailObject), "empty")
+                Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName)
             };
 
             var ResultType = typeof(KeyValuePair<ushort, ValueType>).GetConstructors()[0];

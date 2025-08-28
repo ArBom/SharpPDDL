@@ -12,7 +12,7 @@ namespace SharpPDDL
     {
         private ReadOnlyCollection<ParameterExpression> _parameters;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
-        public Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda;
+        public Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda;
         private readonly int[] ParamsIndexesInAction;
         private readonly List<SingleTypeOfDomein> allTypes;
 
@@ -56,28 +56,49 @@ namespace SharpPDDL
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
             int _parametersCount = _parameters.Count();
 
-            if (_parametersCount == 0)          
-                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 118, GloCla.ResMan.GetString("W8"));
-
-            //the library use only 1- or 2-Parameter lambdas
-            if (_parametersCount > 2)
+            switch (_parameters.Count())
             {
-                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E33"));
-                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 119, ExceptionMess);
-                throw new Exception(ExceptionMess);
-            }
+                case 0:
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 118, GloCla.ResMan.GetString("W8"));
 
-            //make 2-Parameters lambda
-            if (_parametersCount == 1)
-            {
-                string NameOfNewOne = _parameters.First().Name == "empty" ? "empty2" : "empty";
-                List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
-                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), NameOfNewOne));
-                _parameters = parameters.AsReadOnly();
+                    List<ParameterExpression> parameters0 = new List<ParameterExpression>();
+                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "1"));
+                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "2"));
+                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
+                    _parameters = parameters0.AsReadOnly();
+
+                    break;
+
+                //nake 3-Parameters lambda from 1-Param lambda
+                case 1:
+                    List<ParameterExpression> parameters1 = _parameters.ToList<ParameterExpression>();
+                    parameters1.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "2"));
+                    parameters1.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
+                    _parameters = parameters1.AsReadOnly();
+
+                    break;
+
+                //nake 3-Parameters lambda from 2-Param lambda
+                case 2:
+                    List<ParameterExpression> parameters2 = _parameters.ToList<ParameterExpression>();
+                    parameters2.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
+                    _parameters = parameters2.AsReadOnly();
+
+                    break;
+
+                //do nothing it's max
+                case 3:                   
+                    break;
+
+                //It's bad
+                default:
+                    string ExceptionMess = String.Format(GloCla.ResMan.GetString("E33"));
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Error, 119, ExceptionMess);
+                    throw new Exception(ExceptionMess);
             }
 
             Expression PrecoLambdaBody = Visit(node.Body);
-            ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
+            ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
 
             try
             {

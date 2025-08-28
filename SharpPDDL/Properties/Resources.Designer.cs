@@ -700,7 +700,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In this version of SharpPDDL its possible to use to 2 params inside Precondition function.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu In this version of SharpPDDL its possible to use to 3 params inside Precondition function.
         /// </summary>
         internal static string E33 {
             get {

@@ -50,12 +50,12 @@ namespace SharpPDDL
             }
         }
 
-        internal override Expression<Func<ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal override Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value };
             PreconditionLambdaModif preconditionLambdaModif = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
-            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModif.Visit(this.func);
+            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModif.Visit(this.func);
             return CheckPDDP;
         }
     }

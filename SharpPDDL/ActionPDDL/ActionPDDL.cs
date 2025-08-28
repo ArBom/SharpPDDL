@@ -394,10 +394,10 @@ namespace SharpPDDL
 
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
 
-            var PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, bool>>>();
+            var PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>>();
             foreach (PreconditionPDDL Precondition in Preconditions)
             {
-                Expression<Func<ThumbnailObject, ThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
+                Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> ExpressionOfPrecondition = Precondition.BuildCheckPDDP(allTypes, Parameters);
                 PrecondidionExpressions.Add(ExpressionOfPrecondition);
             }
 

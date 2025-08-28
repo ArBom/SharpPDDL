@@ -402,7 +402,7 @@
     <comment>PreconditionPDDL; ; 0-used effect name</comment>
   </data>
   <data name="E33" xml:space="preserve">
-    <value>In this version of SharpPDDL its possible to use to 2 params inside Precondition function</value>
+    <value>In this version of SharpPDDL its possible to use to 3 params inside Precondition function</value>
     <comment>PreconditionLambdaModif;</comment>
   </data>
   <data name="E34" xml:space="preserve">

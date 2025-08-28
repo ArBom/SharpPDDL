@@ -29,6 +29,7 @@ namespace SharpPDDL
 
         internal static string LamdbaParamPrefix => "o";
         internal static string SpecialFuncPrefix => "!";
+        internal static string EmptyName => "empty";
         internal static string PlanToAcceptation => "Plan to acceptation";
 
         internal static ResourceManager ResMan = new ResourceManager("SharpPDDL.Properties.Resources", Assembly.GetExecutingAssembly());
