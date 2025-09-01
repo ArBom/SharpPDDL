@@ -50,7 +50,7 @@ namespace SharpPDDL
             for (int i = 0; i != UsingVar; i++)
             {
                 //Create internal parameters
-                int AllParamsDestPos = ExecutionEffects[i].AllParamsOfAct1ClassPos.Value;
+                int AllParamsDestPos = ExecutionEffects[i].Elements[0].AllParamsOfActClassPos.Value;
                 string DestinationMemberName = ExecutionEffects[i].DestinationMemberName;
                 Type DestinationMemberType = Parameters[AllParamsDestPos].values.First(v => v.Name == DestinationMemberName).Type;
                 ParameterExpression ParamVar = Expression.Variable(DestinationMemberType, _parameters[AllParamsDestPos].Name + "_" + DestinationMemberName);
@@ -146,9 +146,9 @@ namespace SharpPDDL
             switch (index)
             {
                 case 0:
-                    return _parameters[ActualObjectPDDL.AllParamsOfAct1ClassPos.Value];
+                    return _parameters[ActualObjectPDDL.Elements[0].AllParamsOfActClassPos.Value];
                 case 1:
-                    return _parameters[ActualObjectPDDL.AllParamsOfAct2ClassPos.Value];
+                    return _parameters[ActualObjectPDDL.Elements[1].AllParamsOfActClassPos.Value];
                 default:
                     break;
             }

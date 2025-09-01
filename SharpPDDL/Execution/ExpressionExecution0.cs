@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace SharpPDDL
@@ -19,8 +18,8 @@ namespace SharpPDDL
             }
         }
 
-        internal ExpressionExecution(string Name, Expression Func, bool WorkWithNewValues, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null)
-            : base (Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class)
+        internal ExpressionExecution(string Name, Expression Func, bool WorkWithNewValues, object[] ElementsInOnbjectPDDL)
+            : base (Name, ElementsInOnbjectPDDL)
         {
             this.Func = Func;
             this.WorkWithNewValues = WorkWithNewValues;

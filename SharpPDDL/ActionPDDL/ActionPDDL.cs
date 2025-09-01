@@ -189,8 +189,8 @@ namespace SharpPDDL
         /// </summary>
         /// <typeparam name="T1c">Non-abstract class of 1st param inheriting from T1p</typeparam>
         /// <typeparam name="T1p">Non-abstract class of 1st param inherited by T1c</typeparam>
-        /// <typeparam name="T2c">Non-abstract class of 1st param inheriting from T2p</typeparam>
-        /// <typeparam name="T2p">Non-abstract class of 1st param inherited by T2c</typeparam>
+        /// <typeparam name="T2c">Non-abstract class of 2nd param inheriting from T2p</typeparam>
+        /// <typeparam name="T2p">Non-abstract class of 2nd param inherited by T2c</typeparam>
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj1">Instance of T1c class (could be null) which representant 1st parameter of action</param>
         /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
@@ -202,6 +202,44 @@ namespace SharpPDDL
             where T2c : class, T2p
         {
             _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, func);
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 134, GloCla.ResMan.GetString("I9"), this.Name, Name);
+        }
+
+        /// <summary>
+        /// This method adds a condition (of 3 params) whose fulfillment is necessary to perform the action.
+        /// <example><para>
+        /// For example:<br/>
+        /// <code>
+        /// using System.Linq.Expressions;<br/>
+        /// ⋮<br/>
+        /// public class Point { public int X, Y; }<br/>
+        /// ⋮<br/>
+        /// Expression<Predicate<Point, Point, Point>> Collinearity = ((P1, P2, P3) => ...);<br/>
+        /// actionPDDL.AddPrecondiction("Points are collinear", ref Point1, ref Point2, Point3, Collinearity);<br/>
+        /// </code>
+        /// </para></example>
+        /// </summary>
+        /// <typeparam name="T1c">Non-abstract class of 1st param inheriting from T1p</typeparam>
+        /// <typeparam name="T1p">Non-abstract class of 1st param inherited by T1c</typeparam>
+        /// <typeparam name="T2c">Non-abstract class of 2nd param inheriting from T2p</typeparam>
+        /// <typeparam name="T2p">Non-abstract class of 2nd param inherited by T2c</typeparam>
+        /// <typeparam name="T3c">Non-abstract class of 3rd param inheriting from T3p</typeparam>
+        /// <typeparam name="T3p">Non-abstract class of 3rd param inherited by T3c</typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
+        /// <param name="obj1">Instance of T1c class (could be null) which representant 1st parameter of action</param>
+        /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
+        /// <param name="obj3">Instance of T3c class (could be null) which representant 3rd parameter of action</param>
+        /// <param name="func">Predicate uses member(s) of T1p, T2p and T3p classes to check possibility of action ececute</param>
+        public void AddPrecondiction<T1c, T1p, T2c, T2p, T3c, T3p>(string Name, ref T1c obj1, ref T2c obj2, ref T3c obj3, Expression<Predicate<T1p, T2p, T3p>> func)
+            where T1p : class
+            where T2p : class
+            where T3p : class
+            where T1c : class, T1p
+            where T2c : class, T2p
+            where T3c : class, T3p
+        {
+            _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, ref obj3, func);
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 134, GloCla.ResMan.GetString("I9"), this.Name, Name);
         }
@@ -322,7 +360,7 @@ namespace SharpPDDL
         /// <param name="WorkEithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution(string Name, Expression<Action> action, bool WorkEithNewValues)
         {
-            this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null, 0));
+            this.Executions.Add(new ExpressionExecution(Name, action, WorkEithNewValues, null));
             if (!(InstantExecution is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
         }

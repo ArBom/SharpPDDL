@@ -127,22 +127,25 @@ namespace SharpPDDL
 
             for (int EfC = 0; EfC != Effects.Count; EfC++)
             {
+                //Effect nad którym pracuje bieżąca iteracja pętli
+                EffectPDDL CurrentEffectPDDL = Effects[EfC];
+
                 //Effect name
                 ConstantExpression EffectNameExp = Expression.Constant(Effects[EfC].Name, typeof(string));
 
                 //Do którego nr param jest zapisywana wartość 
-                int DestParamNo = Effects[EfC].AllParamsOfAct1ClassPos.Value;
+                int DestParamNo = CurrentEffectPDDL.Elements[0].AllParamsOfActClassPos.Value;
                 ConstantExpression DestParamNoExp = Expression.Constant(DestParamNo, typeof(int));
 
                 BinaryExpression arrayAccessExpr = Expression.ArrayIndex(ActionArgOrygExp, DestParamNoExp);
-                Expression ConvertedArrayAccessExpr = Expression.Convert(arrayAccessExpr, Effects[EfC].TypeOf1Class);
+                Expression ConvertedArrayAccessExpr = Expression.Convert(arrayAccessExpr, CurrentEffectPDDL.Elements[0].TypeOfClass);
 
                 //Gdzie zapisywana jest wartość value    
-                Value DestMember = allTypes.First(t => t.Type == Effects[EfC].TypeOf1Class).CumulativeValues.First(v => v.Name == Effects[EfC].DestinationMemberName);
+                Value DestMember = allTypes.First(t => t.Type == CurrentEffectPDDL.Elements[0].TypeOfClass).CumulativeValues.First(v => v.Name == CurrentEffectPDDL.DestinationMemberName);
 
                 //odczyt oryginału z inputu 
                 MemberTypes memberType = DestMember.IsField ? MemberTypes.Field : MemberTypes.Property;
-                MemberInfo memberInfo = Effects[EfC].TypeOf1Class.GetMember(Effects[EfC].DestinationMemberName, memberType, BindingFlags.Instance | BindingFlags.Public).First();
+                MemberInfo memberInfo = CurrentEffectPDDL.Elements[0].TypeOfClass.GetMember(CurrentEffectPDDL.DestinationMemberName, memberType, BindingFlags.Instance | BindingFlags.Public).First();
 
                 MemberExpression OrygInput = Expression.MakeMemberAccess(ConvertedArrayAccessExpr, memberInfo);
 
@@ -161,7 +164,7 @@ namespace SharpPDDL
                 BinaryExpression Test = Expression.NotEqual(ToReadC, OrygInput);
 
                 //Name of destination variable
-                ConstantExpression DestName = Expression.Constant(Effects[EfC].DestinationMemberName, typeof(string));
+                ConstantExpression DestName = Expression.Constant(CurrentEffectPDDL.DestinationMemberName, typeof(string));
 
                 //Current (after assignation) value of destination variable
                 MethodCallExpression CurrV = Expression.Call(OrygInput, ToString);

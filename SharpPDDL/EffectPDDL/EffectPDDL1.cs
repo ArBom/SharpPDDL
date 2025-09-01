@@ -11,27 +11,23 @@ namespace SharpPDDL
         where T1p : class 
         where T1c : class, T1p
     {
-        protected readonly T1c t1;
-
-        internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue) : base(Name, obj1.GetType(), obj1.GetHashCode(), Destination)
-        {
-            this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
-            this.t1 = obj1;
-        }
+        internal EffectPDDL1(string Name, ref T1c obj1, Expression<Func<T1p, ValueType>> Destination, ValueType newValue)
+            : base(Name, Destination, new object[1] { obj1 })
+            => this.SourceFunc = Expression.Constant(newValue, newValue.GetType());
 
         override internal void CompleteActinParams(IList<Parametr> Parameters)
         {
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(DestinationMember);
-            this.usedMembers1Class = DestLambdaListerPDDL.used[0];
-            this.DestinationMemberName = usedMembers1Class[0];
+            this.Elements[0].usedMembersClass = DestLambdaListerPDDL.used[0];
+            this.DestinationMemberName = Elements[0].usedMembersClass[0];
 
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode != t1.GetHashCode())
+                if (parametr.HashCode != Elements[0].HashClass)
                     continue;
 
-                if (!parametr.Oryginal.Equals(t1))
+                if (!parametr.Oryginal.Equals(Elements[0].Object))
                     continue;
 
                 int ToTagIndex = parametr.values.FindIndex(v => v.Name == DestinationMemberName);
@@ -44,7 +40,7 @@ namespace SharpPDDL
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            if (TXIndex(t1, 1, Parameters) == false)
+            if (TXIndex(Elements[0].Object, 1, Parameters) == false)
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C17"), typeof(T1c).ToString(), Name);
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 80, ExceptionMess);
@@ -56,12 +52,12 @@ namespace SharpPDDL
         {
             CompleteClassPos(Parameters);
 
-            ushort FuncOutKey = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
+            ushort FuncOutKey = allTypes.First(t => t.Type == Elements[0].TypeOfClass).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             Expression FuncOutKeyExpression = Expression.Constant(FuncOutKey, typeof(ushort));
 
             Collection<ParameterExpression> parameterExpressions = new Collection<ParameterExpression>
             {
-                Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + AllParamsOfAct1ClassPos.Value),
+                Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + Elements[0].AllParamsOfActClassPos.Value),
                 Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName)
             };
 

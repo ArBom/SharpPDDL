@@ -21,11 +21,14 @@ namespace SharpPDDL
         /// </returns>
         protected Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
 
-        internal abstract Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
-
-        protected PreconditionPDDL(string Name, Expression func, Type TypeOf1Class, Int32 Hash1Class, Type TypeOf2Class = null, Int32? Hash2Class = null, Type TypeOf3Class = null, Int32? Hash3Class = null)
-            : base(Name, TypeOf1Class, Hash1Class, TypeOf2Class, Hash2Class, TypeOf3Class, Hash3Class)
-            => this.func = func;
+        internal virtual Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        {
+            CompleteClassPos(Parameters);
+            int[] ParamsIndexesInAction = Elements.Select(el => el.AllParamsOfActClassPos.Value).ToArray();
+            PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
+            CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModifList.Visit(this.func);
+            return CheckPDDP;
+        }
 
         protected PreconditionPDDL(string Name, Expression func, object[] ElementsInOnbjectPDDL)
             : base(Name, ElementsInOnbjectPDDL)
@@ -93,27 +96,26 @@ namespace SharpPDDL
             }
         }
 
-        internal void CompleteActinParamsALT(IList<Parametr> Parameters)
+        internal override void CompleteActinParams(IList<Parametr> Parameters)
         {
-            object[] el = Elements.Select(e => e.Object).ToArray();
-            int size = el.Count();
-
             MemberofLambdaListerPDDL memberofLambdaListerPDDL = new MemberofLambdaListerPDDL();
             _ = memberofLambdaListerPDDL.Visit(func);
+            ElementInOnbjectPDDL CurrentElOfLoop;
 
-            for (int i = 0; i != size; i++)
+            for (int i = 0; i != Elements.Count(); i++)
             {
-                Elements[i].usedMembersClass = memberofLambdaListerPDDL.used[i];
+                CurrentElOfLoop = Elements[i];
+                CurrentElOfLoop.usedMembersClass = memberofLambdaListerPDDL.used[i];
 
                 foreach (Parametr parametr in Parameters)
                 {
-                    if (parametr.HashCode != el[i].GetHashCode())
+                    if (parametr.HashCode != CurrentElOfLoop.Object.GetHashCode())
                         continue;
 
-                    if (!(parametr.Oryginal.Equals(el[i])))
+                    if (!(parametr.Oryginal.Equals(CurrentElOfLoop.Object)))
                         continue;
 
-                    foreach (string valueName in usedMembers1Class)
+                    foreach (string valueName in CurrentElOfLoop.usedMembersClass)
                     {
                         int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
                         parametr.values[ToTagIndex].IsInUse_PreconditionIn = true;

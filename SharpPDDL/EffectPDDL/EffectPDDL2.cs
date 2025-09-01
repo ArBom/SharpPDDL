@@ -12,26 +12,13 @@ namespace SharpPDDL
         where T1c : class, T1p
         where T2c : class, T2p
     {
-        protected T1c t1;
-        protected T2c t2;
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) 
+            : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
+            => this.SourceFunc = SourceFunct;
 
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) :
-        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), DestinationFunct, SourceObj.GetType(), SourceObj.GetHashCode())
-        {
-            this.t1 = DestinationObj;
-            this.t2 = SourceObj;
-
-            this.SourceFunc = SourceFunct;
-        }
-
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> DestinationFunct, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) : 
-        base(Name, DestinationObj.GetType(), DestinationObj.GetHashCode(), DestinationFunct, SourceObj.GetType(), SourceObj.GetHashCode())
-        {
-            this.t1 = DestinationObj;
-            this.t2 = SourceObj;
-
-            this.SourceFunc = SourceFunct;
-        }
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) 
+            : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
+            => this.SourceFunc = SourceFunct;
 
         private string MutualPartOfConstructors(Expression DestinationFunct)
         {
@@ -39,8 +26,8 @@ namespace SharpPDDL
             DestLambdaListerPDDL.Visit(DestinationFunct);
             string temp = DestLambdaListerPDDL.used[0][0];
 
-            if (!usedMembers2Class.Exists(m => m == temp))
-                usedMembers2Class.Add(temp);
+            if (!Elements[1].usedMembersClass.Exists(m => m == temp))
+                Elements[1].usedMembersClass.Add(temp);
 
             return temp;
         }
@@ -52,13 +39,13 @@ namespace SharpPDDL
 
             if (SourceFunc is Expression<Func<T1p, T2p, ValueType>>)
             {
-                this.usedMembers1Class = SourceLambdaListerPDDL.used[0];
-                this.usedMembers2Class = SourceLambdaListerPDDL.used[1];
+                Elements[0].usedMembersClass = SourceLambdaListerPDDL.used[0];
+                Elements[1].usedMembersClass = SourceLambdaListerPDDL.used[1];
             }
             else if (SourceFunc is Expression<Func<T2p, ValueType>>)
             {
-                this.usedMembers1Class = new List<string>();
-                this.usedMembers2Class = SourceLambdaListerPDDL.used[0];
+                Elements[0].usedMembersClass = new List<string>();
+                Elements[1].usedMembersClass = SourceLambdaListerPDDL.used[0];
             }
 
             this.DestinationMemberName = MutualPartOfConstructors(DestinationMember);
@@ -66,16 +53,16 @@ namespace SharpPDDL
             //Tag destination parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode != t1.GetHashCode())
+                if (parametr.HashCode != Elements[0].HashClass)
                     continue;
 
-                if (!parametr.Oryginal.Equals(t1))
+                if (!parametr.Oryginal.Equals(Elements[0].Object))
                     continue;
 
                 int ToTagIndex = parametr.values.FindIndex(v => v.Name == DestinationMemberName);
                 parametr.values[ToTagIndex].IsInUse_EffectOut = true;
 
-                foreach (string valueName in usedMembers1Class)
+                foreach (string valueName in Elements[0].usedMembersClass)
                 {
                     ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
                     parametr.values[ToTagIndex].IsInUse_EffectIn = true;
@@ -88,13 +75,13 @@ namespace SharpPDDL
             //Tag source parameter value as "IsInUse"
             foreach (Parametr parametr in Parameters)
             {
-                if (parametr.HashCode != t2.GetHashCode())
+                if (parametr.HashCode != Elements[1].HashClass)
                     continue;
 
-                if (!parametr.Oryginal.Equals(t2))
+                if (!parametr.Oryginal.Equals(Elements[1].Object))
                     continue;
 
-                foreach (string valueName in usedMembers2Class)
+                foreach (string valueName in Elements[1].usedMembersClass)
                 {
                     int ToTagIndex = parametr.values.FindIndex(v => v.Name == valueName);
                     parametr.values[ToTagIndex].IsInUse_EffectIn = true;
@@ -108,8 +95,8 @@ namespace SharpPDDL
         internal override Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
-            int[] ParamsIndexesInAction = { AllParamsOfAct1ClassPos.Value, AllParamsOfAct2ClassPos.Value };
-            ushort Key = allTypes.First(t => t.Type == TypeOf1Class).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
+            int[] ParamsIndexesInAction = { Elements[0].AllParamsOfActClassPos.Value, Elements[1].AllParamsOfActClassPos.Value };
+            ushort Key = allTypes.First(t => t.Type == Elements[0].TypeOfClass).CumulativeValues.Where(v => v.Name == DestinationMemberName).Select(v => v.ValueOfIndexesKey).First();
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, ParamsIndexesInAction, Key);
             effectLambdaPDDL.Visit(SourceFunc);
             return effectLambdaPDDL.ModifiedFunct;
@@ -117,14 +104,14 @@ namespace SharpPDDL
 
         internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            if (TXIndex(t1, 1, Parameters) == false)
+            if (TXIndex(Elements[0].Object, 1, Parameters) == false)
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C18"), typeof(T1c), Name);
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 81, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
 
-            if (TXIndex(t2, 2, Parameters) == false)
+            if (TXIndex(Elements[1].Object, 2, Parameters) == false)
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C19"), typeof(T2c), Name);
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 82, ExceptionMess);

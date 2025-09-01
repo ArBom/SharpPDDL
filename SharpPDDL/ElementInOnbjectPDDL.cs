@@ -6,18 +6,10 @@ namespace SharpPDDL
     internal class ElementInOnbjectPDDL
     {
         internal readonly object Object;
-        internal readonly Type TypeOfClass;
-        internal readonly Int32 HashClass;
+        internal Type TypeOfClass => Object.GetType();
+        internal Int32 HashClass => Object.GetHashCode();
         internal List<string> usedMembersClass;
         internal int? AllParamsOfActClassPos;
-
-        public ElementInOnbjectPDDL(Type TypeOfClass, Int32 HashClass)
-        {
-            this.TypeOfClass = TypeOfClass;
-            this.HashClass = HashClass;
-            this.usedMembersClass = new List<string>();
-            this.AllParamsOfActClassPos = null;
-        }
 
         public ElementInOnbjectPDDL(object Object)
         {
