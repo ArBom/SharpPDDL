@@ -66,12 +66,12 @@ namespace SharpPDDL
             });
 
             types.CreateTypesTree();
-
+            
             Parallel.ForEach(actions, parallelOptions, act =>
             {
                 act.BuildAction(types.allTypes);
             });
-
+            
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
         }
 

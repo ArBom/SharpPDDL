@@ -72,6 +72,7 @@ namespace SharpPDDL
             return ToRet;
         }
 
+        #region ActionSenteniae
         /// <summary>
         /// It make possible to define text describe the action execution in actions plan
         /// </summary>
@@ -117,9 +118,9 @@ namespace SharpPDDL
             else
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 46, GloCla.ResMan.GetString("W3"));
         }
+        #endregion ActionSenteniae
 
         #region Adding Precondictions
-
         /// <summary>
         /// This method adds a condition whose fulfillment is necessary to perform the action.
         /// <example><para>
@@ -243,8 +244,8 @@ namespace SharpPDDL
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 134, GloCla.ResMan.GetString("I9"), this.Name, Name);
         }
-
         #endregion
+
         #region Adding Effects
         /// <summary>
         /// This method adds the effect of assigning a constant value to a parameter's member after the action is performed
@@ -330,7 +331,8 @@ namespace SharpPDDL
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
         }
-    #endregion
+        #endregion
+
         #region Adding Execution
         [Obsolete("This method is deprecated use AddExecution(string EffectName)", false)]
         public void UseEffectAlsoAsExecution(string EffectName)
@@ -339,7 +341,6 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Warning, -1, "Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
             AddExecution(EffectName);
         }
-
         
         /// <summary>
         /// Use EffectPDDL also as execution
@@ -374,7 +375,7 @@ namespace SharpPDDL
         /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution<T1>(string Name, ref T1 t1, Expression<Action<T1>> action, bool WorkWithNewValues)
         {
-            this.Executions.Add(new ExpressionExecution<T1>(Name, ref t1, action, WorkWithNewValues));
+            this.Executions.Add(new ExpressionExecution(Name, action, WorkWithNewValues, new object[1] { t1 }));
             if (!(InstantExecution is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
         }
@@ -389,17 +390,16 @@ namespace SharpPDDL
         /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
         public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues)
         {
-            this.Executions.Add(new ExpressionExecution<T1, T2>(Name, ref t1, ref t2, action, WorkWithNewValues));
+            this.Executions.Add(new ExpressionExecution(Name, action, WorkWithNewValues, new object[2] { t1, t2 }));
             if (!(InstantExecution is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
         }
-
         #endregion
+
         #region ActionCost
         public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
             => actionCost.DefineActionCostF(ref In1, CostExpression);
-
 
         public void DefineActionCost<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
             where T1 : class

@@ -83,7 +83,7 @@ namespace SharpPDDL
                     parameterExpressions = new Collection<ParameterExpression>
                     {
                         Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + ParamsIndexesInAction[0]),
-                        Expression.Parameter(typeof(ThumbnailObject), "empty")
+                        Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName)
                     };
                 }
 
@@ -91,7 +91,7 @@ namespace SharpPDDL
 
                 Collection<ParameterExpression> OldParameterExpressions = new Collection<ParameterExpression>
                     {
-                        Expression.Parameter(typeof(ThumbnailObject), "empty"),
+                        Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName),
                         OldParameters[0]
                     };
                 OldParameters = new ReadOnlyCollection<ParameterExpression>(OldParameterExpressions);

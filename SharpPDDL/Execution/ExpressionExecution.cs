@@ -25,7 +25,6 @@ namespace SharpPDDL
             this.WorkWithNewValues = WorkWithNewValues;
         }
 
-        override internal void CompleteActinParams(IList<Parametr> Parameters) { }
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters) { }
+        override internal void CompleteActinParams(IList<Parametr> Parameters) => Expression.Empty();
     }
 }

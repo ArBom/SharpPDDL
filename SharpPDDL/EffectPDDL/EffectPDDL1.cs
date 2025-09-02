@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -35,16 +34,6 @@ namespace SharpPDDL
 
                 parametr.UsedInEffect = true;
                 break;
-            }
-        }
-
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
-        {
-            if (TXIndex(Elements[0].Object, 1, Parameters) == false)
-            {
-                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C17"), typeof(T1c).ToString(), Name);
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 80, ExceptionMess);
-                throw new Exception(ExceptionMess);
             }
         }
 

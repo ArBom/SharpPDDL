@@ -412,6 +412,24 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is Index Out Of Range Exception in time of change parameter of action execution lambda.
+        /// </summary>
+        internal static string C44 {
+            get {
+                return ResourceManager.GetString("C44", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Among objects of {1} the {2} there is no proper obj. of {0} type..
+        /// </summary>
+        internal static string C45 {
+            get {
+                return ResourceManager.GetString("C45", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu This domain dont know the {0} class type.
         /// </summary>
         internal static string C5 {

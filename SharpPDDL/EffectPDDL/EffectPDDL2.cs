@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -100,23 +99,6 @@ namespace SharpPDDL
             EffectLambdaPDDL effectLambdaPDDL = new EffectLambdaPDDL(allTypes, ParamsIndexesInAction, Key);
             effectLambdaPDDL.Visit(SourceFunc);
             return effectLambdaPDDL.ModifiedFunct;
-        }
-
-        internal override void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
-        {
-            if (TXIndex(Elements[0].Object, 1, Parameters) == false)
-            {
-                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C18"), typeof(T1c), Name);
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 81, ExceptionMess);
-                throw new Exception(ExceptionMess);
-            }
-
-            if (TXIndex(Elements[1].Object, 2, Parameters) == false)
-            {
-                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C19"), typeof(T2c), Name);
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 82, ExceptionMess);
-                throw new Exception(ExceptionMess);
-            }
         }
     }
 }

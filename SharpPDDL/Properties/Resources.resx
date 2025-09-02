@@ -155,15 +155,15 @@
   </data>
   <data name="C17" xml:space="preserve">
     <value>Effects 1-arg; There is no {0} param at list. {1}</value>
-    <comment>EffectPDDL1; Wrong completion of param; 0-param type, 1-Effect name</comment>
+    <comment>!OBSOLETE! EffectPDDL1; Wrong completion of param; 0-param type, 1-Effect name</comment>
   </data>
   <data name="C18" xml:space="preserve">
     <value>Effects 2-arg; There is no 1st {0} param at list. {1}</value>
-    <comment>EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+    <comment>!OBSOLETE! EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
   </data>
   <data name="C19" xml:space="preserve">
     <value>Effects 2-arg; There is no 2nd {0} param at list. {1}</value>
-    <comment>EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+    <comment>!OBSOLETE! EffectPDDL2; Wrong completion of param; 0-param type, 1-Effect name</comment>
   </data>
   <data name="C2" xml:space="preserve">
     <value>uncaught bug of wrong (empty, or null) name</value>
@@ -171,15 +171,15 @@
   </data>
   <data name="C20" xml:space="preserve">
     <value>Expression Execution 1-arg; There is no {0} param at list. {1}</value>
-    <comment>ExpressionExecution; Wrong completion of param; 0-param type, 1-Expression name</comment>
+    <comment>!OBSOLETE! ExpressionExecution; Wrong completion of param; 0-param type, 1-Expression name</comment>
   </data>
   <data name="C21" xml:space="preserve">
     <value>Expression Execution 2-arg; There is no 1st {0} param at list. {1}</value>
-    <comment>ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
+    <comment>!OBSOLETE! ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
   </data>
   <data name="C22" xml:space="preserve">
     <value>Expression Execution 2-arg; There is no 2nd {0} param at list. {1}</value>
-    <comment>ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
+    <comment>!OBSOLETE! ExpressionExecution2; Wrong completion of param; 0-param type, 1-Expression name</comment>
   </data>
   <data name="C23" xml:space="preserve">
     <value>Unexpected error in time of {0} action execution function building</value>
@@ -219,15 +219,15 @@
   </data>
   <data name="C31" xml:space="preserve">
     <value>Precondition 1-arg; There is no {0} param at list. {1}</value>
-    <comment>PreconditionPDDL1; Wrong completion of param; 0-param type, 1-Expression name</comment>
+    <comment>!OBSOLETE! PreconditionPDDL1; Wrong completion of param; 0-param type, 1-Expression name</comment>
   </data>
   <data name="C32" xml:space="preserve">
     <value>Precondition 2-arg; There is no 1st {0} param at list. {1}</value>
-    <comment>Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+    <comment>!OBSOLETE! Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
   </data>
   <data name="C33" xml:space="preserve">
     <value>Precondition 2-arg; There is no 2nd {0} param at list. {1}</value>
-    <comment>Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
+    <comment>!OBSOLETE! Precondition2; Wrong completion of param; 0-param type, 1-Effect name</comment>
   </data>
   <data name="C34" xml:space="preserve">
     <value>internal error in PreconditionLambdaPDDL constructor: allTypes collection is null</value>
@@ -272,6 +272,14 @@
   <data name="C43" xml:space="preserve">
     <value>Its impossible to function agree, cause EventWaitHandle (flon SetExecutionOptions method) is null</value>
     <comment>PlanImplementor; ; 0-method name</comment>
+  </data>
+  <data name="C44" xml:space="preserve">
+    <value>There is Index Out Of Range Exception in time of change parameter of action execution lambda</value>
+    <comment>WholeActionExecutionLambda;</comment>
+  </data>
+  <data name="C45" xml:space="preserve">
+    <value>Among objects of {1} the {2} there is no proper obj. of {0} type.</value>
+    <comment>ObjectPDDL; Not found parameter at CompleteClassPos method; 0-TypeOfClass, 1-Name, 2-ObjectPDDLtype</comment>
   </data>
   <data name="C5" xml:space="preserve">
     <value>This domain dont know the {0} class type</value>
@@ -327,7 +335,7 @@
   </data>
   <data name="E16" xml:space="preserve">
     <value>In this version of SharpPDDL its possible to use to 2 params inside action</value>
-    <comment>WholeActionExecutionLambda;</comment>
+    <comment>!OBSOLETE! WholeActionExecutionLambda;</comment>
   </data>
   <data name="E17" xml:space="preserve">
     <value>Goal obj. cannot be null</value>
@@ -607,6 +615,7 @@
   </data>
   <data name="V10" xml:space="preserve">
     <value>{0} the goal was removed from goals to realize list.</value>
+    <comment>DomainPlanner; ; 0-Removed Goal Name</comment>
   </data>
   <data name="V11" xml:space="preserve">
     <value>Object of {0}-type was removed from {1} domain.</value>

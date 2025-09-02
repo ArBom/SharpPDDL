@@ -9,7 +9,7 @@ namespace SharpPDDL
     public delegate bool Predicate<in T1, in T2>(T1 arg1, T2 arg2);
     public delegate bool Predicate<in T1, in T2, in T3>(T1 arg1, T2 arg2, T3 arg3);
 
-    abstract internal class PreconditionPDDL : ObjectPDDL
+    internal class PreconditionPDDL : ObjectPDDL
     {
         internal readonly Expression func;
 
@@ -40,7 +40,7 @@ namespace SharpPDDL
         {
             CheckExistPreconditionName(Preconditions, Name);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj1);
-            PreconditionPDDL <T1c, T1p> NewPreconditionPDDL = new PreconditionPDDL<T1c, T1p>(Name, ref obj1, func);
+            PreconditionPDDL NewPreconditionPDDL = new PreconditionPDDL(Name, func, new object[1] { obj1 });
             Preconditions?.Add(NewPreconditionPDDL);
             return NewPreconditionPDDL;
         }
@@ -54,7 +54,7 @@ namespace SharpPDDL
             CheckExistPreconditionName(Preconditions, Name);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj1);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj2);
-            PreconditionPDDL<T1c, T1p, T2c, T2p> NewPreconditionPDDL = new PreconditionPDDL<T1c, T1p, T2c, T2p>(Name, ref obj1, ref obj2, func);
+            PreconditionPDDL NewPreconditionPDDL = new PreconditionPDDL(Name, func, new object[2] { obj1, obj2 });
             Preconditions?.Add(NewPreconditionPDDL);
             return NewPreconditionPDDL;
         }
@@ -71,7 +71,7 @@ namespace SharpPDDL
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj1);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj2);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref obj3);
-            PreconditionPDDL<T1c, T1p, T2c, T2p, T3c, T3p> NewPreconditionPDDL = new PreconditionPDDL<T1c, T1p, T2c, T2p, T3c, T3p>(Name, ref obj1, ref obj2, ref obj3, func);
+            PreconditionPDDL NewPreconditionPDDL = new PreconditionPDDL(Name, func, new object[3] { obj1, obj2, obj3 });
             Preconditions?.Add(NewPreconditionPDDL);
             return NewPreconditionPDDL;
         }

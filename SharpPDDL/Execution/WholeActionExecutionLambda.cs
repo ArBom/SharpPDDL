@@ -132,30 +132,29 @@ namespace SharpPDDL
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            int index = -1;
+            string ExceptionMessage;
+
             try
             {
-                index = Parameters.FindIndex(p => p.Name == node.Name);
+                int index = Parameters.FindIndex(p => p.Name == node.Name);
+                return _parameters[ActualObjectPDDL.Elements[index].AllParamsOfActClassPos.Value];
             }
-            catch
+            catch (ArgumentNullException)
             {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 124, GloCla.ResMan.GetString("C40"), node.Name);
-                throw new Exception();
+                ExceptionMessage = string.Format(GloCla.ResMan.GetString("C40"), node.Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 124, ExceptionMessage);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                ExceptionMessage = GloCla.ResMan.GetString("C44");
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 146, ExceptionMessage);
+            }
+            catch (Exception e)
+            {
+                ExceptionMessage = e.Message;
             }
 
-            switch (index)
-            {
-                case 0:
-                    return _parameters[ActualObjectPDDL.Elements[0].AllParamsOfActClassPos.Value];
-                case 1:
-                    return _parameters[ActualObjectPDDL.Elements[1].AllParamsOfActClassPos.Value];
-                default:
-                    break;
-            }
-
-            string ExceptionMess = String.Format(GloCla.ResMan.GetString("E16"));
-            GloCla.Tracer?.TraceEvent(TraceEventType.Error, 87, ExceptionMess);
-            throw new Exception(ExceptionMess);
+            throw new Exception(ExceptionMessage);
         }
     }
 }

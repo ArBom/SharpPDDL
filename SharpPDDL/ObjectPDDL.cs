@@ -9,40 +9,6 @@ namespace SharpPDDL
         readonly public string Name;
         internal ElementInOnbjectPDDL[] Elements = null;
 
-        internal abstract void CompleteActinParams(IList<Parametr> Parameters);
-        internal abstract void CompleteClassPos(IReadOnlyList<Parametr> Parameters);
-       
-        internal void CompleteClassPosAlt(IReadOnlyList<Parametr> Parameters)
-        {
-            throw new NotImplementedException(); //TODO
-
-            for (int i = 0; i != Elements.Length; i++)
-                if (TXIndexAlt(Elements[i], i, Parameters) == false)
-                {
-                    string ObjectPDDLtype = this.GetType().Name;
-                    string ExceptionMess = String.Format(GloCla.ResMan.GetString("XD XD XD XD XD XD XD XD XD XD XD"), Elements[i].TypeOfClass, Name);
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 1000000000, ExceptionMess);
-                    throw new Exception(ExceptionMess);
-                }
-
-            bool TXIndexAlt<T>(T t, int i, IReadOnlyList<Parametr> listOfParams)
-            {
-                for (int index = 0; index != listOfParams.Count; index++)
-                {
-                    if (listOfParams[index].HashCode != Elements[i].HashClass)
-                        continue;
-
-                    if (Elements[i].Object.Equals(listOfParams[index].Oryginal))
-                    {
-                        Elements[i].AllParamsOfActClassPos = index;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        }
-
         protected ObjectPDDL(string Name, object[] ElementsInOnbjectPDDL)
         {
             if (String.IsNullOrEmpty(Name))
@@ -53,37 +19,47 @@ namespace SharpPDDL
 
             this.Name = Name;
 
-            if (!(ElementsInOnbjectPDDL is null))
+            if (ElementsInOnbjectPDDL is null)
+                this.Elements = new ElementInOnbjectPDDL[0];
+            else
             {
                 this.Elements = new ElementInOnbjectPDDL[ElementsInOnbjectPDDL.Length];
 
                 for (int i = 0; i != ElementsInOnbjectPDDL.Length; i++)
                     Elements[i] = new ElementInOnbjectPDDL(ElementsInOnbjectPDDL[i]);
             }
-            else
-                this.Elements = new ElementInOnbjectPDDL[0];
         }
 
-        internal bool TXIndex<T>(T t, int XClass, IReadOnlyList<Parametr> listOfParams)
+        internal abstract void CompleteActinParams(IList<Parametr> Parameters);
+       
+        internal void CompleteClassPos(IReadOnlyList<Parametr> Parameters)
         {
-            if (Elements.Length < XClass--)
-                return false;
-
-            int HashXClass = Elements[XClass].HashClass;
-
-            for (int index = 0; index != listOfParams.Count; index++)
+            for (int i = 0; i != Elements.Length; i++)
             {
-                if (listOfParams[index].HashCode != HashXClass)
+                ElementInOnbjectPDDL TempElementInOnbjectPDDL = Elements[i];
+                bool indexed = false;
+
+                for (int index = 0; index != Parameters.Count; index++)
+                {
+                    if (Parameters[index].HashCode != TempElementInOnbjectPDDL.HashClass)
+                        continue;
+
+                    if (TempElementInOnbjectPDDL.Object.Equals(Parameters[index].Oryginal))
+                    {
+                        TempElementInOnbjectPDDL.AllParamsOfActClassPos = index;
+                        indexed = true;
+                        break;
+                    }
+                }
+
+                if (indexed)
                     continue;
 
-                if (t.Equals(listOfParams[index].Oryginal))
-                {
-                    Elements[XClass].AllParamsOfActClassPos = index;
-                    return true;
-                }
+                string ObjectPDDLtype = this.GetType().Name;
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C45"), TempElementInOnbjectPDDL.TypeOfClass, Name, ObjectPDDLtype);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 145, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
-
-            return false;
         }
     }
 }
