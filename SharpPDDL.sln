@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Travelling Salesman Problem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "River crossing puzzle", "River crossing puzzle\River crossing puzzle.csproj", "{E8AEA702-3FFD-4A99-9834-DE8425F02218}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peg solitaire", "Peg solitaire\Peg solitaire.csproj", "{060948D4-DA38-406D-9B85-014C066E24F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
