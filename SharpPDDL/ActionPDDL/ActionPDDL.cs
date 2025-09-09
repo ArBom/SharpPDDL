@@ -430,6 +430,9 @@ namespace SharpPDDL
                 return;
             }
 
+            for (int i = 0; i != Parameters.Count(); i++)
+                Parameters[i].Init1ArgPrecondition(allTypes, i);
+
             actionCost.BuildActionCost(allTypes, InstantActionParamCount);
 
             var PrecondidionExpressions = new List<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>>();

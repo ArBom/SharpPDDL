@@ -27,7 +27,7 @@ namespace SharpPDDL
                 {
                     if (allTypes.Any())
                     {
-                        ///...try to find the same type added before
+                        //...try to find the same type added before
                         var SingleTypeInLists = allTypes.Any(st => st.Type == singleType.Type);
                         if (SingleTypeInLists)
                             ToTagAllTypesIndex = allTypes.FindIndex(st => st.Type == singleType.Type);
@@ -303,6 +303,9 @@ namespace SharpPDDL
             TagValues(Root);
             CumulateValues(Root);
             CompleteValuesIndekses();
+
+            if (Root.Children.Count() == 1)
+                Root.Children[0].Content.NeedToTypeCheck = false;
 
             this.allTypes = new List<SingleTypeOfDomein>();
             MoveNodesToList(Root, allTypes);

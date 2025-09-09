@@ -36,6 +36,7 @@ namespace SharpPDDL
         internal List<Value> CumulativeValues;
         new internal List<Value> Values;
         internal ushort[] ValuesKeys;
+        internal bool NeedToTypeCheck = true;
 
         internal SingleTypeOfDomein(Type type, List<Value> values) : base(type)
         {

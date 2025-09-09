@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
-using System.Reflection;
 using System.Diagnostics;
 
 namespace SharpPDDL
 {
     class ActionLambdaPDDL : ExpressionVisitor
     {
-        private IReadOnlyList<ParameterExpression> _parameters;
+        private List<ParameterExpression> _parameters;
         public readonly Delegate InstantFunct;
         public readonly LambdaExpression WholeFunc;
 
@@ -17,39 +16,30 @@ namespace SharpPDDL
         {
         // Parameters below
             List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
-            List<ParameterExpression> TempParams = new List<ParameterExpression>();
+            _parameters = new List<ParameterExpression>();
+
             for (int i = 0; i != parameters.Count; i++)
             {
                 ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
-                TempParams.Add(CurrentPar);
-                
-                //checking if types equals
-                var ConType = Expression.Constant(parameters[i].Type, typeof(Type));
-                var keyOrygObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
-                var ThObOryginalType = Expression.MakeMemberAccess(CurrentPar, keyOrygObjType);
-                var TypeEqals = Expression.Equal(ThObOryginalType, ConType);
+                _parameters.Add(CurrentPar);
 
-                //checking if type is inherited
-                var keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
-                var OrygObj = Expression.MakeMemberAccess(CurrentPar, keyOrygObj);
-                var ISCorrectType = Expression.TypeIs(OrygObj, parameters[i].Type);
+                //Check if one need to check it
+                if (parameters[i].CheckType is null)
+                    continue;
 
-                //connect upper...
-                var opt = Expression.OrElse(TypeEqals, ISCorrectType);
-
-                //...and add to list
-                ChecksParam.Add(opt);
+                BinaryExpression VisitedCheckType = (BinaryExpression)Visit(parameters[i].CheckType);
+                ChecksParam.Add(VisitedCheckType);
             }       
-            _parameters = TempParams.AsReadOnly();
 
-            if (!ChecksParam.Any())
-                return;
+            BinaryExpression CheckAllParam = null;
+            if (ChecksParam.Any())
+            {
+                CheckAllParam = ChecksParam[0];
 
-            BinaryExpression CheckAllParam = ChecksParam[0];
-
-            if (ChecksParam.Count >= 2)
-                for (int a = 1; a != ChecksParam.Count; a++)
-                    CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
+                if (ChecksParam.Count >= 2)
+                    for (int a = 1; a != ChecksParam.Count; a++)
+                        CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
+            }
 
         // Preconditions below
             List<Expression> ChecksPrecondition = new List<Expression>();
@@ -103,7 +93,13 @@ namespace SharpPDDL
             ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
             ConditionalExpression WholeParamBody = Expression.IfThenElse(CheckAllPreco, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
-            ConditionalExpression WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));
+            ConditionalExpression WholeFunctBody;
+
+            if (CheckAllParam is null)
+                WholeFunctBody = WholeParamBody;
+            else
+                WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));
+
             BlockExpression FBlock = Expression.Block(WholeFunctBody, Expression.Label(retLabelTarget, empty));
 
             WholeFunc = Expression.Lambda(FBlock, _parameters);

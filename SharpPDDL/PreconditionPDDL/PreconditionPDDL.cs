@@ -19,7 +19,7 @@ namespace SharpPDDL
         /// <returns>
         /// TRUE if so, FALSE if not, NULL if its incorrect
         /// </returns>
-        protected Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
+        internal Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
 
         internal virtual Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
@@ -27,6 +27,10 @@ namespace SharpPDDL
             int[] ParamsIndexesInAction = Elements.Select(el => el.AllParamsOfActClassPos.Value).ToArray();
             PreconditionLambdaModif preconditionLambdaModifList = new PreconditionLambdaModif(allTypes, ParamsIndexesInAction);
             CheckPDDP = (Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>)preconditionLambdaModifList.Visit(this.func);
+
+            if (ParamsIndexesInAction.Length == 1)
+                Parameters[ParamsIndexesInAction[0]].parametrPreconditionLambda.AddPrecondition(CheckPDDP);
+
             return CheckPDDP;
         }
 

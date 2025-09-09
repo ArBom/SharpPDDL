@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -12,6 +13,8 @@ namespace SharpPDDL
         internal readonly object Oryginal;
         public readonly Type Type;
         public readonly Int32 HashCode;
+        internal BinaryExpression CheckType;
+        internal ParametrPreconditionLambda parametrPreconditionLambda;
         protected bool _UsedInPrecondition = false;
         protected bool _UsedInEffect = false;
         internal bool UsedInPrecondition
@@ -99,6 +102,35 @@ namespace SharpPDDL
 
             Parametr TempParametr = new Parametr(HashCode, ToInstance);
             Parameters.Add(TempParametr);
+        }
+
+        internal void Init1ArgPrecondition(List<SingleTypeOfDomein> allTypes, int i)
+        {
+            SingleTypeOfDomein ThisSingleTypeOfDomein = allTypes.First(t => t.Type == Type);
+
+            if (ThisSingleTypeOfDomein.NeedToTypeCheck)
+            {
+                //Temp param
+                var TempParam = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i);
+
+                //checking if types equals
+                var ConType = Expression.Constant(Type, typeof(Type));
+                var keyOrygObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
+                var ThObOryginalType = Expression.MakeMemberAccess(TempParam, keyOrygObjType);
+                var TypeEqals = Expression.Equal(ThObOryginalType, ConType);
+
+                //checking if type is inherited
+                var keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
+                var OrygObj = Expression.MakeMemberAccess(TempParam, keyOrygObj);
+                var ISCorrectType = Expression.TypeIs(OrygObj, Type);
+
+                //connect upper...
+                CheckType = Expression.OrElse(TypeEqals, ISCorrectType);
+            }
+            else
+                CheckType = null;
+
+            parametrPreconditionLambda = new ParametrPreconditionLambda(CheckType);
         }
 
         internal void RemoveUnuseValue()
