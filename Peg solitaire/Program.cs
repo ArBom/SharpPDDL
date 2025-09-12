@@ -26,6 +26,7 @@ namespace Peg_solitaire
         {
             Stopwatch.Stop();
             Console.WriteLine("Plan generated in time: " + Stopwatch.Elapsed);
+            Console.ReadKey();
         }
 
         static void Main(string[] args)

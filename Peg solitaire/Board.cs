@@ -18,9 +18,6 @@ namespace Peg_solitaire
         const char SideFrame = '│';
         const char DownFrame = '─';
 
-        const char FullPool = '●';
-        const char EmptyPool = '○';
-
         const ConsoleColor Frame = ConsoleColor.Gray;
 
         public static void Draw(ICollection<Spot> pegs)

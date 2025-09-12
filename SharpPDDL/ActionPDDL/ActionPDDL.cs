@@ -11,7 +11,7 @@ namespace SharpPDDL
         public readonly string Name;
         private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
         private List<EffectPDDL> Effects; //efekty
-        private List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
+        internal List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
         internal ActionCost actionCost;
         private List<string> EffectsUsedAlsoAsExecution;

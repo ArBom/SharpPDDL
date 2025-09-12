@@ -7,6 +7,7 @@ namespace SharpPDDL
     {
         private ParameterExpression _parameter;
         private Expression FuncsExpressions = null;
+        internal Func<ThumbnailObject, bool> Func = null;
 
         public ParametrPreconditionLambda(BinaryExpression typeChEx)
         {
@@ -26,19 +27,19 @@ namespace SharpPDDL
                 FuncsExpressions = Expression.AndAlso(FuncsExpressions, f2);
         }
 
-        internal Predicate<ThumbnailObject> func()
+        internal Func<ThumbnailObject, bool> BuildFunc()
         {
-            Predicate<ThumbnailObject> WholePredicate;
+            Func<ThumbnailObject, bool> WholePredicate;
 
             if (FuncsExpressions is null)
                 WholePredicate = TH => true;
             else
             {
                 FuncsExpressions.Reduce();
-                WholePredicate = (Predicate<ThumbnailObject>)Expression.Lambda(typeof(Predicate<ThumbnailObject>), FuncsExpressions, _parameter).Compile();
+                WholePredicate = (Func<ThumbnailObject, bool>)Expression.Lambda(typeof(Func<ThumbnailObject, bool>), FuncsExpressions, _parameter).Compile();
             }
-
-            return WholePredicate;
+            Func = WholePredicate;
+            return Func;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

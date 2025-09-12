@@ -10,9 +10,6 @@ namespace SharpPDDL
     class CrisscrossNewPossiblesCreator
     {
         internal readonly IReadOnlyList<ActionPDDL> Actions;
-        protected readonly Dictionary<int, int[]> actionsByParamCount;
-        protected readonly int MinActionParamCount;
-        protected readonly int MaxActionParamCount;
 
         internal Task BuildingNewCrisscross = null;
         internal bool IsWaiting = true;
@@ -23,18 +20,12 @@ namespace SharpPDDL
         protected readonly object PossibleNewSrisscrossCreLocker;
 
         protected readonly AutoResetEvent ReducingCrisscrossARE;
-        protected List<Crisscross> PossibleToCrisscrossReduce;
+        protected readonly List<Crisscross> PossibleToCrisscrossReduce;
         protected readonly object CrisscrossReduceLocker;
 
         internal CrisscrossNewPossiblesCreator(List<ActionPDDL> actions, AutoResetEvent BuildingNewCrisscrossARE, SortedSet<Crisscross> PossibleNewCrisscrossCre, object PossibleNewSrisscrossCreLocker, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker)
         {
             this.Actions = actions;
-
-            //Group action by number of parameter to optimalization in time of creation new states exacly for VariationsWithoutRepetition
-            actionsByParamCount = Actions.GroupBy(a => a.InstantActionParamCount, (ParamCount, c) => (ParamCount, c.Select(d => actions.IndexOf(d)).ToArray())).ToDictionary(g => g.ParamCount, g => g.Item2);
-
-            MinActionParamCount = actionsByParamCount.Keys.Min();
-            MaxActionParamCount = actionsByParamCount.Keys.Max();
 
             this.BuildingNewCrisscrossARE = BuildingNewCrisscrossARE;
             this.PossibleNewCrisscrossCre = PossibleNewCrisscrossCre;
@@ -113,40 +104,46 @@ namespace SharpPDDL
                         ToAddList.Add(AddedItem);
                     }
 
-                    void VariationsWithoutRepetition(List<ThumbnailObject> Source, List<ThumbnailObject> PrevHead, int ExpectedSLenght)
+                    void CheckAllPos(int actionPos, ThumbnailObject[] SetToCheck, int currentIndex, IEnumerable<ThumbnailObject>[] possibleAll, IEnumerable<ThumbnailObject>[] possibleCha)
                     {
-                        for (int i = 0; i < Source.Count; i++)
+                        List<ThumbnailObject> newone = new List<ThumbnailObject>(possibleAll[currentIndex]);
+
+                        for (int j = 0; j != currentIndex; j++)
+                            newone.Remove(SetToCheck[j]);
+
+                        foreach (ThumbnailObject thisOne in newone)
                         {
-                            List<ThumbnailObject> Head = new List<ThumbnailObject>(PrevHead)
-                            {
-                                Source[i]
-                            };
+                            SetToCheck[currentIndex] = thisOne;
 
-                            var tail = new List<ThumbnailObject>();
-                            tail.AddRange(Source);
-                            tail.RemoveAt(i);
-
-                            if (Head.Count != ExpectedSLenght)
-                            {
-                                VariationsWithoutRepetition(tail, Head, ExpectedSLenght);
-                                continue;
-                            }
-
-                            ThumbnailObject[] SetToCheck = Head.ToArray();
-                            foreach (int actionPos in actionsByParamCount[ExpectedSLenght])
-                            {
-                                TryActionPossibility(SetToCheck, actionPos);
-                            }
-
-                            if (ExpectedSLenght == MaxActionParamCount)
-                                continue;
-
-                            int NewExpectedSLenght = actionsByParamCount.Keys.Where(k => k > ExpectedSLenght).Min();
-                            VariationsWithoutRepetition(tail, Head, NewExpectedSLenght);
+                            if (currentIndex == SetToCheck.Length - 1)
+                                TryActionPossibility( SetToCheck, actionPos);
+                            else
+                                CheckAllPos(actionPos, SetToCheck, currentIndex + 1, possibleAll, possibleCha);
                         }
                     }
 
-                    VariationsWithoutRepetition(stateToCheck.Content.ThumbnailObjects, new List<ThumbnailObject>(), MinActionParamCount);
+                    for (int actionPos = 0; actionPos != Actions.Count(); actionPos++)
+                    {
+                        IEnumerable<ThumbnailObject>[] possibleAll = new IEnumerable<ThumbnailObject>[Actions[actionPos].InstantActionParamCount];
+                        IEnumerable<ThumbnailObject>[] possibleCha = new IEnumerable<ThumbnailObject>[Actions[actionPos].InstantActionParamCount];
+                        for (int i = 0; i != Actions[actionPos].InstantActionParamCount; i++)
+                        {
+                            possibleCha[i] = stateToCheck.Content.ChangedThumbnailObjects.Where(Actions[actionPos].Parameters[i].parametrPreconditionLambda.BuildFunc());
+                            possibleAll[i] = stateToCheck.Content.ThumbnailObjects.Where(Actions[actionPos].Parameters[i].parametrPreconditionLambda.BuildFunc());
+                        }
+
+                        if (possibleAll.Any(p => !p.Any()))
+                            continue;
+
+                        if (possibleCha.All(p => !p.Any()))
+                        {
+                            //tylko sprawdzenie poprzednich i wyjście
+                        }
+
+                        ThumbnailObject[] SetToCheck = new ThumbnailObject[Actions[actionPos].InstantActionParamCount];
+
+                        CheckAllPos(actionPos, SetToCheck, 0, possibleAll, possibleCha);
+                    }
 
                     if (ToAddList.Any())
                     {
