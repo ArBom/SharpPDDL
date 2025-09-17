@@ -12,7 +12,7 @@ namespace SharpPDDL
     class GoalChecker
     {
         internal readonly ObservableCollection<GoalPDDL> domainGoals;
-        internal Task CheckingGoal;
+        internal Task CheckingGoal { get; private set; }
         internal bool IsWaiting = false;
         internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols;
         internal Action NoNewData;

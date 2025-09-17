@@ -11,7 +11,7 @@ namespace SharpPDDL
         internal abstract Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> BuildEffectPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters);
         readonly internal Expression DestinationMember;
 
-        internal Expression _SourceFunc;
+        protected Expression _SourceFunc;
         internal protected virtual Expression SourceFunc
         {
             get { return _SourceFunc; }

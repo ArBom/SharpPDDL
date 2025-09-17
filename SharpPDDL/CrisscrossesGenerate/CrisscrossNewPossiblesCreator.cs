@@ -81,7 +81,7 @@ namespace SharpPDDL
 
                     void TryActionPossibility(ThumbnailObject[] SetToCheck, int actionPos)
                     {
-                        object ResultOfCheck = Actions[actionPos].InstantActionPDDL.DynamicInvoke(SetToCheck);
+                        object ResultOfCheck = Actions[actionPos].InstantActionPDDLSimplified.DynamicInvoke(SetToCheck);
 
                         if (ResultOfCheck is null)
                             return;
@@ -104,12 +104,16 @@ namespace SharpPDDL
                         ToAddList.Add(AddedItem);
                     }
 
-                    void CheckAllPos(int actionPos, ThumbnailObject[] SetToCheck, int currentIndex, IEnumerable<ThumbnailObject>[] possibleAll, IEnumerable<ThumbnailObject>[] possibleCha)
+                    void CheckAllPos(int actionPos, ThumbnailObject[] SetToCheck, int currentIndex, List<ThumbnailObject>[] possibleOld, List<ThumbnailObject>[] possibleNew, bool UntilNowOnlyOld)
                     {
-                        List<ThumbnailObject> newone = new List<ThumbnailObject>(possibleAll[currentIndex]);
+                        IEnumerable<ThumbnailObject> newone = new List<ThumbnailObject>(possibleOld[currentIndex]);
 
-                        for (int j = 0; j != currentIndex; j++)
-                            newone.Remove(SetToCheck[j]);
+                        if (currentIndex != 0)
+                        {
+                            ThumbnailObject[] ToRemove = new ThumbnailObject[currentIndex];
+                            Array.Copy(SetToCheck, ToRemove, currentIndex);
+                            newone = newone.Except(ToRemove);
+                        }
 
                         foreach (ThumbnailObject thisOne in newone)
                         {
@@ -118,7 +122,7 @@ namespace SharpPDDL
                             if (currentIndex == SetToCheck.Length - 1)
                                 TryActionPossibility( SetToCheck, actionPos);
                             else
-                                CheckAllPos(actionPos, SetToCheck, currentIndex + 1, possibleAll, possibleCha);
+                                CheckAllPos(actionPos, SetToCheck, currentIndex + 1, possibleOld, possibleNew, UntilNowOnlyOld);
                         }
                     }
 
@@ -141,8 +145,16 @@ namespace SharpPDDL
                         }
 
                         ThumbnailObject[] SetToCheck = new ThumbnailObject[Actions[actionPos].InstantActionParamCount];
+                        List<ThumbnailObject>[] possibleNew = new List<ThumbnailObject>[SetToCheck.Length];
+                        List<ThumbnailObject>[] possibleOld = new List<ThumbnailObject>[SetToCheck.Length];
 
-                        CheckAllPos(actionPos, SetToCheck, 0, possibleAll, possibleCha);
+                        for (int i = 0; i != SetToCheck.Length; i++)
+                        {
+                            possibleNew[i] = new List<ThumbnailObject>(possibleCha[i]);
+                            possibleOld[i] = new List<ThumbnailObject>(possibleAll[i]);//.Except(possibleNew[i]));
+                        }
+
+                        CheckAllPos(actionPos, SetToCheck, 0, possibleOld, possibleNew, true);
                     }
 
                     if (ToAddList.Any())

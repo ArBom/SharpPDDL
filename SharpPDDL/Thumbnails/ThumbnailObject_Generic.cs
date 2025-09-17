@@ -8,12 +8,12 @@ namespace SharpPDDL
         where TOriginalObj : class
     {
         internal override object OriginalObj => _Precursor.OriginalObj;
-        internal ThumbnailObject _Precursor;
+        private readonly ThumbnailObject _Precursor;
         public override ThumbnailObject Precursor => _Precursor;
         new internal List<ThumbnailObject<TOriginalObj>> child;
         internal override Type OriginalObjType => _Precursor.OriginalObjType;
 
-        internal override ushort[] ValuesIndeksesKeys => Precursor.ValuesIndeksesKeys;
+        internal override ushort[] ValuesIndeksesKeys => _Precursor.ValuesIndeksesKeys;
 
         internal ThumbnailObject(ThumbnailObject Precursor, ThumbnailObject parent, List<KeyValuePair<ushort, ValueType>> changes)
         {

@@ -31,8 +31,8 @@ namespace Peg_solitaire
 
         static void Main(string[] args)
         {
-            for (ushort i = 0; i != 8; i++)
-                for (ushort j = 0; j != 8; j++)
+            for (ushort i = 0; i != 7; i++)
+                for (ushort j = 0; j != 7; j++)
                     if ((i < 2 && j < 2) || 
                         (i < 2 && j > 4) || 
                         (i > 4 && j < 2) || 

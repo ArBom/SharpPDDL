@@ -23,7 +23,7 @@ namespace SharpPDDL
 
         protected List<(object Param, int? IndexInAction)> Args;
         internal readonly uint defaultCost;
-        internal Delegate CostExpressionFunc;
+        internal Delegate CostExpressionFunc { get; private set; }
 
         internal ActionCost(uint DefaultCost)
             => this.defaultCost = DefaultCost;

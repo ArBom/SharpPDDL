@@ -4,13 +4,13 @@ namespace SharpPDDL
 {
     internal class Value
     {
-        readonly internal string Name;
-        internal Type OwnerType;
-        readonly internal Type Type;
+        internal readonly string Name;
+        internal readonly Type OwnerType;
+        internal readonly Type Type;
         protected ushort _ValueOfIndexesKey = 0;
 
         //true for field, false for properties
-        internal bool IsField;
+        internal readonly bool IsField;
 
         internal Value(string name, Type typeOfValue, Type typeOfOwner, bool isField)
         {

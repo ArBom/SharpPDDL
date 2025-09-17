@@ -15,6 +15,7 @@ namespace SharpPDDL
         public readonly Int32 HashCode;
         internal BinaryExpression CheckType;
         internal ParametrPreconditionLambda parametrPreconditionLambda;
+        internal Func<ThumbnailObject, bool> Func;
         protected bool _UsedInPrecondition = false;
         protected bool _UsedInEffect = false;
         internal bool UsedInPrecondition

@@ -2,7 +2,7 @@
 {
     internal struct CrisscrossChildrenCon
     {
-        internal Crisscross Child;
+        internal readonly Crisscross Child;
         internal readonly int ActionNr;
         internal readonly object[] ActionArgOryg;
         internal readonly uint ActionCost;

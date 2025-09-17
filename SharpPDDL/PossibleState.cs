@@ -7,10 +7,10 @@ namespace SharpPDDL
 {
     internal class PossibleState
     {
-        internal PossibleState PreviousPossibleState;
+        internal readonly PossibleState PreviousPossibleState;
         internal List<ThumbnailObject> ThumbnailObjects;
         internal List<ThumbnailObject> ChangedThumbnailObjects;
-        internal string CheckSum;
+        internal readonly string CheckSum;
 
         /// <summary>
         /// Root
@@ -20,7 +20,7 @@ namespace SharpPDDL
             this.PreviousPossibleState = null;
             this.ChangedThumbnailObjects = NewThumbnailObjects;
             this.ThumbnailObjects = new List<ThumbnailObject>(NewThumbnailObjects);
-            FigureCheckSum();
+            CheckSum = FigureCheckSum();
         }
 
         /// <summary>
@@ -38,10 +38,10 @@ namespace SharpPDDL
                 ThumbnailObjects[index] = Change;
             }
 
-            FigureCheckSum();
+            CheckSum = FigureCheckSum();
         }
 
-        internal void FigureCheckSum()
+        private string FigureCheckSum()
         {
             string MD5input = "";
 
@@ -52,11 +52,14 @@ namespace SharpPDDL
 
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
 
+            string CheckSum;
             using (MD5 md5 = MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
                 CheckSum = Convert.ToBase64String(hashBytes).Substring(0, 6);
             }
+
+            return CheckSum;
         }
 
         internal bool Compare(ref PossibleState With)

@@ -17,6 +17,7 @@ namespace SharpPDDL
         private List<string> EffectsUsedAlsoAsExecution;
         private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
+        internal Delegate InstantActionPDDLSimplified { get; private set; }
         internal Delegate InstantExecution { get; private set; }
         internal Delegate InstantExecutionChecker { get; private set; }
         internal Delegate InstantActionSententia { get; private set; }
@@ -451,6 +452,7 @@ namespace SharpPDDL
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;
+            InstantActionPDDLSimplified = actionLambdaPDDL.InstantFunctSimplified;
 
             //Generate correction of execution checker delegate
             InstantExecutionChecker = ActionChecker.ActionCheckerDel(this.Name, this.Effects, allTypes);
@@ -490,10 +492,10 @@ namespace SharpPDDL
         internal void ClearActionDelegates()
         {
             InstantActionPDDL = null;
+            InstantActionPDDLSimplified = null;
             InstantExecution = null;
             InstantExecutionChecker = null;
             InstantActionSententia = null;
-            actionCost.CostExpressionFunc = null;
         }
 
         /// <summary>

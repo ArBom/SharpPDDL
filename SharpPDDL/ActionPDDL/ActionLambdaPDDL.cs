@@ -10,7 +10,7 @@ namespace SharpPDDL
     {
         private List<ParameterExpression> _parameters;
         public readonly Delegate InstantFunct;
-        public readonly LambdaExpression WholeFunc;
+        public readonly Delegate InstantFunctSimplified;
 
         public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
@@ -43,10 +43,17 @@ namespace SharpPDDL
 
         // Preconditions below
             List<Expression> ChecksPrecondition = new List<Expression>();
+            List<Expression> ChecksPreconditionSimplified = new List<Expression>();
             foreach (var preconditionPDDL in preconditions)
             {
                 var preconditionWithNewParam = VisitLambda(preconditionPDDL);
                 ChecksPrecondition.Add(preconditionWithNewParam);
+
+                if (preconditionPDDL.Parameters[1].Name.StartsWith(GloCla.EmptyName))
+                    continue;
+
+                ChecksPreconditionSimplified.Add(preconditionWithNewParam);
+
             }
 
             Expression CheckAllPreco;
@@ -59,7 +66,17 @@ namespace SharpPDDL
             else
                 CheckAllPreco = Expression.Constant(true);
 
-        // Effects below
+            Expression CheckAllPrecoSimplified;
+            if (ChecksPreconditionSimplified.Any())
+            {
+                CheckAllPrecoSimplified = ChecksPreconditionSimplified[0];
+                for (int a = 1; a != ChecksPreconditionSimplified.Count; a++)
+                    CheckAllPrecoSimplified = Expression.AndAlso(CheckAllPrecoSimplified, ChecksPreconditionSimplified[a]);
+            }
+            else
+                CheckAllPrecoSimplified = Expression.Constant(true);
+
+            // Effects below
             List<Expression>[] EffectsPais = new List<Expression>[parameters.Count];
             for (int i = 0; i != parameters.Count; i++)
             {
@@ -93,20 +110,24 @@ namespace SharpPDDL
             ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
             ConditionalExpression WholeParamBody = Expression.IfThenElse(CheckAllPreco, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
-            ConditionalExpression WholeFunctBody;
+            ConditionalExpression WholeParamBodySimplified = Expression.IfThenElse(CheckAllPrecoSimplified, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
 
+            ConditionalExpression WholeFunctBody;
             if (CheckAllParam is null)
                 WholeFunctBody = WholeParamBody;
             else
                 WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));
 
             BlockExpression FBlock = Expression.Block(WholeFunctBody, Expression.Label(retLabelTarget, empty));
+            BlockExpression FBlockSimplified = Expression.Block(WholeParamBodySimplified, Expression.Label(retLabelTarget, empty));
 
-            WholeFunc = Expression.Lambda(FBlock, _parameters);
+            LambdaExpression WholeFunc = Expression.Lambda(FBlock, _parameters);
+            LambdaExpression WholeFuncSimplified = Expression.Lambda(FBlockSimplified, _parameters);
 
             try
             {
                 InstantFunct = WholeFunc.Compile();
+                InstantFunctSimplified = WholeFuncSimplified.Compile();
             }
             catch (Exception e)
             {

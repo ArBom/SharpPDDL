@@ -111,7 +111,8 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
         }
 
-        new public ValueType this[ushort key]
+        //todo
+        /*new public ValueType this[ushort key]
         {
             get
             {
@@ -129,7 +130,7 @@ namespace SharpPDDL
                 else
                     return (ValueType)OriginalObjType.GetProperty(TempVOT.Name).GetValue(OriginalObj);
             }
-        }
+        }*/
 
         internal override ThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
         {
