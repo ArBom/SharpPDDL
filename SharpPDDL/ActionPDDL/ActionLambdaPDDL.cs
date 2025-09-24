@@ -53,7 +53,6 @@ namespace SharpPDDL
                     continue;
 
                 ChecksPreconditionSimplified.Add(preconditionWithNewParam);
-
             }
 
             Expression CheckAllPreco;

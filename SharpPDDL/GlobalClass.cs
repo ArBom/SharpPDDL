@@ -27,6 +27,7 @@ namespace SharpPDDL
             return (ToReturnInterfaces, ToReturnBaseTypes, ToReturnAllTypes);
         }
 
+        internal const int ThObCheckSumSize = 4;
         internal static string LamdbaParamPrefix => "o";
         internal static string SpecialFuncPrefix => "!";
         internal static string EmptyName => "empty";

@@ -24,10 +24,10 @@ namespace SharpPDDL
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
 
         object PossibleNewCrisscrossCreLocker;
-        SortedSet<Crisscross> PossibleNewCrisscrossCre;
+        ICollection<Crisscross> PossibleNewCrisscrossCre;
         AutoResetEvent BuildingNewCrisscrossARE;
 
-        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, SortedSet<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
+        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, ICollection<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
         {
             this.domainGoals = domainGoals;
 

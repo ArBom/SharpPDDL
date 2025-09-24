@@ -48,8 +48,8 @@ namespace SharpPDDL
 
         //Buffors between consuments-procucents
         protected ConcurrentQueue<Crisscross> PossibleGoalRealization;
-        protected SortedSet<Crisscross> PossibleNewCrisscrossCre;
-        protected List<Crisscross> PossibleToCrisscrossReduce;
+        protected ICollection<Crisscross> PossibleNewCrisscrossCre;
+        protected ICollection<Crisscross> PossibleToCrisscrossReduce;
 
         //Classes of data workining
         protected GoalChecker goalChecker;
@@ -80,7 +80,7 @@ namespace SharpPDDL
         {
             this.PossibleGoalRealization = (PossibleGoalRealization is null)? new ConcurrentQueue<Crisscross>() : new ConcurrentQueue<Crisscross>(PossibleGoalRealization);
             this.PossibleNewCrisscrossCre = (PossibleNewCrisscrossCre is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleNewCrisscrossCre, Crisscross.SortCumulativedTransitionCharge());
-            this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new List<Crisscross>() : new List<Crisscross>(PossibleToCrisscrossReduce);
+            this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleToCrisscrossReduce, Crisscross.SortCumulativedTransitionCharge());
         }
 
         internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)

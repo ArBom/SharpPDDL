@@ -18,13 +18,13 @@ namespace SharpPDDL
         internal Action NoNewData;
 
         internal AutoResetEvent ReducingCrisscrossARE;
-        List<Crisscross> PossibleToCrisscrossReduce;
+        ICollection<Crisscross> PossibleToCrisscrossReduce;
         object CrisscrossReduceLocker;
 
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
         AutoResetEvent CheckingGoalRealizationARE;
 
-        internal CrisscrossReducer(Crisscross states, AutoResetEvent ReducingCrisscrossARE, List<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker, ConcurrentQueue<Crisscross> PossibleGoalRealization, AutoResetEvent CheckingGoalRealizationARE)
+        internal CrisscrossReducer(Crisscross states, AutoResetEvent ReducingCrisscrossARE, ICollection<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker, ConcurrentQueue<Crisscross> PossibleGoalRealization, AutoResetEvent CheckingGoalRealizationARE)
         {
             this.states = states;
             IndexStates();
@@ -76,17 +76,18 @@ namespace SharpPDDL
                 {
                     Crisscross possibleToCrisscrossReduce;
 
-                    try
+                    lock (CrisscrossReduceLocker)
                     {
-                        lock (CrisscrossReduceLocker)
+                        try
                         {
-                            possibleToCrisscrossReduce = PossibleToCrisscrossReduce[0];
-                            PossibleToCrisscrossReduce.RemoveAt(0);
+                            possibleToCrisscrossReduce = PossibleToCrisscrossReduce.First();
                         }
-                    }
-                    catch
-                    {
-                        continue;
+                        catch
+                        {
+                            continue;
+                        }
+
+                        PossibleToCrisscrossReduce.Remove(possibleToCrisscrossReduce);
                     }
 
                     if (IndexedStates.ContainsKey(possibleToCrisscrossReduce.Content.CheckSum))

@@ -32,8 +32,8 @@ namespace SharpPDDL
             foreach (ExpressionExecution execution in executions)
                 execution.CompleteClassPos(Parameters);
 
-            IReadOnlyList<ExpressionExecution> OldDataExecutions = executions.Where(e => e.WorkWithNewValues == false).ToList();
-            IReadOnlyList<ExpressionExecution> NewDataExecutions = executions.Where(e => e.WorkWithNewValues == true).ToList();
+            IReadOnlyList<ExpressionExecution> OldDataExecutions = executions.Where(e => !e.WorkWithNewValues).ToList();
+            IReadOnlyList<ExpressionExecution> NewDataExecutions = executions.Where(e => e.WorkWithNewValues).ToList();
 
             for (int i = 0; i != Parameters.Count; i++)
             {
@@ -76,7 +76,7 @@ namespace SharpPDDL
 
             for (int i = 0; i != NewDataExecutions.Count; i++)
             {
-                ActualObjectPDDL = OldDataExecutions[i];
+                ActualObjectPDDL = NewDataExecutions[i];
                 ExecutionEffectsArray[2*UsingVar + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].Func);
             }
 

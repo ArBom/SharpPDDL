@@ -14,21 +14,18 @@ namespace SharpPDDL
         public abstract ThumbnailObject Precursor { get; }
         internal ThumbnailObject Parent;
         internal List<ThumbnailObject> child;
-        internal string CheckSum;
+        internal byte[] CheckSum = new byte[GloCla.ThObCheckSumSize];
 
         internal void FigureCheckSum()
         {
-            string MD5input = Precursor.GetHashCode().ToString();
-
-            for (int arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
-                MD5input = MD5input + ";" + this[ValuesIndeksesKeys[arrayCounter]].ToString();
-
+            IEnumerable<ValueType> values = ValuesIndeksesKeys.Select(VIK => this[VIK]);
+            string MD5input = Precursor.GetHashCode() + ";" + string.Join(";", values);
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
 
             using (MD5 md5 = MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
-                CheckSum = Convert.ToBase64String(hashBytes).Substring(0,4);
+                Array.Copy(hashBytes, CheckSum, GloCla.ThObCheckSumSize);
             }
         }
 

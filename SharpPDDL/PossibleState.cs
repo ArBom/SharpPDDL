@@ -43,14 +43,10 @@ namespace SharpPDDL
 
         private string FigureCheckSum()
         {
-            string MD5input = "";
+            byte[] inputBytes = new byte[ThumbnailObjects.Count * ThumbnailObjects[0].CheckSum.Length];
 
             for (int ThumbnailObjectsCounter = 0; ThumbnailObjectsCounter != ThumbnailObjects.Count; ++ThumbnailObjectsCounter)
-            {
-                MD5input = MD5input + ThumbnailObjects[ThumbnailObjectsCounter].CheckSum + ";";
-            }
-
-            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
+                Array.Copy(ThumbnailObjects[ThumbnailObjectsCounter].CheckSum, 0, inputBytes, GloCla.ThObCheckSumSize * ThumbnailObjectsCounter, GloCla.ThObCheckSumSize);
 
             string CheckSum;
             using (MD5 md5 = MD5.Create())
