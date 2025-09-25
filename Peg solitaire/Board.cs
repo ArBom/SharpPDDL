@@ -27,27 +27,27 @@ namespace Peg_solitaire
 
             try
             {
-                Console.Clear();
+                Console.SetCursorPosition(0, 0);
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Commend: Console.Clear();");
+                Console.WriteLine(e.ToString());
             }
 
             Console.ForegroundColor = Frame;
             Console.Write(UpLeft);
-            for (int i = 0; i != MaxWight; i++)
+            for (int i = 0; i <= MaxWight; i++)
                 Console.Write(DownFrame);
             Console.WriteLine(UpRight);
 
-            for (int j = 0; j != MaxWight; j++)
+            for (int j = 0; j <= MaxWight; j++)
             {
                 IEnumerable<Spot> RowPeg = pegs.Where(p => p.Row == j);
 
                 Console.ForegroundColor = Frame;
                 Console.Write(SideFrame);
 
-                for (int k = 0; k != MaxWight; k++)
+                for (int k = 0; k <= MaxWight; k++)
                 {
                     if (RowPeg.Any(p => p.Column == k))
                         RowPeg.First(p => p.Column == k).Draw();
@@ -60,7 +60,7 @@ namespace Peg_solitaire
             }
 
             Console.Write(DownLeft);
-            for (int i = 0; i != MaxWight; i++)
+            for (int i = 0; i <= MaxWight; i++)
                 Console.Write(DownFrame);
             Console.WriteLine(DownRight);
         }

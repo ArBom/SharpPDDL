@@ -26,31 +26,19 @@ namespace Peg_solitaire
         {
             Stopwatch.Stop();
             Console.WriteLine("Plan generated in time: " + Stopwatch.Elapsed);
-            Console.ReadKey();
+            Thread.Sleep(3000);
         }
 
         static void Main(string[] args)
         {
-            for (ushort i = 0; i != 7; i++)
-                for (ushort j = 0; j != 7; j++)
-                    if ((i < 2 && j < 2) || 
-                        (i < 2 && j > 4) || 
-                        (i > 4 && j < 2) || 
-                        (i > 4 && j > 4))
-                        continue;
-                    else
-                    {
-                        Spot NewPeg;
+            for (ushort i = 0; i != 5; i++)
+                for (ushort j = 0; j <= i; j++)
+                    if (i == 0 && j == 0)
+                        spots.Add(new Spot(j, i, false));
+                    else             
+                        spots.Add(new Spot(j, i));
 
-                        if (i == 3 && j == 3)
-                            NewPeg = new Spot(i, j, false);
-                        else
-                            NewPeg = new Spot(i, j);
-
-                        spots.Add(NewPeg);
-                    }
-
-            Console.WriteLine("The library is unoptimised. Work about that example lasts eternity... or even longer");
+            Board.Draw(spots);
 
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
@@ -81,6 +69,13 @@ namespace Peg_solitaire
             VerticalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
             VerticalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
 
+            VerticalJump.AddExecution("Reset colours", () => Reset(), false);
+            VerticalJump.AddExecution("Jumping Peg Spot is empty");
+            VerticalJump.AddExecution("Remove Peg Spot is empty");
+            VerticalJump.AddExecution("Final Peg Spot is full");
+            VerticalJump.AddExecution("Draw it", () => Board.Draw(spots), true);
+            VerticalJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
+
             SolitaireDomein.AddAction(VerticalJump);
 
             ActionPDDL HorizontalJump = new ActionPDDL("Horizontal jump");
@@ -100,7 +95,41 @@ namespace Peg_solitaire
             HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
             HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
 
+            HorizontalJump.AddExecution("Reset colours", () => Reset(), false);
+            HorizontalJump.AddExecution("Jumping Peg Spot is empty");
+            HorizontalJump.AddExecution("Remove Peg Spot is empty");
+            HorizontalJump.AddExecution("Final Peg Spot is full");
+            HorizontalJump.AddExecution("Draw it", () => Board.Draw(spots), true);
+            HorizontalJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
+
             SolitaireDomein.AddAction(HorizontalJump);
+
+            ActionPDDL SkewJump = new ActionPDDL("Skew jump");
+
+            SkewJump.AddPrecondiction<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
+            SkewJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
+            SkewJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+
+            SkewJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
+            SkewJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
+            SkewJump.AddPrecondiction("Jumper is close2", ref JumpingPeg, ref RemovePeg, HorizontalClose);
+            SkewJump.AddPrecondiction("Hole is close2", ref FinalPegPos, ref RemovePeg, HorizontalClose);
+            Expression<Predicate<Spot, Spot>> CorrectWay = ((S1, S2) => ((S1.Row - S2.Row) == (S1.Column - S2.Column)));
+            SkewJump.AddPrecondiction("Correct Way 1", ref JumpingPeg, ref RemovePeg, CorrectWay);
+            SkewJump.AddPrecondiction("Correct Way 2", ref FinalPegPos, ref RemovePeg, CorrectWay);
+
+            SkewJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
+            SkewJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
+            SkewJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
+
+            SkewJump.AddExecution("Reset colours", () => Reset(), false);
+            SkewJump.AddExecution("Jumping Peg Spot is empty");
+            SkewJump.AddExecution("Remove Peg Spot is empty");
+            SkewJump.AddExecution("Final Peg Spot is full");
+            SkewJump.AddExecution("Draw it", () => Board.Draw(spots), true);
+            SkewJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
+
+            SolitaireDomein.AddAction(SkewJump);
 
             foreach (var s in spots)
                 SolitaireDomein.domainObjects.Add(s);
@@ -109,14 +138,14 @@ namespace Peg_solitaire
 
             foreach (var o in spots)
             {
-                if (o.Column == 3 && o.Row == 3)
+                if (o.Column == 0 && o.Row == 0)
                     goalPDDL.AddExpectedObjectState(o, FullSpot);
                 else
                     goalPDDL.AddExpectedObjectState(o, EmptySpot);
             }
 
             SolitaireDomein.AddGoal(goalPDDL);
-
+            SolitaireDomein.SetExecutionOptions(null, null, AskToAgree.GO_AHEAD);
             SolitaireDomein.PlanGenerated += PrintPlan;
 
             SolitaireDomein.Start();

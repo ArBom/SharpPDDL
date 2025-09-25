@@ -58,7 +58,6 @@ namespace SharpPDDL
         private List<GoalPDDL> CheckNewGoalsReach(Crisscross updatedOb)
         {
             List<GoalPDDL> RealizatedList = new List<GoalPDDL>();
-            CurrentMinCumulativeCost = 0;
 
             foreach (GoalPDDL Goal in domainGoals)
             {

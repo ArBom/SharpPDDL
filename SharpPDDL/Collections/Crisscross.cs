@@ -108,7 +108,7 @@ namespace SharpPDDL
 
                 for (ushort ListCounter = 0; ListCounter != x.Content.ThumbnailObjects.Count; ++ListCounter)
                 {
-                    if (x.Content.ThumbnailObjects[ListCounter].CheckSum == (y.Content.ThumbnailObjects[ListCounter].CheckSum))
+                    if (Convert.ToBase64String(x.Content.ThumbnailObjects[ListCounter].CheckSum) == Convert.ToBase64String(y.Content.ThumbnailObjects[ListCounter].CheckSum))
                         continue;
                     else
                         return false;
