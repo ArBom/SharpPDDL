@@ -12,7 +12,7 @@
 - Optimalization
 - Fix issues</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.3.0.9</Version>
+    <Version>0.3.0.10</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -24,8 +24,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage></NeutralLanguage>
-    <AssemblyVersion>0.3.0.9</AssemblyVersion>
-    <FileVersion>0.3.0.9</FileVersion>
+    <AssemblyVersion>0.3.0.10</AssemblyVersion>
+    <FileVersion>0.3.0.10</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -10,7 +10,7 @@ namespace SharpPDDL
     internal class PlanImplementor
     {
         internal readonly DomeinPDDL Owner;
-        internal CancellationTokenSource InternalCancelationTokenSource;
+        internal CancellationTokenSource InternalCancelationPlanImplementor;
 
         internal Task ImplementorTask { get; private set; }
 
@@ -116,7 +116,7 @@ namespace SharpPDDL
                 Owner.actions[Act.ActionNr].InstantExecutionChecker.DynamicInvoke(Act);
         }
 
-        protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, CancellationToken cancelationToken)
+        protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, CancellationToken CancelationPlanImplementor)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 22, GloCla.ResMan.GetString("Sa2"));
 
@@ -126,9 +126,9 @@ namespace SharpPDDL
                 return;
             }
 
-            WaitActionsListAgrees(ActionList, cancelationToken);
+            WaitActionsListAgrees(ActionList, CancelationPlanImplementor);
 
-            if (cancelationToken.IsCancellationRequested)
+            if (CancelationPlanImplementor.IsCancellationRequested)
                 return;
 
             foreach (CrisscrossChildrenCon Act in ActionList)
@@ -139,9 +139,9 @@ namespace SharpPDDL
                     continue;
                 }
 
-                bool NeedToWait = WaitTheActionAgree(Act, cancelationToken);
+                bool NeedToWait = WaitTheActionAgree(Act, CancelationPlanImplementor);
 
-                if (cancelationToken.IsCancellationRequested)
+                if (CancelationPlanImplementor.IsCancellationRequested)
                 {
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 32, GloCla.ResMan.GetString("V7"), Owner.actions[Act.ActionNr].InstantExecution.Method.Name);
                     return;
@@ -153,7 +153,7 @@ namespace SharpPDDL
                     Owner.ImplementorUpdate.WaitOn?.Reset();
                 }
 
-                ExecuteTheAction(Act, cancelationToken);
+                ExecuteTheAction(Act, CancelationPlanImplementor);
 
                 List<GoalPDDL> RealizedGoals = Owner.DomainPlanner.RemoveRealizedGoalsOfCrisscross(Act.Child);
                 if (!(RealizedGoals is null))
@@ -188,13 +188,13 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
         }
 
-        internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, CancellationToken ExternalCancellationToken)
+        internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, CancellationToken CancellationDomein)
         {
-            InternalCancelationTokenSource = new CancellationTokenSource();
-            var PlanImplementorTokens = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationToken, InternalCancelationTokenSource.Token).Token;
+            InternalCancelationPlanImplementor = new CancellationTokenSource();
+            CancellationToken CancelationPlanImplementor = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancelationPlanImplementor.Token).Token;
 
-            void actions() => ActionListRealize(ActionList, PlanImplementorTokens);
-            ImplementorTask = Task.Factory.StartNew(actions, PlanImplementorTokens);
+            void actions() => ActionListRealize(ActionList, CancelationPlanImplementor);
+            ImplementorTask = Task.Factory.StartNew(actions, CancelationPlanImplementor);
             return ImplementorTask;
         }
     }

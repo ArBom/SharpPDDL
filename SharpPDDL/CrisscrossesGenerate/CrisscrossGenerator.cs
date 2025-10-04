@@ -38,9 +38,9 @@ namespace SharpPDDL
         /////////////////////////////////////////////////
 
         //Cancelation Tokens
-        internal CancellationTokenSource CrisscrossGeneratorCancellationTokenSrc;
-        protected CancellationToken ExternalCancellation;
-        protected CancellationToken CurrentCancelToken;
+        internal CancellationTokenSource InternalCancellationCrisscrossGenerator;
+        protected CancellationToken CancellationDomein;
+        protected CancellationToken CancellationCrisscrossGenerator;
 
         //Lockers
         protected readonly object PossibleNewCrisscrossCreLocker;
@@ -110,24 +110,24 @@ namespace SharpPDDL
             crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
         }
 
-        private void Definetoken(CancellationToken ExternalCancellationToken)
+        private void Definetoken(CancellationToken CancellationDomein)
         {
-            this.ExternalCancellation = ExternalCancellationToken;
-            this.CrisscrossGeneratorCancellationTokenSrc = new CancellationTokenSource();
-            this.CurrentCancelToken = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationToken, CrisscrossGeneratorCancellationTokenSrc.Token).Token;
+            this.CancellationDomein = CancellationDomein;
+            this.InternalCancellationCrisscrossGenerator = new CancellationTokenSource();
+            this.CancellationCrisscrossGenerator = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancellationCrisscrossGenerator.Token).Token;
         }
 
-        internal void Start(CancellationToken ExternalCancellationToken)
+        internal void Start(CancellationToken CancellationDomein)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 59, GloCla.ResMan.GetString("Sa6"));
 
             //Cancellation Tokens
-            Definetoken(ExternalCancellationToken);
+            Definetoken(CancellationDomein);
 
             //Get ready all Tasks of this process
-            goalChecker.Start(CurrentCancelToken);
-            crisscrossNewPossiblesCreator.Start(CurrentCancelToken);
-            crisscrossReducer.Start(CurrentCancelToken);
+            goalChecker.Start(CancellationCrisscrossGenerator);
+            crisscrossNewPossiblesCreator.Start(CancellationCrisscrossGenerator);
+            crisscrossReducer.Start(CancellationCrisscrossGenerator);
 
             //Start cheching the root in goal reach
             goalChecker.CheckingGoalRealizationARE.Set();
@@ -135,16 +135,16 @@ namespace SharpPDDL
 
         internal void ReStart(Crisscross CurrentBuildedRoot)
         {
-            if (ExternalCancellation.IsCancellationRequested)
+            if (CancellationDomein.IsCancellationRequested)
                 throw new Exception();
 
-            if (!CurrentCancelToken.IsCancellationRequested)
+            if (!CancellationCrisscrossGenerator.IsCancellationRequested)
                 Stop().Wait(90);
 
-            Definetoken(this.ExternalCancellation);
+            Definetoken(this.CancellationDomein);
 
             Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols = goalChecker.foundSols;
-
+            
             //Creating AutoResetEvents
             AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(PossibleGoalRealization.Any());
             AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(PossibleNewCrisscrossCre.Any());
@@ -161,9 +161,9 @@ namespace SharpPDDL
             crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
 
             //Get ready all Tasks of this process
-            goalChecker.Start(CurrentCancelToken);
-            crisscrossNewPossiblesCreator.Start(CurrentCancelToken);
-            crisscrossReducer.Start(CurrentCancelToken);
+            goalChecker.Start(CancellationCrisscrossGenerator);
+            crisscrossNewPossiblesCreator.Start(CancellationCrisscrossGenerator);
+            crisscrossReducer.Start(CancellationCrisscrossGenerator);
         }
 
         internal Task Stop()
@@ -172,8 +172,8 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
 
                 //use internal Cancellation Token
-                if(!CurrentCancelToken.IsCancellationRequested)
-                    CrisscrossGeneratorCancellationTokenSrc.Cancel();
+                if(!CancellationCrisscrossGenerator.IsCancellationRequested)
+                    InternalCancellationCrisscrossGenerator.Cancel();
 
                 //make sure there is no task wainting for buffor add element
                 goalChecker.CheckingGoalRealizationARE.Set();

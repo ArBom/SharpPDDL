@@ -7,18 +7,6 @@ using System.Reflection;
 
 namespace SharpPDDL
 {
-    internal class PrecondExecutionException : Exception
-    {
-        internal const string ActionName = "ActionName";
-        internal const string ExecutionPreconditionName = "ExecutionPrecondition";
-
-        public PrecondExecutionException(string ActionName, string ExecutionPreconditionName) : base("Unexpected value in time of trying realize " + ActionName + " action; unfulfil " + ExecutionPreconditionName + " precondition")
-        {
-            Data.Add(PrecondExecutionException.ActionName, ActionName);
-            Data.Add(PrecondExecutionException.ExecutionPreconditionName, ExecutionPreconditionName);
-        }
-    }
-
     internal class WholeActionExecutionLambda : ExpressionVisitor
     {
         ObjectPDDL ActualObjectPDDL;
@@ -44,7 +32,7 @@ namespace SharpPDDL
             List<ParameterExpression> ParametersVar = new List<ParameterExpression>();
 
             int UsingVar = ExecutionEffects.Count;
-            int ExecutionEffectsArraySize = 2 * UsingVar + executions.Count;
+            int ExecutionEffectsArraySize = (2 * UsingVar) + executions.Count;
 
             Expression[] ExecutionEffectsArray = new Expression[ExecutionEffectsArraySize];
             for (int i = 0; i != UsingVar; i++)
@@ -77,7 +65,7 @@ namespace SharpPDDL
             for (int i = 0; i != NewDataExecutions.Count; i++)
             {
                 ActualObjectPDDL = NewDataExecutions[i];
-                ExecutionEffectsArray[2*UsingVar + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].Func);
+                ExecutionEffectsArray[(2 * UsingVar) + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].Func);
             }
 
             BlockExpression ExecutingExpression = Expression.Block(

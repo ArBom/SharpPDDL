@@ -30,10 +30,11 @@ Include the library namespace with `using SharpPDDL`.
 > **TIP**
 > First use of it could seems a little unintuitive. Get familiar with ready examples.
 
-* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/blob/master/Hanoi%20Tower/Program.cs)
 * [River crossing puzzle](https://github.com/ArBom/SharpPDDL/blob/master/River%20crossing%20puzzle/Program.cs)
-* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/blob/master/Water%20pouring%20puzzle/Program.cs)
+* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/blob/master/Hanoi%20Tower/Program.cs)
 * [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/blob/master/Travelling%20Salesman%20Problem/Program.cs)
+* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/blob/master/Peg%20solitaire/Program.cs)
+* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/blob/master/Water%20pouring%20puzzle/Program.cs)
 
 ---
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)

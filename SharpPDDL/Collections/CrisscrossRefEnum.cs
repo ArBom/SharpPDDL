@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpPDDL
 {
@@ -12,7 +13,7 @@ namespace SharpPDDL
         {
             Crisscross MinusOnePos = new Crisscross
             {
-                Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, 0, null, 0) }
+                Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, -1, new object[0], 0) }
             };
 
             Chains = new List<ChainStruct> {
@@ -28,7 +29,7 @@ namespace SharpPDDL
         {
             Crisscross Chain_chainInd = Chains[chainInd].Chain;
 
-            if (Chain_chainInd.Children.Count != 0)
+            if (Chain_chainInd.Children.Any())
             {
                 if (chainInd == 0)
                 {
@@ -64,7 +65,7 @@ namespace SharpPDDL
             if (DeepIndeks <= 1)
                 return false;
 
-            var Chains_DeepIndeks_1 = Chains[DeepIndeks - 1];
+            ChainStruct Chains_DeepIndeks_1 = Chains[DeepIndeks - 1];
             int CurrentAtRootList = Chains_DeepIndeks_1.ChainChildNo +1;
 
             for (int i = CurrentAtRootList; i != Chains_DeepIndeks_1.Chain.Children.Count; i++)

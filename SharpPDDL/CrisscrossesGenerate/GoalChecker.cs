@@ -11,7 +11,7 @@ namespace SharpPDDL
 {
     class GoalChecker
     {
-        internal readonly ObservableCollection<GoalPDDL> domainGoals;
+        internal readonly ICollection<GoalPDDL> domainGoals;
         internal Task CheckingGoal { get; private set; }
         internal bool IsWaiting = false;
         internal Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols;
@@ -27,7 +27,7 @@ namespace SharpPDDL
         ICollection<Crisscross> PossibleNewCrisscrossCre;
         AutoResetEvent BuildingNewCrisscrossARE;
 
-        internal GoalChecker(ObservableCollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, ICollection<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
+        internal GoalChecker(ICollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, ICollection<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
         {
             this.domainGoals = domainGoals;
 
@@ -45,51 +45,6 @@ namespace SharpPDDL
             CheckingGoal.Start();
         }
 
-        private bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
-        {
-            foreach (var state in possibleState.ChangedThumbnailObjects)
-                foreach (var goalObj in possibleGoal.GoalObjects)
-                    if ((bool)goalObj.GoalPDDL.DynamicInvoke(state))
-                        return true;
-
-            return false;
-        }
-
-        private List<GoalPDDL> CheckNewGoalsReach(Crisscross updatedOb)
-        {
-            List<GoalPDDL> RealizatedList = new List<GoalPDDL>();
-
-            foreach (GoalPDDL Goal in domainGoals)
-            {
-                if (!CheckNewGoalsReachPossibility(updatedOb.Content, Goal))
-                    continue;
-
-                if (Goal.GoalObjects.Count() == 1)
-                {
-                    RealizatedList.Add(Goal);
-                    continue;
-                }
-
-                bool goalObjCorrect = true;
-
-                foreach (IGoalObject goalObject in Goal.GoalObjects)
-                {
-                    if (updatedOb.Content.ThumbnailObjects.Any(ThOb => (bool)goalObject.GoalPDDL.DynamicInvoke(ThOb)))
-                        continue;
-                    else
-                    {
-                        goalObjCorrect = false;
-                        break;
-                    }
-                }
-
-                if (goalObjCorrect)
-                    RealizatedList.Add(Goal);
-            }
-
-            return RealizatedList;
-        }
-
         private void CheckGoalProces(CancellationToken token)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 68, GloCla.ResMan.GetString("Sa9"), Task.CurrentId);
@@ -104,7 +59,7 @@ namespace SharpPDDL
                     if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                         continue;
 
-                    List<GoalPDDL> GoalsReach = CheckNewGoalsReach(possibleStatesCrisscross);
+                    List<GoalPDDL> GoalsReach = CheckGoalInCol.CheckNewGoalsReach(possibleStatesCrisscross, domainGoals);
 
                     if (GoalsReach.Any())
                     {

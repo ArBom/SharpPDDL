@@ -24,8 +24,8 @@ namespace SharpPDDL
         internal List<ThumbnailObject> OneUnuseObjects;
 
         CancellationToken ExternalCancellationDomein;
-        internal CancellationTokenSource InternalCancellationTokenSrc;
-        CancellationToken CurrentCancelTokenS;
+        internal CancellationTokenSource InternalCancellationDomeinSrc;
+        CancellationToken CancellationDomein;
 
         internal DomainPlanner(DomeinPDDL Owner)
         {
@@ -50,13 +50,13 @@ namespace SharpPDDL
             this.ExternalCancellationDomein = options.CancellationToken;
 
             //Token used to reset CrisscrossGenerator process when it is too big
-            InternalCancellationTokenSrc = new CancellationTokenSource();
+            InternalCancellationDomeinSrc = new CancellationTokenSource();
 
-            CurrentCancelTokenS = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationDomein, InternalCancellationTokenSrc.Token).Token;
+            CancellationDomein = CancellationTokenSource.CreateLinkedTokenSource(ExternalCancellationDomein, InternalCancellationDomeinSrc.Token).Token;
 
             OneUnuseObjects = new List<ThumbnailObject>();
             CurrentBuilder.CrisscrossesGenerated += AtAllStateGenerated;
-            CurrentBuilder.Start(CurrentCancelTokenS);
+            CurrentBuilder.Start(CancellationDomein);
         }
 
         internal void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -68,7 +68,7 @@ namespace SharpPDDL
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
                 if (!Owner.domainGoals.Any())
-                    InternalCancellationTokenSrc.Cancel();
+                    InternalCancellationDomeinSrc.Cancel();
 
                 return;
             }
@@ -93,10 +93,10 @@ namespace SharpPDDL
 
             CurrentBuilder.Stop().Wait(100);
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
-            {
                 ToCheckGoal.BuildIt(Owner);
-                CheckGoalInCol.CheckNewGoal(CurrentCancelTokenS, CurrentBuilded, ToCheckGoal, FoundSols);
-            }
+
+            foreach (var s in CurrentBuilded)
+                CheckGoalInCol.CheckNewGoalsReach((Crisscross)s, ToCheckGoals);
 
             if (this.CurrentBuilder.CrisscrossesGenerated is null)
                 this.RealizeGoalsPlanifFound();
@@ -234,13 +234,9 @@ namespace SharpPDDL
                     continue;
 
                 foreach (ThumbnailObject ThObj in GainedCrisscross.Content.ChangedThumbnailObjects)
-                {
                     foreach (IGoalObject goalObj in goalPDDL.GoalObjects)
-                        if ((bool)goalObj.GoalPDDL.DynamicInvoke(ThObj))
-                        {
+                        if ((bool)goalObj.GoalPDDL.DynamicInvoke(ThObj))                       
                             goalObj.OriginalObj = ThObj.OriginalObj;
-                        }
-                }
             }
         }
 
@@ -302,11 +298,11 @@ namespace SharpPDDL
             if (Stopping.Status == TaskStatus.Running)
                 ToWait.Add(Stopping);
 
-            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CurrentCancelTokenS);
+            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CancellationDomein);
             if (Realizing.Status == TaskStatus.Running)
                 ToWait.Add(Realizing);
 
-            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CurrentCancelTokenS);
+            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
             if (Transcribing.Status == TaskStatus.Running)
                 ToWait.Add(Transcribing);
 
