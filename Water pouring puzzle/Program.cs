@@ -11,47 +11,24 @@ namespace Water_pouring_puzzle
 {
     class Program
     {
-        public class WaterJug
-        {
-            //Define Action cost function as quantify of water to decant
-            public static int DecantedWater (float SourceFlood, float DestinationCapacity, float DestinationFlood)
-            {
-                if (SourceFlood + DestinationFlood > DestinationCapacity)
-                    return (int)(DestinationCapacity - DestinationFlood);
-                else
-                    return (int)SourceFlood;
-            }
-
-            public void WaitForDecant (WaterJug DestinationWaterJug)
-            {
-                int time = DecantedWater(this.flood, DestinationWaterJug.Capacity, DestinationWaterJug.flood);
-                Thread.Sleep(time * 1000);
-            }
-
-            public readonly float Capacity; //max level of fluid
-            private float _flood;
-            public float flood //current level of fluid
-            {
-                get { return _flood; }
-                set
-                {
-                    if (value >= 0 && value <= Capacity)
-                        _flood = value;
-                }
-            }
-
-            public WaterJug(float Capacity, float flood = 0)
-            {
-                this.Capacity = Capacity;
-                this.flood = flood;
-            }
-        }
-
         static void PrintPlan(List<List<string>> plan)
         {
             for (int i = 0; i != plan.Count; i++)
-                Console.WriteLine(plan[i][0] + plan[i][1] + plan[i][2]);
+                Console.WriteLine("  " + plan[i][0] + plan[i][1] + " " + plan[i][2]);
         }
+
+        public static int ListCount = 10;
+        public static void TickList()
+        {
+            Console.SetCursorPosition(0, ++ListCount);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("√");
+            Console.ResetColor();
+        }
+
+        public static EventWaitHandle AgreeEWH = new EventWaitHandle(false, EventResetMode.AutoReset);
+        public static Action<string, object[]> WhatToAgree;
+        public static void AutoAcceptIt (string text, object[] args) => AgreeEWH.Set();
 
         static void Main(string[] args)
         {
@@ -84,21 +61,26 @@ namespace Water_pouring_puzzle
             DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
             DecantWater.AddExecution("Reduce source jug flood"); //assign new value of SourceJug in the same way as effect funct
             DecantWater.AddExecution("Increase destination jug flood"); //assign new value of DestinatioJug in the same way as effect funct
-            DecantWater.AddExecution("Let me know", () => Console.WriteLine("Decanted"), true);
+            DecantWater.AddExecution("Draw Source Jug", ref SourceJug, (Source_Jug) => Source_Jug.DrawIt(), true);
+            DecantWater.AddExecution("Draw Desination Jug", ref DestinationJug, (Destination_Jug) => Destination_Jug.DrawIt(), true);
+            DecantWater.AddExecution("Tick in list", () => TickList(), true);
 
             //One need to do as fast as possible
             DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 
+            //Add AddAction to DecantingDomein
             DecantingDomein.AddAction(DecantWater);
 
-            //Don't ask for agree in time of plan execution
-            DecantingDomein.SetExecutionOptions(null, null, AskToAgree.GO_AHEAD);
+            //Auto agree of plan execution and every actions
+            WhatToAgree += AutoAcceptIt;
+            DecantingDomein.SetExecutionOptions(WhatToAgree, AgreeEWH, AskToAgree.Plan, AskToAgree.EveryAction);
 
             //In the begin you have 3 jug of water.
             WaterJug waterJug8 = new WaterJug(8, 8); //8-litre jug is full,
             WaterJug waterJug5 = new WaterJug(5, 0); //5-litre one is empty,
             WaterJug waterJug3 = new WaterJug(3, 0); //3-litre one is empty.
 
+            //Add jugs to domein
             DecantingDomein.domainObjects.Add(waterJug8);
             DecantingDomein.domainObjects.Add(waterJug5);
             DecantingDomein.domainObjects.Add(waterJug3);
