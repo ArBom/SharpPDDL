@@ -25,7 +25,8 @@ namespace Peg_solitaire
         static void PrintPlan(List<List<string>> plan)
         {
             Stopwatch.Stop();
-            Console.WriteLine("Plan generated in time: " + Stopwatch.Elapsed);
+            Console.WriteLine(" Plan generated in time:");
+            Console.WriteLine(" " + Stopwatch.Elapsed);
             Thread.Sleep(3000);
         }
 
@@ -39,6 +40,7 @@ namespace Peg_solitaire
                         spots.Add(new Spot(j, i));
 
             Board.Draw(spots);
+            Console.WriteLine();
 
             Stopwatch = new Stopwatch();
             Stopwatch.Start();

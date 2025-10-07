@@ -9,8 +9,6 @@ namespace Peg_solitaire
 {
     static class Board
     {
-        //kernel32.dll
-
         const char UpLeft = '┌';
         const char UpRight = '┐';
         const char DownLeft = '└';
@@ -22,6 +20,8 @@ namespace Peg_solitaire
 
         public static void Draw(ICollection<Spot> pegs)
         {
+            Console.CursorVisible = false;
+
             ushort MaxHeight = pegs.Max(p => p.Row);
             ushort MaxWight = pegs.Max(p => p.Column);
 
@@ -35,22 +35,31 @@ namespace Peg_solitaire
             }
 
             Console.ForegroundColor = Frame;
-            Console.Write(UpLeft);
-            for (int i = 0; i <= MaxWight; i++)
+            Console.WriteLine();
+            Console.Write(" " + UpLeft);
+            for (int i = 0; i <= 2 * MaxWight; i++)
                 Console.Write(DownFrame);
             Console.WriteLine(UpRight);
 
             for (int j = 0; j <= MaxWight; j++)
             {
                 IEnumerable<Spot> RowPeg = pegs.Where(p => p.Row == j);
+                int TriSide = MaxHeight - RowPeg.Count() + 1;  
 
                 Console.ForegroundColor = Frame;
-                Console.Write(SideFrame);
+                Console.Write(" " + SideFrame);
+
+                for (int l = 0; l != TriSide; ++l)
+                    Console.Write(' ');
 
                 for (int k = 0; k <= MaxWight; k++)
                 {
                     if (RowPeg.Any(p => p.Column == k))
+                    {
                         RowPeg.First(p => p.Column == k).Draw();
+                        if (k != j)
+                            Console.Write(' ');
+                    }
                     else
                         Console.Write(' ');
                 }
@@ -59,9 +68,10 @@ namespace Peg_solitaire
                 Console.WriteLine(SideFrame);
             }
 
-            Console.Write(DownLeft);
-            for (int i = 0; i <= MaxWight; i++)
+            Console.Write(" " + DownLeft);
+            for (int i = 0; i <= 2 * MaxWight; i++)
                 Console.Write(DownFrame);
+            Console.CursorVisible = true;
             Console.WriteLine(DownRight);
         }
     }
