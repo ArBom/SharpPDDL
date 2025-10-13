@@ -5,7 +5,7 @@
 [![LoC](https://raw.githubusercontent.com/ArBom/SharpPDDL/refs/heads/loc/badge.svg)](https://github.com/ArBom/SharpPDDL/blob/master/.github/workflows/loc.yml)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo&color=4bc721)
 [![NuGet Version](https://img.shields.io/nuget/vpre/SharpPDDL?style=plastic&logo=nuget&label=NuGet&color=004880&cacheSeconds=7200)](https://www.nuget.org/packages/SharpPDDL)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=6)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=10)
 
 ---
 
@@ -15,6 +15,114 @@ This is the class library based on PDDL intellection and in effect it's a implem
 > Library is in β version still, it may works little unstable.
 
 One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal. Examples of problems possible to solution by this algorithm:
+
+<details>
+  <summary>Peg solitaire</summary>
+
+Treatment the game: [wiki](https://en.wikipedia.org/wiki/Peg_solitaire)
+
+In this example used triangular, 15-holes variant as easiest to solve.
+
+Due to shape of game board it needs to use 3 possible action of jump. One of it, the horizontal move is shown below:
+```cs
+Expression<Predicate<Spot>> FullSpot = S => S.Full;
+Expression<Predicate<Spot>> EmptySpot = S => !S.Full;
+
+ActionPDDL HorizontalJump = new ActionPDDL("Horizontal jump");
+
+HorizontalJump.AddPrecondiction<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
+HorizontalJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
+HorizontalJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+
+Expression<Predicate<Spot, Spot, Spot>> Horizontalcollinear = ((JP, RP, FPP) => (JP.Row == RP.Row && RP.Row == FPP.Row));
+HorizontalJump.AddPrecondiction("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
+
+Expression<Predicate<Spot, Spot>> VerticalClose = ((S1, S2) => ((S1.Column - S2.Column) == 1 || (S1.Column - S2.Column) == -1));
+HorizontalJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
+HorizontalJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
+
+HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
+HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
+HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
+```
+The execution of it uses effects from  above and static voids of Spot class.
+```cs
+HorizontalJump.AddExecution("Reset colours", () => Reset(), false);
+HorizontalJump.AddExecution("Jumping Peg Spot is empty");
+HorizontalJump.AddExecution("Remove Peg Spot is empty");
+HorizontalJump.AddExecution("Final Peg Spot is full");
+HorizontalJump.AddExecution("Draw it", () => Board.Draw(spots), true);
+HorizontalJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
+```
+At this case it's possible to reach 3016 possible states, which is generated in time of about 13s.
+
+![Peg_solitaire_solution](https://github.com/user-attachments/assets/4c7a440f-be36-4bcc-a737-d9266bb88809)
+
+</details>
+
+<details> 
+  <summary>River crossing puzzle</summary>
+  
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem)
+
+Putting a thing to the boat:
+```cs
+    ActionPDDL TakingCabbage = new ActionPDDL("TakingCabbage");
+    TakingCabbage.AddPartOfActionSententia("Take the cabbage.");
+    TakingCabbage.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    TakingCabbage.AddPrecondiction("Cabbage is at the bank", ref nextToBank, b => b.IsCabbage);
+    TakingCabbage.AddPrecondiction("Boat is empty", ref boat, b => !b.IsCabbage && !b.IsGoat && !b.IsWolf);
+    TakingCabbage.AddEffect("Remove the cabbage from the bank", ref nextToBank, b => b.IsCabbage, false);
+    TakingCabbage.AddEffect("Put the cabbage on the boat", ref boat, b => b.IsCabbage, true);
+    RiverCrossing.AddAction(TakingCabbage);
+```
+
+Putting a thing away:
+```cs
+    ActionPDDL PutCabbageAway = new ActionPDDL("PuttingCabbageAway");
+    PutCabbageAway.AddPartOfActionSententia("Put the cabbage away.");
+    PutCabbageAway.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    PutCabbageAway.AddPrecondiction("Goat is on the bank", ref boat, b => b.IsCabbage);
+    PutCabbageAway.AddEffect("Remove the goat from the bank", ref nextToBank, b => b.IsCabbage, true);
+    PutCabbageAway.AddEffect("Add the goat to the boat", ref boat, b => b.IsCabbage, false);
+    RiverCrossing.AddAction(PutCabbageAway);
+```
+
+One need to use the above 3 times. For the cabbage, goat and wolf.
+
+Going to the other river bank:
+```cs
+    ActionPDDL CrossTheRiver = new ActionPDDL("CrossingTheRiver");
+    CrossTheRiver.AddPartOfActionSententia("Cross the river.");
+    CrossTheRiver.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    CrossTheRiver.AddPrecondiction("Nothing won't be eaten", ref nextToBank, b => b.IsGoat ? (!b.IsCabbage && !b.IsWolf) : true );
+    RiverBank SecendBank = null;
+    CrossTheRiver.AddEffect("Leave the river bank", ref nextToBank, b => b.IsBoat, false);
+    CrossTheRiver.AddEffect("Go to the other bank", ref SecendBank, b => b.IsBoat, true);
+    RiverCrossing.AddAction(CrossTheRiver);
+```
+
+Generated plan:
+```
+1: Take the goat.
+2: Cross the river.
+3: Put the goat away.
+4: Cross the river.
+5: Take the wolf.
+6: Cross the river.
+7: Put the wolf away.
+8: Take the goat.
+9: Cross the river.
+10: Put the goat away.
+11: Take the cabbage.
+12: Cross the river.
+13: Put the cabbage away.
+14: Cross the river.
+15: Take the goat.
+16: Cross the river.
+17: Put the goat away.
+```
+</details>
 
 <details> 
   <summary>Tower of Hanoi</summary>
@@ -193,128 +301,6 @@ Move brick onto another brick: Place the 1-size brick onto 2-size brick.
 </details>
 
 <details> 
-  <summary>River crossing puzzle</summary>
-  
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem)
-
-Putting a thing to the boat:
-```cs
-    ActionPDDL TakingCabbage = new ActionPDDL("TakingCabbage");
-    TakingCabbage.AddPartOfActionSententia("Take the cabbage.");
-    TakingCabbage.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    TakingCabbage.AddPrecondiction("Cabbage is at the bank", ref nextToBank, b => b.IsCabbage);
-    TakingCabbage.AddPrecondiction("Boat is empty", ref boat, b => !b.IsCabbage && !b.IsGoat && !b.IsWolf);
-    TakingCabbage.AddEffect("Remove the cabbage from the bank", ref nextToBank, b => b.IsCabbage, false);
-    TakingCabbage.AddEffect("Put the cabbage on the boat", ref boat, b => b.IsCabbage, true);
-    RiverCrossing.AddAction(TakingCabbage);
-```
-
-Putting a thing away:
-```cs
-    ActionPDDL PutCabbageAway = new ActionPDDL("PuttingCabbageAway");
-    PutCabbageAway.AddPartOfActionSententia("Put the cabbage away.");
-    PutCabbageAway.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    PutCabbageAway.AddPrecondiction("Goat is on the bank", ref boat, b => b.IsCabbage);
-    PutCabbageAway.AddEffect("Remove the goat from the bank", ref nextToBank, b => b.IsCabbage, true);
-    PutCabbageAway.AddEffect("Add the goat to the boat", ref boat, b => b.IsCabbage, false);
-    RiverCrossing.AddAction(PutCabbageAway);
-```
-
-One need to use the above 3 times. For the cabbage, goat and wolf.
-
-Going to the other river bank:
-```cs
-    ActionPDDL CrossTheRiver = new ActionPDDL("CrossingTheRiver");
-    CrossTheRiver.AddPartOfActionSententia("Cross the river.");
-    CrossTheRiver.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    CrossTheRiver.AddPrecondiction("Nothing won't be eaten", ref nextToBank, b => b.IsGoat ? (!b.IsCabbage && !b.IsWolf) : true );
-    RiverBank SecendBank = null;
-    CrossTheRiver.AddEffect("Leave the river bank", ref nextToBank, b => b.IsBoat, false);
-    CrossTheRiver.AddEffect("Go to the other bank", ref SecendBank, b => b.IsBoat, true);
-    RiverCrossing.AddAction(CrossTheRiver);
-```
-
-Generated plan:
-```
-1: Take the goat.
-2: Cross the river.
-3: Put the goat away.
-4: Cross the river.
-5: Take the wolf.
-6: Cross the river.
-7: Put the wolf away.
-8: Take the goat.
-9: Cross the river.
-10: Put the goat away.
-11: Take the cabbage.
-12: Cross the river.
-13: Put the cabbage away.
-14: Cross the river.
-15: Take the goat.
-16: Cross the river.
-17: Put the goat away.
-```
-
-</details>
-
-<details> 
-  <summary>Water pouring puzzle</summary>
-  
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
-    
-  ```cs
-public class WaterJug
-{
-    public readonly float Capacity;
-    public float flood;
-    ⁝
-}
-```    
-```cs
-DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems"); //In this problem...
-
-ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 arguments:
-WaterJug SourceJug = null; //The jug from which you pour,
-WaterJug DestinationJug = null; // and the jug you pour into.
-
-DecantWater.AddPartOfActionSententia(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
-DecantWater.AddPartOfActionSententia(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
-
-//In the effect of decanting the level in the jug from which you pour is maked smaller after that,...
-DecantWater.AddEffect( //SourceJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? SourceJug.flood - DestinationJug.Capacity + DestinationJug.flood : 0
-    "Reduce source jug flood",
-    ref SourceJug,
-    Source_Jug => Source_Jug.flood,
-    ref DestinationJug,
-    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
-
-//...the level in the jug you pour into is maked bigger.
-DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? DestinationJug.Capacity : DestinationJug.flood + SourceJug.flood
-    "Increase destination jug flood",
-    ref DestinationJug,
-    Destination_Jug => Destination_Jug.flood,
-    ref SourceJug,
-    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
-
-//One need to do as fast as possible
-DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
-
-DecantingDomein.AddAction(DecantWater);
-```
-```
-SharpPDDL : Divide in half determined!!! Total Cost: 22
-Decant water: from 8-liter jug to the 5-liter jug. Action cost: 5
-Decant water: from 5-liter jug to the 3-liter jug. Action cost: 3
-Decant water: from 3-liter jug to the 8-liter jug. Action cost: 3
-Decant water: from 5-liter jug to the 3-liter jug. Action cost: 2
-Decant water: from 8-liter jug to the 5-liter jug. Action cost: 5
-Decant water: from 5-liter jug to the 3-liter jug. Action cost: 1
-Decant water: from 3-liter jug to the 8-liter jug. Action cost: 3
-all states generated
-```
-</details>
-
-<details> 
   <summary>Travelling salesman problem</summary>
    
 Treatment the problem: [wiki](https://en.wikipedia.org/wiki/Travelling_salesman_problem)
@@ -381,8 +367,55 @@ Travel: Go to Kraków. Action cost: 304
 Travel: Go to Koszalin. Action cost: 700
 ```
 
-Make you sure about the solution with another program: [AtoZmath.com](https://cbom.atozmath.com/CBOM/Assignment.aspx?q=tsnn&q1=0%2C245%2C700%2C372%2C250%2C520%2C687%3B245%2C0%2C456%2C165%2C48%2C293%2C448%3B700%2C456%2C0%2C364%2C458%2C290%2C304%3B372%2C165%2C364%2C0%2C227%2C109%2C295%3B250%2C48%2C458%2C227%2C0%2C311%2C478%3B520%2C293%2C290%2C109%2C311%2C0%2C173%3B687%2C448%2C304%2C295%2C478%2C173%2C0%60MIN%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60false%60false&do=1#tblSolution)
+You can make you sure about the solution with another program: [AtoZmath.com](https://cbom.atozmath.com/CBOM/Assignment.aspx?q=tsnn&q1=0%2C245%2C700%2C372%2C250%2C520%2C687%3B245%2C0%2C456%2C165%2C48%2C293%2C448%3B700%2C456%2C0%2C364%2C458%2C290%2C304%3B372%2C165%2C364%2C0%2C227%2C109%2C295%3B250%2C48%2C458%2C227%2C0%2C311%2C478%3B520%2C293%2C290%2C109%2C311%2C0%2C173%3B687%2C448%2C304%2C295%2C478%2C173%2C0%60MIN%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60false%60false&do=1#tblSolution)
 
+</details>
+
+<details> 
+  <summary>Water pouring puzzle</summary>
+  
+Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
+    
+  ```cs
+public class WaterJug
+{
+    public readonly float Capacity;
+    public float flood;
+    ⁝
+}
+```    
+```cs
+DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems"); //In this problem...
+
+ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 arguments:
+WaterJug SourceJug = null; //The jug from which you pour,
+WaterJug DestinationJug = null; // and the jug you pour into.
+
+DecantWater.AddPartOfActionSententia(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
+DecantWater.AddPartOfActionSententia(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
+
+//In the effect of decanting the level in the jug from which you pour is maked smaller after that,...
+DecantWater.AddEffect( //SourceJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? SourceJug.flood - DestinationJug.Capacity + DestinationJug.flood : 0
+    "Reduce source jug flood",
+    ref SourceJug,
+    Source_Jug => Source_Jug.flood,
+    ref DestinationJug,
+    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
+
+//...the level in the jug you pour into is maked bigger.
+DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? DestinationJug.Capacity : DestinationJug.flood + SourceJug.flood
+    "Increase destination jug flood",
+    ref DestinationJug,
+    Destination_Jug => Destination_Jug.flood,
+    ref SourceJug,
+    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
+
+//One need to do as fast as possible
+DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
+
+DecantingDomein.AddAction(DecantWater);
+```
+![Water_pouring_solution](https://github.com/user-attachments/assets/3e35f26a-d4fe-46c9-a1e2-c4bba66b5225)
 </details>
 
 ---
