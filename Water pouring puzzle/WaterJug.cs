@@ -16,13 +16,13 @@ namespace Water_pouring_puzzle
 
         public void WaitForDecant(WaterJug DestinationWaterJug)
         {
-            int time = DecantedWater(this.flood, DestinationWaterJug.Capacity, DestinationWaterJug.flood);
+            int time = DecantedWater(this.Flood, DestinationWaterJug.Capacity, DestinationWaterJug.Flood);
             Thread.Sleep(time * 1000);
         }
 
         public readonly float Capacity; //max level of fluid
         private float _flood;
-        public float flood //current level of fluid
+        public float Flood //current level of fluid
         {
             get { return _flood; }
             set
@@ -35,7 +35,7 @@ namespace Water_pouring_puzzle
         public WaterJug(float Capacity, float flood = 0)
         {
             this.Capacity = Capacity;
-            this.flood = flood;
+            this.Flood = flood;
             this.DrawIt();
         }
 
@@ -61,8 +61,6 @@ namespace Water_pouring_puzzle
                     break;
             }
 
-            const char DownLeft = '└';
-            const char DownRight = '┘';
             const char SideFrame = '│';
 
             Console.SetCursorPosition(left, top);

@@ -38,7 +38,7 @@ namespace SharpPDDL
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
-            lock(Children)
+            lock (Children)
                 this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg, AddedTransitionCharge));
         }
 
@@ -65,11 +65,6 @@ namespace SharpPDDL
             {
                 return this.ToList().Count;
             }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return (IEnumerator)GetEnumerator();
         }
 
         public IEnumerator GetEnumerator()
@@ -192,7 +187,7 @@ namespace SharpPDDL
 
         internal static void MergeK(ref Crisscross Incorporating, ref Crisscross Annexed)
         {
-            bool CheckChildRoor(CrisscrossChildrenCon child, Crisscross AnnexedA)
+            bool CheckChildRoot(CrisscrossChildrenCon child, Crisscross AnnexedA)
             {
                 if (child.Child.Root is null)
                     return false;
@@ -201,7 +196,9 @@ namespace SharpPDDL
             }
 
             //uint costDiff = Annexed.CumulativedTransitionCharge - Incorporating.CumulativedTransitionCharge;
-            Annexed.AlternativeRoots.Add(Annexed.Root);
+            if (!(Incorporating.Root is null) && !(Annexed.Root is null))
+                if (!Incorporating.Root.Equals(Annexed.Root))
+                    Annexed.AlternativeRoots.Add(Annexed.Root);
 
             //for every Alternative root of Annexed...
             for (int AnnAltRootI = 0; AnnAltRootI != Annexed.AlternativeRoots.Count; AnnAltRootI++)
@@ -243,7 +240,7 @@ namespace SharpPDDL
             lock(Annexed.Children)
             foreach (var child in Annexed.Children)
             {
-                if (CheckChildRoor(child, Annexed))
+                if (CheckChildRoot(child, Annexed))
                     child.Child.Root = Incorporating;
                 else
                     for (int i = 0; i != child.Child.AlternativeRoots.Count; i++)
@@ -255,7 +252,10 @@ namespace SharpPDDL
                 Incorporating.Children.Add(child);
             }
 
+            Annexed.Children = Incorporating.Children;
             Incorporating.Content.Incorporate(ref Annexed.Content);
+            Annexed.Content = Incorporating.Content;
+            Annexed.Root = Incorporating.Root;
             Annexed = Incorporating;
         }
 
@@ -266,7 +266,7 @@ namespace SharpPDDL
             else
                 MergeK(ref Merge2, ref Merge1);
 
-            if (!Merge1.Equals(Merge2))
+            if (!Object.ReferenceEquals(Merge1,Merge2))
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 58, GloCla.ResMan.GetString("C9"));
                 throw new Exception(GloCla.ResMan.GetString("C9"));

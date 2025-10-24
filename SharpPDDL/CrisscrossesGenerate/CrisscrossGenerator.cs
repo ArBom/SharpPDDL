@@ -238,13 +238,14 @@ namespace SharpPDDL
 
                 while (Enum.MoveNext() && !cancellationToken.IsCancellationRequested)
                 {
-                    Crisscross EnumCurr = Enum.Current;
+                    //TODO dość ważne, chyba
+                    /*Crisscross EnumCurr = (Crisscross)Enum.Current;
                     Crisscross ToAddAt = NewOne;
 
-                    if (cmp.Equals(Enum.CurrentConnector.Child, PrevAdded))
+                    if (cmp.Equals(EnumCurr, PrevAdded))
                         ToAddAt = PrevAdded;
                     else
-                        foreach (ChainStruct CS in Enum.UsedAlternativeRoots)
+                        foreach (ChainStruct CS in EnumCurr.AlternativeRoots)
                             ToAddAt = ToAddAt.Children.First(CCC => cmp.Equals(CCC.Child, CS.Chain)).Child;
 
                     ToAddAt.Add(EnumCurr.Content, Enum.CurrentConnector.ActionNr, Enum.CurrentConnector.ActionArgOryg, Enum.CurrentConnector.ActionCost, out PrevAdded);
@@ -265,7 +266,7 @@ namespace SharpPDDL
                     }
 
                     if(!EnumCurr.Children.Any())
-                        ChildlessCrisscrosses.Add(EnumCurr);
+                        ChildlessCrisscrosses.Add(EnumCurr);*/
                 }             
 
                 GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));

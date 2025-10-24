@@ -95,13 +95,17 @@ namespace SharpPDDL
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
                 ToCheckGoal.BuildIt(Owner);
 
-            foreach (var s in CurrentBuilded)
-                CheckGoalInCol.CheckNewGoalsReach((Crisscross)s, ToCheckGoals);
+            foreach (Crisscross ToCheck in CurrentBuilded)
+            {
+                List<GoalPDDL> RealizatedList = CheckGoalInCol.CheckNewGoalsReach(ToCheck, ToCheckGoals);
+                if (RealizatedList.Any())
+                    this.FoundSols.Invoke(new KeyValuePair<Crisscross, List<GoalPDDL>>(ToCheck, RealizatedList));
+            }
 
             if (this.CurrentBuilder.CrisscrossesGenerated is null)
                 this.RealizeGoalsPlanifFound();
 
-            CurrentBuilder.ReStart(CurrentBuilded);
+            //CurrentBuilder.ReStart(CurrentBuilded);
         }
 
         private void FoundSolsVoid(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -165,7 +169,7 @@ namespace SharpPDDL
             GenList(GenerList);
         }
 
-        private object AtAllStateGeneratedLocker = new object();
+        private readonly object AtAllStateGeneratedLocker = new object();
         internal void AtAllStateGenerated()
         {
             //Do not use this whole function again

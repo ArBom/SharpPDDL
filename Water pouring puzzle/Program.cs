@@ -45,17 +45,17 @@ namespace Water_pouring_puzzle
             DecantWater.AddEffect( //SourceJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? SourceJug.flood - DestinationJug.Capacity + DestinationJug.flood : 0
                 "Reduce source jug flood",
                 ref SourceJug,
-                Source_Jug => Source_Jug.flood,
+                Source_Jug => Source_Jug.Flood,
                 ref DestinationJug,
-                (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
+                (Source_Jug, Destination_Jug) => Destination_Jug.Flood + Source_Jug.Flood >= Destination_Jug.Capacity ? Source_Jug.Flood - Destination_Jug.Capacity + Destination_Jug.Flood : 0);
 
             //...the level in the jug you pour into is maked bigger.
             DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? DestinationJug.Capacity : DestinationJug.flood + SourceJug.flood
                 "Increase destination jug flood",
                 ref DestinationJug,
-                Destination_Jug => Destination_Jug.flood,
+                Destination_Jug => Destination_Jug.Flood,
                 ref SourceJug,
-                (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
+                (Destination_Jug, Source_Jug) => Destination_Jug.Flood + Source_Jug.Flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.Flood + Source_Jug.Flood);
 
             //Decanting needs time to realize
             DecantWater.AddExecution("Wait for decantation", ref SourceJug, ref DestinationJug, (Source_Jug, Destination_Jug) => Source_Jug.WaitForDecant(Destination_Jug), false);
@@ -66,7 +66,7 @@ namespace Water_pouring_puzzle
             DecantWater.AddExecution("Tick in list", () => TickList(), true);
 
             //One need to do as fast as possible
-            DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
+            DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.Flood, D.Capacity, D.Flood));
 
             //Add AddAction to DecantingDomein
             DecantingDomein.AddAction(DecantWater);
@@ -86,8 +86,8 @@ namespace Water_pouring_puzzle
             DecantingDomein.domainObjects.Add(waterJug3);
 
             GoalPDDL Halve = new GoalPDDL("Divide in half"); //You need to...
-            Halve.AddExpectedObjectState(waterJug8, Water_Jug => Water_Jug.flood == 4); //...4-litre level inside 8-litre jug,
-            Halve.AddExpectedObjectState(waterJug5, Water_Jug => Water_Jug.flood == 4); //and 4-litre level inside 5-litre jug.
+            Halve.AddExpectedObjectState(waterJug8, Water_Jug => Water_Jug.Flood == 4); //...4-litre level inside 8-litre jug,
+            Halve.AddExpectedObjectState(waterJug5, Water_Jug => Water_Jug.Flood == 4); //and 4-litre level inside 5-litre jug.
             DecantingDomein.AddGoal(Halve);
 
             DecantingDomein.PlanGenerated += PrintPlan;
