@@ -421,6 +421,10 @@
     <value>There is some problem in creating the checker of "{0}" action. </value>
     <comment>ActionChecker; ; 0-action name</comment>
   </data>
+  <data name="E36" xml:space="preserve">
+    <value />
+    <comment>CrisscrossReducer; Trying to index states in time of task running</comment>
+  </data>
   <data name="E4" xml:space="preserve">
     <value>You cannot to create goal without name or with empty name.</value>
     <comment>DomeinPDDL; trying to create new goal with wrong name</comment>

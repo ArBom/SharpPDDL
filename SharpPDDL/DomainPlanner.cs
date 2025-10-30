@@ -62,13 +62,15 @@ namespace SharpPDDL
         internal void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
                 foreach (var RemGoal in e.OldItems)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 141, GloCla.ResMan.GetString("V10"), ((GoalPDDL)RemGoal).Name);
+            }
 
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                if (!Owner.domainGoals.Any())
-                    InternalCancellationDomeinSrc.Cancel();
+                //if (!Owner.domainGoals.Any())
+                //    InternalCancellationDomeinSrc.Cancel();
 
                 return;
             }
@@ -91,7 +93,8 @@ namespace SharpPDDL
                 throw new Exception(GloCla.ResMan.GetString("E5"));
             }
 
-            CurrentBuilder.Stop().Wait(100);
+            Task CurrentBuilderStopping = CurrentBuilder.Stop();
+
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
                 ToCheckGoal.BuildIt(Owner);
 
@@ -102,10 +105,10 @@ namespace SharpPDDL
                     this.FoundSols.Invoke(new KeyValuePair<Crisscross, List<GoalPDDL>>(ToCheck, RealizatedList));
             }
 
-            if (this.CurrentBuilder.CrisscrossesGenerated is null)
+            if (this.FoundedGoals.Count() != Owner.domainGoals.Count())
                 this.RealizeGoalsPlanifFound();
-
-            //CurrentBuilder.ReStart(CurrentBuilded);
+            else
+                CurrentBuilder.ReStart();
         }
 
         private void FoundSolsVoid(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -254,12 +257,14 @@ namespace SharpPDDL
 
             foreach (GoalPDDL goalPDDL in goals)
             {
-                //Let external program know, some part is realized
-                goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
                 SetObjToMigrate(goalPDDL, GainedCrisscross);
                 KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> FoGo = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
                 FoGo.Value.Remove(GainedCrisscross);
                 this.Owner.domainGoals.Remove(goalPDDL);
+
+                //Let external program know, some part is realized
+                goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
+
                 if (FoGo.Value.Any())
                     continue;
 
@@ -306,7 +311,7 @@ namespace SharpPDDL
             if (Realizing.Status == TaskStatus.Running)
                 ToWait.Add(Realizing);
 
-            Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
+            Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
             if (Transcribing.Status == TaskStatus.Running)
                 ToWait.Add(Transcribing);
 
@@ -334,8 +339,8 @@ namespace SharpPDDL
                     var ToGoalCheck = new ConcurrentQueue<Crisscross>();
                     ToGoalCheck.Enqueue(CurrentBuilded);
 
-                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null);
-                    CurrentBuilder.ReStart(CurrentBuilded);
+                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null, null);
+                    CurrentBuilder.ReStart();
                 }
                 else
                     throw Realizing.Exception.InnerException;
@@ -349,8 +354,10 @@ namespace SharpPDDL
             else
             {
                 CurrentBuilded = Transcribing.Result.NewRoot;
-                CurrentBuilder.InitBuffors(null, Transcribing.Result.ChildlessCrisscrosses, null);                   
-                CurrentBuilder.ReStart(CurrentBuilded);
+                CurrentBuilder.InitBuffors(null, Transcribing.Result.Item2, null, Transcribing.Result.NewIndexedStates);
+                
+                if(Owner.domainGoals.Except(Found.Value).Any())
+                    CurrentBuilder.ReStart();
             }
         }
     }

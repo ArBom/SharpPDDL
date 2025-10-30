@@ -745,6 +745,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string E36 {
+            get {
+                return ResourceManager.GetString("E36", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
         /// </summary>
         internal static string E4 {

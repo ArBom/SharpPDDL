@@ -76,16 +76,19 @@ namespace SharpPDDL
             return Math.Min(ret1, ret2);
         }
 
-        internal void InitBuffors (IEnumerable<Crisscross> PossibleGoalRealization, IEnumerable<Crisscross> PossibleNewCrisscrossCre, IEnumerable<Crisscross> PossibleToCrisscrossReduce)
+        internal void InitBuffors (IEnumerable<Crisscross> PossibleGoalRealization, IEnumerable<Crisscross> PossibleNewCrisscrossCre, IEnumerable<Crisscross> PossibleToCrisscrossReduce, SortedList<string, Crisscross> NewIndexedStates)
         {
             this.PossibleGoalRealization = (PossibleGoalRealization is null)? new ConcurrentQueue<Crisscross>() : new ConcurrentQueue<Crisscross>(PossibleGoalRealization);
             this.PossibleNewCrisscrossCre = (PossibleNewCrisscrossCre is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleNewCrisscrossCre, Crisscross.SortCumulativedTransitionCharge());
             this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleToCrisscrossReduce, Crisscross.SortCumulativedTransitionCharge());
+
+            if (!(this.crisscrossReducer is null))
+                this.crisscrossReducer.IndexStates(NewIndexedStates);
         }
 
         internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
         {
-            InitBuffors(null, null, null);
+            InitBuffors(null, null, null, null);
             this.NoNewDataCheck = new Action(CheckAllGenerated);
 
             //Creating AutoResetEvents
@@ -133,32 +136,12 @@ namespace SharpPDDL
             goalChecker.CheckingGoalRealizationARE.Set();
         }
 
-        internal void ReStart(Crisscross CurrentBuildedRoot)
+        internal void ReStart()
         {
             if (CancellationDomein.IsCancellationRequested)
                 throw new Exception();
 
-            if (!CancellationCrisscrossGenerator.IsCancellationRequested)
-                Stop().Wait(90);
-
             Definetoken(this.CancellationDomein);
-
-            Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols = goalChecker.foundSols;
-            
-            //Creating AutoResetEvents
-            AutoResetEvent CheckingGoalRealizationARE = new AutoResetEvent(PossibleGoalRealization.Any());
-            AutoResetEvent BuildingNewCrisscrossARE = new AutoResetEvent(PossibleNewCrisscrossCre.Any());
-            AutoResetEvent ReducingCrisscrossARE = new AutoResetEvent(PossibleToCrisscrossReduce.Any());
-
-            //Init the classes with task and set communication of it
-            this.goalChecker = new GoalChecker(goalChecker.domainGoals, CheckingGoalRealizationARE, PossibleGoalRealization, PossibleNewCrisscrossCreLocker, PossibleNewCrisscrossCre, BuildingNewCrisscrossARE);
-            this.crisscrossNewPossiblesCreator = new CrisscrossNewPossiblesCreator(crisscrossNewPossiblesCreator.Actions.ToList(), BuildingNewCrisscrossARE, PossibleNewCrisscrossCre, PossibleNewCrisscrossCreLocker, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker);
-            this.crisscrossReducer = new CrisscrossReducer(CurrentBuildedRoot, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker, PossibleGoalRealization, CheckingGoalRealizationARE);
-
-            goalChecker.foundSols = foundSols;
-            goalChecker.NoNewData = NoNewDataCheck;
-            crisscrossReducer.NoNewData = NoNewDataCheck;
-            crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;
 
             //Get ready all Tasks of this process
             goalChecker.Start(CancellationCrisscrossGenerator);
@@ -168,27 +151,30 @@ namespace SharpPDDL
 
         internal Task Stop()
         {
-            Task Stopping = new Task(() => {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
+                Task Stopping = new Task(() =>
+                {
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
 
-                //use internal Cancellation Token
-                if(!CancellationCrisscrossGenerator.IsCancellationRequested)
-                    InternalCancellationCrisscrossGenerator.Cancel();
+                    //use internal Cancellation Token
+                    if (!CancellationCrisscrossGenerator.IsCancellationRequested)
+                        InternalCancellationCrisscrossGenerator.Cancel();
+                    else
+                        return;
 
-                //make sure there is no task wainting for buffor add element
-                goalChecker.CheckingGoalRealizationARE.Set();
-                crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
-                crisscrossReducer.ReducingCrisscrossARE.Set();
+                    //make sure there is no task wainting for buffor add element
+                    goalChecker.CheckingGoalRealizationARE.Set();
+                    crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
+                    crisscrossReducer.ReducingCrisscrossARE.Set();
 
-                //wait for all task finish
-                Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100);
+                    //wait for all task finish
+                    Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100);
 
-                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
-            });
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
+                });
 
-            Stopping.Start();
+                Stopping?.Start();
 
-            return Stopping;
+                return Stopping;
         }
 
         private void CheckAllGenerated()
@@ -218,59 +204,32 @@ namespace SharpPDDL
             CrisscrossesGenerated?.Invoke();
         }
 
-        internal Task<(Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses)> TranscribeState(Crisscross NewRoot, CancellationToken cancellationToken)
+        internal Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)> TranscribeState(Crisscross NewRoot, CancellationToken cancellationToken)
         {
-            Task<(Crisscross, SortedSet<Crisscross>)> Transcribing = new Task<(Crisscross, SortedSet<Crisscross>)>(() =>
+            Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)> Transcribing = new Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)>(() =>
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Start, 122, GloCla.ResMan.GetString("Sa10"));
 
-                SortedSet<Crisscross> ChildlessCrisscrosses = new SortedSet<Crisscross>();
                 Crisscross NewOne = new Crisscross
                 {
                     Content = new PossibleState(NewRoot.Content.ThumbnailObjects)
                 };
 
-                var cmp = Crisscross.IContentEqualityComparer;
-
-                CrisscrossRefEnum NewOneEnum = new CrisscrossRefEnum(ref NewOne);
-                CrisscrossEnum Enum = new CrisscrossEnum(NewRoot);
-                Crisscross PrevAdded = NewOne;
-
-                while (Enum.MoveNext() && !cancellationToken.IsCancellationRequested)
+                SortedSet<Crisscross> ChildlessCrisscrosses = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge())
                 {
-                    //TODO dość ważne, chyba
-                    /*Crisscross EnumCurr = (Crisscross)Enum.Current;
-                    Crisscross ToAddAt = NewOne;
+                    NewOne
+                };
 
-                    if (cmp.Equals(EnumCurr, PrevAdded))
-                        ToAddAt = PrevAdded;
-                    else
-                        foreach (ChainStruct CS in EnumCurr.AlternativeRoots)
-                            ToAddAt = ToAddAt.Children.First(CCC => cmp.Equals(CCC.Child, CS.Chain)).Child;
+                SortedList<string, Crisscross> NewIndexedStates = new SortedList<string, Crisscross>
+                {
+                    { NewOne.Content.CheckSum, NewOne }
+                };
 
-                    ToAddAt.Add(EnumCurr.Content, Enum.CurrentConnector.ActionNr, Enum.CurrentConnector.ActionArgOryg, Enum.CurrentConnector.ActionCost, out PrevAdded);
+                (Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses, SortedList<string, Crisscross> NewIndexedStates) RetTuple = (NewOne, ChildlessCrisscrosses, NewIndexedStates);
 
-                    if (EnumCurr.AlternativeRoots.Any())
-                    {
-                        //TODO jeśli EnumCurr już wykrył powtórzenie, to można to wykorzystać
+                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));      
 
-                        while (NewOneEnum.MoveNext())
-                        {
-                            if (cmp.Equals(NewOneEnum.Current, EnumCurr))
-                            {
-                                Enum.Repeated = true;
-                                Crisscross.Merge(ref NewOneEnum.Current, ref EnumCurr);
-                                break;
-                            }
-                        }
-                    }
-
-                    if(!EnumCurr.Children.Any())
-                        ChildlessCrisscrosses.Add(EnumCurr);*/
-                }             
-
-                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));
-                return (NewOne, ChildlessCrisscrosses);
+                return RetTuple;
             });
 
             Transcribing.Start();

@@ -194,8 +194,20 @@ namespace SharpPDDL
             CancellationToken CancelationPlanImplementor = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancelationPlanImplementor.Token).Token;
 
             void actions() => ActionListRealize(ActionList, CancelationPlanImplementor);
-            ImplementorTask = Task.Factory.StartNew(actions, CancelationPlanImplementor);
-            return ImplementorTask;
+
+            Task NextGoalToRealization = new Task(actions, CancelationPlanImplementor);
+
+            if (ImplementorTask?.Status != (TaskStatus.Canceled | TaskStatus.Faulted))
+            {
+                ImplementorTask = NextGoalToRealization;
+                ImplementorTask.Start();
+            }
+            else
+            {
+                //ImplementorTask.ContinueWith(NextGoalToRealization);
+            }
+
+            return NextGoalToRealization;
         }
     }
 }

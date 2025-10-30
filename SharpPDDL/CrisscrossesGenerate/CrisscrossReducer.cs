@@ -11,6 +11,7 @@ namespace SharpPDDL
     class CrisscrossReducer
     {
         Crisscross states;
+
         private SortedList<string, Crisscross> IndexedStates;
 
         internal Task BuildingNewCrisscross;
@@ -19,7 +20,7 @@ namespace SharpPDDL
 
         internal AutoResetEvent ReducingCrisscrossARE;
         ICollection<Crisscross> PossibleToCrisscrossReduce;
-        object CrisscrossReduceLocker;
+        private readonly object CrisscrossReduceLocker;
 
         ConcurrentQueue<Crisscross> PossibleGoalRealization;
         AutoResetEvent CheckingGoalRealizationARE;
@@ -27,7 +28,7 @@ namespace SharpPDDL
         internal CrisscrossReducer(Crisscross states, AutoResetEvent ReducingCrisscrossARE, ICollection<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker, ConcurrentQueue<Crisscross> PossibleGoalRealization, AutoResetEvent CheckingGoalRealizationARE)
         {
             this.states = states;
-            IndexStates();
+            IndexStates(null);
 
             this.ReducingCrisscrossARE = ReducingCrisscrossARE;
             this.PossibleToCrisscrossReduce = PossibleToCrisscrossReduce;
@@ -43,8 +44,21 @@ namespace SharpPDDL
             BuildingNewCrisscross.Start();
         }
 
-        private void IndexStates()
+        internal void IndexStates(SortedList<string, Crisscross> NewIndexedStates)
         {
+            if (BuildingNewCrisscross?.Status == (TaskStatus.Running | TaskStatus.WaitingForChildrenToComplete))
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 147, GloCla.ResMan.GetString("E36"));
+                return;
+            }
+
+            if (!(IndexedStates is null))
+                if (IndexedStates.Any())
+                {
+                    this.IndexedStates = NewIndexedStates;
+                    return;
+                }
+
             IndexedStates = new SortedList<string, Crisscross>();
 
             CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref states);
