@@ -40,11 +40,12 @@ namespace SharpPDDL
 
         internal void Start(CancellationToken cancellationToken)
         {
-            CheckingGoal = new Task(() => CheckGoalProces(cancellationToken));
+            ICollection<GoalPDDL> domainGoals = new List<GoalPDDL>(this.domainGoals);
+            CheckingGoal = new Task(() => CheckGoalProces(domainGoals, cancellationToken));
             CheckingGoal.Start();
         }
 
-        private void CheckGoalProces(CancellationToken token)
+        private void CheckGoalProces(ICollection<GoalPDDL> domainGoals, CancellationToken token)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 68, GloCla.ResMan.GetString("Sa9"), Task.CurrentId);
 

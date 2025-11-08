@@ -41,6 +41,7 @@ namespace SharpPDDL
         internal CancellationTokenSource InternalCancellationCrisscrossGenerator;
         protected CancellationToken CancellationDomein;
         protected CancellationToken CancellationCrisscrossGenerator;
+        internal bool IsCrisscrossGeneratorCancellationRequested => CancellationCrisscrossGenerator.IsCancellationRequested;
 
         //Lockers
         protected readonly object PossibleNewCrisscrossCreLocker;
@@ -78,7 +79,13 @@ namespace SharpPDDL
 
         internal void InitBuffors (IEnumerable<Crisscross> PossibleGoalRealization, IEnumerable<Crisscross> PossibleNewCrisscrossCre, IEnumerable<Crisscross> PossibleToCrisscrossReduce, SortedList<string, Crisscross> NewIndexedStates)
         {
-            this.PossibleGoalRealization = (PossibleGoalRealization is null)? new ConcurrentQueue<Crisscross>() : new ConcurrentQueue<Crisscross>(PossibleGoalRealization);
+            if (this.PossibleGoalRealization is null)
+                this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
+
+            if (!(PossibleGoalRealization is null))
+                foreach (Crisscross c in PossibleGoalRealization)
+                    this.PossibleGoalRealization.Enqueue(c);
+
             this.PossibleNewCrisscrossCre = (PossibleNewCrisscrossCre is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleNewCrisscrossCre, Crisscross.SortCumulativedTransitionCharge());
             this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleToCrisscrossReduce, Crisscross.SortCumulativedTransitionCharge());
 
@@ -115,6 +122,9 @@ namespace SharpPDDL
 
         private void Definetoken(CancellationToken CancellationDomein)
         {
+            if (CancellationDomein.IsCancellationRequested)
+                throw new Exception();
+
             this.CancellationDomein = CancellationDomein;
             this.InternalCancellationCrisscrossGenerator = new CancellationTokenSource();
             this.CancellationCrisscrossGenerator = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancellationCrisscrossGenerator.Token).Token;
@@ -138,8 +148,8 @@ namespace SharpPDDL
 
         internal void ReStart()
         {
-            if (CancellationDomein.IsCancellationRequested)
-                throw new Exception();
+            if (!CancellationCrisscrossGenerator.IsCancellationRequested)
+                return;
 
             Definetoken(this.CancellationDomein);
 
@@ -147,6 +157,9 @@ namespace SharpPDDL
             goalChecker.Start(CancellationCrisscrossGenerator);
             crisscrossNewPossiblesCreator.Start(CancellationCrisscrossGenerator);
             crisscrossReducer.Start(CancellationCrisscrossGenerator);
+
+            //Start cheching the root in goal reach
+            goalChecker.CheckingGoalRealizationARE.Set();
         }
 
         internal Task Stop()

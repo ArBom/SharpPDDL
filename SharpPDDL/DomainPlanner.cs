@@ -11,12 +11,20 @@ namespace SharpPDDL
     public delegate void ListOfString(List<List<string>> planGenerated);
 
     internal class DomainPlanner
+
+    //       |￣￣￣￣￣￣￣￣|
+    //       |Clean the mess!|
+    //       |＿＿＿＿＿＿＿＿|
+    //       (\__/) ||
+    //       (•ㅅ•) ||
+    //        /   づ
+
     {
         protected Dictionary<FoungingGoalDetail, SortedSet<Crisscross>> FoundedGoals;
         protected Dictionary<Crisscross, List<GoalPDDL>> FoundedCrisscrosses;
         protected Crisscross CurrentBuilded;
         internal CrisscrossGenerator CurrentBuilder { get; private set; }
-        protected PlanImplementor PlanImplementor;
+        protected Executor DomainExecutor;
         protected readonly DomeinPDDL Owner;
         internal Action<uint> currentMinCumulativeCostUpdate;
         protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
@@ -36,7 +44,7 @@ namespace SharpPDDL
                 Content = Owner.CurrentState
             };
 
-            PlanImplementor = new PlanImplementor(Owner);
+            DomainExecutor = new Executor(Owner);
             CurrentBuilder = new CrisscrossGenerator(CurrentBuilded, Owner, FoundSols, currentMinCumulativeCostUpdate);
             FoundedGoals = new Dictionary<FoungingGoalDetail, SortedSet<Crisscross>>();
             FoundedCrisscrosses = new Dictionary<Crisscross, List<GoalPDDL>>(Crisscross.IContentEqualityComparer);
@@ -61,16 +69,27 @@ namespace SharpPDDL
 
         internal void DomainGoals_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add &&
+                e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                return;
+
+            Task CurrentBuilderStopping = null;
+            if (!CurrentBuilder.IsCrisscrossGeneratorCancellationRequested)
+                CurrentBuilderStopping = CurrentBuilder.Stop();
+
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
             {
-                foreach (var RemGoal in e.OldItems)
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 141, GloCla.ResMan.GetString("V10"), ((GoalPDDL)RemGoal).Name);
-            }
+                if (!(CurrentBuilderStopping is null))
+                    CurrentBuilderStopping.Wait();
 
-            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                //if (!Owner.domainGoals.Any())
-                //    InternalCancellationDomeinSrc.Cancel();
+                foreach (var RemGoal in e.OldItems)
+                {
+                    RemoveFoundedGoal((GoalPDDL)RemGoal);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 141, GloCla.ResMan.GetString("V10"), ((GoalPDDL)RemGoal).Name);
+                }
+
+                if (!(CurrentBuilderStopping is null))
+                    CurrentBuilder.ReStart();
 
                 return;
             }
@@ -92,8 +111,6 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 14, GloCla.ResMan.GetString("E5"));
                 throw new Exception(GloCla.ResMan.GetString("E5"));
             }
-
-            Task CurrentBuilderStopping = CurrentBuilder.Stop();
 
             foreach (GoalPDDL ToCheckGoal in ToCheckGoals)
                 ToCheckGoal.BuildIt(Owner);
@@ -130,10 +147,10 @@ namespace SharpPDDL
                 }
             }
 
-            if (this.PlanImplementor.ImplementorTask?.Status == TaskStatus.Running)
+            if (this.DomainExecutor.ImplementorTask?.Status == TaskStatus.Running)
                 return;
 
-            if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority) || Found.Value.Count() == Owner.domainGoals.Count())
+            if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority))
             {
                 this.GenList(Found);
             }
@@ -154,7 +171,7 @@ namespace SharpPDDL
             }
 
             var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.05 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
-            if (FoundedChipStates is null)
+            if (!FoundedChipStates.Any())
                 return;
 
             int MaxCountSolution = FoundedChipStates.Max(FG => FG.Value.Count);
@@ -230,49 +247,22 @@ namespace SharpPDDL
             }
         }
 
-        private void SetObjToMigrate(GoalPDDL goalPDDL, Crisscross GainedCrisscross)
+        internal void RemoveFoundedGoal(GoalPDDL goalPDDL)
         {
-            foreach (IGoalObject goalObject in goalPDDL.GoalObjects)
+            if (!FoundedGoals.Any(FG => FG.Key.GoalPDDL.Equals(goalPDDL)))
+                return;
+
+            KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> toRem = FoundedGoals.First(FG => FG.Key.GoalPDDL.Equals(goalPDDL));
+
+            foreach (Crisscross crisscross in toRem.Value)
             {
-                if (!goalObject.MigrateIntheEnd)
-                    continue;
-
-                if (!(goalObject.OriginalObj is null))
-                    continue;
-
-                foreach (ThumbnailObject ThObj in GainedCrisscross.Content.ChangedThumbnailObjects)
-                    foreach (IGoalObject goalObj in goalPDDL.GoalObjects)
-                        if ((bool)goalObj.GoalPDDL.DynamicInvoke(ThObj))                       
-                            goalObj.OriginalObj = ThObj.OriginalObj;
-            }
-        }
-
-        internal List<GoalPDDL> RemoveRealizedGoalsOfCrisscross(Crisscross GainedCrisscross)
-        {
-            if (!FoundedCrisscrosses.ContainsKey(GainedCrisscross))
-                return null;
-
-            //copy list of realized goals
-            List<GoalPDDL> goals = new List<GoalPDDL>(FoundedCrisscrosses[GainedCrisscross]);
-
-            foreach (GoalPDDL goalPDDL in goals)
-            {
-                SetObjToMigrate(goalPDDL, GainedCrisscross);
-                KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> FoGo = FoundedGoals.First(FG => FG.Key.GoalPDDL.Name == goalPDDL.Name);
-                FoGo.Value.Remove(GainedCrisscross);
-                this.Owner.domainGoals.Remove(goalPDDL);
-
-                //Let external program know, some part is realized
-                goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
-
-                if (FoGo.Value.Any())
-                    continue;
-
-                FoundedGoals.Remove(FoGo.Key);
+                List<GoalPDDL> r = FoundedCrisscrosses[crisscross];
+                bool us = r.Remove(goalPDDL);
+                if (!r.Any())
+                    FoundedCrisscrosses.Remove(crisscross);
             }
 
-            FoundedCrisscrosses.Remove(GainedCrisscross);
-            return goals;
+            FoundedGoals.Remove(toRem.Key);
         }
 
         internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -294,31 +284,24 @@ namespace SharpPDDL
                 for (int j = 0; j != arg.Length; j++)
                     arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
 
-                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Owner.actions[FoKePo[i].ActionNr].Name), (string)Owner.actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) } );
+                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Owner.actions[FoKePo[i].ActionNr].Name), (string)Owner.actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) });
 
                 state = FoKePo[i].Child;
             }
 
             PlanGeneratedInDomainPlanner?.Invoke(Plan);
 
-            List<Task> ToWait = new List<Task>();
-
             Task Stopping = CurrentBuilder.Stop();
-            if (Stopping.Status == TaskStatus.Running)
-                ToWait.Add(Stopping);
-
-            Task Realizing = PlanImplementor.RealizeIt(FoKePo, CancellationDomein);
-            if (Realizing.Status == TaskStatus.Running)
-                ToWait.Add(Realizing);
-
             Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
-            if (Transcribing.Status == TaskStatus.Running)
-                ToWait.Add(Transcribing);
+            Task.WaitAll(Stopping, Transcribing);
 
-            Task.WaitAll(ToWait.ToArray());
+            CurrentBuilded = Transcribing.Result.NewRoot;
+
+            Task Realizing = DomainExecutor.RealizeIt(FoKePo, Found.Value, CancellationDomein);
+            Realizing.Wait();
 
             //internal fault
-            if(Realizing.IsFaulted)
+            if (Realizing.IsFaulted)
             {
                 if (Realizing.Exception.InnerException is PrecondExecutionException)
                 {
@@ -331,10 +314,10 @@ namespace SharpPDDL
                         RefreshedThumbnails.Add(UpdatedThObj);
                     }
 
-                    CurrentBuilded = new Crisscross()
+                    /*CurrentBuilded = new Crisscross()
                     {
                         Content = new PossibleState(RefreshedThumbnails)
-                    };
+                    };*/
 
                     var ToGoalCheck = new ConcurrentQueue<Crisscross>();
                     ToGoalCheck.Enqueue(CurrentBuilded);
@@ -354,10 +337,10 @@ namespace SharpPDDL
             else
             {
                 CurrentBuilded = Transcribing.Result.NewRoot;
-                CurrentBuilder.InitBuffors(null, Transcribing.Result.Item2, null, Transcribing.Result.NewIndexedStates);
-                
+                CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+
                 if(Owner.domainGoals.Except(Found.Value).Any())
-                    CurrentBuilder.ReStart();
+                  CurrentBuilder.ReStart();
             }
         }
     }

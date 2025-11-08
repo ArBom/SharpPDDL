@@ -422,7 +422,7 @@
     <comment>ActionChecker; ; 0-action name</comment>
   </data>
   <data name="E36" xml:space="preserve">
-    <value />
+    <value>Internal error: There is no possibility of index states in time of task running</value>
     <comment>CrisscrossReducer; Trying to index states in time of task running</comment>
   </data>
   <data name="E4" xml:space="preserve">

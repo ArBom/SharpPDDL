@@ -745,7 +745,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal error: There is no possibility of index states in time of task running.
         /// </summary>
         internal static string E36 {
             get {
