@@ -13,7 +13,6 @@ namespace SharpPDDL
         /// </summary>
         protected ushort ValuesIndeksCount = 0;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
-        internal TreeNode<SingleTypeOfDomein> Root;
         object locker = new object();
 
         internal void CompleteTypes(List<SingleType> singleTypes)
@@ -67,19 +66,19 @@ namespace SharpPDDL
         }
 
 #region CreateTypesTree_Medhods
-        private void CreateRootofTree()
+        private void CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root)
         {
-            this.Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
+            Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
 
             foreach (SingleTypeOfDomein singleType in this.allTypes) //Podepnij wszystko pod ten korzeń
             {
                 TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
                 {
-                    Root = this.Root,
+                    Root = Root,
                     Content = singleType
                 };
 
-                this.Root.Children.Add(ToAdd);
+                Root.Children.Add(ToAdd);
             }
         }
 
@@ -243,7 +242,7 @@ namespace SharpPDDL
                 CumulateValues(child);
         }
 
-        private void CompleteValuesIndekses()
+        private void CompleteValuesIndekses(TreeNode<SingleTypeOfDomein> Root)
         {
             #region NestedVoid_CompleteValuesIndekses
             void ChangeAtChildren(TreeNode<SingleTypeOfDomein> node, Value childValue, ushort ValuesIndeksCount)
@@ -274,10 +273,10 @@ namespace SharpPDDL
             }
             #endregion
 
-            if (this.Root is null)
+            if (Root is null)
                 throw new Exception();
 
-            CompleteValues(this.Root);
+            CompleteValues(Root);
         }
 
         private void MoveNodesToList(TreeNode<SingleTypeOfDomein> node, List<SingleTypeOfDomein> resultList)
@@ -297,18 +296,21 @@ namespace SharpPDDL
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 39, GloCla.ResMan.GetString("Sa4"));
 
-            CreateRootofTree();
+            //TreeNode<SingleTypeOfDomein> Root;
+
+            CreateRootofTree(out TreeNode < SingleTypeOfDomein > Root);
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);
             TagValues(Root);
             CumulateValues(Root);
-            CompleteValuesIndekses();
+            CompleteValuesIndekses(Root);
 
             if (Root.Children.Count() == 1)
                 Root.Children[0].Content.NeedToTypeCheck = false;
 
             this.allTypes = new List<SingleTypeOfDomein>();
             MoveNodesToList(Root, allTypes);
+            Root = null;
 
             foreach (var elem in allTypes)
                 elem.CreateValuesKeys();

@@ -10,7 +10,7 @@ namespace SharpPDDL
         internal override object OriginalObj => _Precursor.OriginalObj;
         private readonly ThumbnailObject _Precursor;
         public override ThumbnailObject Precursor => _Precursor;
-        new internal List<ThumbnailObject<TOriginalObj>> child;
+        //new internal List<ThumbnailObject<TOriginalObj>> child;
         internal override Type OriginalObjType => _Precursor.OriginalObjType;
 
         internal override ushort[] ValuesIndeksesKeys => _Precursor.ValuesIndeksesKeys;
@@ -20,7 +20,7 @@ namespace SharpPDDL
             this._Precursor = Precursor;
             this.Parent = parent;
             this.Dict = changes.ToDictionary(c => c.Key, c => c.Value);
-            child = new List<ThumbnailObject<TOriginalObj>>();
+            //child = new List<ThumbnailObject<TOriginalObj>>();
         }
 
         internal override ThumbnailObject CreateChild(List<KeyValuePair<ushort, ValueType>> Changes)
@@ -37,7 +37,7 @@ namespace SharpPDDL
             else
                 NewChild.CheckSum = this.CheckSum;
 
-            this.child.Add(NewChild);
+            //this.child.Add(NewChild);
             return NewChild;
         }
     }

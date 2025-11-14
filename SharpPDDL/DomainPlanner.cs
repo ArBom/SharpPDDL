@@ -295,9 +295,10 @@ namespace SharpPDDL
             Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
             Task.WaitAll(Stopping, Transcribing);
 
-            CurrentBuilded = Transcribing.Result.NewRoot;
+            //CurrentBuilded = Transcribing.Result.NewRoot;
 
             Task Realizing = DomainExecutor.RealizeIt(FoKePo, Found.Value, CancellationDomein);
+            CurrentBuilded.Dispose();
             Realizing.Wait();
 
             //internal fault
@@ -336,6 +337,7 @@ namespace SharpPDDL
             //OK
             else
             {
+                //CurrentBuilded.Dispose();
                 CurrentBuilded = Transcribing.Result.NewRoot;
                 CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
 

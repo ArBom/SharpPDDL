@@ -120,7 +120,7 @@ namespace SharpPDDL
 
             ///TOTO
             ParameterExpression parameter = Expression.Parameter(typeof(ThumbnailObject), "invoice");
-            MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
+            //MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
 
             EffectsArray[0] = Expression.Assign(ef, TrueExp);
             var AssignFalse = Expression.Assign(ef, FalseExp);

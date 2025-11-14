@@ -10,9 +10,10 @@
     <Authors>Arkadiusz Bomba</Authors>
     <PackageReleaseNotes>β
 - Optimalization
+- mitigate a memory leak
 - Fix issues</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.3.0.13</Version>
+    <Version>0.3.1.0</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -24,8 +25,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage></NeutralLanguage>
-    <AssemblyVersion>0.3.0.13</AssemblyVersion>
-    <FileVersion>0.3.0.13</FileVersion>
+    <AssemblyVersion>0.3.1.0</AssemblyVersion>
+    <FileVersion>0.3.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

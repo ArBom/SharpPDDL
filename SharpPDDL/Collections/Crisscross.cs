@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace SharpPDDL
 {
-    internal class Crisscross : ICollection
+    internal class Crisscross : ICollection, IDisposable
     {
         public PossibleState Content;
         public Crisscross Root;
@@ -276,6 +276,27 @@ namespace SharpPDDL
         public void CopyTo(Array array, int index)
         {
             ToArray().CopyTo(array, index);
+        }
+
+        public void Dispose()
+        {
+            if (AlternativeRoots is null)
+                return;
+
+            AlternativeRoots.Clear();
+            AlternativeRoots = null;
+
+            if (Children?.Count != 0)
+            {
+                for (int i = this.Children.Count - 1; i != 0; i--)
+                    Children[i].Child.Dispose();
+
+                Children.Clear();
+                Children = null;
+            }
+
+            Content?.Dispose();
+            Content = null;
         }
     }
 }

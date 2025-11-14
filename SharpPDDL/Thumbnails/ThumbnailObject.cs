@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace SharpPDDL
 {
-    internal abstract class ThumbnailObject
+    internal abstract class ThumbnailObject : IDisposable
     {
         internal abstract object OriginalObj { get; }
         internal abstract Type OriginalObjType { get; }
@@ -13,7 +13,7 @@ namespace SharpPDDL
         internal abstract ushort[] ValuesIndeksesKeys { get; }
         public abstract ThumbnailObject Precursor { get; }
         internal ThumbnailObject Parent;
-        internal List<ThumbnailObject> child;
+        //internal List<ThumbnailObject> child;
         internal byte[] CheckSum = new byte[GloCla.ThObCheckSumSize];
 
         internal void FigureCheckSum()
@@ -53,6 +53,12 @@ namespace SharpPDDL
                     return false;
 
             return true;
+        }
+
+        public void Dispose()
+        {
+            Dict = null;
+            //child = null;
         }
     }
 }

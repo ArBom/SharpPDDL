@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace SharpPDDL
 {
-    internal class PossibleState
+    internal class PossibleState : IDisposable
     {
         internal readonly PossibleState PreviousPossibleState;
         internal List<ThumbnailObject> ThumbnailObjects;
@@ -95,6 +95,21 @@ namespace SharpPDDL
             }
 
             Annexed = this;
+        }
+
+        public void Dispose()
+        {
+            if (ThumbnailObjects is null)
+                return;
+
+            foreach (var TO in ThumbnailObjects)
+                TO.Dispose();
+
+            foreach (var CTO in ChangedThumbnailObjects)
+                CTO.Dispose();
+
+            ThumbnailObjects = null;
+            ChangedThumbnailObjects = null;
         }
     }
 }

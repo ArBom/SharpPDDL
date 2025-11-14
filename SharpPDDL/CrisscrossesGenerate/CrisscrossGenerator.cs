@@ -223,9 +223,13 @@ namespace SharpPDDL
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Start, 122, GloCla.ResMan.GetString("Sa10"));
 
+                List<ThumbnailObject> NewThumbnailObjects = new List<ThumbnailObject>();
+                foreach (ThumbnailObject TO in NewRoot.Content.ThumbnailObjects)
+                    NewThumbnailObjects.Add(new ThumbnailObjectPrecursor<object>(TO) as ThumbnailObject);
+
                 Crisscross NewOne = new Crisscross
                 {
-                    Content = new PossibleState(NewRoot.Content.ThumbnailObjects)
+                    Content = new PossibleState(NewThumbnailObjects)
                 };
 
                 SortedSet<Crisscross> ChildlessCrisscrosses = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge())

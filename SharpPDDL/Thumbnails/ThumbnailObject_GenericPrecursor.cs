@@ -23,7 +23,7 @@ namespace SharpPDDL
             this.Parent = null;
             this._OriginalObj = (TOriginalObj)brokenEl.Precursor.OriginalObj;
             this.Dict = new Dictionary<ushort, ValueType>();
-            this.child = new List<ThumbnailObject>();
+            //this.child = new List<ThumbnailObject>();
 
             foreach (Value VOT in Model.CumulativeValues)
             {
@@ -61,7 +61,7 @@ namespace SharpPDDL
             this.Parent = null;
             this._OriginalObj = originalObj;
             this.Dict = new Dictionary<ushort, ValueType>();
-            this.child = new List<ThumbnailObject>();
+            //this.child = new List<ThumbnailObject>();
 
             Type originalObjTypeCand = originalObj.GetType();
             do
@@ -141,7 +141,7 @@ namespace SharpPDDL
             else
                 NewChild.CheckSum = this.CheckSum;
 
-            this.child.Add(NewChild);
+            //this.child.Add(NewChild);
             return NewChild;
         }
     }
