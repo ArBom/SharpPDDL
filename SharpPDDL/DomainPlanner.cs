@@ -74,7 +74,8 @@ namespace SharpPDDL
                 return;
 
             Task CurrentBuilderStopping = null;
-            if (!CurrentBuilder.IsCrisscrossGeneratorCancellationRequested)
+            bool PrevRuning = !CurrentBuilder.IsCrisscrossGeneratorCancellationRequested;
+            if (PrevRuning)
                 CurrentBuilderStopping = CurrentBuilder.Stop();
 
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
@@ -122,19 +123,21 @@ namespace SharpPDDL
                     this.FoundSols.Invoke(new KeyValuePair<Crisscross, List<GoalPDDL>>(ToCheck, RealizatedList));
             }
 
-            if (this.FoundedGoals.Count() != Owner.domainGoals.Count())
-                this.RealizeGoalsPlanifFound();
-            else
+            if (PrevRuning && CurrentBuilder.IsCrisscrossGeneratorCancellationRequested)
                 CurrentBuilder.ReStart();
         }
 
         private void FoundSolsVoid(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
         {
             FoundedCrisscrosses[Found.Key] = Found.Value;
+            string StartChecksum = CurrentBuilded.Content.CheckSum;
+
             foreach (GoalPDDL goalPDDL in Found.Value)
             {
                 FoungingGoalDetail TempFoungingGoalDetail = new FoungingGoalDetail(goalPDDL);
                 currentMinCumulativeCostUpdate?.Invoke(Found.Key.CumulativedTransitionCharge);
+                if (CurrentBuilded.Content.CheckSum != StartChecksum)
+                    break;
 
                 if (FoundedGoals.ContainsKey(TempFoungingGoalDetail))
                     FoundedGoals[TempFoungingGoalDetail].Add(Found.Key);
@@ -176,17 +179,23 @@ namespace SharpPDDL
 
             int MaxCountSolution = FoundedChipStates.Max(FG => FG.Value.Count);
 
-            var Solution = FoundedChipStates.First(FG => FG.Value.Count == MaxCountSolution);
-            Crisscross StateToHit = Solution.Value.Min();
+            KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> Solution = FoundedChipStates.First(FG => FG.Value.Count == MaxCountSolution);
+
+            Crisscross StateToHit = Solution.Value.Aggregate((curMin, v) => (curMin == null || (v.CumulativedTransitionCharge) < curMin.CumulativedTransitionCharge ? v : curMin));
+
+            //Crisscross StateToHit = Solution.Value.Min(v => v.CumulativedTransitionCharge);
             currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
 
             KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == StateToHit);
-            FoundedCrisscrosses.Clear();
+            //FoundedCrisscrosses.Clear();
 
-            foreach (GoalPDDL goalPDDL in GenerList.Value)
-                Owner.domainGoals.Remove(goalPDDL);
+            //foreach (GoalPDDL goalPDDL in GenerList.Value)
+            //  Owner.domainGoals.Remove(goalPDDL);
 
             GenList(GenerList);
+
+            for (int i = GenerList.Value.Count-1; i > 0; --i)
+                Owner.domainGoals.Remove(GenerList.Value[i]);
         }
 
         private readonly object AtAllStateGeneratedLocker = new object();
@@ -216,7 +225,8 @@ namespace SharpPDDL
             if (FoundedCrisscrosses.Any())
             {
                 int Mfounded = FoundedCrisscrosses.Max(K => K.Value.Count());
-                GenList(FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First());
+                var Found = FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First();
+                GenList(Found);
             }
 
             if (GloCla.Tracer is null)
@@ -254,13 +264,22 @@ namespace SharpPDDL
 
             KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> toRem = FoundedGoals.First(FG => FG.Key.GoalPDDL.Equals(goalPDDL));
 
-            foreach (Crisscross crisscross in toRem.Value)
+            List<Crisscross> ToRemFromFoundedCrisscrosses = new List<Crisscross>();
+
+            foreach (KeyValuePair<Crisscross, List<GoalPDDL>> FoundedCrisscross in FoundedCrisscrosses)
             {
-                List<GoalPDDL> r = FoundedCrisscrosses[crisscross];
-                bool us = r.Remove(goalPDDL);
-                if (!r.Any())
-                    FoundedCrisscrosses.Remove(crisscross);
+                if (!FoundedCrisscross.Value.Any(v => v.Name == goalPDDL.Name))
+                    continue;
+
+                FoundedCrisscross.Value.Remove(goalPDDL);
+
+                if (!FoundedCrisscross.Value.Any())
+                    ToRemFromFoundedCrisscrosses.Add(FoundedCrisscross.Key);
             }
+
+            if (ToRemFromFoundedCrisscrosses.Any())
+                foreach (Crisscross crisscross in ToRemFromFoundedCrisscrosses)
+                    FoundedCrisscrosses.Remove(crisscross);
 
             FoundedGoals.Remove(toRem.Key);
         }
@@ -298,7 +317,7 @@ namespace SharpPDDL
             //CurrentBuilded = Transcribing.Result.NewRoot;
 
             Task Realizing = DomainExecutor.RealizeIt(FoKePo, Found.Value, CancellationDomein);
-            CurrentBuilded.Dispose();
+            //CurrentBuilded.Dispose();
             Realizing.Wait();
 
             //internal fault
@@ -309,11 +328,11 @@ namespace SharpPDDL
                     List<ThumbnailObject> RefreshedThumbnails = new List<ThumbnailObject>(OneUnuseObjects);
                     OneUnuseObjects.Clear();
 
-                    foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
+                    /*foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
                     {
                         ThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj) as ThumbnailObject;
                         RefreshedThumbnails.Add(UpdatedThObj);
-                    }
+                    }*/
 
                     /*CurrentBuilded = new Crisscross()
                     {

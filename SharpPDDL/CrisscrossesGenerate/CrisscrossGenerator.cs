@@ -90,7 +90,23 @@ namespace SharpPDDL
             this.PossibleToCrisscrossReduce = (PossibleToCrisscrossReduce is null) ? new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge()) : new SortedSet<Crisscross>(PossibleToCrisscrossReduce, Crisscross.SortCumulativedTransitionCharge());
 
             if (!(this.crisscrossReducer is null))
+            {
                 this.crisscrossReducer.IndexStates(NewIndexedStates);
+                this.crisscrossReducer.PossibleToCrisscrossReduce = this.PossibleToCrisscrossReduce;
+                this.crisscrossReducer.PossibleGoalRealization = this.PossibleGoalRealization;
+            }
+
+            if (!(this.goalChecker is null))
+            {
+                this.goalChecker.PossibleNewCrisscrossCre = this.PossibleNewCrisscrossCre;
+                this.goalChecker.PossibleGoalRealization = this.PossibleGoalRealization;
+            }
+
+            if (!(this.crisscrossNewPossiblesCreator is null))
+            {
+                this.crisscrossNewPossiblesCreator.PossibleNewCrisscrossCre = this.PossibleNewCrisscrossCre;
+                this.crisscrossNewPossiblesCreator.PossibleToCrisscrossReduce = this.PossibleToCrisscrossReduce;
+            }
         }
 
         internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
@@ -225,7 +241,7 @@ namespace SharpPDDL
 
                 List<ThumbnailObject> NewThumbnailObjects = new List<ThumbnailObject>();
                 foreach (ThumbnailObject TO in NewRoot.Content.ThumbnailObjects)
-                    NewThumbnailObjects.Add(new ThumbnailObjectPrecursor<object>(TO) as ThumbnailObject);
+                    NewThumbnailObjects.Add(new ThumbnailObjectPrecursor<object>(TO, false) as ThumbnailObject);
 
                 Crisscross NewOne = new Crisscross
                 {

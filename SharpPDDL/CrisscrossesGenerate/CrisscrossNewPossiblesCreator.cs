@@ -16,11 +16,11 @@ namespace SharpPDDL
         internal Action NoNewData;
 
         internal readonly AutoResetEvent BuildingNewCrisscrossARE;
-        protected readonly ICollection<Crisscross> PossibleNewCrisscrossCre;
+        internal ICollection<Crisscross> PossibleNewCrisscrossCre;
         protected readonly object PossibleNewSrisscrossCreLocker;
 
         protected readonly AutoResetEvent ReducingCrisscrossARE;
-        protected readonly ICollection<Crisscross> PossibleToCrisscrossReduce;
+        internal ICollection<Crisscross> PossibleToCrisscrossReduce;
         protected readonly object CrisscrossReduceLocker;
 
         internal CrisscrossNewPossiblesCreator(List<ActionPDDL> actions, AutoResetEvent BuildingNewCrisscrossARE, ICollection<Crisscross> PossibleNewCrisscrossCre, object PossibleNewSrisscrossCreLocker, AutoResetEvent ReducingCrisscrossARE, ICollection<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker)

@@ -19,10 +19,10 @@ namespace SharpPDDL
         internal Action NoNewData;
 
         internal AutoResetEvent ReducingCrisscrossARE;
-        ICollection<Crisscross> PossibleToCrisscrossReduce;
+        internal ICollection<Crisscross> PossibleToCrisscrossReduce;
         private readonly object CrisscrossReduceLocker;
 
-        ConcurrentQueue<Crisscross> PossibleGoalRealization;
+        internal ConcurrentQueue<Crisscross> PossibleGoalRealization;
         AutoResetEvent CheckingGoalRealizationARE;
 
         internal CrisscrossReducer(Crisscross states, AutoResetEvent ReducingCrisscrossARE, ICollection<Crisscross> PossibleToCrisscrossReduce, object CrisscrossReduceLocker, ConcurrentQueue<Crisscross> PossibleGoalRealization, AutoResetEvent CheckingGoalRealizationARE)

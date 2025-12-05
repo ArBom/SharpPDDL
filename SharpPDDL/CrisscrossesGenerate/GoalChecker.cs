@@ -20,10 +20,10 @@ namespace SharpPDDL
         internal Action<uint> CurrentMinCumulativeCostUpdate;
 
         internal AutoResetEvent CheckingGoalRealizationARE;
-        ConcurrentQueue<Crisscross> PossibleGoalRealization;
+        internal ConcurrentQueue<Crisscross> PossibleGoalRealization;
 
         object PossibleNewCrisscrossCreLocker;
-        ICollection<Crisscross> PossibleNewCrisscrossCre;
+        internal ICollection<Crisscross> PossibleNewCrisscrossCre;
         AutoResetEvent BuildingNewCrisscrossARE;
 
         internal GoalChecker(ICollection<GoalPDDL> domainGoals, AutoResetEvent CheckingGoalRealizationARE, ConcurrentQueue<Crisscross> PossibleGoalRealization, object PossibleNewCrisscrossCreLocker, ICollection<Crisscross> PossibleNewCrisscrossCre, AutoResetEvent BuildingNewCrisscrossARE)
@@ -64,6 +64,7 @@ namespace SharpPDDL
                     if (GoalsReach.Any())
                     {
                         KeyValuePair<Crisscross, List<GoalPDDL>> ToRet = new KeyValuePair<Crisscross, List<GoalPDDL>>(possibleStatesCrisscross, GoalsReach);
+                        var t = possibleStatesCrisscross.Position();
                         this.foundSols?.Invoke(ToRet);
                         CurrentMinCumulativeCost = possibleStatesCrisscross.CumulativedTransitionCharge;
                     }

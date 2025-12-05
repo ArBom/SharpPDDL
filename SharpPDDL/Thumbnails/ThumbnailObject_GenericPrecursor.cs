@@ -17,11 +17,11 @@ namespace SharpPDDL
 
         internal override object OriginalObj => this._OriginalObj;
 
-        public ThumbnailObjectPrecursor(ThumbnailObject brokenEl)
+        public ThumbnailObjectPrecursor(ThumbnailObject thumbnailObject, bool IsBroken)
         {
-            this.Model = ((ThumbnailObjectPrecursor<TOriginalObj>)brokenEl.Precursor).Model;
+            this.Model = ((ThumbnailObjectPrecursor<TOriginalObj>)thumbnailObject.Precursor).Model;
             this.Parent = null;
-            this._OriginalObj = (TOriginalObj)brokenEl.Precursor.OriginalObj;
+            this._OriginalObj = (TOriginalObj)thumbnailObject.Precursor.OriginalObj;
             this.Dict = new Dictionary<ushort, ValueType>();
             //this.child = new List<ThumbnailObject>();
 
@@ -29,23 +29,30 @@ namespace SharpPDDL
             {
                 ValueType value;
 
-                if (VOT.IsField)
+                if (IsBroken)
                 {
-                    FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
+                    if (VOT.IsField)
+                    {
+                        FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
 
-                    if (myFieldInfo is null)
-                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
+                        if (myFieldInfo is null)
+                            myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
 
-                    value = (ValueType)myFieldInfo.GetValue(OriginalObj);
+                        value = (ValueType)myFieldInfo.GetValue(OriginalObj);
+                    }
+                    else
+                    {
+                        PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
+
+                        if (propertyInfo is null)
+                            propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
+
+                        value = (ValueType)propertyInfo.GetValue(OriginalObj);
+                    }
                 }
                 else
                 {
-                    PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
-
-                    if (propertyInfo is null)
-                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
-
-                    value = (ValueType)propertyInfo.GetValue(OriginalObj);
+                    value = thumbnailObject[VOT.ValueOfIndexesKey];
                 }
 
                 Dict.Add(VOT.ValueOfIndexesKey, value);
