@@ -207,6 +207,12 @@ namespace SharpPDDL
             PlanRealized?.Invoke();
         }
 
+        protected void RunNewImplementorTask (Task GoalToRealization)
+        {
+            ImplementorTask = GoalToRealization;
+            ImplementorTask.Start();
+        }
+
         internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, ICollection<GoalPDDL> RealizedGoals, CancellationToken CancellationDomein)
         {
             InternalCancelationPlanImplementor = new CancellationTokenSource();
@@ -217,11 +223,15 @@ namespace SharpPDDL
             Task NextGoalToRealization = new Task(actions, CancelationPlanImplementor);
 
             //Owner.CurrentState = ActionList.Last().Child.Content;
-
-            if (ImplementorTask?.Status != (TaskStatus.Canceled | TaskStatus.Faulted))
+            if (ImplementorTask is null)
             {
-                ImplementorTask = NextGoalToRealization;
-                ImplementorTask.Start();
+                RunNewImplementorTask(NextGoalToRealization);
+            }
+            else if (ImplementorTask.Status == TaskStatus.Canceled || 
+                     ImplementorTask.Status == TaskStatus.Faulted || 
+                     ImplementorTask.Status == TaskStatus.RanToCompletion)
+            {
+                RunNewImplementorTask(NextGoalToRealization);
             }
             else
             {

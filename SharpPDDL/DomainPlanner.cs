@@ -317,39 +317,52 @@ namespace SharpPDDL
             //CurrentBuilded = Transcribing.Result.NewRoot;
 
             Task Realizing = DomainExecutor.RealizeIt(FoKePo, Found.Value, CancellationDomein);
-            //CurrentBuilded.Dispose();
-            Realizing.Wait();
 
-            //internal fault
-            if (Realizing.IsFaulted)
+            //CurrentBuilded.Dispose();
+            try
             {
-                if (Realizing.Exception.InnerException is PrecondExecutionException)
+                Realizing.Wait();
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException?.InnerException is PrecondExecutionException)
                 {
                     List<ThumbnailObject> RefreshedThumbnails = new List<ThumbnailObject>(OneUnuseObjects);
                     OneUnuseObjects.Clear();
 
-                    /*foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
+                    foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
                     {
-                        ThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj) as ThumbnailObject;
+                        ThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj, true) as ThumbnailObject;
                         RefreshedThumbnails.Add(UpdatedThObj);
-                    }*/
+                    }
 
-                    /*CurrentBuilded = new Crisscross()
+                    CurrentBuilded = new Crisscross()
                     {
                         Content = new PossibleState(RefreshedThumbnails)
-                    };*/
+                    };
 
-                    var ToGoalCheck = new ConcurrentQueue<Crisscross>();
+                    ConcurrentQueue<Crisscross> ToGoalCheck = new ConcurrentQueue<Crisscross>();
                     ToGoalCheck.Enqueue(CurrentBuilded);
 
-                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null, null);
+                    SortedList<string, Crisscross> NewIndexedStates = new SortedList<string, Crisscross>
+                    {
+                        { CurrentBuilded.Content.CheckSum, CurrentBuilded }
+                    };
+
+                    if (CurrentBuilder.CrisscrossesGenerated is null)
+                        CurrentBuilder.CrisscrossesGenerated += AtAllStateGenerated;
+
+                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null, NewIndexedStates);
                     CurrentBuilder.ReStart();
+
+                    return;
                 }
                 else
-                    throw Realizing.Exception.InnerException;
+                    throw e.InnerException;
             }
+
             //Canceled
-            else if (Realizing.IsCanceled)
+            if (Realizing.IsCanceled)
             {
                 //TODO
             }
