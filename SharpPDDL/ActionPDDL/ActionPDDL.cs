@@ -335,13 +335,8 @@ namespace SharpPDDL
         #endregion
 
         #region Adding Execution
-        [Obsolete("This method is deprecated use AddExecution(string EffectName)", false)]
-        public void UseEffectAlsoAsExecution(string EffectName)
-        {
-            Trace.WriteLine("SharpPDDL: Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
-            GloCla.Tracer?.TraceEvent(TraceEventType.Warning, -1, "Method UseEffectAlsoAsExecution(string EffectName) is obsolete and it will be removed soon! Use AddExecution(string EffectName) method.");
-            AddExecution(EffectName);
-        }
+        [Obsolete("This method is deprecated use AddExecution(string EffectName)", true)]
+        public void UseEffectAlsoAsExecution(string EffectName) { }
         
         /// <summary>
         /// Use EffectPDDL also as execution
@@ -449,6 +444,9 @@ namespace SharpPDDL
                 Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ExpressionOfEffect = Effect.BuildEffectPDDP(allTypes, Parameters);
                 EffectExpressions.Add(ExpressionOfEffect);
             }
+
+            foreach (Parametr parametr in Parameters)
+                parametr.Build1ArgPrecondition();
 
             ActionLambdaPDDL actionLambdaPDDL = new ActionLambdaPDDL(Parameters, PrecondidionExpressions, EffectExpressions);
             InstantActionPDDL = actionLambdaPDDL.InstantFunct;

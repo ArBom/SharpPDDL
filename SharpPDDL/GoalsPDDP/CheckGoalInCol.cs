@@ -26,10 +26,11 @@ namespace SharpPDDL
 
             foreach (IGoalObject goalObject in Goal.GoalObjects)
             {
-                if (updatedOb.Content.ThumbnailObjects.Any(ThOb => (bool)goalObject.GoalPDDL.DynamicInvoke(ThOb)))
-                    continue;
-                else
-                    return false;
+                lock (updatedOb.Content.ThumbnailObjects)
+                    if (updatedOb.Content.ThumbnailObjects.Any(ThOb => (bool)goalObject.GoalPDDL.DynamicInvoke(ThOb)))
+                        continue;
+                    else
+                        return false;
             }
 
             return true;
@@ -37,10 +38,11 @@ namespace SharpPDDL
 
         private static bool CheckNewGoalsReachPossibility(PossibleState possibleState, GoalPDDL possibleGoal)
         {
-            foreach (var state in possibleState.ChangedThumbnailObjects)
-                foreach (var goalObj in possibleGoal.GoalObjects)
-                    if ((bool)goalObj.GoalPDDL.DynamicInvoke(state))
-                        return true;
+            lock (possibleState.ChangedThumbnailObjects)
+                foreach (var state in possibleState.ChangedThumbnailObjects)
+                    foreach (var goalObj in possibleGoal.GoalObjects)
+                        if ((bool)goalObj.GoalPDDL.DynamicInvoke(state))
+                            return true;
 
             return false;
         }

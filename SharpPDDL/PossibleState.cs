@@ -35,7 +35,9 @@ namespace SharpPDDL
             foreach (ThumbnailObject Change in ChangedThumbnailObjects)
             {
                 var index = ThumbnailObjects.FindIndex(TO => TO.OriginalObj == Change.OriginalObj);
-                ThumbnailObjects[index] = Change;
+
+                lock (ThumbnailObjects)
+                    ThumbnailObjects[index] = Change;
             }
 
             CheckSum = FigureCheckSum();
@@ -89,8 +91,12 @@ namespace SharpPDDL
                 if (this.ChangedThumbnailObjects.Any(ChThOb => ChThOb.OriginalObj.Equals(ChThOh.OriginalObj)))
                     continue;
 
-                this.ChangedThumbnailObjects.Add(ChThOh);
+                lock (this.ChangedThumbnailObjects)
+                    this.ChangedThumbnailObjects.Add(ChThOh);
+
                 int rIndex = this.ThumbnailObjects.FindIndex(TO => TO.OriginalObj.Equals(ChThOh.OriginalObj));
+
+                lock (ThumbnailObjects)
                 this.ThumbnailObjects[rIndex] = ChThOh;
             }
 

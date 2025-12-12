@@ -7,7 +7,6 @@ namespace SharpPDDL
     {
         private readonly ParameterExpression _parameter;
         private Expression FuncsExpressions;
-        internal Func<ThumbnailObject, bool> Func;
 
         public ParametrPreconditionLambda(BinaryExpression typeChEx)
         {
@@ -18,7 +17,7 @@ namespace SharpPDDL
 
         internal void AddPrecondition (Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> Preco)
         {
-            var f2 = Visit(Preco.Body);
+            Expression f2 = Visit(Preco.Body);
 
             if (FuncsExpressions is null)
                 FuncsExpressions = f2;
@@ -30,14 +29,16 @@ namespace SharpPDDL
 
         internal Func<ThumbnailObject, bool> BuildFunc()
         {
-           if (FuncsExpressions is null)
-           {
-               Func = TH => true;
-           }
-           else
-           {
-               Func = (Func<ThumbnailObject, bool>)Expression.Lambda(typeof(Func<ThumbnailObject, bool>), FuncsExpressions, _parameter).Compile();
-           }
+            Func<ThumbnailObject, bool> Func;
+
+            if (FuncsExpressions is null)
+            {
+                Func = TH => true;
+            }
+            else
+            {
+                Func = (Func<ThumbnailObject, bool>)Expression.Lambda(typeof(Func<ThumbnailObject, bool>), FuncsExpressions, _parameter).Compile();
+            }
 
             return Func;
         }

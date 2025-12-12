@@ -134,6 +134,12 @@ namespace SharpPDDL
             parametrPreconditionLambda = new ParametrPreconditionLambda(CheckType);
         }
 
+        internal void Build1ArgPrecondition()
+        {
+            Func = parametrPreconditionLambda.BuildFunc();
+            parametrPreconditionLambda = null;
+        }
+
         internal void RemoveUnuseValue()
         {
             values.RemoveAll(x => !x.IsInUse);

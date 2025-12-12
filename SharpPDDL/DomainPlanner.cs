@@ -369,7 +369,7 @@ namespace SharpPDDL
             //OK
             else
             {
-                //CurrentBuilded.Dispose();
+                CurrentBuilded.Dispose();
                 CurrentBuilded = Transcribing.Result.NewRoot;
                 CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
 

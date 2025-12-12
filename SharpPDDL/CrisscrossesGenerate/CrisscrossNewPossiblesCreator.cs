@@ -157,16 +157,19 @@ namespace SharpPDDL
 
                     for (int actionPos = 0; actionPos != Actions.Count(); actionPos++)
                     {
+                        IList<ThumbnailObject>[] possibleCha = new IList<ThumbnailObject>[Actions[actionPos].InstantActionParamCount];
                         IEnumerable<ThumbnailObject>[] possibleAll = new IEnumerable<ThumbnailObject>[Actions[actionPos].InstantActionParamCount];
-                        IEnumerable<ThumbnailObject>[] possibleCha = new IEnumerable<ThumbnailObject>[Actions[actionPos].InstantActionParamCount];
                         for (int i = 0; i != Actions[actionPos].InstantActionParamCount; i++)
                         {
-                            possibleCha[i] = stateToCheck.Content.ChangedThumbnailObjects.Where(Actions[actionPos].Parameters[i].parametrPreconditionLambda.BuildFunc());
-                            possibleAll[i] = stateToCheck.Content.ThumbnailObjects.Where(Actions[actionPos].Parameters[i].parametrPreconditionLambda.BuildFunc());
+                            lock (stateToCheck.Content.ChangedThumbnailObjects)
+                                possibleCha[i] = stateToCheck.Content.ChangedThumbnailObjects.Where(Actions[actionPos].Parameters[i].Func).ToList();
+
+                            possibleAll[i] = stateToCheck.Content.ThumbnailObjects.Where(Actions[actionPos].Parameters[i].Func);
                         }
 
-                        if (possibleAll.Any(p => !p.Any()))
-                            continue;
+                        lock (stateToCheck.Content.ThumbnailObjects)
+                            if (possibleAll.Any(p => !p.Any()))
+                                continue;
 
                         CheckTheOldPoss(actionPos, possibleCha);
 
@@ -176,16 +179,15 @@ namespace SharpPDDL
                         }
 
                         ThumbnailObject[] SetToCheck = new ThumbnailObject[Actions[actionPos].InstantActionParamCount];
-                        IList<ThumbnailObject>[] possibleNew = new IList<ThumbnailObject>[SetToCheck.Length];
                         IList<ThumbnailObject>[] possibleOld = new IList<ThumbnailObject>[SetToCheck.Length];
 
                         for (int i = 0; i != SetToCheck.Length; i++)
                         {
-                            possibleNew[i] = possibleCha[i].ToList().AsReadOnly();
-                            possibleOld[i] = possibleAll[i].Except(possibleNew[i]).ToList().AsReadOnly();
+                            lock (stateToCheck.Content.ThumbnailObjects)
+                                possibleOld[i] = possibleAll[i].Except(possibleCha[i]).ToList();
                         }
 
-                        CheckAllPos(actionPos, SetToCheck, 0, possibleOld, possibleNew, true);
+                        CheckAllPos(actionPos, SetToCheck, 0, possibleOld, possibleCha, true);
                     }
                 }
                 NoNewData.BeginInvoke(null, null);

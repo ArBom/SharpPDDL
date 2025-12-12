@@ -114,6 +114,9 @@ namespace SharpPDDL
 
             public int GetHashCode(Crisscross obj)
             {
+                if (obj.Content is null)
+                    return 0;
+
                 return obj.Content.CheckSum.GetHashCode();
             }
         }
@@ -206,10 +209,17 @@ namespace SharpPDDL
                 //Zmiana childrena
                 for (int i = 0; i != Annexed.AlternativeRoots[AnnAltRootI].Children.Count; i++)
                 {
-                    if (Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child.Equals(Annexed))
+                    try
                     {
-                        CrisscrossChildrenCon Updated = new CrisscrossChildrenCon(Annexed.AlternativeRoots[AnnAltRootI].Children[i], Incorporating);
-                        Annexed.AlternativeRoots[AnnAltRootI].Children[i] = Updated;
+                        if (Annexed.AlternativeRoots[AnnAltRootI].Children[i].Child.Equals(Annexed))
+                        {
+                            CrisscrossChildrenCon Updated = new CrisscrossChildrenCon(Annexed.AlternativeRoots[AnnAltRootI].Children[i], Incorporating);
+                            Annexed.AlternativeRoots[AnnAltRootI].Children[i] = Updated;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        int AO = 34;
                     }
                 }
 
@@ -291,7 +301,6 @@ namespace SharpPDDL
                 for (int i = this.Children.Count - 1; i != 0; i--)
                     Children[i].Child.Dispose();
 
-                Children.Clear();
                 Children = null;
             }
 
