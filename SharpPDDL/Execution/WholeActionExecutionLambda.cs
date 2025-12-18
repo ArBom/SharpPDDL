@@ -10,7 +10,7 @@ namespace SharpPDDL
     internal class WholeActionExecutionLambda : ExpressionVisitor
     {
         ObjectPDDL ActualObjectPDDL;
-        List<ParameterExpression> Parameters;
+        List<ParameterExpression> LambdaParameters;
         List<ParameterExpression> _parameters = new List<ParameterExpression>();
 
         internal readonly Delegate InstantExecutionPDDL;
@@ -113,7 +113,7 @@ namespace SharpPDDL
             else
                 NodeL = node.Body;
 
-            Parameters = node.Parameters.ToList();
+            LambdaParameters = node.Parameters.ToList();
 
             return Visit(NodeL);
         }
@@ -124,7 +124,20 @@ namespace SharpPDDL
 
             try
             {
-                int index = Parameters.FindIndex(p => p.Name == node.Name);
+                int index = LambdaParameters.FindIndex(p => p.Name == node.Name);
+
+                if (ActualObjectPDDL is EffectPDDL && ActualObjectPDDL.Elements.Length == 2)
+                {
+                    EffectPDDL ActualEffectPDDL = ActualObjectPDDL as EffectPDDL;
+                    if (ActualEffectPDDL.SourceFunc is LambdaExpression)
+                    {
+                        LambdaExpression lambdaExpression = ActualEffectPDDL.SourceFunc as LambdaExpression;
+                        if (lambdaExpression.Parameters.Count() == 1)
+                            index++;
+                    }
+                }
+
+
                 return _parameters[ActualObjectPDDL.Elements[index].AllParamsOfActClassPos.Value];
             }
             catch (ArgumentNullException)

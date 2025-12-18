@@ -12,7 +12,7 @@ namespace SharpPDDL
         readonly internal Expression DestinationMember;
 
         protected Expression _SourceFunc;
-        internal protected virtual Expression SourceFunc
+        public virtual Expression SourceFunc
         {
             get { return _SourceFunc; }
             protected set

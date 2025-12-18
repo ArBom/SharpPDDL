@@ -46,7 +46,7 @@ namespace SharpPDDL
                     //  continue;
 
                     //Avoid the loopping
-                    if (Chain_chainInd.Content.Equals(Chain_chainInd.Children[i].Child.Root.Content))
+                    if (Chain_chainInd.Content.Equals(Chain_chainInd.Children[i].Child.Root?.Content))
                     {
                         if (Chains.Count == chainInd + 1)
                             Chains.Add(new ChainStruct(null, 0));

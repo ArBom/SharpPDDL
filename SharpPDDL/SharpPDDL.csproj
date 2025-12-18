@@ -10,7 +10,7 @@
     <Authors>Arkadiusz Bomba</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.3.1.3</Version>
+    <Version>0.3.1.4</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -22,8 +22,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage></NeutralLanguage>
-    <AssemblyVersion>0.3.1.3</AssemblyVersion>
-    <FileVersion>0.3.1.3</FileVersion>
+    <AssemblyVersion>0.3.1.4</AssemblyVersion>
+    <FileVersion>0.3.1.4</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

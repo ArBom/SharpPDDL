@@ -199,10 +199,28 @@ namespace SharpPDDL
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method.IsStatic)
-                return node;
+            string MethodName = node.Method.Name;
 
-            string ExceptionMess = String.Format(GloCla.ResMan.GetString("C16"), node.Method.Name);
+            if (node.Method.IsStatic)
+            {
+                if (!node.Arguments.Any())
+                {
+                    string WarningArgMess = String.Format(GloCla.ResMan.GetString("W19"), MethodName);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 150, WarningArgMess);
+                }
+
+                if (node.Method.ReturnType == typeof(void))
+                {
+                    string WarningRetMess = String.Format(GloCla.ResMan.GetString("W20"), MethodName);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 151, WarningRetMess);
+                }
+
+                ReadOnlyCollection<Expression> ChangedArguments = Visit(node.Arguments);
+                MethodCallExpression ChangedMethod = Expression.Call(node.Method, ChangedArguments);
+                return ChangedMethod;
+            }
+
+            string ExceptionMess = String.Format(GloCla.ResMan.GetString("C16"), MethodName);
             GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 77, ExceptionMess);
             throw new Exception(ExceptionMess);
         }

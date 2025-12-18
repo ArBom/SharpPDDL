@@ -54,49 +54,33 @@ namespace SharpPDDL
         {
             OldParameters = node.Parameters;
             _parameters = VisitAndConvert<ParameterExpression>(node.Parameters, "VisitLambda");
+            List<ParameterExpression> parameters = _parameters.ToList<ParameterExpression>();
             int _parametersCount = _parameters.Count();
 
-            switch (_parameters.Count())
+            //Up to make 1-Parameters lambda
+            if (_parametersCount == 0)
             {
-                case 0:
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 118, GloCla.ResMan.GetString("W8"));
-
-                    List<ParameterExpression> parameters0 = new List<ParameterExpression>();
-                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "1"));
-                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "2"));
-                    parameters0.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
-                    _parameters = parameters0.AsReadOnly();
-
-                    break;
-
-                //nake 3-Parameters lambda from 1-Param lambda
-                case 1:
-                    List<ParameterExpression> parameters1 = _parameters.ToList<ParameterExpression>();
-                    parameters1.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "2"));
-                    parameters1.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
-                    _parameters = parameters1.AsReadOnly();
-
-                    break;
-
-                //nake 3-Parameters lambda from 2-Param lambda
-                case 2:
-                    List<ParameterExpression> parameters2 = _parameters.ToList<ParameterExpression>();
-                    parameters2.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
-                    _parameters = parameters2.AsReadOnly();
-
-                    break;
-
-                //do nothing it's max
-                case 3:                   
-                    break;
-
-                //It's bad
-                default:
-                    string ExceptionMess = String.Format(GloCla.ResMan.GetString("E33"));
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Error, 119, ExceptionMess);
-                    throw new Exception(ExceptionMess);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 118, GloCla.ResMan.GetString("W8"));
+                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "1"));
             }
 
+            //Up to make 2-Parameters lambda
+            if (_parametersCount < 2)
+                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "2"));
+
+            //Up to make 3-Parameters lambda
+            if (_parametersCount < 3)
+                parameters.Add(Expression.Parameter(typeof(ThumbnailObject), GloCla.EmptyName + "3"));
+
+            //To many Parameters. It's bad
+            if (_parametersCount > 3)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E33"));
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 119, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            _parameters = parameters.AsReadOnly();
             Expression PrecoLambdaBody = Visit(node.Body);
             ModifeidLambda = Expression.Lambda<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>(PrecoLambdaBody, _parameters);
 
@@ -151,7 +135,7 @@ namespace SharpPDDL
             //intersect
             SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type).First();
 
-            if(ParameterModel is null)
+            if (ParameterModel is null)
             {
                 throw new Exception();
             }
@@ -187,13 +171,34 @@ namespace SharpPDDL
                 Expression PrecursorAccessExpression = Expression.MakeMemberAccess(newParam, PrecursorPropertyInfo);
                 IndexAccessExpr = Expression.MakeIndex(PrecursorAccessExpression, TO_indekser, argument);
             }
-           
+
             //Convert above expression from ValueType to particular type of frontal value
             return Expression.Convert(IndexAccessExpr, node.Type);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node.Method.IsStatic)
+            {
+                string MethodName = node.Method.Name;
+
+                if (!node.Arguments.Any())
+                {
+                    string WarningArgMess = String.Format(GloCla.ResMan.GetString("W17"), MethodName);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 148, WarningArgMess);
+                }
+
+                if (node.Method.ReturnType == typeof(void))
+                {
+                    string WarningRetMess = String.Format(GloCla.ResMan.GetString("W18"), MethodName);
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 149, WarningRetMess);
+                }
+
+                ReadOnlyCollection<Expression> ChangedArguments = Visit(node.Arguments);
+                MethodCallExpression ChangedMethod = Expression.Call(node.Method, ChangedArguments);
+                return ChangedMethod;
+            }
+
             string ExceptionMess = String.Format(GloCla.ResMan.GetString("C39"), node.ToString());
             GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 121, ExceptionMess);
             throw new Exception(ExceptionMess);

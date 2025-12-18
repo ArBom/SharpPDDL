@@ -1366,11 +1366,47 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string W17 {
+            get {
+                return ResourceManager.GetString("W17", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string W18 {
+            get {
+                return ResourceManager.GetString("W18", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string W19 {
+            get {
+                return ResourceManager.GetString("W19", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu One of actions have no declared execution. SharpPDDL is trying realize plan without this action.
         /// </summary>
         internal static string W2 {
             get {
                 return ResourceManager.GetString("W2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// </summary>
+        internal static string W20 {
+            get {
+                return ResourceManager.GetString("W20", resourceCulture);
             }
         }
         

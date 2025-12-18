@@ -162,13 +162,13 @@ namespace SharpPDDL
         private void CheckingIfGenerateActionList(uint ActMinCumulativeCost)
         {
             //check if still exists cheaper state in pool
-            if (ActMinCumulativeCost >= CurrentBuilder.CheckCost())
-                return;
+            //if (ActMinCumulativeCost >= CurrentBuilder.CheckCost())
+              //  return;
 
             var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
             if (NOTIsFoundingChippest is null)
             {
-                currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
+                //currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
                 //TODO jakiś błąd tu program nie powinien wejść
                 return;
             }
@@ -184,7 +184,7 @@ namespace SharpPDDL
             Crisscross StateToHit = Solution.Value.Aggregate((curMin, v) => (curMin == null || (v.CumulativedTransitionCharge) < curMin.CumulativedTransitionCharge ? v : curMin));
 
             //Crisscross StateToHit = Solution.Value.Min(v => v.CumulativedTransitionCharge);
-            currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
+            //currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
 
             KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == StateToHit);
             //FoundedCrisscrosses.Clear();
@@ -369,7 +369,7 @@ namespace SharpPDDL
             //OK
             else
             {
-                CurrentBuilded.Dispose();
+                //CurrentBuilded.Dispose();
                 CurrentBuilded = Transcribing.Result.NewRoot;
                 CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
 

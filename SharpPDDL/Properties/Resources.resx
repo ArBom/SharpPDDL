@@ -697,9 +697,25 @@
     <value>Expectations for {1}-type object inside {0} the goal was defined previously. Redefinition / add new ones is ignored.</value>
     <comment>GoalPDDL; ;0-goal name, 1-repeated object's type</comment>
   </data>
+  <data name="W17" xml:space="preserve">
+    <value />
+    <comment>PreconditionLambdaPDDL;</comment>
+  </data>
+  <data name="W18" xml:space="preserve">
+    <value />
+    <comment>PreconditionLambdaPDDL;</comment>
+  </data>
+  <data name="W19" xml:space="preserve">
+    <value />
+    <comment>EffectLambdaPDDL;</comment>
+  </data>
   <data name="W2" xml:space="preserve">
     <value>One of actions have no declared execution. SharpPDDL is trying realize plan without this action</value>
     <comment>PlanImplementor;</comment>
+  </data>
+  <data name="W20" xml:space="preserve">
+    <value />
+    <comment>EffectLambdaPDDL;</comment>
   </data>
   <data name="W3" xml:space="preserve">
     <value>Added part of action sententia is empty.</value>
