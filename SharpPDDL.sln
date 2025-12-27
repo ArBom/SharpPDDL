@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "River crossing puzzle", "Ri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peg solitaire", "Peg solitaire\Peg solitaire.csproj", "{060948D4-DA38-406D-9B85-014C066E24F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "15 puzzle", "Examples\15 puzzle\15 puzzle.csproj", "{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
