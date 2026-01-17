@@ -1366,7 +1366,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} the function used in action precondition is no-argument function.
         /// </summary>
         internal static string W17 {
             get {
@@ -1375,7 +1375,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} the function used in action precondition do not return any value.
         /// </summary>
         internal static string W18 {
             get {
@@ -1384,7 +1384,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} the function used in action effect is no-argument function.
         /// </summary>
         internal static string W19 {
             get {
@@ -1402,7 +1402,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu .
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} the function used in action effect do not return any value.
         /// </summary>
         internal static string W20 {
             get {

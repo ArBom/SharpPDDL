@@ -8,22 +8,24 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <Company />
     <Authors>Arkadiusz Bomba</Authors>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>β
+- Optimization
+- Using the static methods as action parameter the feature</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.3.1.4</Version>
+    <Version>0.3.2</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
     <Description>Generic, multi-threading GOAP (Goal Oriented Action Planning) library based on λ-expressions processing.</Description>
-    <Copyright>Copyright © Arkadiusz Bomba 2025</Copyright>
+    <Copyright>Copyright © Arkadiusz Bomba 2025-2026</Copyright>
     <Win32Resource />
     <PackageIcon>SharpPDDL.png</PackageIcon>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage></NeutralLanguage>
-    <AssemblyVersion>0.3.1.4</AssemblyVersion>
-    <FileVersion>0.3.1.4</FileVersion>
+    <AssemblyVersion>0.3.2.0</AssemblyVersion>
+    <FileVersion>0.3.2.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
