@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{060948D4-DA38-406D-9B85-014C066E24F9}</ProjectGuid>
+    <ProjectGuid>{E8AEA702-3FFD-4A99-9834-DE8425F02218}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Peg_solitaire</RootNamespace>
-    <AssemblyName>Peg solitaire</AssemblyName>
+    <RootNamespace>River_crossing_puzzle</RootNamespace>
+    <AssemblyName>River crossing puzzle</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,8 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Board.cs" />
-    <Compile Include="Spot.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -52,7 +50,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpPDDL\SharpPDDL.csproj">
+    <ProjectReference Include="..\..\SharpPDDL\SharpPDDL.csproj">
       <Project>{ab77eead-3e0e-4ee8-906e-815e8e2ac5ed}</Project>
       <Name>SharpPDDL</Name>
     </ProjectReference>

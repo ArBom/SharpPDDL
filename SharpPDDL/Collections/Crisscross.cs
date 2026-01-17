@@ -147,6 +147,7 @@ namespace SharpPDDL
             if (this.Root == null)
                 return null;
 
+            //TODO ???
             var thisOfRoot = this.Root.Children.First(c => eqComp.Equals(c.Child, this));
             List<CrisscrossChildrenCon> ToRet = new List<CrisscrossChildrenCon>();
 

@@ -5,17 +5,17 @@ VisualStudioVersion = 15.0.28307.2092
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpPDDL", "SharpPDDL\SharpPDDL.csproj", "{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hanoi Tower", "Hanoi Tower\Hanoi Tower.csproj", "{84A703F4-697D-43E2-8EC8-828866F38B8D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Water pouring puzzle\Water pouring puzzle.csproj", "{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Travelling Salesman Problem", "Travelling Salesman Problem\Travelling Salesman Problem.csproj", "{FEF85876-0789-4FE0-A3B0-F60B997D6988}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "River crossing puzzle", "River crossing puzzle\River crossing puzzle.csproj", "{E8AEA702-3FFD-4A99-9834-DE8425F02218}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peg solitaire", "Peg solitaire\Peg solitaire.csproj", "{060948D4-DA38-406D-9B85-014C066E24F9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "15 puzzle", "Examples\15 puzzle\15 puzzle.csproj", "{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hanoi Tower", "Examples\Hanoi Tower\Hanoi Tower.csproj", "{84A703F4-697D-43E2-8EC8-828866F38B8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peg solitaire", "Examples\Peg solitaire\Peg solitaire.csproj", "{060948D4-DA38-406D-9B85-014C066E24F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "River crossing puzzle", "Examples\River crossing puzzle\River crossing puzzle.csproj", "{E8AEA702-3FFD-4A99-9834-DE8425F02218}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Travelling Salesman Problem", "Examples\Travelling Salesman Problem\Travelling Salesman Problem.csproj", "{FEF85876-0789-4FE0-A3B0-F60B997D6988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Examples\Water pouring puzzle\Water pouring puzzle.csproj", "{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,30 +27,30 @@ Global
 		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB77EEAD-3E0E-4EE8-906E-815E8E2AC5ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.Build.0 = Release|Any CPU
-		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF0DA1F4-38EA-42BB-8034-F5C2659D9182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84A703F4-697D-43E2-8EC8-828866F38B8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{060948D4-DA38-406D-9B85-014C066E24F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8AEA702-3FFD-4A99-9834-DE8425F02218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEF85876-0789-4FE0-A3B0-F60B997D6988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

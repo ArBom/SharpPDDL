@@ -50,7 +50,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpPDDL\SharpPDDL.csproj">
+    <ProjectReference Include="..\..\SharpPDDL\SharpPDDL.csproj">
       <Project>{ab77eead-3e0e-4ee8-906e-815e8e2ac5ed}</Project>
       <Name>SharpPDDL</Name>
     </ProjectReference>
