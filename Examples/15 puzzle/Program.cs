@@ -38,21 +38,20 @@ namespace _15_puzzle
 
         static void AddTileXGoal(int i)
         {
-            if (i < 16)
+            if (i < 15)
             {
                 GoalPDDL Tile1Goal = new GoalPDDL((i + 1).ToString());
 
                 for (int j = 0; j < i + 1; j++)
                     Tile1Goal.AddExpectedObjectState(ExpressionsOfXTile(j));
 
-                //GoalPDDL NextOne = ExpressionsOfXTile(i + 1);
-                GemPuzzleDomein.AddGoal(Tile1Goal);
                 Tile1Goal.GoalRealized += AddTileXGoal;
+                GemPuzzleDomein.AddGoal(Tile1Goal);
             }
         }
 
         static void Main(string[] args)
-        {        
+        {
             tiles.Add(new Tile(12, 0, 0));
             tiles.Add(new Tile(1, 1, 0));
             tiles.Add(new Tile(2, 2, 0));

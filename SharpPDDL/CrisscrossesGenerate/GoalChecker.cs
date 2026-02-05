@@ -40,8 +40,7 @@ namespace SharpPDDL
 
         internal void Start(CancellationToken cancellationToken)
         {
-            ICollection<GoalPDDL> domainGoals = new List<GoalPDDL>(this.domainGoals);
-            CheckingGoal = new Task(() => CheckGoalProces(domainGoals, cancellationToken));
+            CheckingGoal = new Task(() => CheckGoalProces(this.domainGoals, cancellationToken));
             CheckingGoal.Start();
         }
 
@@ -64,7 +63,6 @@ namespace SharpPDDL
                     if (GoalsReach.Any())
                     {
                         KeyValuePair<Crisscross, List<GoalPDDL>> ToRet = new KeyValuePair<Crisscross, List<GoalPDDL>>(possibleStatesCrisscross, GoalsReach);
-                        var t = possibleStatesCrisscross.Position();
                         this.foundSols?.Invoke(ToRet);
                         CurrentMinCumulativeCost = possibleStatesCrisscross.CumulativedTransitionCharge;
                     }
@@ -73,6 +71,8 @@ namespace SharpPDDL
                         CurrentMinCumulativeCost = possibleStatesCrisscross.CumulativedTransitionCharge;
                         CurrentMinCumulativeCostUpdate?.Invoke(CurrentMinCumulativeCost);
                     }
+                    else
+                        CurrentMinCumulativeCostUpdate?.Invoke(CurrentMinCumulativeCost);
 
                     if (!possibleStatesCrisscross.Children.Any())
                         lock (PossibleNewCrisscrossCreLocker)

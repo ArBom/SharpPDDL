@@ -39,6 +39,7 @@ namespace SharpPDDL
         {
             this.Owner = Owner;
             FoundSols += FoundSolsVoid;
+            currentMinCumulativeCostUpdate += CheckingIfGenerateActionList;
             CurrentBuilded = new Crisscross
             {
                 Content = Owner.CurrentState
@@ -154,24 +155,19 @@ namespace SharpPDDL
                 return;
 
             if (Found.Value.Any(G => G.goalPriority == GoalPriority.TopHihtPriority))
-            {
-                this.GenList(Found);
-            }
+                this.GoToCrisscrossAndReachGoals(Found);
         }
 
         private void CheckingIfGenerateActionList(uint ActMinCumulativeCost)
         {
             //check if still exists cheaper state in pool
-            //if (ActMinCumulativeCost >= CurrentBuilder.CheckCost())
-              //  return;
+            if (ActMinCumulativeCost < CurrentBuilder.CheckCost())
+                return;
 
             var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
-            if (NOTIsFoundingChippest is null)
-            {
-                //currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
-                //TODO jakiś błąd tu program nie powinien wejść
+            if (!NOTIsFoundingChippest.Any())
                 return;
-            }
+            
 
             var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.05 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
             if (!FoundedChipStates.Any())
@@ -183,19 +179,9 @@ namespace SharpPDDL
 
             Crisscross StateToHit = Solution.Value.Aggregate((curMin, v) => (curMin == null || (v.CumulativedTransitionCharge) < curMin.CumulativedTransitionCharge ? v : curMin));
 
-            //Crisscross StateToHit = Solution.Value.Min(v => v.CumulativedTransitionCharge);
-            //currentMinCumulativeCostUpdate -= CheckingIfGenerateActionList;
-
             KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == StateToHit);
-            //FoundedCrisscrosses.Clear();
 
-            //foreach (GoalPDDL goalPDDL in GenerList.Value)
-            //  Owner.domainGoals.Remove(goalPDDL);
-
-            GenList(GenerList);
-
-            for (int i = GenerList.Value.Count-1; i > 0; --i)
-                Owner.domainGoals.Remove(GenerList.Value[i]);
+            GoToCrisscrossAndReachGoals(GenerList);
         }
 
         private readonly object AtAllStateGeneratedLocker = new object();
@@ -226,7 +212,7 @@ namespace SharpPDDL
             {
                 int Mfounded = FoundedCrisscrosses.Max(K => K.Value.Count());
                 var Found = FoundedCrisscrosses.Where(K => K.Value.Count() == Mfounded).OrderBy(K => K.Key.CumulativedTransitionCharge).First();
-                GenList(Found);
+                GoToCrisscrossAndReachGoals(Found);
             }
 
             if (GloCla.Tracer is null)
@@ -284,98 +270,118 @@ namespace SharpPDDL
             FoundedGoals.Remove(toRem.Key);
         }
 
-        internal void GenList(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
+        private void RemoveGoals (ICollection<GoalPDDL> GoalsToRemmove)
         {
-            Crisscross state = CurrentBuilded;
-            List<CrisscrossChildrenCon> FoKePo = Found.Key.Position();
-
-            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 16, GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
-
-            if (FoKePo is null)
+            if (GoalsToRemmove is null)
                 return;
 
-            List<List<string>> Plan = new List<List<string>>();
+            if (!GoalsToRemmove.Any())
+                return;
 
-            for (int i = 0; i != FoKePo.Count; i++)
+            List<GoalPDDL> GoalsToRemmove2 = new List<GoalPDDL>(GoalsToRemmove);
+
+            //for every realized goal...
+            foreach (GoalPDDL goalPDDL in GoalsToRemmove2)
             {
-                ThumbnailObject[] arg = new ThumbnailObject[Owner.actions[FoKePo[i].ActionNr].InstantActionParamCount];
-
-                for (int j = 0; j != arg.Length; j++)
-                    arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(FoKePo[i].ActionArgOryg[j]));
-
-                Plan.Add(new List<string> { String.Format(GloCla.ResMan.GetString("Txt1"), Owner.actions[FoKePo[i].ActionNr].Name), (string)Owner.actions[FoKePo[i].ActionNr].InstantActionSententia.DynamicInvoke(arg), String.Format(GloCla.ResMan.GetString("Txt2"), FoKePo[i].ActionCost) });
-
-                state = FoKePo[i].Child;
-            }
-
-            PlanGeneratedInDomainPlanner?.Invoke(Plan);
-
-            Task Stopping = CurrentBuilder.Stop();
-            Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
-            Task.WaitAll(Stopping, Transcribing);
-
-            //CurrentBuilded = Transcribing.Result.NewRoot;
-
-            Task Realizing = DomainExecutor.RealizeIt(FoKePo, Found.Value, CancellationDomein);
-
-            //CurrentBuilded.Dispose();
-            try
-            {
-                Realizing.Wait();
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException?.InnerException is PrecondExecutionException)
+                //...check every GoalObject of its
+                foreach (IGoalObject goalObject in goalPDDL.GoalObjects)
                 {
-                    List<ThumbnailObject> RefreshedThumbnails = new List<ThumbnailObject>(OneUnuseObjects);
-                    OneUnuseObjects.Clear();
+                    //ignore if its not migrate
+                    if (!goalObject.MigrateIntheEnd)
+                        continue;
 
-                    foreach (ThumbnailObject UsedThObj in CurrentBuilded.Content.ThumbnailObjects)
+                    //ignore if its removed early
+                    if (!Owner.domainObjects.Contains(goalObject.OriginalObj))
+                        continue;
+
+                    //move oryginal obj. to new domain if its needed
+                    if (!(goalObject.NewPDDLdomain is null))
+                        goalObject.NewPDDLdomain.domainObjects.Add(goalObject.OriginalObj);
+
+                    //remove it from here
+                    Owner.domainObjects.Remove(goalObject.OriginalObj);
+                }
+
+                RemoveFoundedGoal(goalPDDL);
+                Owner.domainGoals.Remove(goalPDDL);
+                goalPDDL.GoalRealized?.Invoke(goalPDDL, null);
+            }
+        }
+
+        private void GoToCrisscrossAndReachGoals(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
+        {
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 16, GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
+
+            //zatrzymanie generatora
+            Task Stopping = CurrentBuilder.Stop();
+
+            List<CrisscrossChildrenCon> FoKePo = Found.Key.Position();
+
+            //do it if ...
+            if (FoKePo.Any())
+            {
+                //jeśli trzeba to info o planie
+                if (!(PlanGeneratedInDomainPlanner is null))
+                {
+                    List<List<string>> Plan = new List<List<string>>();
+                    Crisscross state = CurrentBuilded;
+
+                    for (int i = 0; i != FoKePo.Count; i++)
                     {
-                        ThumbnailObject UpdatedThObj = new ThumbnailObjectPrecursor<object>(UsedThObj, true) as ThumbnailObject;
-                        RefreshedThumbnails.Add(UpdatedThObj);
+                        CrisscrossChildrenCon CCCOfLoop = FoKePo[i];
+                        ThumbnailObject[] arg = new ThumbnailObject[Owner.actions[CCCOfLoop.ActionNr].InstantActionParamCount];
+
+                        for (int j = 0; j != arg.Length; j++)
+                            arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(CCCOfLoop.ActionArgOryg[j]));
+
+                        Plan.Add(new List<string>
+                        {
+                            String.Format(GloCla.ResMan.GetString("Txt1"),
+                            Owner.actions[CCCOfLoop.ActionNr].Name),
+                            (string)Owner.actions[CCCOfLoop.ActionNr].InstantActionSententia.DynamicInvoke(arg),
+                            String.Format(GloCla.ResMan.GetString("Txt2"), CCCOfLoop.ActionCost)
+                        });
+
+                        state = CCCOfLoop.Child;
                     }
 
-                    CurrentBuilded = new Crisscross()
-                    {
-                        Content = new PossibleState(RefreshedThumbnails)
-                    };
-
-                    ConcurrentQueue<Crisscross> ToGoalCheck = new ConcurrentQueue<Crisscross>();
-                    ToGoalCheck.Enqueue(CurrentBuilded);
-
-                    SortedList<string, Crisscross> NewIndexedStates = new SortedList<string, Crisscross>
-                    {
-                        { CurrentBuilded.Content.CheckSum, CurrentBuilded }
-                    };
-
-                    if (CurrentBuilder.CrisscrossesGenerated is null)
-                        CurrentBuilder.CrisscrossesGenerated += AtAllStateGenerated;
-
-                    CurrentBuilder.InitBuffors(ToGoalCheck, null, null, NewIndexedStates);
-                    CurrentBuilder.ReStart();
-
-                    return;
+                    PlanGeneratedInDomainPlanner?.Invoke(Plan);
                 }
-                else
-                    throw e.InnerException;
+
+                Stopping.Wait();
+                Task Realizing = DomainExecutor.RealizeIt(FoKePo, CancellationDomein);
+                Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
+                Task.WaitAny(new Task[] { Realizing, Transcribing }, ExternalCancellationDomein);
+                
+                if (ExternalCancellationDomein.IsCancellationRequested)
+                {
+                    //CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+                }
+                else if (Realizing.IsCompleted)
+                {
+                    Transcribing.Wait(5000);
+                    CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+                }
+                else if (Transcribing.IsCompleted)
+                {
+                    CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+                    //zaczęcie generowania nowych stanów
+
+                    Realizing.Wait();
+
+                    //zaprzestanie generowania nowych stanów
+                }
+
+                CurrentBuilded = Transcribing.Result.NewRoot;// FoKePo.Last().Child;
             }
 
-            //Canceled
-            if (Realizing.IsCanceled)
-            {
-                //TODO
-            }
-            //OK
-            else
-            {
-                //CurrentBuilded.Dispose();
-                CurrentBuilded = Transcribing.Result.NewRoot;
-                CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+            RemoveGoals(Found.Value);
 
-                if(Owner.domainGoals.Except(Found.Value).Any())
-                  CurrentBuilder.ReStart();
-            }
+            Stopping.Wait();
+            if (Owner.domainGoals.Any())
+                CurrentBuilder.ReStart();
+
+            //komunikat o wyjściu z funkcji
         }
     }
 }

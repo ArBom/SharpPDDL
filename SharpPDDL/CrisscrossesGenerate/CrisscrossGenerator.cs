@@ -79,8 +79,7 @@ namespace SharpPDDL
 
         internal void InitBuffors (IEnumerable<Crisscross> PossibleGoalRealization, IEnumerable<Crisscross> PossibleNewCrisscrossCre, IEnumerable<Crisscross> PossibleToCrisscrossReduce, SortedList<string, Crisscross> NewIndexedStates)
         {
-            if (this.PossibleGoalRealization is null)
-                this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
+            this.PossibleGoalRealization = new ConcurrentQueue<Crisscross>();
 
             if (!(PossibleGoalRealization is null))
                 foreach (Crisscross c in PossibleGoalRealization)
@@ -131,6 +130,7 @@ namespace SharpPDDL
             this.crisscrossReducer = new CrisscrossReducer(CurrentBuilded, ReducingCrisscrossARE, PossibleToCrisscrossReduce, CrisscrossReduceLocker, PossibleGoalRealization, CheckingGoalRealizationARE);
 
             goalChecker.foundSols = foundSols;
+            goalChecker.CurrentMinCumulativeCostUpdate = currentMinCumulativeCostUpdate;
             goalChecker.NoNewData = NoNewDataCheck;
             crisscrossReducer.NoNewData = NoNewDataCheck;
             crisscrossNewPossiblesCreator.NoNewData = NoNewDataCheck;

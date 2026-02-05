@@ -93,7 +93,7 @@ namespace SharpPDDL
                 {
                     try
                     {
-                        var t = actions[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg);
+                        actions[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg);
                     }
                     catch (Exception exception)
                     {
@@ -129,7 +129,7 @@ namespace SharpPDDL
                 actions[Act.ActionNr].DynamicInvoke(Act);
         }
 
-        protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, ICollection<GoalPDDL> RealizedGoals, CancellationToken CancelationPlanImplementor)
+        protected void ActionListRealize(List<CrisscrossChildrenCon> ActionList, CancellationToken CancelationPlanImplementor)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 22, GloCla.ResMan.GetString("Sa2"));
 
@@ -169,40 +169,9 @@ namespace SharpPDDL
                 ExecuteTheAction(Act, CancelationPlanImplementor);
             }
 
-            //List<GoalPDDL> RealizedGoals = Owner.DomainPlanner.RemoveRealizedGoalsOfCrisscross(Act.Child);
-            if (!(RealizedGoals is null))
-            {
-                ICollection<GoalPDDL> RealizedGoalsC = new List<GoalPDDL>(RealizedGoals);
 
-                //for every realized goal...
-                foreach (GoalPDDL goalPDDL in RealizedGoalsC)
-                {
-                    //...check every GoalObject of its
-                    foreach (IGoalObject goalObject in goalPDDL.GoalObjects)
-                    {
-                        //ignore if its not migrate
-                        if (!goalObject.MigrateIntheEnd)
-                            continue;
 
-                        //ignore if its removed early
-                        if (!domainObjects.Contains(goalObject.OriginalObj))
-                            continue;
-
-                        //move oryginal obj. to new domain if its needed
-                        if (!(goalObject.NewPDDLdomain is null))
-                            goalObject.NewPDDLdomain.domainObjects.Add(goalObject.OriginalObj);
-
-                        //remove it from here
-                        domainObjects.Remove(goalObject.OriginalObj);
-                    }
-
-                    domainGoals.Remove(goalPDDL);
-                    goalPDDL.GoalRealized?.DynamicInvoke(goalPDDL, null);
-                }
-            }
-
-            //Owner.CurrentState = Act.Child.Content;
-
+  
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
             PlanRealized?.Invoke();
         }
@@ -213,16 +182,15 @@ namespace SharpPDDL
             ImplementorTask.Start();
         }
 
-        internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, ICollection<GoalPDDL> RealizedGoals, CancellationToken CancellationDomein)
+        internal Task RealizeIt(List<CrisscrossChildrenCon> ActionList, CancellationToken CancellationDomein)
         {
             InternalCancelationPlanImplementor = new CancellationTokenSource();
             CancellationToken CancelationPlanImplementor = CancellationTokenSource.CreateLinkedTokenSource(CancellationDomein, InternalCancelationPlanImplementor.Token).Token;
 
-            void actions() => ActionListRealize(ActionList, RealizedGoals, CancelationPlanImplementor);
+            void actions() => ActionListRealize(ActionList, CancelationPlanImplementor);
 
             Task NextGoalToRealization = new Task(actions, CancelationPlanImplementor);
 
-            //Owner.CurrentState = ActionList.Last().Child.Content;
             if (ImplementorTask is null)
             {
                 RunNewImplementorTask(NextGoalToRealization);
@@ -235,7 +203,8 @@ namespace SharpPDDL
             }
             else
             {
-                //ImplementorTask.ContinueWith(NextGoalToRealization);
+                ImplementorTask.Wait();
+                RunNewImplementorTask(NextGoalToRealization);
             }
 
             return NextGoalToRealization;

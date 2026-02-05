@@ -144,14 +144,12 @@ namespace SharpPDDL
 
         public List<CrisscrossChildrenCon> Position()
         {
-            if (this.Root == null)
-                return null;
-
-            //TODO ???
-            var thisOfRoot = this.Root.Children.First(c => eqComp.Equals(c.Child, this));
             List<CrisscrossChildrenCon> ToRet = new List<CrisscrossChildrenCon>();
 
-            return Position(ToRet);
+            if (this.Root is null)
+                return ToRet;
+            else
+                return Position(ToRet);
         }
 
         private void MoveNodesToList(Crisscross node, List<PossibleState> resultList)
@@ -216,6 +214,7 @@ namespace SharpPDDL
                         {
                             CrisscrossChildrenCon Updated = new CrisscrossChildrenCon(Annexed.AlternativeRoots[AnnAltRootI].Children[i], Incorporating);
                             Annexed.AlternativeRoots[AnnAltRootI].Children[i] = Updated;
+                            break;
                         }
                     }
                     catch (Exception e)
