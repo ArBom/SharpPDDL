@@ -4,14 +4,14 @@
     {
         internal readonly Crisscross Child;
         internal readonly int ActionNr;
-        internal readonly object[] ActionArgOryg;
+        internal readonly ThumbnailObject[] ActionArgThOb;
         internal readonly uint ActionCost;
 
-        internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, object[] ActionArgOryg, uint ActionCost)
+        internal CrisscrossChildrenCon(Crisscross Child, int ActionNr, ThumbnailObject[] ActionArgThOb, uint ActionCost)
         {
             this.Child = Child;
             this.ActionNr = ActionNr;
-            this.ActionArgOryg = ActionArgOryg;
+            this.ActionArgThOb = ActionArgThOb;
             this.ActionCost = ActionCost;
         }
 
@@ -19,8 +19,18 @@
         {
             this.Child = Update;
             this.ActionNr = OldOne.ActionNr;
-            this.ActionArgOryg = OldOne.ActionArgOryg;
+            this.ActionArgThOb = OldOne.ActionArgThOb;
             this.ActionCost = OldOne.ActionCost;
+        }
+
+        internal object[] ActionArgOryg()
+        {
+            object[] ToRet = new object[ActionArgThOb.Length];
+
+            for (int i = 0; i != ActionArgThOb.Length; i++)
+                ToRet[i] = ActionArgThOb[i].OriginalObj;
+
+            return ToRet;
         }
     }
 }

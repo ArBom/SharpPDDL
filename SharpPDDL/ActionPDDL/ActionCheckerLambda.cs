@@ -23,9 +23,10 @@ namespace SharpPDDL
             ConstantExpression TrueExp = Expression.Constant(true, typeof(bool));
             ConstantExpression FalseExp = Expression.Constant(false, typeof(bool));
 
-            Expression[] EffectsArray = new Expression[Effects.Count + 3];
+            Expression[] EffectsArray = new Expression[Effects.Count + 4];
 
-            ParameterExpression ef = Expression.Parameter(typeof(bool), "IsOK");
+            ParameterExpression InteriorParamIsOK = Expression.Parameter(typeof(bool), "IsOK");
+            ParameterExpression InteriorParamObjs = Expression.Parameter(typeof(object[]), "Objs");
 
             FieldInfo TracerF = typeof(GloCla).GetField("Tracer",
                 BindingFlags.NonPublic |
@@ -45,11 +46,9 @@ namespace SharpPDDL
                 BindingFlags.GetField |
                 BindingFlags.Static);
 
-            FieldInfo ActionArgOrygF = typeof(CrisscrossChildrenCon).GetField("ActionArgOryg",
+            MethodInfo ActionArgOrygM = typeof(CrisscrossChildrenCon).GetMethod("ActionArgOryg",
                 BindingFlags.NonPublic |
-                BindingFlags.Instance |
-                BindingFlags.GetField |
-                BindingFlags.Static);
+                BindingFlags.Instance);                
 
             FieldInfo ContentF = typeof(Crisscross).GetField("Content");
 
@@ -64,7 +63,6 @@ namespace SharpPDDL
             MethodInfo ItemOfPSTO = typeof(ThumbnailObject).GetMethod("get_Item", new Type[] { typeof(UInt16) });
 
             MethodInfo VTTostring = typeof(ValueType).GetMethod("ToString", new Type[] { });
-
 
             MethodInfo TraceEventMethod = typeof(TraceSource).GetMethod("TraceEvent", new Type[]{typeof(TraceEventType), typeof(int), typeof(string), typeof(object[])});
             MethodInfo GetString = typeof(ResourceManager).GetMethod("GetString", new Type[] { typeof(string) });
@@ -88,8 +86,8 @@ namespace SharpPDDL
             //input.Child.Content.ThumbnailObjects
             MemberExpression ThumbnailObjectsExp = Expression.Field(ContentExp, ThumbnailObjectsF);
 
-            //input.ActionArgOryg
-            Expression ActionArgOrygExp = Expression.Field(Input_parameter, ActionArgOrygF);
+            //input.ActionArgOryg()
+            Expression ActionArgOrygMExp = Expression.Call(Input_parameter, ActionArgOrygM);
 
             //Wrong assignation of value used in Precondition
             ConstantExpression ErrorExp = Expression.Constant(TraceEventType.Error, typeof(TraceEventType));
@@ -122,8 +120,9 @@ namespace SharpPDDL
             ParameterExpression parameter = Expression.Parameter(typeof(ThumbnailObject), "invoice");
             //MemberExpression memberExpressionList = Expression.MakeMemberAccess(parameter, ChildList);
 
-            EffectsArray[0] = Expression.Assign(ef, TrueExp);
-            var AssignFalse = Expression.Assign(ef, FalseExp);
+            EffectsArray[0] = Expression.Assign(InteriorParamIsOK, TrueExp);
+            EffectsArray[1] = Expression.Assign(InteriorParamObjs, ActionArgOrygMExp);
+            BinaryExpression AssignFalse = Expression.Assign(InteriorParamIsOK, FalseExp);
 
             for (int EfC = 0; EfC != Effects.Count; EfC++)
             {
@@ -137,7 +136,7 @@ namespace SharpPDDL
                 int DestParamNo = CurrentEffectPDDL.Elements[0].AllParamsOfActClassPos.Value;
                 ConstantExpression DestParamNoExp = Expression.Constant(DestParamNo, typeof(int));
 
-                BinaryExpression arrayAccessExpr = Expression.ArrayIndex(ActionArgOrygExp, DestParamNoExp);
+                BinaryExpression arrayAccessExpr = Expression.ArrayIndex(InteriorParamObjs, DestParamNoExp);
                 Expression ConvertedArrayAccessExpr = Expression.Convert(arrayAccessExpr, CurrentEffectPDDL.Elements[0].TypeOfClass);
 
                 //Gdzie zapisywana jest wartość value    
@@ -197,13 +196,13 @@ namespace SharpPDDL
                 }
 
                 Expression expression = Expression.IfThen(Test, IfNotEqual);
-                EffectsArray[EfC + 1] = expression;
+                EffectsArray[EfC + 2] = expression;
             }
 
-            EffectsArray[EffectsArray.Length - 2] = Expression.Return(retLabel, ef);
+            EffectsArray[EffectsArray.Length - 2] = Expression.Return(retLabel, InteriorParamIsOK);
             EffectsArray[EffectsArray.Length - 1] = Expression.Label(retLabel, FalseExp);
 
-            BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ parameter, ef }, EffectsArray);
+            BlockExpression CheckingBlock = Expression.Block(new ParameterExpression[]{ parameter, InteriorParamIsOK, InteriorParamObjs }, EffectsArray);
 
             LambdaExpression WholeLambda = Expression.Lambda(CheckingBlock, Input_parameter);
             Delegate DelRes;

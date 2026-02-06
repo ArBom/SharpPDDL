@@ -9,10 +9,10 @@ namespace SharpPDDL
 {
     internal class Executor
     {
-        private IReadOnlyList<Delegate> actions;
+        private readonly IReadOnlyList<Delegate> actions;
         private readonly ImplementorUpdater ImplementorUpdate;
-        private ICollection<object> domainObjects;
-        private ICollection<GoalPDDL> domainGoals;
+        private readonly ICollection<object> domainObjects;
+        private readonly ICollection<GoalPDDL> domainGoals;
 
         internal Action PlanRealized;
         internal CancellationTokenSource InternalCancelationPlanImplementor;
@@ -62,7 +62,7 @@ namespace SharpPDDL
             if (actions[Act.ActionNr].Method.Name.StartsWith(GloCla.SpecialFuncPrefix) && (ImplementorUpdate.PlanImplementor_Agrees & ExecutionAgrees.SpecialAction) != 0)
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 30, GloCla.ResMan.GetString("V5"), actions[Act.ActionNr].Method.Name.Substring(1));
-                ImplementorUpdate.SignalizeNeedAcception?.Invoke(actions[Act.ActionNr].Method.Name.Substring(1), Act.ActionArgOryg);
+                ImplementorUpdate.SignalizeNeedAcception?.Invoke(actions[Act.ActionNr].Method.Name.Substring(1), Act.ActionArgOryg());
 
                 if (ImplementorUpdate.WaitOn is null)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 128, GloCla.ResMan.GetString("C42"), actions[Act.ActionNr].Method.Name.Substring(1));
@@ -73,7 +73,7 @@ namespace SharpPDDL
             else if ((ImplementorUpdate.PlanImplementor_Agrees & ExecutionAgrees.EveryAction) != 0)
             {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 31, GloCla.ResMan.GetString("V6"), actions[Act.ActionNr].Method.Name);
-                ImplementorUpdate.SignalizeNeedAcception?.Invoke(actions[Act.ActionNr].Method.Name, Act.ActionArgOryg);
+                ImplementorUpdate.SignalizeNeedAcception?.Invoke(actions[Act.ActionNr].Method.Name, Act.ActionArgOryg());
 
                 if (ImplementorUpdate.WaitOn is null)
                     GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 129, GloCla.ResMan.GetString("C43"), actions[Act.ActionNr].Method.Name.Substring(1));
@@ -93,7 +93,7 @@ namespace SharpPDDL
                 {
                     try
                     {
-                        actions[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg);
+                        actions[Act.ActionNr].DynamicInvoke(Act.ActionArgOryg());
                     }
                     catch (Exception exception)
                     {

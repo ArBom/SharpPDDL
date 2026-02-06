@@ -87,18 +87,16 @@ namespace SharpPDDL
 
                         var ResultOfCheckasList = (List<List<KeyValuePair<ushort, ValueType>>>)ResultOfCheck;
                         var ChangedThObs = new List<ThumbnailObject>();
-                        object[] ActionArg = new object[SetToCheck.Length];
 
                         for (int j = 0; j < SetToCheck.Length; j++)
                         {
                             var ChangedThumbnailObject = SetToCheck[j].CreateChild(ResultOfCheckasList[j]);
                             ChangedThObs.Add(ChangedThumbnailObject);
-                            ActionArg[j] = SetToCheck[j].OriginalObj;
                         }
 
                         PossibleState newPossibleState = new PossibleState(stateToCheck.Content, ChangedThObs);
                         uint ActionCost = (uint)Actions[actionPos].actionCost.CostExpressionFunc.DynamicInvoke(SetToCheck);
-                        stateToCheck.Add(newPossibleState, actionPos, ActionArg, ActionCost, out Crisscross AddedItem);
+                        stateToCheck.Add(newPossibleState, actionPos, SetToCheck, ActionCost, out Crisscross AddedItem);
 
                         lock (CrisscrossReduceLocker)
                         {

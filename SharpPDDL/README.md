@@ -30,6 +30,7 @@ Include the library namespace with `using SharpPDDL`.
 > **TIP**
 > First use of it could seems a little unintuitive. Get familiar with ready examples.
 
+* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/865085abb562307d51c8ee0ff1f0a9dec73443df/Examples/15%20puzzle)
 * [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/River%20crossing%20puzzle)
 * [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Hanoi%20Tower)
 * [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Travelling%20Salesman%20Problem)

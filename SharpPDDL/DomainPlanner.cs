@@ -11,14 +11,6 @@ namespace SharpPDDL
     public delegate void ListOfString(List<List<string>> planGenerated);
 
     internal class DomainPlanner
-
-    //       |￣￣￣￣￣￣￣￣|
-    //       |Clean the mess!|
-    //       |＿＿＿＿＿＿＿＿|
-    //       (\__/) ||
-    //       (•ㅅ•) ||
-    //        /   づ
-
     {
         protected Dictionary<FoungingGoalDetail, SortedSet<Crisscross>> FoundedGoals;
         protected Dictionary<Crisscross, List<GoalPDDL>> FoundedCrisscrosses;
@@ -329,10 +321,7 @@ namespace SharpPDDL
                     for (int i = 0; i != FoKePo.Count; i++)
                     {
                         CrisscrossChildrenCon CCCOfLoop = FoKePo[i];
-                        ThumbnailObject[] arg = new ThumbnailObject[Owner.actions[CCCOfLoop.ActionNr].InstantActionParamCount];
-
-                        for (int j = 0; j != arg.Length; j++)
-                            arg[j] = state.Content.ThumbnailObjects.First(ThOb => ThOb.OriginalObj.Equals(CCCOfLoop.ActionArgOryg[j]));
+                        ThumbnailObject[] arg = CCCOfLoop.ActionArgThOb;
 
                         Plan.Add(new List<string>
                         {

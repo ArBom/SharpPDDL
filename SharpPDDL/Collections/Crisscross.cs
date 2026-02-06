@@ -27,9 +27,9 @@ namespace SharpPDDL
                 eqComp = new EqComp();
         }
 
-        public void Add(PossibleState item) => this.Add(item, 0, new object[0], 1, out Crisscross C);
+        public void Add(PossibleState item) => this.Add(item, 0, new ThumbnailObject[0], 1, out Crisscross C);
 
-        public void Add(PossibleState item, int ActionNr, object[] ActionArg, UInt32 AddedTransitionCharge, out Crisscross AddedItem)
+        public void Add(PossibleState item, int ActionNr, ICollection<ThumbnailObject> ActionArg, UInt32 AddedTransitionCharge, out Crisscross AddedItem)
         {
             AddedItem = new Crisscross()
             {
@@ -38,8 +38,10 @@ namespace SharpPDDL
                 CumulativedTransitionCharge = this.CumulativedTransitionCharge + AddedTransitionCharge
             };
 
+            ThumbnailObject[] ActionArgT = ActionArg.ToArray();
+
             lock (Children)
-                this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArg, AddedTransitionCharge));
+                this.Children.Add(new CrisscrossChildrenCon(AddedItem, ActionNr, ActionArgT, AddedTransitionCharge));
         }
 
         public Crisscross this[int key]
