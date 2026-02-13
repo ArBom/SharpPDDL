@@ -201,8 +201,10 @@ namespace SharpPDDL
                     GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
                 });
 
-                Stopping?.Start();
+                if (Stopping is null)
+                    return Task.CompletedTask;
 
+                Stopping.Start();
                 return Stopping;
         }
 

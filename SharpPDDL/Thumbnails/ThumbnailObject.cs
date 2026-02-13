@@ -48,9 +48,12 @@ namespace SharpPDDL
             if (!this.OriginalObj.Equals(With.OriginalObj))
                 return false;
 
-            for (ushort arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
+            if (!this.CheckSum.SequenceEqual(With.CheckSum))
+                return false;
+
+            /*for (ushort arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
                 if (!this[ValuesIndeksesKeys[arrayCounter]].Equals(With[ValuesIndeksesKeys[arrayCounter]]))
-                    return false;
+                    return false;*/
 
             return true;
         }

@@ -130,7 +130,7 @@ namespace SharpPDDL
                         if (UntilNowOnlyOld)
                             if (SetToCheck.Length == currentIndex + 1)
                             {
-                                //return;
+                                return; //tutaj
                             }
 
                         newone = possibleOld[currentIndex].Except(ToRemove);
@@ -146,11 +146,36 @@ namespace SharpPDDL
                         }
                     }
 
-                    void CheckTheOldPoss(int actionPos, IEnumerable<ThumbnailObject>[] possibleCha)
+                    void CheckTheOldPoss(int actionPos, IList<ThumbnailObject>[] possibleOld)
                     {
-                        if (stateToCheck.Root is null)
+                        if (!possibleOld.All(p => p.Any()))
                             return;
-                        //stateToCheck.Root.Children
+
+                        IList<CrisscrossChildrenCon> RootChild;
+                        int actionArgC = Actions[actionPos].InstantActionParamCount;
+                        bool TheSame;
+
+                        lock (stateToCheck.Root.Children)
+                        {
+                            RootChild = stateToCheck.Root.Children.Where(c => c.ActionNr == actionPos).ToList();
+                        }
+
+                        foreach (CrisscrossChildrenCon CCC in RootChild)
+                        {
+                            TheSame = true;
+
+                            for (int i = 0; i != actionArgC; i++)
+                                if (!possibleOld[i].Any(TO => TO.Compare(CCC.ActionArgThOb[i])))
+                                {
+                                    TheSame = false;
+                                    break;
+                                }
+
+                            if (!TheSame)
+                                continue;
+
+                            TryActionPossibility(CCC.ActionArgThOb, actionPos);
+                        }
                     }
 
                     for (int actionPos = 0; actionPos != Actions.Count(); actionPos++)
@@ -169,21 +194,17 @@ namespace SharpPDDL
                             if (possibleAll.Any(p => !p.Any()))
                                 continue;
 
-                        CheckTheOldPoss(actionPos, possibleCha);
-
-                        if (possibleCha.All(p => !p.Any()))
-                        {
-                            //tylko sprawdzenie poprzednich i wyjście
-                        }
-
                         ThumbnailObject[] SetToCheck = new ThumbnailObject[Actions[actionPos].InstantActionParamCount];
                         IList<ThumbnailObject>[] possibleOld = new IList<ThumbnailObject>[SetToCheck.Length];
 
                         for (int i = 0; i != SetToCheck.Length; i++)
-                        {
                             lock (stateToCheck.Content.ThumbnailObjects)
                                 possibleOld[i] = possibleAll[i].Except(possibleCha[i]).ToList();
-                        }
+
+                        CheckTheOldPoss(actionPos, possibleOld);
+
+                        if (possibleCha.All(p => !p.Any()))
+                            continue; //tutaj
 
                         CheckAllPos(actionPos, SetToCheck, 0, possibleOld, possibleCha, true);
                     }

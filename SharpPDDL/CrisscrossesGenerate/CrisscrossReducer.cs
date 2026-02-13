@@ -136,12 +136,16 @@ namespace SharpPDDL
 
                     try
                     {
-                        IndexedStates.Add(possibleToCrisscrossReduce.Content.CheckSum, possibleToCrisscrossReduce);
+                        lock(IndexedStates)
+                            IndexedStates.Add(possibleToCrisscrossReduce.Content.CheckSum, possibleToCrisscrossReduce);
                     }
                     catch { }
 
-                    PossibleGoalRealization?.Enqueue(possibleToCrisscrossReduce);
-                    CheckingGoalRealizationARE.Set();
+                    if (!(PossibleGoalRealization is null))
+                    {
+                        PossibleGoalRealization.Enqueue(possibleToCrisscrossReduce);
+                        CheckingGoalRealizationARE.Set();
+                    }
                 }
                 NoNewData?.BeginInvoke(null, null);
                 IsWaiting = true;
