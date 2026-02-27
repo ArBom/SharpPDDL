@@ -7,7 +7,7 @@ namespace SharpPDDL
         internal readonly string Name;
         internal readonly Type OwnerType;
         internal readonly Type Type;
-        protected ushort _ValueOfIndexesKey = 0;
+        protected ushort _ValueOfIndexesKey;
 
         //true for field, false for properties
         internal readonly bool IsField;
@@ -95,11 +95,7 @@ namespace SharpPDDL
         internal ushort ValueOfIndexesKey
         {
             get { return _ValueOfIndexesKey; }
-            set
-            {
-                if (_ValueOfIndexesKey == 0)
-                    _ValueOfIndexesKey = value;
-            }
+            set { _ValueOfIndexesKey = value; }
         }
     }
 }

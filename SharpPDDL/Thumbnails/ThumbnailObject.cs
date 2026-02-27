@@ -13,13 +13,12 @@ namespace SharpPDDL
         internal abstract ushort[] ValuesIndeksesKeys { get; }
         public abstract ThumbnailObject Precursor { get; }
         internal ThumbnailObject Parent;
-        //internal List<ThumbnailObject> child;
         internal byte[] CheckSum = new byte[GloCla.ThObCheckSumSize];
 
         internal void FigureCheckSum()
         {
             IEnumerable<ValueType> values = ValuesIndeksesKeys.Select(VIK => this[VIK]);
-            string MD5input = Precursor.GetHashCode() + ";" + string.Join(";", values);
+            string MD5input = string.Join(";", values);
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(MD5input);
 
             using (MD5 md5 = MD5.Create())
@@ -51,17 +50,12 @@ namespace SharpPDDL
             if (!this.CheckSum.SequenceEqual(With.CheckSum))
                 return false;
 
-            /*for (ushort arrayCounter = 0; arrayCounter != ValuesIndeksesKeys.Count(); ++arrayCounter)
-                if (!this[ValuesIndeksesKeys[arrayCounter]].Equals(With[ValuesIndeksesKeys[arrayCounter]]))
-                    return false;*/
-
             return true;
         }
 
         public void Dispose()
         {
             Dict = null;
-            //child = null;
         }
     }
 }

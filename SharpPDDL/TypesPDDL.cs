@@ -9,7 +9,7 @@ namespace SharpPDDL
     public class TypesPDDL
     {
         /// <summary>
-        /// 0 value shouldn't occur in program run
+        /// 0 value occur in program run only for pointer of object with name: "℗"
         /// </summary>
         protected ushort ValuesIndeksCount = 0;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
@@ -70,6 +70,9 @@ namespace SharpPDDL
         {
             Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
 
+            //czy wykorzystano nie wartościowy (value) typ w domenie
+            bool AnyNonValueType = false;
+
             foreach (SingleTypeOfDomein singleType in this.allTypes) //Podepnij wszystko pod ten korzeń
             {
                 TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
@@ -79,7 +82,25 @@ namespace SharpPDDL
                 };
 
                 Root.Children.Add(ToAdd);
+
+                if (!AnyNonValueType)
+                    foreach (var v in singleType.Values)
+                        if (!v.Type.IsValueType)
+                            AnyNonValueType = true;
             }
+
+            //if any value is not value type
+            if (AnyNonValueType)
+            {
+                Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false);
+                PointerV.IsInUse_PreconditionIn = true;
+                PointerV.IsInUse_EffectIn = true;
+                SingleTypeOfDomein singleTypeOfRoot = new SingleTypeOfDomein(typeof(object), new List<Value>() { PointerV });
+                Root.Content = singleTypeOfRoot;
+            }
+            else
+                //cause 0-key value is for pointer only
+                ValuesIndeksCount++;
         }
 
         private void GetBranchRight(TreeNode<SingleTypeOfDomein> root)
@@ -90,7 +111,7 @@ namespace SharpPDDL
                 int currentTypesArg = 0;
                 int maxTypesArg = types.Count() - 1; //Create argument for read the list
 
-                if (!(root.Content is null)) //find argument for last mutual ancistor (with root)
+                if (!(root.Root is null)) //find argument for last mutual ancistor (with root)
                     while (types[currentTypesArg] != root.Content.Type)
                     {
                         currentTypesArg++;
@@ -262,9 +283,9 @@ namespace SharpPDDL
                         if (node.Content.CumulativeValues.Any(cv => cv.Name == childValue.Name && cv.ValueOfIndexesKey != 0))
                             continue;
 
-                        ValuesIndeksCount++;
                         childValue.ValueOfIndexesKey = ValuesIndeksCount;
                         ChangeAtChildren(node, childValue, ValuesIndeksCount);
+                        ValuesIndeksCount++;
                     }
                 }
 
