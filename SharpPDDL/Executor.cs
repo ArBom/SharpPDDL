@@ -169,9 +169,6 @@ namespace SharpPDDL
                 ExecuteTheAction(Act, CancelationPlanImplementor);
             }
 
-
-
-  
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 26, GloCla.ResMan.GetString("Sp2"));
             PlanRealized?.Invoke();
         }

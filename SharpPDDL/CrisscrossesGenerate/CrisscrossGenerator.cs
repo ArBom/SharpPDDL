@@ -180,32 +180,32 @@ namespace SharpPDDL
 
         internal Task Stop()
         {
-                Task Stopping = new Task(() =>
-                {
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
+            Task Stopping = new Task(() =>
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 61, GloCla.ResMan.GetString("I5"));
 
-                    //use internal Cancellation Token
-                    if (!CancellationCrisscrossGenerator.IsCancellationRequested)
-                        InternalCancellationCrisscrossGenerator.Cancel();
-                    else
-                        return;
+                //use internal Cancellation Token
+                if (!CancellationCrisscrossGenerator.IsCancellationRequested)
+                    InternalCancellationCrisscrossGenerator.Cancel();
+                else
+                    return;
 
-                    //make sure there is no task wainting for buffor add element
-                    goalChecker.CheckingGoalRealizationARE.Set();
-                    crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
-                    crisscrossReducer.ReducingCrisscrossARE.Set();
+                //make sure there is no task wainting for buffor add element
+                goalChecker.CheckingGoalRealizationARE.Set();
+                crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
+                crisscrossReducer.ReducingCrisscrossARE.Set();
 
-                    //wait for all task finish
-                    Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100);
+                //wait for all task finish
+                Task.WaitAll(new Task[] { goalChecker.CheckingGoal, crisscrossNewPossiblesCreator.BuildingNewCrisscross, crisscrossReducer.BuildingNewCrisscross }, 100);
 
-                    GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
-                });
+                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 60, GloCla.ResMan.GetString("Sp6"));
+            });
 
-                if (Stopping is null)
-                    return Task.CompletedTask;
+            if (Stopping is null)
+            return Task.CompletedTask;
 
-                Stopping.Start();
-                return Stopping;
+            Stopping.Start();
+            return Stopping;
         }
 
         private void CheckAllGenerated()
@@ -233,43 +233,6 @@ namespace SharpPDDL
                 return;
 
             CrisscrossesGenerated?.Invoke();
-        }
-
-        internal Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)> TranscribeState(Crisscross NewRoot, CancellationToken cancellationToken)
-        {
-            Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)> Transcribing = new Task<(Crisscross, SortedSet<Crisscross>, SortedList<string, Crisscross>)>(() =>
-            {
-                GloCla.Tracer?.TraceEvent(TraceEventType.Start, 122, GloCla.ResMan.GetString("Sa10"));
-
-                List<ThumbnailObject> NewThumbnailObjects = new List<ThumbnailObject>();
-                foreach (ThumbnailObject TO in NewRoot.Content.ThumbnailObjects)
-                    NewThumbnailObjects.Add(new ThumbnailObjectPrecursor<object>(TO, false) as ThumbnailObject);
-
-                Crisscross NewOne = new Crisscross
-                {
-                    Content = new PossibleState(NewThumbnailObjects)
-                };
-
-                SortedSet<Crisscross> ChildlessCrisscrosses = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge())
-                {
-                    NewOne
-                };
-
-                SortedList<string, Crisscross> NewIndexedStates = new SortedList<string, Crisscross>
-                {
-                    { NewOne.Content.CheckSum, NewOne }
-                };
-
-                (Crisscross NewRoot, SortedSet<Crisscross> ChildlessCrisscrosses, SortedList<string, Crisscross> NewIndexedStates) RetTuple = (NewOne, ChildlessCrisscrosses, NewIndexedStates);
-
-                GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 123, GloCla.ResMan.GetString("Sp10"));      
-
-                return RetTuple;
-            });
-
-            Transcribing.Start();
-
-            return Transcribing;
         }
     }
 }

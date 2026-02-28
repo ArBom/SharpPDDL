@@ -137,7 +137,6 @@ namespace SharpPDDL
                     }
                 }
 
-
                 return _parameters[ActualObjectPDDL.Elements[index].AllParamsOfActClassPos.Value];
             }
             catch (ArgumentNullException)

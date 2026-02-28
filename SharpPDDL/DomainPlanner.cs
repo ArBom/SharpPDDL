@@ -160,7 +160,6 @@ namespace SharpPDDL
             if (!NOTIsFoundingChippest.Any())
                 return;
             
-
             var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.05 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
             if (!FoundedChipStates.Any())
                 return;
@@ -337,9 +336,12 @@ namespace SharpPDDL
                     PlanGeneratedInDomainPlanner?.Invoke(Plan);
                 }
 
+                //make class of transcriber
+                Transcriber transcriber = new Transcriber(Found.Key, Owner.actions);
+
                 Stopping.Wait();
                 Task Realizing = DomainExecutor.RealizeIt(FoKePo, CancellationDomein);
-                Task<(Crisscross NewRoot, SortedSet<Crisscross>, SortedList<string, Crisscross> NewIndexedStates)> Transcribing = CurrentBuilder.TranscribeState(FoKePo.Last().Child, CancellationDomein);
+                Task Transcribing = transcriber.TranscribeState(CancellationDomein);
                 Task.WaitAny(new Task[] { Realizing, Transcribing }, ExternalCancellationDomein);
                 
                 if (ExternalCancellationDomein.IsCancellationRequested)
@@ -349,11 +351,11 @@ namespace SharpPDDL
                 else if (Realizing.IsCompleted)
                 {
                     Transcribing.Wait(5000);
-                    CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+                    CurrentBuilder.InitBuffors(null, transcriber.ChildlessCrisscrosses, null, transcriber.NewIndexedStates);
                 }
                 else if (Transcribing.IsCompleted)
                 {
-                    CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
+                    CurrentBuilder.InitBuffors(null, transcriber.ChildlessCrisscrosses, null, transcriber.NewIndexedStates);
                     //zaczęcie generowania nowych stanów
 
                     Realizing.Wait();
@@ -361,7 +363,7 @@ namespace SharpPDDL
                     //zaprzestanie generowania nowych stanów
                 }
 
-                CurrentBuilded = Transcribing.Result.NewRoot;// FoKePo.Last().Child;
+                CurrentBuilded = transcriber.NewOne;
             }
 
             RemoveGoals(Found.Value);
