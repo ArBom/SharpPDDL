@@ -90,7 +90,7 @@ namespace SharpPDDL
 
             if (!(this.crisscrossReducer is null))
             {
-                this.crisscrossReducer.IndexStates(NewIndexedStates);
+                this.crisscrossReducer.IndexedStates = NewIndexedStates;
                 this.crisscrossReducer.PossibleToCrisscrossReduce = this.PossibleToCrisscrossReduce;
                 this.crisscrossReducer.PossibleGoalRealization = this.PossibleGoalRealization;
             }
@@ -176,6 +176,17 @@ namespace SharpPDDL
 
             //Start cheching the root in goal reach
             goalChecker.CheckingGoalRealizationARE.Set();
+        }
+
+        internal void MakeExtraChild(Crisscross crisscross)
+        {
+            crisscrossNewPossiblesCreator.BuildNewStateForCrisscross(crisscross);
+
+            for (int i = 0; i != crisscross.Children.Count; i++)
+            {
+                Crisscross ty = crisscross.Children[i].Child;
+                crisscrossReducer.MergeCrisscross(ref ty);
+            }
         }
 
         internal Task Stop()

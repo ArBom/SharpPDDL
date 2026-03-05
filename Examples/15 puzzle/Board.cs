@@ -63,7 +63,6 @@ namespace _15_puzzle
 
             LeftMargin(LeftPos);
             Console.WriteLine( new char[] { LeftDown, UpDown, UpDown, DownB, UpDown, UpDown, DownB, UpDown, UpDown, DownB, UpDown, UpDown, RightDown });
-
         }
     }
 }

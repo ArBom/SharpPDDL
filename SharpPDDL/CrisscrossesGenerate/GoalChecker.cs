@@ -53,7 +53,7 @@ namespace SharpPDDL
                 CheckingGoalRealizationARE.WaitOne();
                 IsWaiting = false;
 
-                while (!PossibleGoalRealization.IsEmpty)
+                while (!PossibleGoalRealization.IsEmpty && !token.IsCancellationRequested)
                 {
                     if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                         continue;

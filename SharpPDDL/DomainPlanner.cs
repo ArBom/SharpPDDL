@@ -234,7 +234,7 @@ namespace SharpPDDL
             }
         }
 
-        internal void RemoveFoundedGoal(GoalPDDL goalPDDL)
+        private void RemoveFoundedGoal(GoalPDDL goalPDDL)
         {
             if (!FoundedGoals.Any(FG => FG.Key.GoalPDDL.Equals(goalPDDL)))
                 return;
@@ -299,6 +299,38 @@ namespace SharpPDDL
             }
         }
 
+        private void ShowPlanToExternal(List<CrisscrossChildrenCon> PlanList)
+        {
+            if (PlanGeneratedInDomainPlanner is null)
+                return;
+            
+            List<List<string>> Plan = new List<List<string>>();
+            Crisscross state = CurrentBuilded;
+
+            for (int i = 0; i != PlanList.Count; i++)
+            {
+                CrisscrossChildrenCon CCCOfLoop = PlanList[i];
+                ThumbnailObject[] arg = CCCOfLoop.ActionArgThOb;
+
+                Plan.Add(new List<string>
+                    {
+                        String.Format(GloCla.ResMan.GetString("Txt1"),
+                        Owner.actions[CCCOfLoop.ActionNr].Name),
+                        (string)Owner.actions[CCCOfLoop.ActionNr].InstantActionSententia.DynamicInvoke(arg),
+                        String.Format(GloCla.ResMan.GetString("Txt2"), CCCOfLoop.ActionCost)
+                });
+
+                state = CCCOfLoop.Child;
+            }
+
+            PlanGeneratedInDomainPlanner?.Invoke(Plan);
+        }
+
+        private void RefreshFoundedDicts(ICollection<GoalPDDL> extend, SortedList<string, Crisscross> newSotredSet, Crisscross NewRoot)
+        {
+
+        }
+
         private void GoToCrisscrossAndReachGoals(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 16, GloCla.ResMan.GetString("I1"), Found.Value[0].Name, Found.Key.CumulativedTransitionCharge);
@@ -311,36 +343,17 @@ namespace SharpPDDL
             //do it if ...
             if (FoKePo.Any())
             {
-                //jeśli trzeba to info o planie
-                if (!(PlanGeneratedInDomainPlanner is null))
-                {
-                    List<List<string>> Plan = new List<List<string>>();
-                    Crisscross state = CurrentBuilded;
-
-                    for (int i = 0; i != FoKePo.Count; i++)
-                    {
-                        CrisscrossChildrenCon CCCOfLoop = FoKePo[i];
-                        ThumbnailObject[] arg = CCCOfLoop.ActionArgThOb;
-
-                        Plan.Add(new List<string>
-                        {
-                            String.Format(GloCla.ResMan.GetString("Txt1"),
-                            Owner.actions[CCCOfLoop.ActionNr].Name),
-                            (string)Owner.actions[CCCOfLoop.ActionNr].InstantActionSententia.DynamicInvoke(arg),
-                            String.Format(GloCla.ResMan.GetString("Txt2"), CCCOfLoop.ActionCost)
-                        });
-
-                        state = CCCOfLoop.Child;
-                    }
-
-                    PlanGeneratedInDomainPlanner?.Invoke(Plan);
-                }
+                ShowPlanToExternal(FoKePo);
 
                 //make class of transcriber
                 Transcriber transcriber = new Transcriber(Found.Key, Owner.actions);
 
                 Stopping.Wait();
                 Task Realizing = DomainExecutor.RealizeIt(FoKePo, CancellationDomein);
+
+                if (!Found.Key.Children.Any())
+                    CurrentBuilder.MakeExtraChild(Found.Key);
+
                 Task Transcribing = transcriber.TranscribeState(CancellationDomein);
                 Task.WaitAny(new Task[] { Realizing, Transcribing }, ExternalCancellationDomein);
                 
@@ -363,6 +376,7 @@ namespace SharpPDDL
                     //zaprzestanie generowania nowych stanów
                 }
 
+                RefreshFoundedDicts(Found.Value, transcriber.NewIndexedStates, transcriber.NewOne);
                 CurrentBuilded = transcriber.NewOne;
             }
 

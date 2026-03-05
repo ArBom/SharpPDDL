@@ -20,9 +20,6 @@ namespace SharpPDDL
         //List of all Crisscrosses in NewOne
         internal readonly SortedList<string, Crisscross> NewIndexedStates;
 
-        //Collection of Crisscrosses waiting to pin into NewOne "tree"
-        //private SortedSet<KeyValuePair<uint, Crisscross>> NotTranscribedChildYet;
-
         private SortedSet<KeyValuePair<Crisscross, List<CrisscrossChildrenCon>>> NotTranscribedChildYet;
 
         //List of Crisscrosses pined into NewOne with alternatives Root, candidates to reduce
@@ -95,20 +92,18 @@ namespace SharpPDDL
                                 continue;
                         }
 
+                        try
+                        {
+                            NewIndexedStates.Add(AddedItem.Content.CheckSum, AddedItem);
+                        }
+                        catch { }
+
                         if (WorkWithIt.AlternativeRoots.Any())
                         {
                             lock (PossibleToCrisscrossReduce)
                             {
                                 PossibleToCrisscrossReduce.Add(AddedItem);
                             }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                NewIndexedStates.Add(AddedItem.Content.CheckSum, AddedItem);
-                            }
-                            catch { }
                         }
 
                         if (C.Child.Children.Any())
@@ -120,6 +115,9 @@ namespace SharpPDDL
 
                     NotTranscribedChildYet.Remove(keyValuePair);
                 }
+
+                if (!ChildlessCrisscrosses.Any())
+                    ChildlessCrisscrosses.Add(NewOne);
             });
 
             TranscribeTask.Start();
@@ -135,12 +133,11 @@ namespace SharpPDDL
                 AutoResetEvent autoResetEvent = new AutoResetEvent(true);
                 object CrisscrossReduceLocker = new Object();
                 CrisscrossReducer crisscrossReducer = new CrisscrossReducer(NewOne, autoResetEvent, PossibleToCrisscrossReduce, CrisscrossReduceLocker, null, null);
-                crisscrossReducer.IndexStates(NewIndexedStates);
+                crisscrossReducer.IndexedStates = NewIndexedStates;
 
-                //Task transcribeOne = TranscribeOne(cancellationToken);
+                Task transcribeOne = TranscribeOne(cancellationToken);
                 crisscrossReducer.Start(cancellationToken);
-                //transcribeOne.Wait();
-                ChildlessCrisscrosses.Add(NewOne);
+                transcribeOne.Wait();
 
                 if (cancellationToken.IsCancellationRequested)
                     ChildlessCrisscrosses.UnionWith(NotTranscribedChildYet.Select(NT => NT.Key));                
