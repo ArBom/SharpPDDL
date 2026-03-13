@@ -218,12 +218,6 @@ namespace SharpPDDL
                     }
 
                     BuildNewStateForCrisscross(stateToCheck);
-
-                    /*lock (CrisscrossReduceLocker)
-                    {
-                        PossibleToCrisscrossReduce.Add(AddedItem);
-                    }
-                    ReducingCrisscrossARE.Set();*/
                 }
                 NoNewData.BeginInvoke(null, null);
                 IsWaiting = true;

@@ -24,7 +24,7 @@ namespace SharpPDDL
         //     ▼                               ⋰        //
         //       ⋱             PossibleNewCrisscrossCre //
         // PossibleToCrisscrossReduce      ⋰(SortedSet) //
-        //   (List)  ⋱                   ⋰              //
+        //           ⋱ (SortedSet)       ⋰              //
         //             ⋱               ⋰                //
         //               ⋱           ⋰                  //
         //               ┌──┐     ▲                     //
@@ -174,13 +174,16 @@ namespace SharpPDDL
             crisscrossNewPossiblesCreator.Start(CancellationCrisscrossGenerator);
             crisscrossReducer.Start(CancellationCrisscrossGenerator);
 
-            //Start cheching the root in goal reach
+            //Start subproceses in goal reach
             goalChecker.CheckingGoalRealizationARE.Set();
+            crisscrossNewPossiblesCreator.BuildingNewCrisscrossARE.Set();
+            crisscrossReducer.ReducingCrisscrossARE.Set();
         }
 
         internal void MakeExtraChild(Crisscross crisscross)
         {
-            crisscrossNewPossiblesCreator.BuildNewStateForCrisscross(crisscross);
+            if (!crisscross.Children.Any())
+                crisscrossNewPossiblesCreator.BuildNewStateForCrisscross(crisscross);
 
             for (int i = 0; i != crisscross.Children.Count; i++)
             {

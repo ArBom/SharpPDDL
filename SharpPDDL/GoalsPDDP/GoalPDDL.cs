@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace SharpPDDL
 {
@@ -21,6 +22,7 @@ namespace SharpPDDL
         public readonly GoalPriority goalPriority;
         public EventHandler GoalRealized;
         internal List<IGoalObject> GoalObjects;
+        private List<GCHandle> MemberObjsHandles;
 
         /// <summary>
         /// Class representing the expected state (consisting of some object(s) or descritpion of attributes of them) resulting from the execution of previously declared actions.
@@ -40,6 +42,27 @@ namespace SharpPDDL
             this.Name = Name;
             this.goalPriority = goalPriority;
             this.GoalObjects = new List<IGoalObject>();
+            this.MemberObjsHandles = new List<GCHandle>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2p"></typeparam>
+        /// <typeparam name="T2c"></typeparam>
+        /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
+        /// <param name="goalExpectation"></param>
+        /// <param name="memberObj"></param>
+        /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
+        private void AddExpectedObjectState<T1, T2p, T2c>(T1 originalObj, Expression<Func<T1, T2p>> goalExpectation, T2c memberObj, DomeinPDDL newPDDLdomain)
+            where T1 : class
+            where T2p : class
+            where T2c : class, T2p
+        {
+            GCHandle gcHandle = GCHandle.Alloc(memberObj, GCHandleType.Pinned);
+            MemberObjsHandles.Add(gcHandle);
+            IntPtr memberObjPointer = GCHandle.ToIntPtr(gcHandle);
         }
 
         /// <summary>
@@ -189,6 +212,14 @@ namespace SharpPDDL
             foreach (IGoalObject GoalObjects in GoalObjects)
             {
                 _ = GoalObjects.BuildGoalPDDP(GoalOwner);
+            }
+        }
+
+        ~GoalPDDL()
+        {
+            foreach (GCHandle ObjsHandle in MemberObjsHandles)
+            {
+                ObjsHandle.Free();
             }
         }
     }

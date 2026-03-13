@@ -55,6 +55,8 @@ namespace SharpPDDL
                     if (_IndexedStates.Any())
                     {
                         this._IndexedStates = value;
+                        //this.states = value.First(v => v.Value.CumulativedTransitionCharge == 0).Value;
+                        //this._IndexedStates.Remove(states.Content.CheckSum);
                         return;
                     }
 

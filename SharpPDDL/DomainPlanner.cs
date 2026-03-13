@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Diagnostics;
-using System.Collections.Concurrent;
 
 namespace SharpPDDL
 {
@@ -165,13 +164,9 @@ namespace SharpPDDL
                 return;
 
             int MaxCountSolution = FoundedChipStates.Max(FG => FG.Value.Count);
-
             KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> Solution = FoundedChipStates.First(FG => FG.Value.Count == MaxCountSolution);
-
             Crisscross StateToHit = Solution.Value.Aggregate((curMin, v) => (curMin == null || (v.CumulativedTransitionCharge) < curMin.CumulativedTransitionCharge ? v : curMin));
-
             KeyValuePair<Crisscross, List<GoalPDDL>> GenerList = FoundedCrisscrosses.First(FC => FC.Key == StateToHit);
-
             GoToCrisscrossAndReachGoals(GenerList);
         }
 
@@ -326,7 +321,7 @@ namespace SharpPDDL
             PlanGeneratedInDomainPlanner?.Invoke(Plan);
         }
 
-        private void RefreshFoundedDicts(ICollection<GoalPDDL> extend, SortedList<string, Crisscross> newSotredSet, Crisscross NewRoot)
+        private void RefreshFoundedDicts(ICollection<GoalPDDL> except, SortedList<string, Crisscross> newSotredSet, Crisscross NewRoot)
         {
 
         }
@@ -377,6 +372,7 @@ namespace SharpPDDL
                 }
 
                 RefreshFoundedDicts(Found.Value, transcriber.NewIndexedStates, transcriber.NewOne);
+                CurrentBuilded.Dispose();
                 CurrentBuilded = transcriber.NewOne;
             }
 

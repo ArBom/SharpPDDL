@@ -53,7 +53,7 @@ namespace SharpPDDL
                 CheckingGoalRealizationARE.WaitOne();
                 IsWaiting = false;
 
-                while (!PossibleGoalRealization.IsEmpty && !token.IsCancellationRequested)
+                while (!PossibleGoalRealization.IsEmpty)
                 {
                     if (!PossibleGoalRealization.TryDequeue(out Crisscross possibleStatesCrisscross))
                         continue;
@@ -73,6 +73,14 @@ namespace SharpPDDL
                     }
                     else
                         CurrentMinCumulativeCostUpdate?.Invoke(CurrentMinCumulativeCost);
+
+                    if (token.IsCancellationRequested)
+                    {
+                        if (!(possibleStatesCrisscross.Content is null))
+                            PossibleGoalRealization.Enqueue(possibleStatesCrisscross);
+
+                        continue;
+                    }
 
                     if (!possibleStatesCrisscross.Children.Any())
                         lock (PossibleNewCrisscrossCreLocker)

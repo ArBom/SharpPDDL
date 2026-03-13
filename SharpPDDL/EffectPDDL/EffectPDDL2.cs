@@ -11,13 +11,17 @@ namespace SharpPDDL
         where T1c : class, T1p
         where T2c : class, T2p
     {
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct) 
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T1p, T2p, ValueType>> SourceFunct)
             : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
             => this.SourceFunc = SourceFunct;
 
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct) 
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> Destination, ref T2c SourceObj, Expression<Func<T2p, ValueType>> SourceFunct)
             : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
             => this.SourceFunc = SourceFunct;
+
+        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, T2p>> Destination, ref T2c SourceObj)
+            : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
+            => this.SourceFunc = null; 
 
         private string MutualPartOfConstructors(Expression DestinationFunct)
         {

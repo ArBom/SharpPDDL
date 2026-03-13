@@ -56,6 +56,7 @@ namespace SharpPDDL
         public void Dispose()
         {
             Dict = null;
+            Parent = null;
         }
     }
 }
