@@ -110,7 +110,6 @@ namespace SharpPDDL
                             NotTranscribedChildYet.Add(new KeyValuePair<Crisscross, List<CrisscrossChildrenCon>>(AddedItem, C.Child.Children));
                         else
                             ChildlessCrisscrosses.Add(AddedItem);
-
                     }
 
                     NotTranscribedChildYet.Remove(keyValuePair);

@@ -321,9 +321,43 @@ namespace SharpPDDL
             PlanGeneratedInDomainPlanner?.Invoke(Plan);
         }
 
-        private void RefreshFoundedDicts(ICollection<GoalPDDL> except, SortedList<string, Crisscross> newSotredSet, Crisscross NewRoot)
+        private void RefreshFoundedDicts(SortedList<string, Crisscross> newSotredSet, Crisscross NewRoot)
         {
+            Dictionary<FoungingGoalDetail, SortedSet<Crisscross>> newFoundedGoals = new Dictionary<FoungingGoalDetail, SortedSet<Crisscross>>();
+            Dictionary<Crisscross, List<GoalPDDL>> newFoundedCrisscrosses = new Dictionary<Crisscross, List<GoalPDDL>>();
+            EqComp eqComp = new EqComp();
 
+            foreach (var GoalFromFoundedGoals in FoundedGoals)
+            {
+                FoungingGoalDetail TempFoungingGoalDetail = new FoungingGoalDetail(GoalFromFoundedGoals.Key.GoalPDDL);
+                SortedSet<Crisscross> valueOfNewFoundedGoals = new SortedSet<Crisscross>(Crisscross.SortCumulativedTransitionCharge());
+
+                foreach (Crisscross FoundGoal in GoalFromFoundedGoals.Value)
+                {
+                    if (!newSotredSet.Any(c => c.Key == FoundGoal.Content.CheckSum))
+                        continue;
+
+                    if (eqComp.Equals(newSotredSet[FoundGoal.Content.CheckSum], FoundGoal))
+                    {
+                        valueOfNewFoundedGoals.Add(newSotredSet[FoundGoal.Content.CheckSum]);
+                    }
+                    else
+                    {
+                        continue;
+                        //TODO CrisscrossRefEnum crisscrossRefEnum = new CrisscrossRefEnum(ref NewRoot);
+                    }
+
+                    if (newFoundedCrisscrosses.Any(FC => FC.Key.Equals(FoundGoal)))
+                        newFoundedCrisscrosses[FoundGoal].Add(GoalFromFoundedGoals.Key.GoalPDDL);
+                    else
+                        newFoundedCrisscrosses[FoundGoal] = new List<GoalPDDL>() { GoalFromFoundedGoals.Key.GoalPDDL };
+                }
+
+                newFoundedGoals.Add(TempFoungingGoalDetail, valueOfNewFoundedGoals);
+            }
+
+            FoundedGoals = newFoundedGoals;
+            FoundedCrisscrosses = newFoundedCrisscrosses;
         }
 
         private void GoToCrisscrossAndReachGoals(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
@@ -371,7 +405,7 @@ namespace SharpPDDL
                     //zaprzestanie generowania nowych stanów
                 }
 
-                RefreshFoundedDicts(Found.Value, transcriber.NewIndexedStates, transcriber.NewOne);
+                RefreshFoundedDicts(transcriber.NewIndexedStates, transcriber.NewOne);
                 CurrentBuilded.Dispose();
                 CurrentBuilded = transcriber.NewOne;
             }
