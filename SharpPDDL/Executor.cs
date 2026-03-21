@@ -19,7 +19,7 @@ namespace SharpPDDL
 
         internal Task ImplementorTask { get; private set; }
 
-        internal Executor(DomeinPDDL Owner)
+        internal Executor(DomainPDDL Owner)
         {
             this.actions = Owner.actions.Select(a => a.InstantExecution).ToList();
             this.ImplementorUpdate = Owner.ImplementorUpdate;

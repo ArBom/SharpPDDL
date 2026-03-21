@@ -16,9 +16,9 @@ namespace SharpPDDL
         internal byte PlanImplementor_Agrees;
     }
 
-    public partial class DomeinPDDL
+    public partial class DomainPDDL
     {
-        static Dictionary<string, DomeinPDDL> AllDomain;
+        static Dictionary<string, DomainPDDL> AllDomain;
 
         public readonly string Name;
         internal TypesPDDL types;
@@ -144,10 +144,10 @@ namespace SharpPDDL
         /// </para></example>
         /// </summary>
         /// <param name="name">Name of Domein</param>
-        public DomeinPDDL (string name)
+        public DomainPDDL (string name)
         {
             if (AllDomain is null)
-                AllDomain = new Dictionary<string, DomeinPDDL>();
+                AllDomain = new Dictionary<string, DomainPDDL>();
 
             if (String.IsNullOrEmpty(name))
             {

@@ -108,7 +108,7 @@ namespace SharpPDDL
             }
         }
 
-        internal CrisscrossGenerator(Crisscross CurrentBuilded, DomeinPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
+        internal CrisscrossGenerator(Crisscross CurrentBuilded, DomainPDDL Owner, Action<KeyValuePair<Crisscross, List<GoalPDDL>>> foundSols, Action<uint> currentMinCumulativeCostUpdate)
         {
             InitBuffors(null, null, null, null);
             this.NoNewDataCheck = new Action(CheckAllGenerated);

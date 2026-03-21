@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace SharpPDDL
 {
-    public partial class DomeinPDDL
+    public partial class DomainPDDL
     {
         /// <summary>
         /// Start algorithm in this domain

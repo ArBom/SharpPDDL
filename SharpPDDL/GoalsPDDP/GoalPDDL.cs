@@ -55,7 +55,7 @@ namespace SharpPDDL
         /// <param name="goalExpectation"></param>
         /// <param name="memberObj"></param>
         /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
-        private void AddExpectedObjectState<T1, T2p, T2c>(T1 originalObj, Expression<Func<T1, T2p>> goalExpectation, T2c memberObj, DomeinPDDL newPDDLdomain)
+        private void AddExpectedObjectState<T1, T2p, T2c>(T1 originalObj, Expression<Func<T1, T2p>> goalExpectation, T2c memberObj, DomainPDDL newPDDLdomain)
             where T1 : class
             where T2p : class
             where T2c : class, T2p
@@ -72,7 +72,7 @@ namespace SharpPDDL
         /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
         /// <param name="goalExpectation">Description of expected attribute</param>
         /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
-        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain) 
+        public void AddExpectedObjectState<T>(T originalObj, Expression<Predicate<T>> goalExpectation, DomainPDDL newPDDLdomain) 
             where T : class
         {
             ICollection<Expression<Predicate<T>>> goalExpectations = new Expression<Predicate<T>>[1] { goalExpectation };
@@ -86,7 +86,7 @@ namespace SharpPDDL
         /// <param name="originalObj">One of object used at domein.domainObjects.Add(...) method</param>
         /// <param name="goalExpectations">Collection of description of expected attributes</param>
         /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
-        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain) 
+        public void AddExpectedObjectState<T>(T originalObj, ICollection<Expression<Predicate<T>>> goalExpectations, DomainPDDL newPDDLdomain) 
             where T : class
         {
             if (originalObj is null)
@@ -146,7 +146,7 @@ namespace SharpPDDL
         /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
         /// <param name="goalExpectations">Collection of description of expected attributes</param>
         /// <param name="newPDDLdomein">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
-        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomein)
+        public void AddExpectedObjectState<T>(ICollection<Expression<Predicate<T>>> goalExpectations, DomainPDDL newPDDLdomein)
             where T : class
         => AddGoalObject(null, newPDDLdomein, goalExpectations, true);
 
@@ -156,7 +156,7 @@ namespace SharpPDDL
         /// <typeparam name="T">One of classes used to describe domain actions</typeparam>
         /// <param name="goalExpectation">Description of expected attribute</param>
         /// <param name="newPDDLdomain">Domain where to move object for, after goal realized; NULL - for remove object from algorithm</param>
-        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, DomeinPDDL newPDDLdomain)
+        public void AddExpectedObjectState<T>(Expression<Predicate<T>> goalExpectation, DomainPDDL newPDDLdomain)
             where T : class
         {
             ICollection<Expression<Predicate<T>>> Predications = new Expression<Predicate<T>>[1] { goalExpectation };
@@ -176,9 +176,9 @@ namespace SharpPDDL
         }
 
         [Obsolete("This method is deprecated.", true)]
-        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomeinPDDL newPDDLdomain = null) where T : class { }
+        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomainPDDL newPDDLdomain = null) where T : class { }
 
-        private void AddGoalObject<T>(T originalObj, DomeinPDDL newPDDLdomain, ICollection<Expression<Predicate<T>>> goalExpectations, bool Migrate)
+        private void AddGoalObject<T>(T originalObj, DomainPDDL newPDDLdomain, ICollection<Expression<Predicate<T>>> goalExpectations, bool Migrate)
             where T : class
         {
             if (!(originalObj is null))
@@ -200,7 +200,7 @@ namespace SharpPDDL
             GoalObjects.Add(NewOne);
         }
 
-        internal void BuildIt(DomeinPDDL GoalOwner)
+        internal void BuildIt(DomainPDDL GoalOwner)
         {
             if (!GoalObjects.Any())
             {

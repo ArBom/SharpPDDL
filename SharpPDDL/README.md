@@ -8,16 +8,16 @@ Include the library namespace with `using SharpPDDL`.
 
 | Method | What is it doing? |
 |---|---|
-| `new DomeinPDDL()` | Creates the instance of algorithm. |
-| DomeinPDDL.`AddAction()` | Adds action to domain. |
-| DomeinPDDL.`domainObjects` | Objects' collection manned by library. |
-| DomeinPDDL.`AddGoal()` | Adds goal to do. |
-| DomeinPDDL.`DefineTrace()` | Defines TraceSource to do trace the code execution. |
-| DomeinPDDL.`planGenerated` | delegate of List<List<string>> type. It shows a generated plan. |
-| DomeinPDDL.`SetExecutionOptions()` | Defines options of plan realization |
-| DomeinPDDL.`Start()` | Starts the algorithm. |
+| `new DomainPDDL()` | Creates the instance of algorithm. |
+| DomainPDDL.`AddAction()` | Adds action to domain. |
+| DomainPDDL.`domainObjects` | Objects' collection manned by library. |
+| DomainPDDL.`AddGoal()` | Adds goal to do. |
+| DomainPDDL.`DefineTrace()` | Defines TraceSource to do trace the code execution. |
+| DomainPDDL.`planGenerated` | delegate of List<List<string>> type. It shows a generated plan. |
+| DomainPDDL.`SetExecutionOptions()` | Defines options of plan realization |
+| DomainPDDL.`Start()` | Starts the algorithm. |
 | `new ActionPDDL()` | Creates the action to use in domein. |
-| ActionPDDL.`AddPrecondiction()` | Adds precondition of action doing. |
+| ActionPDDL.`AddPrecondition()` | Adds precondition of action doing. |
 | ActionPDDL.`AddEffect()` | Adds effect of action doing. |
 | ActionPDDL.`DefineActionCost()` | Defines action cost. |
 | ActionPDDL.`AddPartOfActionSententia()` | Adds description of action in generated plan. |

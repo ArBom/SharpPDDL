@@ -40,7 +40,7 @@ namespace Travelling_Salesman_Problem
             };
             Cities[0].SalesmanHere = true;
 
-            DomeinPDDL TSP = new DomeinPDDL("TSP");
+            DomainPDDL TSP = new DomainPDDL("TSP");
 
             ActionPDDL Travel = new ActionPDDL("Travel");
             City From = null; //Salesman leaves "From" city,
@@ -48,13 +48,13 @@ namespace Travelling_Salesman_Problem
 
             Travel.AddPartOfActionSententia(ref To, "Go to {0}.", T => T.Name);
 
-            Travel.AddPrecondiction( // From.SalesmanHere == true
+            Travel.AddPrecondition( // From.SalesmanHere == true
                 "Salesnam is in FROM city now",
                 ref From,
                 F => F.SalesmanHere);
 
             //Salesman visit city only one time
-            Travel.AddPrecondiction( // To.Visiting == false
+            Travel.AddPrecondition( // To.Visiting == false
                 "Salesnam havent been in TO city",
                 ref To,
                 F => !F.Visited);

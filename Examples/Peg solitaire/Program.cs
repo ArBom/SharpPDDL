@@ -45,7 +45,7 @@ namespace Peg_solitaire
             Stopwatch = new Stopwatch();
             Stopwatch.Start();
 
-            DomeinPDDL SolitaireDomein = new DomeinPDDL("Solitaire");
+            DomainPDDL SolitaireDomein = new DomainPDDL("Solitaire");
 
             Spot JumpingPeg = null;
             Spot RemovePeg = null;
@@ -56,20 +56,22 @@ namespace Peg_solitaire
 
             ActionPDDL VerticalJump = new ActionPDDL("Vertical jump");
 
-            VerticalJump.AddPrecondiction<Spot,Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
-            VerticalJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
-            VerticalJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+            VerticalJump.AddPrecondition<Spot,Spot>("Jumping peg exists", ref JumpingPeg, FullSpot); //JumpingPeg.Full
+            VerticalJump.AddPrecondition<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot); //RemovePeg.Full
+            VerticalJump.AddPrecondition<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot); //!FinalPeg.Full
 
             Expression<Predicate<Spot, Spot, Spot>> Verticalcollinear = ((JP, RP, FPP) => (JP.Column == RP.Column && RP.Column == FPP.Column));
-            VerticalJump.AddPrecondiction("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Verticalcollinear);
+            
+            //JumpingPeg.Column == RemovePeg.Column && RemovePeg.Column == FinalPegPos.Column
+            VerticalJump.AddPrecondition("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Verticalcollinear);
 
-            Expression<Predicate<Spot, Spot>> HorizontalClose = ((S1, S2) => ((S1.Row - S2.Row) == 1 || (S1.Row - S2.Row) == -1));
-            VerticalJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, HorizontalClose);
-            VerticalJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, HorizontalClose);
+            Expression<Predicate<Spot, Spot>> HorizontalClose = ((S1, S2) => (Math.Abs(S1.Row - S2.Row) == 1));
+            VerticalJump.AddPrecondition("Jumper is close", ref JumpingPeg, ref RemovePeg, HorizontalClose); //Math.Abs(JumpingPeg.Row - HorizontalClose.Row) == 1
+            VerticalJump.AddPrecondition("Hole is close", ref FinalPegPos, ref RemovePeg, HorizontalClose); //Math.Abs(FinalPegPos.Row - RemovePeg.Row) == 1
 
-            VerticalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
-            VerticalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
-            VerticalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
+            VerticalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false); //JumpingPeg.Full = false
+            VerticalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false); //RemovePeg.Full = false
+            VerticalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true); //FinalPegPos.Full = true
 
             VerticalJump.AddExecution("Reset colours", () => Reset(), false);
             VerticalJump.AddExecution("Jumping Peg Spot is empty");
@@ -82,20 +84,21 @@ namespace Peg_solitaire
 
             ActionPDDL HorizontalJump = new ActionPDDL("Horizontal jump");
 
-            HorizontalJump.AddPrecondiction<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
-            HorizontalJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
-            HorizontalJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+            HorizontalJump.AddPrecondition<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot); //JumpingPeg.Full
+            HorizontalJump.AddPrecondition<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot); //RemovePeg.Full
+            HorizontalJump.AddPrecondition<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot); //!FinalPeg.Full
 
+            //JumpingPeg.Row == RemovePeg.Row && RemovePeg.Row == FinalPegPos.Row
             Expression<Predicate<Spot, Spot, Spot>> Horizontalcollinear = ((JP, RP, FPP) => (JP.Row == RP.Row && RP.Row == FPP.Row));
-            HorizontalJump.AddPrecondiction("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
+            HorizontalJump.AddPrecondition("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
 
-            Expression<Predicate<Spot, Spot>> VerticalClose = ((S1, S2) => ((S1.Column - S2.Column) == 1 || (S1.Column - S2.Column) == -1));
-            HorizontalJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
-            HorizontalJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
+            Expression<Predicate<Spot, Spot>> VerticalClose = ((S1, S2) => (Math.Abs(S1.Column - S2.Column) == 1));
+            HorizontalJump.AddPrecondition("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose); //Math.Abs(JumpingPeg.Column - RemovePeg.Column) == 1
+            HorizontalJump.AddPrecondition("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose); //Math.Abs(FinalPegPos.Column - RemovePeg.Column) == 1
 
-            HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
-            HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
-            HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
+            HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false); //JumpingPeg.Full = false
+            HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false); //RemovePeg.Full = false
+            HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true); //FinalPegPos.Full = true
 
             HorizontalJump.AddExecution("Reset colours", () => Reset(), false);
             HorizontalJump.AddExecution("Jumping Peg Spot is empty");
@@ -108,21 +111,21 @@ namespace Peg_solitaire
 
             ActionPDDL SkewJump = new ActionPDDL("Skew jump");
 
-            SkewJump.AddPrecondiction<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
-            SkewJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
-            SkewJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+            SkewJump.AddPrecondition<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot); //JumpingPeg.Full
+            SkewJump.AddPrecondition<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot); //RemovePeg.Full
+            SkewJump.AddPrecondition<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot); //!FinalPegPos.Full
 
-            SkewJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
-            SkewJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
-            SkewJump.AddPrecondiction("Jumper is close2", ref JumpingPeg, ref RemovePeg, HorizontalClose);
-            SkewJump.AddPrecondiction("Hole is close2", ref FinalPegPos, ref RemovePeg, HorizontalClose);
+            SkewJump.AddPrecondition("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose); //Math.Abs(JumpingPeg.Column - RemovePeg.Column) == 1
+            SkewJump.AddPrecondition("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose); //Math.Abs(FinalPegPos.Column - RemovePeg.Column) == 1
+            SkewJump.AddPrecondition("Jumper is close2", ref JumpingPeg, ref RemovePeg, HorizontalClose); //Math.Abs(JumpingPeg.Row - RemovePeg.Row) == 1
+            SkewJump.AddPrecondition("Hole is close2", ref FinalPegPos, ref RemovePeg, HorizontalClose); //Math.Abs(FinalPegPos.Row - RemovePeg.Row) == 1
             Expression<Predicate<Spot, Spot>> CorrectWay = ((S1, S2) => ((S1.Row - S2.Row) == (S1.Column - S2.Column)));
-            SkewJump.AddPrecondiction("Correct Way 1", ref JumpingPeg, ref RemovePeg, CorrectWay);
-            SkewJump.AddPrecondiction("Correct Way 2", ref FinalPegPos, ref RemovePeg, CorrectWay);
+            SkewJump.AddPrecondition("Correct Way 1", ref JumpingPeg, ref RemovePeg, CorrectWay); //(JumpingPeg.Row - RemovePeg.Row) == (JumpingPeg.Column - RemovePeg.Column)
+            SkewJump.AddPrecondition("Correct Way 2", ref FinalPegPos, ref RemovePeg, CorrectWay); //(FinalPegPos.Row - RemovePeg.Row) == (FinalPegPos.Column - RemovePeg.Column)
 
-            SkewJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
-            SkewJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
-            SkewJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
+            SkewJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false); //JumpingPeg.Full = false
+            SkewJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false); //RemovePeg.Full = false
+            SkewJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true); //FinalPegPos.Full = true
 
             SkewJump.AddExecution("Reset colours", () => Reset(), false);
             SkewJump.AddExecution("Jumping Peg Spot is empty");

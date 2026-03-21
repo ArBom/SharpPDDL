@@ -55,8 +55,6 @@ namespace SharpPDDL
                     if (_IndexedStates.Any())
                     {
                         this._IndexedStates = value;
-                        //this.states = value.First(v => v.Value.CumulativedTransitionCharge == 0).Value;
-                        //this._IndexedStates.Remove(states.Content.CheckSum);
                         return;
                     }
 
@@ -148,12 +146,8 @@ namespace SharpPDDL
                     if (MergeCrisscross(ref possibleToCrisscrossReduce))
                         continue;
 
-                    try
-                    {
-                        lock(_IndexedStates)
-                            _IndexedStates.Add(possibleToCrisscrossReduce.Content.CheckSum, possibleToCrisscrossReduce);
-                    }
-                    catch { }
+                    lock (_IndexedStates)
+                        _IndexedStates[possibleToCrisscrossReduce.Content.CheckSum] = possibleToCrisscrossReduce;
 
                     PossibleGoalRealization?.Enqueue(possibleToCrisscrossReduce);
                     CheckingGoalRealizationARE?.Set();

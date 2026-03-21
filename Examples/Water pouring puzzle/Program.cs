@@ -32,7 +32,7 @@ namespace Water_pouring_puzzle
 
         static void Main(string[] args)
         {
-            DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems"); //In this problem...
+            DomainPDDL DecantingDomein = new DomainPDDL("Decanting problems"); //In this problem...
 
             ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 parameters:
             WaterJug SourceJug = null; //The jug from which you pour,

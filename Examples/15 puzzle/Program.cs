@@ -16,7 +16,7 @@ namespace _15_puzzle
     class Program
     {
         static List<Tile> tiles = new List<Tile>();
-        static DomeinPDDL GemPuzzleDomein;
+        static DomainPDDL GemPuzzleDomein;
 
         static ICollection<Expression<Predicate<Tile>>> ExpressionsOfXTile(int i)
         {
@@ -74,7 +74,7 @@ namespace _15_puzzle
 
             Board.DrawBoard(tiles);
 
-            GemPuzzleDomein = new DomeinPDDL("GemPuzzle");
+            GemPuzzleDomein = new DomainPDDL("GemPuzzle");
 
             foreach (Tile tile in tiles)
                 GemPuzzleDomein.domainObjects.Add(tile);
@@ -87,11 +87,11 @@ namespace _15_puzzle
 
             ActionPDDL SlideTile = new ActionPDDL("Slide Tile");
 
-            SlideTile.AddPrecondiction<Tile, Tile>("Empty is 16", ref Empty, EmptyIs16);
-            SlideTile.AddPrecondiction("Dystans between tiles is 1", ref Empty, ref Sliding, DystansEq1);
+            SlideTile.AddPrecondition<Tile, Tile>("Empty is 16", ref Empty, EmptyIs16); //Empty.TileValue == 16
+            SlideTile.AddPrecondition("Dystans between tiles is 1", ref Empty, ref Sliding, DystansEq1); //Math.Abs(Empty.Col - Sliding.Col) + Math.Abs(Empty.Row - Sliding.Row) == 1
 
-            SlideTile.AddEffect("Sliding tile is empty one now", ref Sliding, S => S.TileValue, 16);
-            SlideTile.AddEffect("Empty tile is slining one now", ref Empty, E => E.TileValue, ref Sliding, S => S.TileValue);
+            SlideTile.AddEffect("Sliding tile is empty one now", ref Sliding, S => S.TileValue, 16); //Sliding.TileValue = 16
+            SlideTile.AddEffect("Empty tile is slining one now", ref Empty, E => E.TileValue, ref Sliding, S => S.TileValue); //Empty.TileValue = Sliding.TileValue
 
             SlideTile.AddExecution("Wait", () => Thread.Sleep(750), false);
             SlideTile.AddExecution("Empty tile is slining one now");

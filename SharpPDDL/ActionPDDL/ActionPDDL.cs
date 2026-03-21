@@ -138,9 +138,9 @@ namespace SharpPDDL
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj">Instance of T1 class (could be null) which representant parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1 class to check possibility of action ececute</param>
-        public void AddPrecondiction<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) 
+        public void AddPrecondition<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) 
             where T1 : class 
-            => AddPrecondiction<T1, T1>(Name, ref obj, func);
+            => AddPrecondition<T1, T1>(Name, ref obj, func);
 
         /// <summary>
         /// This method adds a condition whose fulfillment is necessary to perform the action.
@@ -163,7 +163,7 @@ namespace SharpPDDL
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj">Instance of T1c class (could be null) which representant parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1p class to check possibility of action ececute</param>
-        public void AddPrecondiction<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func)
+        public void AddPrecondition<T1c, T1p>(string Name, ref T1c obj, Expression<Predicate<T1p>> func)
             where T1p : class
             where T1c : class, T1p
         {
@@ -197,7 +197,7 @@ namespace SharpPDDL
         /// <param name="obj1">Instance of T1c class (could be null) which representant 1st parameter of action</param>
         /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1p and T2p classes to check possibility of action ececute</param>
-        public void AddPrecondiction<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func)
+        public void AddPrecondition<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func)
             where T1p : class 
             where T2p : class 
             where T1c : class, T1p 
@@ -233,7 +233,7 @@ namespace SharpPDDL
         /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
         /// <param name="obj3">Instance of T3c class (could be null) which representant 3rd parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1p, T2p and T3p classes to check possibility of action ececute</param>
-        public void AddPrecondiction<T1c, T1p, T2c, T2p, T3c, T3p>(string Name, ref T1c obj1, ref T2c obj2, ref T3c obj3, Expression<Predicate<T1p, T2p, T3p>> func)
+        public void AddPrecondition<T1c, T1p, T2c, T2p, T3c, T3p>(string Name, ref T1c obj1, ref T2c obj2, ref T3c obj3, Expression<Predicate<T1p, T2p, T3p>> func)
             where T1p : class
             where T2p : class
             where T3p : class
@@ -334,10 +334,7 @@ namespace SharpPDDL
         }
         #endregion
 
-        #region Adding Execution
-        [Obsolete("This method is deprecated use AddExecution(string EffectName)", true)]
-        public void UseEffectAlsoAsExecution(string EffectName) { }
-        
+        #region Adding Execution      
         /// <summary>
         /// Use EffectPDDL also as execution
         /// </summary>

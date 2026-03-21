@@ -16,7 +16,7 @@ namespace SharpPDDL
         protected Crisscross CurrentBuilded;
         internal CrisscrossGenerator CurrentBuilder { get; private set; }
         protected Executor DomainExecutor;
-        protected readonly DomeinPDDL Owner;
+        protected readonly DomainPDDL Owner;
         internal Action<uint> currentMinCumulativeCostUpdate;
         protected Action<KeyValuePair<Crisscross, List<GoalPDDL>>> FoundSols;
         internal ListOfString PlanGeneratedInDomainPlanner;
@@ -26,7 +26,7 @@ namespace SharpPDDL
         internal CancellationTokenSource InternalCancellationDomeinSrc;
         CancellationToken CancellationDomein;
 
-        internal DomainPlanner(DomeinPDDL Owner)
+        internal DomainPlanner(DomainPDDL Owner)
         {
             this.Owner = Owner;
             FoundSols += FoundSolsVoid;
