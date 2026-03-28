@@ -30,12 +30,12 @@ Include the library namespace with `using SharpPDDL`.
 > **TIP**
 > First use of it could seems a little unintuitive. Get familiar with ready examples.
 
-* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/865085abb562307d51c8ee0ff1f0a9dec73443df/Examples/15%20puzzle)
-* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/River%20crossing%20puzzle)
-* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Hanoi%20Tower)
-* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Travelling%20Salesman%20Problem)
-* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Peg%20solitaire)
-* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/b50d43020542ed932d4f2458080c0845842434f4/Examples/Water%20pouring%20puzzle)
+* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/15%20puzzle)
+* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/River%20crossing%20puzzle)
+* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Hanoi%20Tower)
+* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Travelling%20Salesman%20Problem)
+* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Peg%20solitaire)
+* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Water%20pouring%20puzzle)
 
 ---
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)

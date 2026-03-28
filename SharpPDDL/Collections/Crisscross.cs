@@ -174,10 +174,7 @@ namespace SharpPDDL
                             break;
                         }
                     }
-                    catch (Exception e)
-                    {
-                        int AO = 34;
-                    }
+                    catch { }
                 }
 
                 //...add it to Incorporated AlternativeRoots

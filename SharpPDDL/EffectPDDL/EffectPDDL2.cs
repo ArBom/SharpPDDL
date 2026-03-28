@@ -50,6 +50,10 @@ namespace SharpPDDL
                 Elements[0].usedMembersClass = new List<string>();
                 Elements[1].usedMembersClass = SourceLambdaListerPDDL.used[0];
             }
+            else if (SourceFunc is null)
+            {
+                //TODO
+            }
 
             this.DestinationMemberName = MutualPartOfConstructors(DestinationMember);
 

@@ -12,9 +12,9 @@
 - Optimization of making solution some kind of problems
 - Fix some issues</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>0.3.2.9</Version>
+    <Version>0.3.3.0</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>False</SignAssembly>
     <DelaySign>false</DelaySign>
     <Description>Generic, multi-threading GOAP (Goal Oriented Action Planning) library based on λ-expressions processing.</Description>
     <Copyright>Copyright © Arkadiusz Bomba 2025-2026</Copyright>
@@ -24,8 +24,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage></NeutralLanguage>
-    <AssemblyVersion>0.3.2.9</AssemblyVersion>
-    <FileVersion>0.3.2.9</FileVersion>
+    <AssemblyVersion>0.3.3.0</AssemblyVersion>
+    <FileVersion>0.3.3.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

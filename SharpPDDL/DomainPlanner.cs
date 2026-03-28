@@ -415,8 +415,6 @@ namespace SharpPDDL
             Stopping.Wait();
             if (Owner.domainGoals.Any())
                 CurrentBuilder.ReStart();
-
-            //komunikat o wyjściu z funkcji
         }
     }
 }
