@@ -8,9 +8,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <Company />
     <Authors>Arkadiusz Bomba</Authors>
-    <PackageReleaseNotes>β
-- Optimization of making solution some kind of problems
-- Fix some issues</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
     <Version>0.3.3.0</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
