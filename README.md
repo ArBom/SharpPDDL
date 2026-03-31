@@ -5,7 +5,7 @@
 [![LoC](https://raw.githubusercontent.com/ArBom/SharpPDDL/refs/heads/loc/badge.svg)](https://github.com/ArBom/SharpPDDL/blob/master/.github/workflows/loc.yml)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo&color=4bc721)
 [![NuGet Version](https://img.shields.io/nuget/vpre/SharpPDDL?style=plastic&logo=nuget&label=NuGet&color=004880&cacheSeconds=7200)](https://www.nuget.org/packages/SharpPDDL)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=10)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=12)
 
 ---
 
@@ -15,6 +15,15 @@ This is the class library based on PDDL intellection and in effect it's a implem
 > Library is in β version still, it may works little unstable.
 
 One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal. Examples of problems possible to solution by this algorithm:
+
+<details>
+  <summary>15 puzzle</summary>
+
+Treatment the game: [wiki](https://en.wikipedia.org/wiki/15_puzzle)
+
+Due to many steps essential to solve the puzzle and complexity of problem final goal was divided for several smaller. In the beginning algorithm realize solution for tile no. 1 and add goal to put correct tiles no 1 and 2. In the end of sub-goal realize is add goal of one tile goal more. Final goal of all tile is reach in time of less then 3 mins.
+
+</details>
 
 <details>
   <summary>Peg solitaire</summary>
@@ -30,16 +39,16 @@ Expression<Predicate<Spot>> EmptySpot = S => !S.Full;
 
 ActionPDDL HorizontalJump = new ActionPDDL("Horizontal jump");
 
-HorizontalJump.AddPrecondiction<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
-HorizontalJump.AddPrecondiction<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
-HorizontalJump.AddPrecondiction<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
+HorizontalJump.AddPrecondition<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
+HorizontalJump.AddPrecondition<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
+HorizontalJump.AddPrecondition<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
 
 Expression<Predicate<Spot, Spot, Spot>> Horizontalcollinear = ((JP, RP, FPP) => (JP.Row == RP.Row && RP.Row == FPP.Row));
-HorizontalJump.AddPrecondiction("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
+HorizontalJump.AddPrecondition("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
 
 Expression<Predicate<Spot, Spot>> VerticalClose = ((S1, S2) => ((S1.Column - S2.Column) == 1 || (S1.Column - S2.Column) == -1));
-HorizontalJump.AddPrecondiction("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
-HorizontalJump.AddPrecondiction("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
+HorizontalJump.AddPrecondition("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
+HorizontalJump.AddPrecondition("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
 
 HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
 HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
@@ -69,9 +78,9 @@ Putting a thing to the boat:
 ```cs
     ActionPDDL TakingCabbage = new ActionPDDL("TakingCabbage");
     TakingCabbage.AddPartOfActionSententia("Take the cabbage.");
-    TakingCabbage.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    TakingCabbage.AddPrecondiction("Cabbage is at the bank", ref nextToBank, b => b.IsCabbage);
-    TakingCabbage.AddPrecondiction("Boat is empty", ref boat, b => !b.IsCabbage && !b.IsGoat && !b.IsWolf);
+    TakingCabbage.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    TakingCabbage.AddPrecondition("Cabbage is at the bank", ref nextToBank, b => b.IsCabbage);
+    TakingCabbage.AddPrecondition("Boat is empty", ref boat, b => !b.IsCabbage && !b.IsGoat && !b.IsWolf);
     TakingCabbage.AddEffect("Remove the cabbage from the bank", ref nextToBank, b => b.IsCabbage, false);
     TakingCabbage.AddEffect("Put the cabbage on the boat", ref boat, b => b.IsCabbage, true);
     RiverCrossing.AddAction(TakingCabbage);
@@ -81,8 +90,8 @@ Putting a thing away:
 ```cs
     ActionPDDL PutCabbageAway = new ActionPDDL("PuttingCabbageAway");
     PutCabbageAway.AddPartOfActionSententia("Put the cabbage away.");
-    PutCabbageAway.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    PutCabbageAway.AddPrecondiction("Goat is on the bank", ref boat, b => b.IsCabbage);
+    PutCabbageAway.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    PutCabbageAway.AddPrecondition("Goat is on the bank", ref boat, b => b.IsCabbage);
     PutCabbageAway.AddEffect("Remove the goat from the bank", ref nextToBank, b => b.IsCabbage, true);
     PutCabbageAway.AddEffect("Add the goat to the boat", ref boat, b => b.IsCabbage, false);
     RiverCrossing.AddAction(PutCabbageAway);
@@ -94,8 +103,8 @@ Going to the other river bank:
 ```cs
     ActionPDDL CrossTheRiver = new ActionPDDL("CrossingTheRiver");
     CrossTheRiver.AddPartOfActionSententia("Cross the river.");
-    CrossTheRiver.AddPrecondiction("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    CrossTheRiver.AddPrecondiction("Nothing won't be eaten", ref nextToBank, b => b.IsGoat ? (!b.IsCabbage && !b.IsWolf) : true );
+    CrossTheRiver.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
+    CrossTheRiver.AddPrecondition("Nothing won't be eaten", ref nextToBank, b => b.IsGoat ? (!b.IsCabbage && !b.IsWolf) : true );
     RiverBank SecendBank = null;
     CrossTheRiver.AddEffect("Leave the river bank", ref nextToBank, b => b.IsBoat, false);
     CrossTheRiver.AddEffect("Go to the other bank", ref SecendBank, b => b.IsBoat, true);
@@ -189,31 +198,31 @@ namespace HanoiTower {
 namespace SharpPDDL {
 
     class Root_TreeNode{
-        ~SingleTypeOfDomein Content
+        ~SingleTypeOfDomain Content
         ~List~TreeNode~ Children 
     }
 
-    class HanoiObj_SingleTypeOfDomein {
+    class HanoiObj_SingleTypeOfDomain {
         ~Type Type : BaseShapes.HanoiObj
         ~List~ValueOfThumbnail~ CumulativeValues 
     }
 
     class 0_TreeNode{
-        ~SingleTypeOfDomein Content
+        ~SingleTypeOfDomain Content
         ~List~TreeNode~ Children 
     }
 
-    class HanoiBrick_SingleTypeOfDomein {
+    class HanoiBrick_SingleTypeOfDomain {
         ~Type Type : BaseShapes.HanoiObj
         ~List~ValueOfThumbnail~ CumulativeValues 
     }
 
     class 1_TreeNode{
-        ~SingleTypeOfDomein Content
+        ~SingleTypeOfDomain Content
         ~List~TreeNode~ Children 
     }
 
-    class HanoiTable_SingleTypeOfDomein {
+    class HanoiTable_SingleTypeOfDomain {
         ~Type Type : BaseShapes.HanoiObj
         ~List~ValueOfThumbnail~ CumulativeValues 
     }
@@ -221,22 +230,22 @@ namespace SharpPDDL {
     style Root_TreeNode fill:#391, stroke-style:..
     style 0_TreeNode fill:#391, stroke-style:..
     style 1_TreeNode fill:#391, stroke-style:..
-    style HanoiObj_SingleTypeOfDomein fill:#391, stroke-style:..
-    style HanoiBrick_SingleTypeOfDomein fill:#391, stroke-style:..
-    style HanoiTable_SingleTypeOfDomein fill:#391, stroke-style:..
+    style HanoiObj_SingleTypeOfDomain fill:#391, stroke-style:..
+    style HanoiBrick_SingleTypeOfDomain fill:#391, stroke-style:..
+    style HanoiTable_SingleTypeOfDomain fill:#391, stroke-style:..
     
     Root_TreeNode --> "Children[0]" 0_TreeNode
     Root_TreeNode --> "Children[1]" 1_TreeNode
-    0_TreeNode --> "Content" HanoiBrick_SingleTypeOfDomein
-    1_TreeNode --> "Content" HanoiTable_SingleTypeOfDomein
-    Root_TreeNode --> "Content" HanoiObj_SingleTypeOfDomein
-    HanoiObj_SingleTypeOfDomein ..> "≙" HanoiObj
-    HanoiBrick_SingleTypeOfDomein ..> "≙" HanoiBrick
-    HanoiTable_SingleTypeOfDomein ..> "≙" HanoiTable
+    0_TreeNode --> "Content" HanoiBrick_SingleTypeOfDomain
+    1_TreeNode --> "Content" HanoiTable_SingleTypeOfDomain
+    Root_TreeNode --> "Content" HanoiObj_SingleTypeOfDomain
+    HanoiObj_SingleTypeOfDomain ..> "≙" HanoiObj
+    HanoiBrick_SingleTypeOfDomain ..> "≙" HanoiBrick
+    HanoiTable_SingleTypeOfDomain ..> "≙" HanoiTable
 
-    note for HanoiObj_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide"
-    note for HanoiTable_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> // int:no is not use in any action"
-    note for HanoiBrick_SingleTypeOfDomein "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> 3: Size"
+    note for HanoiObj_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide"
+    note for HanoiTable_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> // int:no is not use in any action"
+    note for HanoiBrick_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> 3: Size"
 
 ```
 Instances of class used to define action shouldn't be use in other part of program. In time of create actions library create class instance excluding use the class constructor.
@@ -258,33 +267,33 @@ ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick"); /
 moveBrickOnBrick.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
 moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
 
-moveBrickOnBrick.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-moveBrickOnBrick.AddPrecondiction("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.IsEmptyUpSide == true
-moveBrickOnBrick.AddPrecondiction("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger); //MovedBrick.Size < NewStandB.Size
-moveBrickOnBrick.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
+moveBrickOnBrick.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
+moveBrickOnBrick.AddPrecondition("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.IsEmptyUpSide == true
+moveBrickOnBrick.AddPrecondition("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger); //MovedBrick.Size < NewStandB.Size
+moveBrickOnBrick.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
 
 moveBrickOnBrick.AddEffect("New stand is full", ref NewStandB, NS => NS.IsEmptyUpSide, false); //NewStandB.IsEmptyUpSide = false
 moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
 moveBrickOnBrick.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
 moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandB.HanoiObjSizeUpSide = MovedBrick.Size
 
-newDomein.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
+newDomain.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
 
 ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table"); //2st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandT
 
 moveBrickOnTable.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
 moveBrickOnTable.AddPartOfActionSententia(ref NewStandT, "onto table no {0}.", NS => NS.no);
 
-moveBrickOnTable.AddPrecondiction("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-moveBrickOnTable.AddPrecondiction("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.IsEmptyUpSide == true
-moveBrickOnTable.AddPrecondiction("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
+moveBrickOnTable.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
+moveBrickOnTable.AddPrecondition("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.IsEmptyUpSide == true
+moveBrickOnTable.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
 
 moveBrickOnTable.AddEffect("New stand is full", ref NewStandT, NS => NS.IsEmptyUpSide, false); //NewStandT.IsEmptyUpSide = false
 moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
 moveBrickOnTable.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
 moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandT.HanoiObjSizeUpSide = MovedBrick.Size
 
-newDomein.AddAction(moveBrickOnTable); //Putting empty brick onto empty table spot
+newDomain.AddAction(moveBrickOnTable); //Putting empty brick onto empty table spot
 ```
 
 Solution output for 3-bricks-hanoi-tower problem:
@@ -313,13 +322,13 @@ City To = null; //and goes to "To" city.
 
 Travel.AddPartOfActionSententia(ref To, "Go to {0}.", T => T.Name);
 
-Travel.AddPrecondiction( // From.SalesmanHere == true
+Travel.AddPrecondition( // From.SalesmanHere == true
     "Salesnam is in FROM city now",
     ref From,
     F => F.SalesmanHere);
 
 //Salesman visit city only one time
-Travel.AddPrecondiction( // To.Visiting == false
+Travel.AddPrecondition( // To.Visiting == false
     "Salesnam havent been in TO city",
     ref To,
     F => !F.Visited);
@@ -385,7 +394,7 @@ public class WaterJug
 }
 ```    
 ```cs
-DomeinPDDL DecantingDomein = new DomeinPDDL("Decanting problems"); //In this problem...
+DomainPDDL DecantingDomain = new DomainPDDL("Decanting problems"); //In this problem...
 
 ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 arguments:
 WaterJug SourceJug = null; //The jug from which you pour,
@@ -413,7 +422,7 @@ DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug
 //One need to do as fast as possible
 DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
 
-DecantingDomein.AddAction(DecantWater);
+DecantingDomain.AddAction(DecantWater);
 ```
 ![Water_pouring_solution](https://github.com/user-attachments/assets/3e35f26a-d4fe-46c9-a1e2-c4bba66b5225)
 </details>
