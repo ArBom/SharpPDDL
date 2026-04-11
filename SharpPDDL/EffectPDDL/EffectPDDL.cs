@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace SharpPDDL
@@ -24,7 +23,7 @@ namespace SharpPDDL
 
         internal string DestinationMemberName;
 
-        protected EffectPDDL(string Name, Expression DestinationMember, object[] ElementsInOnbjectPDDL) 
+        protected EffectPDDL(string Name, Expression DestinationMember, object[] ElementsInOnbjectPDDL)
             : base(Name, ElementsInOnbjectPDDL)
         {
             this.DestinationMember = DestinationMember;
@@ -58,13 +57,38 @@ namespace SharpPDDL
         internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1c DestinationObj, Expression<Func<T1p, ValueType>> destinationMember, ref T2c sourceObj1, Expression<Func<T1p, T2p, ValueType>> Source)
             where T1p : class
             where T2p : class
-            where T1c : class, T1p            
+            where T1c : class, T1p
             where T2c : class, T2p
         {
             CheckExistEffectName(Effects, Name);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref sourceObj1);
             Parametr.GetTheInstance_TryAddToList(Parameters, ref DestinationObj);
             EffectPDDL2<T1c, T1p, T2c, T2p> NewEffectPDDL = new EffectPDDL2<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj1, Source);
+            Effects?.Add(NewEffectPDDL);
+            return NewEffectPDDL;
+        }
+
+        internal static EffectPDDL Instance<T1, T2>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1 destinationObj, Expression<Func<T1, T2>> destinationMember) //przypisanie wartosci null do klasy
+            where T1 : class
+            where T2 : class
+        {
+            CheckExistEffectName(Effects, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref destinationObj);
+            EffectPDDLpointer<T1, T1, T2, T2> NewEffectPDDL = new EffectPDDLpointer<T1, T1, T2, T2>(Name, ref destinationObj, destinationMember);
+            Effects?.Add(NewEffectPDDL);
+            return NewEffectPDDL;
+        }
+
+            internal static EffectPDDL Instance<T1c, T1p, T2c, T2p>(string Name, List<Parametr> Parameters, List<EffectPDDL> Effects, ref T1c DestinationObj, Expression<Func<T1p, T2p>> destinationMember, ref T2c sourceObj)
+            where T1p : class
+            where T2p : class
+            where T1c : class, T1p
+            where T2c : class, T2p
+        {
+            CheckExistEffectName(Effects, Name);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref sourceObj);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref DestinationObj);
+            EffectPDDLpointer<T1c, T1p, T2c, T2p> NewEffectPDDL = new EffectPDDLpointer<T1c, T1p, T2c, T2p>(Name, ref DestinationObj, destinationMember, ref sourceObj);
             Effects?.Add(NewEffectPDDL);
             return NewEffectPDDL;
         }

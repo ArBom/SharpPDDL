@@ -281,6 +281,10 @@
     <value>Among objects of {1} the {2} there is no proper obj. of {0} type.</value>
     <comment>ObjectPDDL; Not found parameter at CompleteClassPos method; 0-TypeOfClass, 1-Name, 2-ObjectPDDLtype</comment>
   </data>
+  <data name="C46" xml:space="preserve">
+    <value>At this version you cannot to change class obj. at way like in {0}-effect</value>
+    <comment>ActionPDDL; IntPtr at method to make null ref. effect is not null</comment>
+  </data>
   <data name="C5" xml:space="preserve">
     <value>This domain dont know the {0} class type</value>
     <comment>ThumbnailObjectPrecursor; unknown class type; 0-class type</comment>

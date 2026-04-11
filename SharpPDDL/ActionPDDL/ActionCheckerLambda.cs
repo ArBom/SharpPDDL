@@ -142,6 +142,12 @@ namespace SharpPDDL
                 //Gdzie zapisywana jest wartość value    
                 Value DestMember = allTypes.First(t => t.Type == CurrentEffectPDDL.Elements[0].TypeOfClass).CumulativeValues.First(v => v.Name == CurrentEffectPDDL.DestinationMemberName);
 
+                if (!(DestMember.Type.IsValueType))
+                {
+                    EffectsArray[EfC + 2] = Expression.Empty();
+                    continue;
+                }
+
                 //odczyt oryginału z inputu 
                 MemberTypes memberType = DestMember.IsField ? MemberTypes.Field : MemberTypes.Property;
                 MemberInfo memberInfo = CurrentEffectPDDL.Elements[0].TypeOfClass.GetMember(CurrentEffectPDDL.DestinationMemberName, memberType, BindingFlags.Instance | BindingFlags.Public).First();

@@ -19,20 +19,16 @@ namespace SharpPDDL
             : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
             => this.SourceFunc = SourceFunct;
 
-        internal EffectPDDL2(string Name, ref T1c DestinationObj, Expression<Func<T1p, T2p>> Destination, ref T2c SourceObj)
-            : base(Name, Destination, new object[2] { DestinationObj, SourceObj })
-            => this.SourceFunc = null; 
-
         private string MutualPartOfConstructors(Expression DestinationFunct)
         {
             MemberofLambdaListerPDDL DestLambdaListerPDDL = new MemberofLambdaListerPDDL();
             DestLambdaListerPDDL.Visit(DestinationFunct);
-            string temp = DestLambdaListerPDDL.used[0][0];
+            string NameOfDestinationMember = DestLambdaListerPDDL.used[0][0];
 
-            if (!Elements[1].usedMembersClass.Exists(m => m == temp))
-                Elements[1].usedMembersClass.Add(temp);
+            if (!Elements[1].usedMembersClass.Exists(m => m == NameOfDestinationMember))
+                Elements[1].usedMembersClass.Add(NameOfDestinationMember);
 
-            return temp;
+            return NameOfDestinationMember;
         }
 
         override internal void CompleteActinParams(IList<Parametr> Parameters)

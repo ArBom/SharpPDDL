@@ -176,6 +176,10 @@ namespace SharpPDDL
                 TreeNode<SingleTypeOfDomein> TempNode = node;
                 TreeNode<SingleTypeOfDomein> TempRoot = TempNode.Root;
 
+                //if no value in node's content stop to work here
+                if (!node.Content.Values.Any())
+                    return;
+
                 while (!(TempRoot.Content is null))
                 {
                     //take Fields and Properties of root content

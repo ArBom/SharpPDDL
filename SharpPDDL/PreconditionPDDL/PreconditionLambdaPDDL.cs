@@ -113,10 +113,66 @@ namespace SharpPDDL
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            var left = Visit(node.Left);
-            var right = Visit(node.Right);
+            Expression left, right;
+
+            if (node.Left.Type.IsClass || node.Right.Type.IsClass)
+            {
+                left = VisitSideClassEquality(node.Left);
+                right = VisitSideClassEquality(node.Right);
+                return Expression.MakeBinary(node.NodeType, left, right);
+            }
+            else
+            {
+                left = Visit(node.Left);
+                right = Visit(node.Right);
+            }
+
             return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);
         }
+
+        protected Expression VisitSideClassEquality(Expression Side)
+        {
+            Expression ToRet = null;
+
+            if (Side.NodeType == ExpressionType.MemberAccess)
+                ToRet = Visit(Side);
+            else if (Side.NodeType == ExpressionType.Parameter)
+            {
+                //its parameter from in front of arrow: Parameter => lambda(Parameter) ; in these example string("Parameter") 
+                string memberExpressionName = Side.ToString();
+
+                string newParamName = NewParamName(memberExpressionName);
+                ParameterExpression newParam = _parameters.First(p => p.Name == newParamName);
+
+                Expression[] argument = new[] { Expression.Constant((ushort)0, typeof(ushort))};
+                PropertyInfo PrecursorPropertyInfo = typeof(ThumbnailObject).GetProperty("Precursor");
+                Expression PrecursorAccessExpression = Expression.MakeMemberAccess(newParam, PrecursorPropertyInfo);
+                PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
+                ToRet = Expression.MakeIndex(PrecursorAccessExpression, TO_indekser, argument);
+                ToRet = Expression.Convert(ToRet, typeof(IntPtr));
+            }
+            else
+                ToRet = Expression.Constant(IntPtr.Zero, typeof(IntPtr));
+
+            return ToRet;
+        }
+
+        protected new Expression Visit(Expression node)
+        {
+            if (node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual)
+            {
+                BinaryExpression binaryExpression = (BinaryExpression)node;
+                if (binaryExpression.Left.Type.IsClass || binaryExpression.Right.Type.IsClass)
+                {
+                    Expression newLeft = VisitSideClassEquality(binaryExpression.Left);
+                    Expression newRight = VisitSideClassEquality(binaryExpression.Right);
+
+                    return Expression.MakeBinary(binaryExpression.NodeType, newLeft, newRight);
+                }
+            }
+
+            return base.Visit(node);
+        }   
 
         protected override Expression VisitMember(MemberExpression node)
         {
@@ -173,7 +229,10 @@ namespace SharpPDDL
             }
 
             //Convert above expression from ValueType to particular type of frontal value
-            return Expression.Convert(IndexAccessExpr, node.Type);
+            if (node.Type.IsValueType)
+                return Expression.Convert(IndexAccessExpr, node.Type);
+            else
+                return Expression.Convert(IndexAccessExpr, typeof(IntPtr));
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

@@ -14,7 +14,7 @@ namespace SharpPDDL
 
         internal Value(string name, Type typeOfValue, Type typeOfOwner, bool isField)
         {
-            if (!typeOfValue.IsValueType)
+            if (!typeOfValue.IsValueType && !typeOfValue.IsClass)
                 throw new InvalidOperationException();
 
             this.Name = name;

@@ -76,7 +76,7 @@ namespace SharpPDDL
                 if (VOT.ValueOfIndexesKey == 0)
                 {
                     ObjHandles = new List<GCHandle>();
-                    GCHandle ObjHandle = GCHandle.Alloc(_OriginalObj, GCHandleType.Pinned);
+                    GCHandle ObjHandle = GCHandle.Alloc(_OriginalObj, GCHandleType.Normal);
                     IntPtr Addr = (IntPtr)ObjHandle;
                     ObjHandles.Add(ObjHandle);
                     Dict.Add(VOT.ValueOfIndexesKey, Addr);
@@ -99,9 +99,8 @@ namespace SharpPDDL
                         value = (ValueType)ObjField;
                     else
                     {
-                        throw new NotImplementedException();
                         if (ObjField is null)
-                            value = new IntPtr(0);
+                            value = IntPtr.Zero;
                         else
                         {
                             GCHandle OryginalObjField = GCHandle.Alloc(ObjField);

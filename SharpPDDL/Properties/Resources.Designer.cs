@@ -430,6 +430,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu At this version you cannot to change class obj. at way like in {0}-effect.
+        /// </summary>
+        internal static string C46 {
+            get {
+                return ResourceManager.GetString("C46", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu This domain dont know the {0} class type.
         /// </summary>
         internal static string C5 {

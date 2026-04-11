@@ -296,6 +296,53 @@ namespace SharpPDDL
         }
 
         /// <summary>
+        /// This method set null a class-member of action's param
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="DestinationObj">One of action parametr with value to set null</param>
+        /// <param name="DestinationMember">Point of destination value to set 'null'</param>
+        /// <param name="zero">You have to write 'null' at this version</param>
+        private void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2>> DestinationMember, IntPtr? zero)
+            where T1 : class
+            where T2 : class
+        {
+            if (zero.HasValue)
+            {
+                string ErrorText = String.Format(GloCla.ResMan.GetString("C46"), Name);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 152, ErrorText);
+                throw new Exception(ErrorText);
+            }
+
+            _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember);
+
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
+
+        /// <summary>
+        /// This method uses one object to assigning it as a new value to another parameter's member
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2c"></typeparam>
+        /// <typeparam name="T2p"></typeparam>
+        /// <param name="Name">Unique (on a scale of action), non-empty effect name</param>
+        /// <param name="DestinationObj">One of action parametr to which is moved value</param>
+        /// <param name="DestinationMember">Point of destination value to move</param>
+        /// <param name="SourceObj">Object to move to the DestinationMember</param>
+        private void AddEffect<T1, T2c, T2p>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2p>> DestinationMember, ref T2c SourceObj)
+            where T1 : class
+            where T2p : class
+            where T2c : class, T2p
+        {
+            _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj);
+
+            if (!(InstantActionPDDL is null))
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
+        }
+
+        /// <summary>
         /// This method uses one object to assigning new value to another parameter's member after the action is performed
         /// </summary>
         /// <typeparam name="T1"></typeparam>
@@ -310,6 +357,7 @@ namespace SharpPDDL
             where T2 : class
         {
             AddEffect<T1, T1, T2, T2>(Name, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
         }
@@ -329,6 +377,7 @@ namespace SharpPDDL
             where T2 : class
         { 
             _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
+
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
         }

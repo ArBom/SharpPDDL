@@ -71,7 +71,7 @@ namespace SharpPDDL
             {
                 act.BuildAction(types.allTypes);
             });
-            
+
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
         }
 
