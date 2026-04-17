@@ -175,9 +175,6 @@ namespace SharpPDDL
             AddExpectedObjectState<T>(Predications);
         }
 
-        [Obsolete("This method is deprecated.", true)]
-        public void AddExpectedObjectState<T>(Type originalObjType, ICollection<Expression<Predicate<T>>> goalExpectations, DomainPDDL newPDDLdomain = null) where T : class { }
-
         private void AddGoalObject<T>(T originalObj, DomainPDDL newPDDLdomain, ICollection<Expression<Predicate<T>>> goalExpectations, bool Migrate)
             where T : class
         {

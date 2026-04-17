@@ -27,28 +27,6 @@ namespace SharpPDDL
             CheckActions(options);
 
             List<ThumbnailObject> allObjects = new List<ThumbnailObject>();
-
-            object locker = new object();
-            /*Parallel.ForEach
-            (
-                domainObjects,
-                options,
-                () => new List<ThumbnailObject>(), // initialize aggregate for every thread 
-                (Obj, loopState, subtotal) =>
-                {
-                    ThumbnailObjectPrecursor<dynamic> k = new ThumbnailObjectPrecursor<dynamic>(Obj, types.allTypes); //TODO dodać zabezpieczenie na wypadek braku typu obj na liście allTypes
-                    subtotal.Add(k); // add current thread element to aggregate 
-                    return subtotal; // return current thread aggregate
-                },
-                Sublist => // action to combine all threads results
-                {
-                    lock (locker) // lock, cause List<T> is not a thread safe collection
-                    {
-                        possibleState.ThumbnailObjects.AddRange(Sublist);
-                    }
-                }
-            );*/
-
             foreach (var domainObject in domainObjects)
             {
                 ThumbnailObjectPrecursor<object> ObjectPrecursor = new ThumbnailObjectPrecursor<object>(domainObject, types.allTypes);

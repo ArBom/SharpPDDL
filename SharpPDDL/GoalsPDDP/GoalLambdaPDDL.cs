@@ -204,8 +204,15 @@ namespace SharpPDDL
                 //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
                 IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameter, TO_indekser, argument);
 
-                //Convert above expression from ValueType to particular type of frontal value
-                return Expression.Convert(IndexAccessExpr, node.Type);
+                if (node.Type.IsValueType)
+                {
+                    //Convert above expression from ValueType to particular type of frontal value
+                    return Expression.Convert(IndexAccessExpr, node.Type);
+                }
+                else
+                {
+                    return Expression.Convert(IndexAccessExpr, typeof(IntPtr));
+                }
             }
             //thumbnailObj ignoring it, but we check particular obj.
             else
@@ -287,6 +294,25 @@ namespace SharpPDDL
             string ExceptionMess = String.Format(GloCla.ResMan.GetString("E23"), node.ToString());
             GloCla.Tracer?.TraceEvent(TraceEventType.Error, 99, ExceptionMess);
             throw new Exception(ExceptionMess);
+        }
+
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            if (node.Value == null)
+                return Expression.Constant(IntPtr.Zero, typeof(IntPtr));
+            else
+                return node;
+        }
+
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            Expression left = Visit(node.Left);
+            Expression right = Visit(node.Right);
+
+            if (node.Left.Type.IsClass || node.Right.Type.IsClass)
+                return Expression.MakeBinary(node.NodeType, left, right);
+            else
+                return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);           
         }
     }
 }

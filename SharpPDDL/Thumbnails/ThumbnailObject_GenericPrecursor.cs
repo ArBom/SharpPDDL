@@ -15,7 +15,7 @@ namespace SharpPDDL
         internal readonly SingleTypeOfDomein Model;
         public override ThumbnailObject Precursor => this;
         internal override ushort[] ValuesIndeksesKeys => Model.ValuesKeys;
-        protected ICollection<GCHandle> ObjHandles;
+        internal ICollection<GCHandle> ObjHandles;
 
         internal override object OriginalObj => this._OriginalObj;
 
