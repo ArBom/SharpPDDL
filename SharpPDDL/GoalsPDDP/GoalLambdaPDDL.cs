@@ -163,11 +163,8 @@ namespace SharpPDDL
             return Visit(node.Body);
         }
 
-        protected override Expression VisitMember(MemberExpression node)
+        private SingleTypeOfDomein IdentifyParameterModel(MemberExpression node)
         {
-            if (node.Expression.NodeType == ExpressionType.Constant)
-                return node;
-
             SingleTypeOfDomein ParameterModel = null;
             Type originalObjTypeCand = node.Expression.Type;
             do
@@ -188,6 +185,84 @@ namespace SharpPDDL
                 throw new Exception(ExceptionMess);
             }
 
+            return ParameterModel;
+        }
+
+        private UnaryExpression ValueFromModel(ushort Value, Type NodeType)
+        {
+            Expression[] argument = new Expression[1] { Expression.Constant(Value, typeof(ushort)) };
+
+            //Property of ThumbnailObject.this[uint key]
+            PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
+
+            //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
+            IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameter, TO_indekser, argument);
+
+            if (NodeType.IsValueType)
+            {
+                //Convert above expression from ValueType to particular type of frontal value
+                return Expression.Convert(IndexAccessExpr, NodeType);
+            }
+            else
+            {
+                return Expression.Convert(IndexAccessExpr, typeof(IntPtr));
+            }
+        }
+
+        private MemberExpression ValueFromOrygObjField(UnaryExpression unaryExpression, string MemberName)
+        {
+            FieldInfo FieldType = typeof(T).GetField(MemberName);
+
+            if (!FieldType.IsInitOnly)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E24"), MemberName);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 100, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            if (!FieldType.FieldType.IsValueType && FieldType.FieldType != typeof(string))
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E25"), MemberName);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 101, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            MemberExpression FieldAccess = Expression.Field(unaryExpression, FieldType);
+            return FieldAccess;
+        }
+
+        private ConstantExpression ValueFromOrygObjProperty(UnaryExpression unaryExpression, string MemberName)
+        {
+            PropertyInfo PropertyType = typeof(T).GetProperty(MemberName);
+
+            if (PropertyType.CanWrite || !PropertyType.CanRead)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E26"), MemberName);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 102, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            if (!PropertyType.PropertyType.IsValueType && PropertyType.PropertyType != typeof(string))
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E27"), MemberName);
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 103, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+
+            Expression PropertyAccess = Expression.Property(unaryExpression, PropertyType);
+
+            object value = (ValueType)PropertyType.GetValue(OryginalObject);
+            ConstantExpression staticExValue = Expression.Constant(value, PropertyType.PropertyType);
+            return staticExValue;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Expression.NodeType == ExpressionType.Constant)
+                return node;
+
+            SingleTypeOfDomein ParameterModel = IdentifyParameterModel(node);
+
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
 
@@ -195,86 +270,29 @@ namespace SharpPDDL
 
             //thumbnailObj allows for it already
             if (Values.Any())
-            {
-                Expression[] argument = new[] { Expression.Constant(Values.First()) };
-
-                //Property of ThumbnailObject.this[uint key]
-                PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
-
-                //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
-                IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameter, TO_indekser, argument);
-
-                if (node.Type.IsValueType)
-                {
-                    //Convert above expression from ValueType to particular type of frontal value
-                    return Expression.Convert(IndexAccessExpr, node.Type);
-                }
-                else
-                {
-                    return Expression.Convert(IndexAccessExpr, typeof(IntPtr));
-                }
-            }
+                return ValueFromModel(Values.First(), node.Type);
             //thumbnailObj ignoring it, but we check particular obj.
             else
             {
                 //it will be check constant value of it
                 MemberInfo keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
                 Expression OrygObj = Expression.MakeMemberAccess(_parameter, keyOrygObj);
-                Expression Converted = Expression.Convert(OrygObj, ParameterModel.Type);
+                UnaryExpression Converted = Expression.Convert(OrygObj, ParameterModel.Type);
+                Expression staticExValue;
 
                 //get the member...
                 MemberInfo memberInfo = typeof(T).GetMember(MemberName).First();
-
-                Expression staticExValue;
-
                 //...and check the type of it...
                 switch (memberInfo.MemberType)
                 {
                     case MemberTypes.Field:
                         {
-                            FieldInfo FieldType = typeof(T).GetField(MemberName);
-
-                            if(!FieldType.IsInitOnly)
-                            {
-                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E24"), MemberName);
-                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 100, ExceptionMess);
-                                throw new Exception(ExceptionMess);
-                            }
-
-                            if (!FieldType.FieldType.IsValueType && FieldType.FieldType != typeof(string))
-                            {
-                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E25"), MemberName);
-                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 101, ExceptionMess);
-                                throw new Exception(ExceptionMess);
-                            }
-
-                            Expression FieldAccess = Expression.Field(Converted, FieldType);
-
-                            staticExValue = FieldAccess;
+                            staticExValue = ValueFromOrygObjField(Converted, MemberName);
                             break;
                         }
                     case MemberTypes.Property:
                         {
-                            PropertyInfo PropertyType = typeof(T).GetProperty(MemberName);
-
-                            if (PropertyType.CanWrite || !PropertyType.CanRead)
-                            {
-                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E26"), MemberName);
-                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 102, ExceptionMess);
-                                throw new Exception(ExceptionMess);
-                            }
-
-                            if (!PropertyType.PropertyType.IsValueType && PropertyType.PropertyType != typeof(string))
-                            {
-                                string ExceptionMess = String.Format(GloCla.ResMan.GetString("E27"), MemberName);
-                                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 103, ExceptionMess);
-                                throw new Exception(ExceptionMess);
-                            }
-
-                            Expression PropertyAccess = Expression.Property(Converted, PropertyType);
-
-                            object value = (ValueType)PropertyType.GetValue(OryginalObject);
-                            staticExValue = Expression.Constant(value, PropertyType.PropertyType);
+                            staticExValue = ValueFromOrygObjProperty(Converted, MemberName);
                             break;
                         }
                     default:

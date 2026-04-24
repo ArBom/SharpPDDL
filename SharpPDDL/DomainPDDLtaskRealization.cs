@@ -30,6 +30,11 @@ namespace SharpPDDL
             foreach (var domainObject in domainObjects)
             {
                 ThumbnailObjectPrecursor<object> ObjectPrecursor = new ThumbnailObjectPrecursor<object>(domainObject, types.allTypes);
+
+                if (!(ObjectPrecursor.ValuesIndeksesKeys is null))
+                    foreach (ThumbnailObject thumbnailObject in allObjects)
+                        ObjectPrecursor.TryToChangeHandle((ThumbnailObjectPrecursor<object>)thumbnailObject);
+
                 allObjects.Add(ObjectPrecursor);
             }
 

@@ -12,24 +12,23 @@ namespace SharpPDDL
         public readonly Delegate InstantFunct;
         public readonly Delegate InstantFunctSimplified;
 
-        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        private BinaryExpression BuildNewParameters(IReadOnlyList<Parametr> OldParameters)
         {
-        // Parameters below
             List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
             _parameters = new List<ParameterExpression>();
 
-            for (int i = 0; i != parameters.Count; i++)
+            for (int i = 0; i != OldParameters.Count; i++)
             {
                 ParameterExpression CurrentPar = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix + i.ToString());
                 _parameters.Add(CurrentPar);
 
                 //Check if one need to check it
-                if (parameters[i].CheckType is null)
+                if (OldParameters[i].CheckType is null)
                     continue;
 
-                BinaryExpression VisitedCheckType = (BinaryExpression)Visit(parameters[i].CheckType);
+                BinaryExpression VisitedCheckType = (BinaryExpression)Visit(OldParameters[i].CheckType);
                 ChecksParam.Add(VisitedCheckType);
-            }       
+            }
 
             BinaryExpression CheckAllParam = null;
             if (ChecksParam.Any())
@@ -41,7 +40,11 @@ namespace SharpPDDL
                         CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
             }
 
-        // Preconditions below
+            return CheckAllParam;
+        }
+
+        private void RebuildPreco(IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, out Expression CheckAllPreco, out Expression CheckAllPrecoSimplified)
+        {
             List<Expression> ChecksPrecondition = new List<Expression>();
             List<Expression> ChecksPreconditionSimplified = new List<Expression>();
             foreach (var preconditionPDDL in preconditions)
@@ -54,8 +57,7 @@ namespace SharpPDDL
 
                 ChecksPreconditionSimplified.Add(preconditionWithNewParam);
             }
-
-            Expression CheckAllPreco;
+            
             if (ChecksPrecondition.Any())
             {
                 CheckAllPreco = ChecksPrecondition[0];
@@ -65,7 +67,6 @@ namespace SharpPDDL
             else
                 CheckAllPreco = Expression.Constant(true);
 
-            Expression CheckAllPrecoSimplified;
             if (ChecksPreconditionSimplified.Any())
             {
                 CheckAllPrecoSimplified = ChecksPreconditionSimplified[0];
@@ -74,8 +75,10 @@ namespace SharpPDDL
             }
             else
                 CheckAllPrecoSimplified = Expression.Constant(true);
+        }
 
-            // Effects below
+        private ListInitExpression RebuildEffect(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        {
             List<Expression>[] EffectsPais = new List<Expression>[parameters.Count];
             for (int i = 0; i != parameters.Count; i++)
             {
@@ -94,7 +97,7 @@ namespace SharpPDDL
             NewExpression newDictionaryExpression = Expression.New(typeof(List<KeyValuePair<ushort, ValueType>>));
             Expression[] singleEffectsList = new Expression[parameters.Count];
 
-            for (int a = 0; a!= parameters.Count; a++)
+            for (int a = 0; a != parameters.Count; a++)
             {
                 if (EffectsPais[a].Any())
                     singleEffectsList[a] = Expression.ListInit(newDictionaryExpression, EffectsPais[a]);
@@ -104,6 +107,19 @@ namespace SharpPDDL
 
             NewExpression newListDictionaryExpression = Expression.New(typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             ListInitExpression ListOfEfects = Expression.ListInit(newListDictionaryExpression, singleEffectsList);
+            return ListOfEfects;
+        }
+
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        {
+            // Parameters
+            BinaryExpression CheckAllParam = BuildNewParameters(parameters);
+
+            // Preconditions
+            RebuildPreco(preconditions, out Expression CheckAllPreco, out Expression CheckAllPrecoSimplified);
+
+            // Effects
+            ListInitExpression ListOfEfects = RebuildEffect(parameters, effects);
 
             // Merge it all below
             ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));

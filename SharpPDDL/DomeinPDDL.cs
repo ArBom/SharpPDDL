@@ -247,7 +247,12 @@ namespace SharpPDDL
 
                 if (!(DomainPlanner.OneUnuseObjects is null))
                 {
-                    ThumbnailObject TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.allTypes);
+                    ThumbnailObjectPrecursor<object> TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.allTypes);
+
+                    if (!(TempNewOne.ValuesIndeksesKeys is null))
+                        foreach (ThumbnailObjectPrecursor<object> thumbnailObject in CurrentState.ThumbnailObjects.Where(TO => TO is ThumbnailObjectPrecursor<object>))
+                            TempNewOne.TryToChangeHandle(thumbnailObject);
+
                     DomainPlanner.OneUnuseObjects.Add(TempNewOne);
                 }
             }

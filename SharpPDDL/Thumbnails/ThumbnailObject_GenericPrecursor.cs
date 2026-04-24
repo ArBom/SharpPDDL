@@ -15,11 +15,11 @@ namespace SharpPDDL
         internal readonly SingleTypeOfDomein Model;
         public override ThumbnailObject Precursor => this;
         internal override ushort[] ValuesIndeksesKeys => Model.ValuesKeys;
-        internal ICollection<GCHandle> ObjHandles;
+        internal Dictionary<ushort, GCHandle> ObjHandles;
 
         internal override object OriginalObj => this._OriginalObj;
 
-        public ThumbnailObjectPrecursor(ThumbnailObject thumbnailObject, bool IsBroken)
+        internal ThumbnailObjectPrecursor(ThumbnailObject thumbnailObject, bool IsBroken)
         {
             this.Model = ((ThumbnailObjectPrecursor<TOriginalObj>)thumbnailObject.Precursor).Model;
             this.Parent = null;
@@ -39,7 +39,7 @@ namespace SharpPDDL
             GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
         }
 
-        public ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
+        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
             this._OriginalObj = originalObj;
@@ -75,10 +75,10 @@ namespace SharpPDDL
             {
                 if (VOT.ValueOfIndexesKey == 0)
                 {
-                    ObjHandles = new List<GCHandle>();
+                    ObjHandles = new Dictionary<ushort, GCHandle>();
                     GCHandle ObjHandle = GCHandle.Alloc(_OriginalObj, GCHandleType.Normal);
                     IntPtr Addr = (IntPtr)ObjHandle;
-                    ObjHandles.Add(ObjHandle);
+                    ObjHandles.Add(0, ObjHandle);
                     Dict.Add(VOT.ValueOfIndexesKey, Addr);
 
                     continue;
@@ -105,7 +105,7 @@ namespace SharpPDDL
                         {
                             GCHandle OryginalObjField = GCHandle.Alloc(ObjField);
                             value = (IntPtr)OryginalObjField;
-                            ObjHandles.Add(OryginalObjField);
+                            ObjHandles.Add(VOT.ValueOfIndexesKey, OryginalObjField);
                         }
                     }
                 }
@@ -116,11 +116,21 @@ namespace SharpPDDL
                     if (propertyInfo is null)
                         propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
 
+                    object ObjProperty = propertyInfo.GetValue(OriginalObj);
+
                     if (VOT.Type.IsValueType)
-                        value = (ValueType)propertyInfo.GetValue(OriginalObj);
+                        value = (ValueType)ObjProperty;
                     else
-                        throw new NotImplementedException();
-                        //patrz powyższy kod nieosiągalny
+                    {
+                        if (ObjProperty is null)
+                            value = IntPtr.Zero;
+                        else
+                        {
+                            GCHandle OryginalObjField = GCHandle.Alloc(ObjProperty);
+                            value = (IntPtr)OryginalObjField;
+                            ObjHandles.Add(VOT.ValueOfIndexesKey, OryginalObjField);
+                        }
+                    }
                 }
 
                 Dict.Add(VOT.ValueOfIndexesKey, value);
@@ -139,11 +149,35 @@ namespace SharpPDDL
             return NewChild;
         }
 
+        internal void TryToChangeHandle(ThumbnailObjectPrecursor<TOriginalObj> AnotherThObPrec)
+        {
+            if (this.ObjHandles is null)
+                return;
+
+            var thisq = this.ObjHandles.Select(v => (v.Key, v.Value.Target));
+            var theseq = AnotherThObPrec.ObjHandles.Select(v => (v.Key, v.Value.Target));
+
+            //((GCHandle)(thisq.First().Target)).Target
+        }
+
+        private void ChangeHandle(ushort NewKey, GCHandle NewHandle)
+        {
+            if (!Dict.Keys.Any(k => k == NewKey))
+            {
+
+            }
+
+            ObjHandles[NewKey].Free();
+            ObjHandles[NewKey] = NewHandle;
+            Dict[NewKey] = (IntPtr)NewHandle;
+            FigureCheckSum();
+        }
+
         ~ThumbnailObjectPrecursor()
         {
             if (!(ObjHandles is null))
-                foreach (GCHandle Handle in ObjHandles)
-                    Handle.Free();
+                foreach (var Handle in ObjHandles)
+                    Handle.Value.Free();
         }
     }
 }
