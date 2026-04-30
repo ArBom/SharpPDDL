@@ -12,7 +12,7 @@ namespace SharpPDDL
     {
         Crisscross states;
 
-        private SortedList<string, Crisscross> _IndexedStates;
+        internal SortedList<string, Crisscross> _IndexedStates;
 
         internal Task BuildingNewCrisscross;
         internal bool IsWaiting = true;

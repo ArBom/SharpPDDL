@@ -149,14 +149,31 @@ namespace SharpPDDL
             return NewChild;
         }
 
-        internal void TryToChangeHandle(ThumbnailObjectPrecursor<TOriginalObj> AnotherThObPrec)
+        internal void TryToChangeHandle(ThumbnailObjectPrecursor<object> AnotherThObPrec)
         {
             if (this.ObjHandles is null)
                 return;
 
-            var thisq = this.ObjHandles.Select(v => (v.Key, v.Value.Target));
-            var theseq = AnotherThObPrec.ObjHandles.Select(v => (v.Key, v.Value.Target));
+            var thisq = this.ObjHandles.Where(v => v.Key != 0).ToList();
+            var theseq = AnotherThObPrec.ObjHandles.ToList();
 
+            foreach(var iq in thisq)
+            {
+                foreach(var eq in theseq)
+                {
+                    object theseObj = eq.Value.Target;
+
+                    if (this.ObjHandles[0].Target.Equals(theseObj))
+                    {
+                        AnotherThObPrec.ChangeHandle(eq.Key, ObjHandles[0]);
+                    }
+
+                    if(iq.Value.Target.Equals(theseObj))
+                    {
+                        ChangeHandle(iq.Key, eq.Value);
+                    }
+                }
+            }
             //((GCHandle)(thisq.First().Target)).Target
         }
 
@@ -164,7 +181,7 @@ namespace SharpPDDL
         {
             if (!Dict.Keys.Any(k => k == NewKey))
             {
-
+                throw new Exception();
             }
 
             ObjHandles[NewKey].Free();

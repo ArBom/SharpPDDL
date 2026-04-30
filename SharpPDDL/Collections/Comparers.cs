@@ -26,4 +26,10 @@ namespace SharpPDDL
         public int Compare(KeyValuePair<Crisscross, List<CrisscrossChildrenCon>> c1, KeyValuePair<Crisscross, List<CrisscrossChildrenCon>> c2) 
             => c1.Key.CumulativedTransitionCharge.CompareTo(c2.Key.CumulativedTransitionCharge);
     }
+
+    internal class ActionByNameCo : IComparer<ActionPDDL>
+    {
+        public int Compare(ActionPDDL a1, ActionPDDL a2)
+            => a1.Name.CompareTo(a2.Name);
+    }
 }

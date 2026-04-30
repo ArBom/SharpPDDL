@@ -54,6 +54,8 @@ namespace SharpPDDL
             DomainPlanner.Start(options);
         }
 
+        private void SaveStates(string path) => DomainPlanner?.SaveStates(path);
+
         protected void ExternalCancellationOfProc()
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 12, GloCla.ResMan.GetString("V0"), this.Name);

@@ -60,17 +60,23 @@ namespace SharpPDDL
 
             this.types = new TypesPDDL();
 
+            //Complete types' collecion from every action
             Parallel.ForEach(actions, parallelOptions, act =>
             {
                 types.CompleteTypes(act.TakeSingleTypes());
             });
 
+            //Build types tree with class values
             types.CreateTypesTree();
-            
+
+            //Build every action to use in crisscross generator
             Parallel.ForEach(actions, parallelOptions, act =>
             {
                 act.BuildAction(types.allTypes);
             });
+
+            //Sort action by name to make the same order every app run
+            actions.Sort(new ActionByNameCo());
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
         }

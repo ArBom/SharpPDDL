@@ -55,7 +55,7 @@ namespace SharpPDDL
         //Classes of data workining
         protected GoalChecker goalChecker;
         protected CrisscrossNewPossiblesCreator crisscrossNewPossiblesCreator;
-        protected CrisscrossReducer crisscrossReducer;
+        internal CrisscrossReducer crisscrossReducer;
 
         protected readonly Action NoNewDataCheck;
         internal Action CrisscrossesGenerated;
