@@ -9,13 +9,14 @@ namespace SharpPDDL
     public class ActionPDDL
     {
         public readonly string Name;
-        private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
-        private List<EffectPDDL> Effects; //efekty
+        //TODO 2 poniższe potrzebuje tylko namese w internal
+        internal List<PreconditionPDDL> Preconditions { get; private set; } //warunki konieczne do wykonania
+        internal List<EffectPDDL> Effects { get; private set; } //efekty
         internal List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
         internal ActionCost actionCost;
-        private List<string> EffectsUsedAlsoAsExecution;
-        private List<ExpressionExecution> Executions;
+        internal List<string> EffectsUsedAlsoAsExecution { get; private set; }  //TODO potrzebuje tylko namese w internal
+        internal List<ExpressionExecution> Executions { get; private set; } //TODO potrzebuje tylko namese w internal
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionPDDLSimplified { get; private set; }
         internal Delegate InstantExecution { get; private set; }

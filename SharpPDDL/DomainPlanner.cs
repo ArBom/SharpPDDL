@@ -191,13 +191,6 @@ namespace SharpPDDL
             RealizeGoalsPlanifFound();
         }
 
-        internal void SaveStates(string path)
-        {
-            var t = FoundedCrisscrosses.Keys.Select(k => k.Content.CheckSum).ToList();
-            CrisscrossesVisualization p = new CrisscrossesVisualization(Owner, CurrentBuilded, t);
-            p.MakeGraph(path);
-        }
-
         private void RealizeGoalsPlanifFound()
         {
             //realize goals if plan is found
