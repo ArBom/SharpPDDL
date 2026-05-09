@@ -70,7 +70,7 @@ namespace SharpPDDL
         /// </summary>
         /// <param name="path">Path to write diagram(s)</param>
         /// <param name="diagrams">Diagram types to write</param>
-        private void GenerateDiagrams(string path, Diagram diagrams)
+        public void GenerateDiagrams(string path, Diagram diagrams)
         {
             if (String.IsNullOrEmpty(path))
             {

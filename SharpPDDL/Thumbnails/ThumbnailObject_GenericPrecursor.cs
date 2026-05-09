@@ -154,27 +154,25 @@ namespace SharpPDDL
             if (this.ObjHandles is null)
                 return;
 
-            var thisq = this.ObjHandles.Where(v => v.Key != 0).ToList();
-            var theseq = AnotherThObPrec.ObjHandles.ToList();
+            var theseObjHandles = this.ObjHandles.ToList();
+            var thoseObjHandles = AnotherThObPrec.ObjHandles.ToList();
 
-            foreach(var iq in thisq)
+            foreach(var thisOH in theseObjHandles)
             {
-                foreach(var eq in theseq)
+                foreach(var thatOH in thoseObjHandles)
                 {
-                    object theseObj = eq.Value.Target;
+                    object theseObj = thatOH.Value.Target;
 
                     if (this.ObjHandles[0].Target.Equals(theseObj))
                     {
-                        AnotherThObPrec.ChangeHandle(eq.Key, ObjHandles[0]);
+                        AnotherThObPrec.ChangeHandle(thatOH.Key, ObjHandles[0]);
                     }
-
-                    if(iq.Value.Target.Equals(theseObj))
+                    else if(thisOH.Value.Target.Equals(theseObj))
                     {
-                        ChangeHandle(iq.Key, eq.Value);
+                        ChangeHandle(thisOH.Key, thatOH.Value);
                     }
                 }
             }
-            //((GCHandle)(thisq.First().Target)).Target
         }
 
         private void ChangeHandle(ushort NewKey, GCHandle NewHandle)

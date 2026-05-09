@@ -305,7 +305,7 @@ namespace SharpPDDL
         /// <param name="DestinationObj">One of action parametr with value to set null</param>
         /// <param name="DestinationMember">Point of destination value to set 'null'</param>
         /// <param name="zero">You have to write 'null' at this version</param>
-        private void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2>> DestinationMember, IntPtr? zero)
+        public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2>> DestinationMember, IntPtr? zero)
             where T1 : class
             where T2 : class
         {
@@ -332,7 +332,7 @@ namespace SharpPDDL
         /// <param name="DestinationObj">One of action parametr to which is moved value</param>
         /// <param name="DestinationMember">Point of destination value to move</param>
         /// <param name="SourceObj">Object to move to the DestinationMember</param>
-        private void AddEffect<T1, T2c, T2p>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2p>> DestinationMember, ref T2c SourceObj)
+        public void AddEffect<T1, T2c, T2p>(string Name, ref T1 DestinationObj, Expression<Func<T1, T2p>> DestinationMember, ref T2c SourceObj)
             where T1 : class
             where T2p : class
             where T2c : class, T2p
