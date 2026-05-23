@@ -41,6 +41,8 @@ namespace Water_pouring_puzzle
 
         public void DrawIt()
         {
+            Console.CursorVisible = false;
+
             int left = 0, top = 0;
 
             switch (Capacity)
@@ -86,6 +88,8 @@ namespace Water_pouring_puzzle
 
             Console.Write(Environment.NewLine);
             Console.Write(Environment.NewLine);
+
+            Console.CursorVisible = true;
         }
     }
 }

@@ -1,8 +1,8 @@
 Treatment the game: [wiki](https://en.wikipedia.org/wiki/Peg_solitaire)
 
 In this example used triangular, 15-holes variant as easiest to solve.
+Due to shape of game board it needs to use 3 possible action of jump. One of it, the horizontal move, is shown below:
 
-Due to shape of game board it needs to use 3 possible action of jump. One of it, the horizontal move is shown below:
 ```cs
 Expression<Predicate<Spot>> FullSpot = S => S.Full;
 Expression<Predicate<Spot>> EmptySpot = S => !S.Full;
@@ -24,7 +24,9 @@ HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.F
 HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
 HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
 ```
+
 The execution of it uses effects from  above and static voids of Spot class.
+
 ```cs
 HorizontalJump.AddExecution("Reset colours", () => Reset(), false);
 HorizontalJump.AddExecution("Jumping Peg Spot is empty");
@@ -33,6 +35,7 @@ HorizontalJump.AddExecution("Final Peg Spot is full");
 HorizontalJump.AddExecution("Draw it", () => Board.Draw(spots), true);
 HorizontalJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
 ```
-At this case it's possible to reach 3016 possible states, which is generated in time of about 13s.
 
-![Peg_solitaire_solution](https://github.com/user-attachments/assets/4c7a440f-be36-4bcc-a737-d9266bb88809)
+At this case it's possible to reach 3016 possible states, which is generated in time of about 5 or 6s.
+
+![Peg_solitaire_solution](https://github.com/user-attachments/assets/84a727f0-28e2-43d6-a068-11fbc76201ae)

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _15_puzzle
 {
@@ -42,6 +40,8 @@ namespace _15_puzzle
 
         public static void DrawBoard (IEnumerable<Tile> tiles)
         {
+            Console.CursorVisible = false;
+
             int LeftPos = 1;
             char[] HorizontalInt = new char[] { LeftB, Horizontal, Horizontal, Cross, Horizontal, Horizontal, Cross, Horizontal, Horizontal, Cross, Horizontal, Horizontal, RightB };
             IEnumerable<IGrouping<int, Tile>> Lines = tiles.GroupBy(t => t.Row);
@@ -63,6 +63,8 @@ namespace _15_puzzle
 
             LeftMargin(LeftPos);
             Console.WriteLine( new char[] { LeftDown, UpDown, UpDown, DownB, UpDown, UpDown, DownB, UpDown, UpDown, DownB, UpDown, UpDown, RightDown });
+
+            Console.CursorVisible = true;
         }
     }
 }

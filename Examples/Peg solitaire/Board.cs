@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Peg_solitaire
 {
@@ -71,8 +68,9 @@ namespace Peg_solitaire
             Console.Write(" " + DownLeft);
             for (int i = 0; i <= 2 * MaxWight; i++)
                 Console.Write(DownFrame);
-            Console.CursorVisible = true;
+
             Console.WriteLine(DownRight);
+            Console.CursorVisible = true;
         }
     }
 }

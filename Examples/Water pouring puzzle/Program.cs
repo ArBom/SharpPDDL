@@ -32,7 +32,7 @@ namespace Water_pouring_puzzle
 
         static void Main(string[] args)
         {
-            DomainPDDL DecantingDomein = new DomainPDDL("Decanting problems"); //In this problem...
+            DomainPDDL DecantingDomain = new DomainPDDL("Decanting problems"); //In this problem...
 
             ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 parameters:
             WaterJug SourceJug = null; //The jug from which you pour,
@@ -69,29 +69,30 @@ namespace Water_pouring_puzzle
             DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.Flood, D.Capacity, D.Flood));
 
             //Add AddAction to DecantingDomein
-            DecantingDomein.AddAction(DecantWater);
+            DecantingDomain.AddAction(DecantWater);
 
             //Auto agree of plan execution and every actions
             WhatToAgree += AutoAcceptIt;
-            DecantingDomein.SetExecutionOptions(WhatToAgree, AgreeEWH, AskToAgree.Plan, AskToAgree.EveryAction);
+            DecantingDomain.SetExecutionOptions(WhatToAgree, AgreeEWH, AskToAgree.Plan, AskToAgree.EveryAction);
 
             //In the begin you have 3 jug of water.
             WaterJug waterJug8 = new WaterJug(8, 8); //8-litre jug is full,
             WaterJug waterJug5 = new WaterJug(5, 0); //5-litre one is empty,
             WaterJug waterJug3 = new WaterJug(3, 0); //3-litre one is empty.
 
-            //Add jugs to domein
-            DecantingDomein.domainObjects.Add(waterJug8);
-            DecantingDomein.domainObjects.Add(waterJug5);
-            DecantingDomein.domainObjects.Add(waterJug3);
+            //Add jugs to domain
+            DecantingDomain.domainObjects.Add(waterJug8);
+            DecantingDomain.domainObjects.Add(waterJug5);
+            DecantingDomain.domainObjects.Add(waterJug3);
 
             GoalPDDL Halve = new GoalPDDL("Divide in half"); //You need to...
             Halve.AddExpectedObjectState(waterJug8, Water_Jug => Water_Jug.Flood == 4); //...4-litre level inside 8-litre jug,
             Halve.AddExpectedObjectState(waterJug5, Water_Jug => Water_Jug.Flood == 4); //and 4-litre level inside 5-litre jug.
-            DecantingDomein.AddGoal(Halve);
+            DecantingDomain.AddGoal(Halve);
 
-            DecantingDomein.PlanGenerated += PrintPlan;
-            DecantingDomein.Start();
+            DecantingDomain.PlanGenerated += PrintPlan;
+            DecantingDomain.GenerateDiagrams("", Diagram.UseCase); //Save as "UML (Case Use Diagram).dgml" at app folder
+            DecantingDomain.Start();
             Console.ReadKey();
         }
     }

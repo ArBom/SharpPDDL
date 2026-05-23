@@ -1,5 +1,6 @@
 Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
-    
+
+One class is enough to represent this puzzle. This class has two members - max fluid level and current fluid level.
   ```cs
 public class WaterJug
 {
@@ -7,7 +8,10 @@ public class WaterJug
     public float flood;
     ⁝
 }
-```    
+```
+
+One action of decant the fluid is also enough to it. There is no any precondition to do it due to way effect defined.
+
 ```cs
 DomainPDDL DecantingDomain = new DomainPDDL("Decanting problems"); //In this problem...
 
@@ -39,4 +43,11 @@ DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJ
 
 DecantingDomain.AddAction(DecantWater);
 ```
+
+This action could be illustrated by Case use diagram with empty precondition block and change of water jugs fluid as extand it and methods of draw it as realizations.
+
+![Water pouring puzzle Case use diagram](https://github.com/user-attachments/assets/30594eb4-986c-411a-ab20-5f33e6145811)
+
+Realizotion of solution plan shows below as list of actions and an animation.
+
 ![Water_pouring_solution](https://github.com/user-attachments/assets/3e35f26a-d4fe-46c9-a1e2-c4bba66b5225)

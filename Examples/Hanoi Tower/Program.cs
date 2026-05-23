@@ -16,8 +16,7 @@ namespace Hanoi_Tower
     {
         public class HanoiObj //It cannot be abstract
         {
-            public int HanoiObjSizeUpSide = 0;
-            public bool IsEmptyUpSide;
+            public HanoiBrick HanoiBrickUpSide = null;
         }
 
         public class HanoiBrick : HanoiObj
@@ -33,11 +32,10 @@ namespace Hanoi_Tower
         public class HanoiTable : HanoiObj
         {
             public readonly int no;
-            public HanoiTable(int no, int HanoiObjSizeUpSide = 0, bool isEmpty = true)
+            public HanoiTable(int no, HanoiBrick HanoiBrickUpSide = null)
             {
                 this.no = no;
-                this.HanoiObjSizeUpSide = HanoiObjSizeUpSide;
-                this.IsEmptyUpSide = isEmpty;
+                this.HanoiBrickUpSide = HanoiBrickUpSide;
             }
         }
 
@@ -71,24 +69,22 @@ namespace Hanoi_Tower
             HanoiBrick NewStandB = null; //...and put it into bigger brick...
             HanoiTable NewStandT = null; //...or empty table spot.
 
-            Expression<Predicate<HanoiObj>> ObjectIsNoUp = (HO => HO.IsEmptyUpSide); //Moved brick have to be empty up side
+            Expression<Predicate<HanoiObj>> ObjectIsNoUp = (HO => HO.HanoiBrickUpSide == null); //Moved brick have to be empty up side
             Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size)); //you can put smaller brick onto bigger one
-            Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
+            Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB == OBM.HanoiBrickUpSide)); //the MB is directly above the OMB
 
             ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick"); //1st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandB
 
             moveBrickOnBrick.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
 
-            moveBrickOnBrick.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-            moveBrickOnBrick.AddPrecondition("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.IsEmptyUpSide == true
+            moveBrickOnBrick.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.HanoiBrickUpSide == null
+            moveBrickOnBrick.AddPrecondition("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.HanoiBrickUpSide == null
             moveBrickOnBrick.AddPrecondition("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger); //MovedBrick.Size < NewStandB.Size
-            moveBrickOnBrick.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
+            moveBrickOnBrick.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick == ObjBelowMoved.HanoiBrickUpSide
 
-            moveBrickOnBrick.AddEffect("New stand is full", ref NewStandB, NS => NS.IsEmptyUpSide, false); //NewStandB.IsEmptyUpSide = false
-            moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
-            moveBrickOnBrick.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
-            moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandB.HanoiObjSizeUpSide = MovedBrick.Size
+            moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.HanoiBrickUpSide, null); //ObjBelowMoved.HanoiBrickUpSide = null
+            moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiBrickUpSide, ref MovedBrick); //NewStandB.HanoiBrickUpSide = MovedBrick
 
             newDomein.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
 
@@ -97,47 +93,47 @@ namespace Hanoi_Tower
             moveBrickOnTable.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnTable.AddPartOfActionSententia(ref NewStandT, "onto table no {0}.", NS => NS.no);
 
-            moveBrickOnTable.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-            moveBrickOnTable.AddPrecondition("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.IsEmptyUpSide == true
-            moveBrickOnTable.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
+            moveBrickOnTable.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.ObjectIsNoUp == null
+            moveBrickOnTable.AddPrecondition("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.ObjectIsNoUp == null
+            moveBrickOnTable.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick == ObjBelowMoved.HanoiBrickUpSide
 
-            moveBrickOnTable.AddEffect("New stand is full", ref NewStandT, NS => NS.IsEmptyUpSide, false); //NewStandT.IsEmptyUpSide = false
-            moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
-            moveBrickOnTable.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
-            moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandT.HanoiObjSizeUpSide = MovedBrick.Size
+            moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.HanoiBrickUpSide, null); //ObjBelowMoved.HanoiBrickUpSide = null
+            moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiBrickUpSide, ref MovedBrick); //NewStandT.HanoiBrickUpSide = MovedBrick
 
             newDomein.AddAction(moveBrickOnTable); //Putting empty brick onto empty table spot
 
-            int MaxBriSize = 8;
+            int MaxBriSize = 8; //size of the biggest brick
+            HanoiBrick prev = null;
             for (int Bri = 1; Bri <= MaxBriSize; Bri++)
             {
-                HanoiBrick newOne = new HanoiBrick(Bri);
-                if (Bri != 1)
-                    newOne.HanoiObjSizeUpSide = Bri - 1;
-                else
-                    newOne.IsEmptyUpSide = true;
+                HanoiBrick newOne = new HanoiBrick(Bri) //Make new hanoi brick
+                {
+                    HanoiBrickUpSide = prev //Put the smaller on the new one
+                };
 
-                newDomein.domainObjects.Add(newOne);
+                prev = newOne; //uptate the smaller one for next iteration
+
+                newDomein.domainObjects.Add(newOne); //add it (the new one) to the domain objects
             }
 
-            List<HanoiTable> HanoiTables = new List<HanoiTable> { new HanoiTable(0, MaxBriSize, false), new HanoiTable(1), new HanoiTable(2) };
+            List<HanoiTable> HanoiTables = new List<HanoiTable> { new HanoiTable(0, prev), new HanoiTable(1), new HanoiTable(2) }; //make tables, and put bricks on 1st one
 
+            //add tables to the domain objects
             foreach (var HT in HanoiTables)
                 newDomein.domainObjects.Add(HT);
 
-            GoalPDDL movedBrick = new GoalPDDL("Transfer bricks onto table no. 3");
-            movedBrick.AddExpectedObjectState( HanoiTables[0], HT => HT.IsEmptyUpSide );
-            movedBrick.AddExpectedObjectState( HanoiTables[1], HT => HT.IsEmptyUpSide );
-            newDomein.AddGoal(movedBrick);
+            GoalPDDL movedBrick = new GoalPDDL("Transfer bricks onto table no. 3"); //define domain goal as...
+            movedBrick.AddExpectedObjectState( HanoiTables[0], HT => HT.HanoiBrickUpSide == null); //...0th table - empty...
+            movedBrick.AddExpectedObjectState( HanoiTables[1], HT => HT.HanoiBrickUpSide == null); //...1st table - empty...
+            newDomein.AddGoal(movedBrick); //...and add it to damain goal
 
-            newDomein.PlanGenerated += PrintPlan;
+            newDomein.PlanGenerated += PrintPlan; //Print the plan of solution when it be found
             CancellationTokenSource ExternalcancellationTokenSource = new CancellationTokenSource();
-            newDomein.Start(null, ExternalcancellationTokenSource.Token);
+            newDomein.GenerateDiagrams("Hanoi", Diagram.Class | Diagram.States); //create diagrams while run
+            newDomein.Start(null, ExternalcancellationTokenSource.Token); //Run it all!
 
             Console.ReadKey();
             ExternalcancellationTokenSource.Cancel();
-
-            int AO = 1500;
             Trace.Close();
         }
     }

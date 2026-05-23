@@ -4,26 +4,26 @@ Due to many steps essential to solve the puzzle and complexity of problem final 
 
 The part of the code responsible for adding next sub-goals:
 ```cs
-    static void AddTileXGoal(object a, object b)
+static void AddTileXGoal(object a, object b)
+{
+    GoalPDDL goalPDDL = (GoalPDDL)a;
+    int c = int.Parse(goalPDDL.Name);
+    AddTileXGoal(c);
+}
+
+static void AddTileXGoal(int i)
+{
+    if (i < 15)
     {
-        GoalPDDL goalPDDL = (GoalPDDL)a;
-            int c = int.Parse(goalPDDL.Name);
-            AddTileXGoal(c);
+        GoalPDDL Tile1Goal = new GoalPDDL((i + 1).ToString());
+
+        for (int j = 0; j < i + 1; j++)
+            Tile1Goal.AddExpectedObjectState(ExpressionsOfXTile(j));
+
+        Tile1Goal.GoalRealized += AddTileXGoal;
+        GemPuzzleDomein.AddGoal(Tile1Goal);
     }
-
-    static void AddTileXGoal(int i)
-    {
-        if (i < 15)
-        {
-            GoalPDDL Tile1Goal = new GoalPDDL((i + 1).ToString());
-
-            for (int j = 0; j < i + 1; j++)
-                Tile1Goal.AddExpectedObjectState(ExpressionsOfXTile(j));
-
-            Tile1Goal.GoalRealized += AddTileXGoal;
-            GemPuzzleDomein.AddGoal(Tile1Goal);
-        }
-    }
+}
 ```
 
 In the beginning algorithm realize solution for tile no. 1 and add goal to put correct tiles no 1 and 2. In the end of sub-goal realize is add goal of one tile goal more.

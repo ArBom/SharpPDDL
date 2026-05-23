@@ -1,6 +1,8 @@
 Treatment the problem: [wiki](https://en.wikipedia.org/wiki/Travelling_salesman_problem)
 
-Define the action:
+Of course algorithms specialized to solution this problem will be better to solve this problem than this library. Purpose of this example is to show the possibility of make the solution with consult the cost of action and optimize with it. The cost don't have to be constant for action, but it can be dependent on objects' member and expressed as func of them.
+
+There is an only one possible action to do at this problem - travel to other city. The defined action with function cost in the end of code block:
 ```cs
 ActionPDDL Travel = new ActionPDDL("Travel");
 City From = null; //Salesman leaves "From" city,
@@ -39,7 +41,7 @@ Travel.AddEffect( // To.Visited = true
 
 Travel.DefineActionCost(ref From, ref To, (F, T) => CitiesAPI.DistanceAPI(F.PostalCode, T.PostalCode));
 ```
-Some DistanceMatrix / Travel action cost:
+Distance matrix / Travel action cost used to model the problem:
 
 | Distance | Koszalin | Gniezno | Kraków | Płock | Poznań | Warszawa | Lublin |
 | :---     | :---:    | :---:   | :---:  | :---: | :---:  | :---:    | :---:  |
@@ -51,6 +53,7 @@ Some DistanceMatrix / Travel action cost:
 | Warszawa | 520      | 293     | 290    | 109   | 311    | 0        | 173    |
 | Lublin   | 687      | 448     | 304    | 295   | 478    | 173      | 0      |
 
+And generated solution below:
 ```
 SharpPDDL : Visit all cities determined!!! Total Cost: 1806
 Travel: Go to Gniezno. Action cost: 245
