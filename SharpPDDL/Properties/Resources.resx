@@ -429,6 +429,14 @@
     <value>Internal error: There is no possibility of index states in time of task running</value>
     <comment>CrisscrossReducer; Trying to index states in time of task running</comment>
   </data>
+  <data name="E37" xml:space="preserve">
+    <value>{0} is incorrect file extension for save a diagram(s). It will be changed to {1}.</value>
+    <comment>DomeinPDDL; wrong UML diagram extension; 0-wrong ext., 1-ok ext</comment>
+  </data>
+  <data name="E38" xml:space="preserve">
+    <value>There is no way to save UML diagram(s) at {0} path because {1}</value>
+    <comment>DomeinPDDL; ; 0-wrong path, 1-Exception message</comment>
+  </data>
   <data name="E4" xml:space="preserve">
     <value>You cannot to create goal without name or with empty name.</value>
     <comment>DomeinPDDL; trying to create new goal with wrong name</comment>
@@ -484,6 +492,10 @@
   <data name="I15" xml:space="preserve">
     <value>There is no possible to achieve some high priority goal {0}: '{1}'</value>
     <comment>CrisscrossGenerator; unnattainable high goal shown after gen. all states; 0-record number of H.G., 1-name of H.G.</comment>
+  </data>
+  <data name="I16" xml:space="preserve">
+    <value>Diagram(s) of {0} will be saved at {1} folder as {2} file(s).</value>
+    <comment>DomeinPDDL; info about diagram save path; 0-diagram types, 1-dest. folder, 2-file extension</comment>
   </data>
   <data name="I2" xml:space="preserve">
     <value>{0} is not a class type, so it will be remove from domain objects.</value>

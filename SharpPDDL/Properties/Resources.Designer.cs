@@ -763,6 +763,24 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is incorrect file extension for save a diagram(s). It will be changed to {1}..
+        /// </summary>
+        internal static string E37 {
+            get {
+                return ResourceManager.GetString("E37", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no way to save UML diagram(s) at {0} path because {1}.
+        /// </summary>
+        internal static string E38 {
+            get {
+                return ResourceManager.GetString("E38", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
         /// </summary>
         internal static string E4 {
@@ -885,6 +903,15 @@ namespace SharpPDDL.Properties {
         internal static string I15 {
             get {
                 return ResourceManager.GetString("I15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Diagram(s) of {0} will be saved at {1} folder as {2} file(s)..
+        /// </summary>
+        internal static string I16 {
+            get {
+                return ResourceManager.GetString("I16", resourceCulture);
             }
         }
         

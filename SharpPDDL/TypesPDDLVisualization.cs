@@ -12,6 +12,11 @@ namespace SharpPDDL
             this.allTypesNodes = allTypesNodes;
         }
 
+        protected override string MakeFilePath(string prefix)
+        {
+            return String.Concat(prefix, " (Class Diagram)", correctExtension);
+        }
+
         protected override void CreateData() { }
 
         protected override string GraphTitle()
@@ -23,41 +28,36 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AttributesTypeConnect = new Dictionary<string, string>
             {
-                ["Id"] = "TypeConnect",
-
-                ["Stroke"] = "#FF00A600",
+                [Id_Key] = "TypeConnect",
+                [Stroke_Key] = "#FF00A600",
                 ["StrokeDashArray"] = "2 0",
-                ["DrawArrow"] = "true"
             };
-            AddRecord(CategoryName, AttributesTypeConnect);
+            AddRecord(Category_Key, AttributesTypeConnect);
 
             Dictionary<string, string> AttributesInsideTypeConnect = new Dictionary<string, string>
             {
-                ["Id"] = "InsideTypeConnect",
-                //["StrokeDashArray"] = "2 2",
-                //["TargetDecorator"] = "Arrow",
-                //["BasedOn"] = "TypeConnect",
-                ["Stroke"] = "Grey",
-                ["Background"] = "Grey"
+                [Id_Key] = "InsideTypeConnect",
+                [Stroke_Key] = "Grey",
+                [Background_Key] = "Grey"
 
             };
-            AddRecord(CategoryName, AttributesInsideTypeConnect);
+            AddRecord(Category_Key, AttributesInsideTypeConnect);
 
             Dictionary<string, string> AttributesTypeNode = new Dictionary<string, string>
             {
-                ["Id"] = "TypeNode",
-                ["Background"] = "#FF0E70C0",
-                ["Stroke"] = "#FF0E70C0",
+                [Id_Key] = "TypeNode",
+                [Background_Key] = Class_Colour,
+                [Stroke_Key] = Class_Colour,
                 ["Icon"] = "CodeSchema_Class"
             };
-            AddRecord(CategoryName, AttributesTypeNode);
+            AddRecord(Category_Key, AttributesTypeNode);
         }
 
         void AddLink(TreeNode<SingleTypeOfDomein> TypesNode)
         {
             Dictionary<string, string> InsideLinkAttributes = new Dictionary<string, string>
             {
-                ["Category"] = "InsideTypeConnect"
+                [Category_Key] = "InsideTypeConnect"
             };
 
             if (TypesNode.Content != null)
@@ -67,11 +67,11 @@ namespace SharpPDDL
                     if (t.Type.IsValueType)
                         continue;
 
-                    InsideLinkAttributes["Target"] = t.Type.ToString();
-                    InsideLinkAttributes["Source"] = TypesNode.Content.Type.ToString();
-                    InsideLinkAttributes["Label"] = t.Name;
+                    InsideLinkAttributes[Target_Key] = t.Type.ToString();
+                    InsideLinkAttributes[Source_Key] = TypesNode.Content.Type.ToString();
+                    InsideLinkAttributes[Label_Key] = t.Name;
 
-                    AddRecord(LinkName, InsideLinkAttributes);
+                    AddRecord(Link_Key, InsideLinkAttributes);
                 }
             }
 
@@ -80,12 +80,12 @@ namespace SharpPDDL
 
             Dictionary<string, string> LinkAttributes = new Dictionary<string, string>
             {
-                ["Category"] = "TypeConnect",
-                ["Target"] = TypesNode.Root.Content.Type.ToString(),
-                ["Source"] = TypesNode.Content.Type.ToString()
+                [Category_Key] = "TypeConnect",
+                [Target_Key] = TypesNode.Root.Content.Type.ToString(),
+                [Source_Key] = TypesNode.Content.Type.ToString()
             };
 
-            AddRecord(LinkName, LinkAttributes);
+            AddRecord(Link_Key, LinkAttributes);
         }
 
         void AddLinkes(TreeNode<SingleTypeOfDomein> TypesNodes)
@@ -102,12 +102,12 @@ namespace SharpPDDL
         {
             Dictionary<string, string> NodeAttributes = new Dictionary<string, string>
             {
-                ["Category"] = "TypeNode",
-                ["Id"] = TypeNode.Content.Type.ToString(),
-                ["Label"] = TypeNode.Content.Type.Name
+                [Category_Key] = "TypeNode",
+                [Id_Key] = TypeNode.Content.Type.ToString(),
+                [Label_Key] = TypeNode.Content.Type.Name
             };
 
-            AddRecord(NodeName, NodeAttributes);
+            AddRecord(Node_Key, NodeAttributes);
         }
 
         void AddNodes(TreeNode<SingleTypeOfDomein> TypesNodes)

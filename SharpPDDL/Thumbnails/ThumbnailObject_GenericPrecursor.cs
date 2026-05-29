@@ -157,9 +157,11 @@ namespace SharpPDDL
             var theseObjHandles = this.ObjHandles.ToList();
             var thoseObjHandles = AnotherThObPrec.ObjHandles.ToList();
 
-            foreach(var thisOH in theseObjHandles)
+            foreach (var thisOH in theseObjHandles)
             {
-                foreach(var thatOH in thoseObjHandles)
+                object TargetObjLoop = thisOH.Value.Target;
+
+                foreach (var thatOH in thoseObjHandles)
                 {
                     object theseObj = thatOH.Value.Target;
 
@@ -167,7 +169,7 @@ namespace SharpPDDL
                     {
                         AnotherThObPrec.ChangeHandle(thatOH.Key, ObjHandles[0]);
                     }
-                    else if(thisOH.Value.Target.Equals(theseObj))
+                    else if (TargetObjLoop.Equals(theseObj))
                     {
                         ChangeHandle(thisOH.Key, thatOH.Value);
                     }

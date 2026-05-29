@@ -9,14 +9,13 @@ namespace SharpPDDL
     public class ActionPDDL
     {
         public readonly string Name;
-        //TODO 2 poniższe potrzebuje tylko namese w internal
-        internal List<PreconditionPDDL> Preconditions { get; private set; } //warunki konieczne do wykonania
-        internal List<EffectPDDL> Effects { get; private set; } //efekty
+        private List<PreconditionPDDL> Preconditions; //warunki konieczne do wykonania
+        private List<EffectPDDL> Effects; //efekty
         internal List<Parametr> Parameters; //typy wykorzystywane w tej akcji (patrz powyzej)
         private List<(int, string, Expression[])> ActionSententia;
         internal ActionCost actionCost;
-        internal List<string> EffectsUsedAlsoAsExecution { get; private set; }  //TODO potrzebuje tylko namese w internal
-        internal List<ExpressionExecution> Executions { get; private set; } //TODO potrzebuje tylko namese w internal
+        private List<string> EffectsUsedAlsoAsExecution;
+        private List<ExpressionExecution> Executions;
         internal Delegate InstantActionPDDL { get; private set; }
         internal Delegate InstantActionPDDLSimplified { get; private set; }
         internal Delegate InstantExecution { get; private set; }
@@ -66,12 +65,22 @@ namespace SharpPDDL
 
                         continue;
                     }
-                        
+
                     singleType.Values.Add(valueP);
                 }
             }
 
             return ToRet;
+        }
+
+        internal ValueTuple<IEnumerable<string>, IEnumerable<string>, IEnumerable<string>, IEnumerable<string>> DataToCaseUseDiagram()
+        {
+            IEnumerable<string> Preconditions_Strings = Preconditions.Select(p => p.Name);
+            IEnumerable<string> Effects_Strings = Effects.Select(e => e.Name);
+            IEnumerable<string> EffectsAsExec_Strings = EffectsUsedAlsoAsExecution.AsReadOnly();
+            IEnumerable<string> Executions_Strings = Executions.Select(e => e.Name);
+
+            return (Preconditions_Strings: Preconditions_Strings, Effects_Strings: Effects_Strings, EffectsAsExec_Strings: EffectsAsExec_Strings, Executions_Strings: Executions_Strings);
         }
 
         #region ActionSenteniae
@@ -94,7 +103,7 @@ namespace SharpPDDL
         /// <param name="destination">Instance of class used in actionPDDL, the owner of parameter(s) used in this Sententia</param>
         /// <param name="Text">This text will be shown in plan to realization</param>
         /// <param name="TextParams">Function(s) of destionation class, it/these replace the {n} substring(s) in Text</param>
-        public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams) 
+        public void AddPartOfActionSententia<T>(ref T destination, string Text, params Expression<Func<T, object>>[] TextParams)
             where T : class
         {
             if (TextParams.Length == 0)
@@ -139,8 +148,8 @@ namespace SharpPDDL
         /// <param name="Name">Unique (on a scale of action), non-empty precondition name</param>
         /// <param name="obj">Instance of T1 class (could be null) which representant parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1 class to check possibility of action ececute</param>
-        public void AddPrecondition<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func) 
-            where T1 : class 
+        public void AddPrecondition<T1>(string Name, ref T1 obj, Expression<Predicate<T1>> func)
+            where T1 : class
             => AddPrecondition<T1, T1>(Name, ref obj, func);
 
         /// <summary>
@@ -199,9 +208,9 @@ namespace SharpPDDL
         /// <param name="obj2">Instance of T2c class (could be null) which representant 2nd parameter of action</param>
         /// <param name="func">Predicate uses member(s) of T1p and T2p classes to check possibility of action ececute</param>
         public void AddPrecondition<T1c, T1p, T2c, T2p>(string Name, ref T1c obj1, ref T2c obj2, Expression<Predicate<T1p, T2p>> func)
-            where T1p : class 
-            where T2p : class 
-            where T1c : class, T1p 
+            where T1p : class
+            where T2p : class
+            where T1c : class, T1p
             where T2c : class, T2p
         {
             _ = PreconditionPDDL.Instance(Name, Parameters, Preconditions, ref obj1, ref obj2, func);
@@ -290,8 +299,8 @@ namespace SharpPDDL
             where T2p : class
             where T1c : class, T1p
             where T2c : class, T2p
-        { 
-             _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj, Source);
+        {
+            _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationMember, ref SourceObj, Source);
             if (!(InstantActionPDDL is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 135, GloCla.ResMan.GetString("I10"), this.Name, Name);
         }
@@ -374,9 +383,9 @@ namespace SharpPDDL
         /// <param name="SourceObj">One of action parametr from which is taken value</param>
         /// <param name="SourceFunct">Function of DestinationObj and SourceObj the source value to take</param>
         public void AddEffect<T1, T2>(string Name, ref T1 DestinationObj, Expression<Func<T1, ValueType>> DestinationFunct, ref T2 SourceObj, Expression<Func<T1, T2, ValueType>> SourceFunct)
-            where T1 : class 
+            where T1 : class
             where T2 : class
-        { 
+        {
             _ = EffectPDDL.Instance(Name, Parameters, Effects, ref DestinationObj, DestinationFunct, ref SourceObj, SourceFunct);
 
             if (!(InstantActionPDDL is null))
@@ -395,7 +404,7 @@ namespace SharpPDDL
             if (!(InstantExecution is null))
                 GloCla.Tracer?.TraceEvent(TraceEventType.Information, 136, GloCla.ResMan.GetString("I11"), this.Name, Name);
         }
-            
+
         /// <summary>
         /// Add the action to do in time of this point of plan realization
         /// </summary>
@@ -431,7 +440,7 @@ namespace SharpPDDL
         /// <param name="t2">2nd instance of class used in actionPDDL, the owner of parameter(s) used in this execution</param>
         /// <param name="action">Action of t1 and t2 classes which will be called in this execution</param>
         /// <param name="WorkWithNewValues"><c>false</c> for realization before 'Effects also as execution', <c>true</c> for after these</param>
-        public void AddExecution<T1,T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues)
+        public void AddExecution<T1, T2>(string Name, ref T1 t1, ref T2 t2, Expression<Action<T1, T2>> action, bool WorkWithNewValues)
         {
             this.Executions.Add(new ExpressionExecution(Name, action, WorkWithNewValues, new object[2] { t1, t2 }));
             if (!(InstantExecution is null))

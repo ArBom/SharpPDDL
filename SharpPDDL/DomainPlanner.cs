@@ -158,7 +158,7 @@ namespace SharpPDDL
             var NOTIsFoundingChippest = FoundedGoals.Where(FG => !FG.Key.IsFoundingChippest);
             if (!NOTIsFoundingChippest.Any())
                 return;
-            
+
             var FoundedChipStates = NOTIsFoundingChippest.Where(FG => (1.05 * FG.Value.First().CumulativedTransitionCharge < ActMinCumulativeCost));
             if (!FoundedChipStates.Any())
                 return;
@@ -256,7 +256,7 @@ namespace SharpPDDL
             FoundedGoals.Remove(toRem.Key);
         }
 
-        private void RemoveGoals (ICollection<GoalPDDL> GoalsToRemmove)
+        private void RemoveGoals(ICollection<GoalPDDL> GoalsToRemmove)
         {
             if (GoalsToRemmove is null)
                 return;
@@ -298,7 +298,7 @@ namespace SharpPDDL
         {
             if (PlanGeneratedInDomainPlanner is null)
                 return;
-            
+
             List<List<string>> Plan = new List<List<string>>();
             Crisscross state = CurrentBuilded;
 
@@ -369,9 +369,18 @@ namespace SharpPDDL
 
             List<CrisscrossChildrenCon> FoKePo = Found.Key.Position();
 
-            //do it if ...
+            //do it if any reaction is needed...
             if (FoKePo.Any())
             {
+                //creation of state diagram
+                Task DiagramCreate = null;
+                if ((Owner.DiagramTypes & Diagram.States) != Diagram.None)
+                {
+                    List<string> FoundedGoalCrisscrosses = FoundedCrisscrosses.Keys.Select(k => k.Content.CheckSum).ToList();
+                    CrisscrossesVisualization crisscrossesVisualization = new CrisscrossesVisualization(Owner, CurrentBuilded, FoundedGoalCrisscrosses, FoKePo);
+                    DiagramCreate = crisscrossesVisualization.MakeGraphTask(Owner.DiagramsPath, CancellationDomein);
+                }
+
                 ShowPlanToExternal(FoKePo);
 
                 //make class of transcriber
@@ -385,7 +394,7 @@ namespace SharpPDDL
 
                 Task Transcribing = transcriber.TranscribeState(CancellationDomein);
                 Task.WaitAny(new Task[] { Realizing, Transcribing }, ExternalCancellationDomein);
-                
+
                 if (ExternalCancellationDomein.IsCancellationRequested)
                 {
                     //CurrentBuilder.InitBuffors(Transcribing.Result.Item2, null, null, Transcribing.Result.NewIndexedStates);
@@ -406,6 +415,10 @@ namespace SharpPDDL
                 }
 
                 RefreshFoundedDicts(transcriber.NewIndexedStates, transcriber.NewOne);
+
+                if (DiagramCreate != null)
+                    DiagramCreate.Wait(CancellationDomein);
+
                 CurrentBuilded.Dispose();
                 CurrentBuilded = transcriber.NewOne;
             }

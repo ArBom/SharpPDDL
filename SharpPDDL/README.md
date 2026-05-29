@@ -1,7 +1,4 @@
-This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. Algorithm was made as decision-meker and optimalizer for IIoT (as part of MES) small environment, but it could be use as other problem solver too. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool). One can to use previously defined classes which are using in other part of one's programm. At this version you can use single instance of algorithm to solve single problem.
-
-> **WARNING** 
-> Library has some bugs. It's beta version still.
+This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. Algorithm was made as decision-meker and optimalizer for IIoT (as part of MES) small environment, but it could be use as other problem solver too. It uses only C# 7.2 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool), or be the another class added to domain problem. One can to use previously defined classes which are using in other part of one's programm. At this version you can use single instance of algorithm to solve single problem.
 
 ## How to use:
 Include the library namespace with `using SharpPDDL`.
@@ -15,6 +12,7 @@ Include the library namespace with `using SharpPDDL`.
 | DomainPDDL.`DefineTrace()` | Defines TraceSource to do trace the code execution. |
 | DomainPDDL.`planGenerated` | delegate of List<List<string>> type. It shows a generated plan. |
 | DomainPDDL.`SetExecutionOptions()` | Defines options of plan realization |
+| DomainPDDL.`GenerateDiagrams()` | Types of diagram to generate and path of saving them |
 | DomainPDDL.`Start()` | Starts the algorithm. |
 | `new ActionPDDL()` | Creates the action to use in domein. |
 | ActionPDDL.`AddPrecondition()` | Adds precondition of action doing. |
@@ -28,14 +26,14 @@ Include the library namespace with `using SharpPDDL`.
 ### Possible applications:
 
 > **TIP**
-> First use of it could seems a little unintuitive. Get familiar with ready examples.
+> First time of use of it would seem to be a little unintuitive. Get familiar with ready examples.
 
-* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/15%20puzzle)
-* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/River%20crossing%20puzzle)
-* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Hanoi%20Tower)
-* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Travelling%20Salesman%20Problem)
-* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Peg%20solitaire)
-* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/829d42a0239f9edf50a6d57d5d53a96538027532/Examples/Water%20pouring%20puzzle)
+* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/15%20puzzle)
+* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/River%20crossing%20puzzle)
+* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Hanoi%20Tower)
+* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Travelling%20Salesman%20Problem)
+* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Peg%20solitaire)
+* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Water%20pouring%20puzzle)
 
 ---
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)

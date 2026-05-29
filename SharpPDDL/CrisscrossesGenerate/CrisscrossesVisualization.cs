@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace SharpPDDL
 {
@@ -17,6 +18,11 @@ namespace SharpPDDL
             this.root = root;
             this.FoundedGoalCrisscrosses = FoundedGoalCrisscrosses;
             this.CurrentRealization = CurrentRealization;
+        }
+
+        protected override string MakeFilePath(string prefix)
+        {
+            return String.Concat(prefix, " (State Diagram)", correctExtension);
         }
 
         protected override void CreateData()
@@ -38,53 +44,46 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AttributesComment = new Dictionary<string, string>
             {
-                ["Id"] = "Comment",
-                ["Background"] = "LightGoldenrodYellow"
+                [Id_Key] = "Comment",
+                [Background_Key] = "LightGoldenrodYellow"
             };
-            AddRecord(CategoryName, AttributesComment);
+            AddRecord(Category_Key, AttributesComment);
 
             Dictionary<string, string> AttributesPossState = new Dictionary<string, string>
             {
-                ["Id"] = "PossState",
-                ["Stroke"] = "#FF770056",
-                ["Background"] = "#FF770056"
+                [Id_Key] = "PossState",
+                [Stroke_Key] = State_Colour,
+                [Background_Key] = State_Colour
             };
-            AddRecord(CategoryName, AttributesPossState);
+            AddRecord(Category_Key, AttributesPossState);
 
             Dictionary<string, string> AttributesInitState = new Dictionary<string, string>
             {
-                ["Id"] = "InitState",
+                [Id_Key] = "InitState",
                 ["BasedOn"] = "PossState",
-                //["Icon"] = "⏺"
             };
-            AddRecord(CategoryName, AttributesInitState);
+            AddRecord(Category_Key, AttributesInitState);
 
             Dictionary<string, string> AttributesFinalState = new Dictionary<string, string>
             {
-                ["Id"] = "FinalState",
+                [Id_Key] = "FinalState",
                 ["BasedOn"] = "PossState",
-                //["Icon"] = @""
             };
-            AddRecord(CategoryName, AttributesFinalState);
+            AddRecord(Category_Key, AttributesFinalState);
 
             Dictionary<string, string> AttributesConnector = new Dictionary<string, string>
             {
-                ["Id"] = "Connector",
-
-                //["Stroke"] = "#FFFF7600",
-                //["StrokeDashArray"] = "4 0",
-                //["DrawArrow"] = "true",
-
-                ["Stroke"] = "#FF8E0C10", //"#FF8E0C10"
+                [Id_Key] = "Connector",
+                [Stroke_Key] = Action_Colour
             };
-            AddRecord(CategoryName, AttributesConnector);
+            AddRecord(Category_Key, AttributesConnector);
         }
 
         internal override void AddLinkes()
         {
             Dictionary<string, string> Attributes = new Dictionary<string, string>
             {
-                ["Category"] = "Connector"
+                [Category_Key] = "Connector"
             };
 
             foreach (var curr in states)
@@ -92,20 +91,20 @@ namespace SharpPDDL
                 foreach (var l in curr.Value.Children)
                 {
                     if (CurrentRealization.Any(CR => CR.Equals(l)))
-                        Attributes["IsInRealize"] = "True";
+                        Attributes["IsInRealize"] = Boolean.TrueString;
                     else
-                        Attributes["IsInRealize"] = "False";
+                        Attributes["IsInRealize"] = Boolean.FalseString;
 
-                    Attributes["Source"] = curr.Key;
-                    Attributes["Target"] = l.Child.Content.CheckSum;
-                    Attributes["Label"] = l.ActionNr.ToString();
+                    Attributes[Source_Key] = curr.Key;
+                    Attributes[Target_Key] = l.Child.Content.CheckSum;
+                    Attributes[Label_Key] = l.ActionNr.ToString();
                     Attributes["ActionName"] = Owner.actions[l.ActionNr].Name;
                     Attributes["ActionCost"] = l.ActionCost.ToString();
 
                     string Sententia = (string)Owner.actions[l.ActionNr].InstantActionSententia?.DynamicInvoke(l.ActionArgThOb);
                     Attributes["Sententia"] = Sententia;
 
-                    AddRecord(LinkName, Attributes);
+                    AddRecord(Link_Key, Attributes);
                 }
             }
         }
@@ -118,46 +117,43 @@ namespace SharpPDDL
                 ActionLegendLabel = ActionLegendLabel + "\n" + i + ": " + Owner.actions[i].Name;
             }
 
-            Dictionary<string, string> ActionLegendAttributes = new Dictionary<string, string>();
-            ActionLegendAttributes["Id"] = "ActionLegend";
-            ActionLegendAttributes["Category"] = "Comment";
-            ActionLegendAttributes["Label"] = ActionLegendLabel;
-            AddRecord(NodeName, ActionLegendAttributes);
+            Dictionary<string, string> ActionLegendAttributes = new Dictionary<string, string>
+            {
+                [Id_Key] = "ActionLegend",
+                [Category_Key] = "Comment",
+                [Label_Key] = ActionLegendLabel
+            };
+            AddRecord(Node_Key, ActionLegendAttributes);
 
             Dictionary<string, string> Attributes = new Dictionary<string, string>();
 
             foreach (var curr in states)
             {
+                if (CurrentRealization.Any(CR => CR.Child.Content.CheckSum == curr.Key))
+                    Attributes["IsInRealize"] = Boolean.TrueString;
+                else
+                    Attributes["IsInRealize"] = Boolean.FalseString;
+
                 if (curr.Key == root.Content.CheckSum)
                 {
-                    //Attributes["Category"] = "InitState";
-                    //Attributes["IsInRealize"] = "True";
-                    Attributes["Label"] = "⚫  " + curr.Key;
+                    Attributes[Label_Key] = "⚫  " + curr.Key;
+                    Attributes["IsInRealize"] = Boolean.TrueString;
                 }
                 else if (FoundedGoalCrisscrosses.Contains(curr.Key))
                 {
-                    //Attributes["Category"] = "FinalState";
-                    //Attributes["IsInRealize"] = "True";
-                    Attributes["Label"] = "🔘  " + curr.Key;
+                    Attributes[Label_Key] = "🔘  " + curr.Key;
                 }
                 else
                 {
-                    //Attributes["Category"] = "PossState";
-                    //Attributes["IsInRealize"] = "False";
-                    Attributes["Label"] = curr.Key;
+                    Attributes[Label_Key] = curr.Key;
                 }
 
-                Attributes["Category"] = "PossState";
-                if (CurrentRealization.Any(CR => CR.Child.Content.CheckSum == curr.Key))
-                    Attributes["IsInRealize"] = "True";
-                else
-                    Attributes["IsInRealize"] = "False";
+                Attributes[Category_Key] = "PossState";
 
-                Attributes["Id"] = curr.Key;
-                //Attributes["Label"] = "⚫🔘\n" + curr.Key;
+                Attributes[Id_Key] = curr.Key;
                 Attributes["CumulativeCost"] = curr.Value.CumulativedTransitionCharge.ToString();
 
-                AddRecord(NodeName, Attributes);
+                AddRecord(Node_Key, Attributes);
             }
         }
 
@@ -165,73 +161,50 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AttributesIsInRealize = new Dictionary<string, string>
             {
-                ["Id"] = "IsInRealize",
-                ["Label"] = "IsInRealize",
-                ["DataType"] = "System.Boolean"
+                [Id_Key] = "IsInRealize",
+                [Label_Key] = "IsInRealize",
+                [DataType_Key] = "System.Boolean"
             };
-            AddRecord(PropertyName, AttributesIsInRealize);
+            AddRecord(Property_Key, AttributesIsInRealize);
 
             Dictionary<string, string> AttributesCumulativeCost = new Dictionary<string, string>
             {
-                ["Id"] = "CumulativeCost",
-                ["Label"] = "Cumulative Cost",
-                ["DataType"] = "System.UInt32"
+                [Id_Key] = "CumulativeCost",
+                [Label_Key] = "Cumulative Cost",
+                [DataType_Key] = "System.UInt32"
             };
-            AddRecord(PropertyName, AttributesCumulativeCost);
+            AddRecord(Property_Key, AttributesCumulativeCost);
 
             Dictionary<string, string> AttributesActionName = new Dictionary<string, string>
             {
-                ["Id"] = "ActionName",
-                ["Label"] = "Action Name",
-                ["DataType"] = "System.String"
+                [Id_Key] = "ActionName",
+                [Label_Key] = "Action Name",
+                [DataType_Key] = "System.String"
             };
-            AddRecord(PropertyName, AttributesActionName);
+            AddRecord(Property_Key, AttributesActionName);
 
             Dictionary<string, string> AttributesActionCost = new Dictionary<string, string>
             {
-                ["Id"] = "ActionCost",
-                ["Label"] = "Action Cost",
-                ["DataType"] = "System.UInt32"
+                [Id_Key] = "ActionCost",
+                [Label_Key] = "Action Cost",
+                [DataType_Key] = "System.UInt32"
             };
-            AddRecord(PropertyName, AttributesActionCost);
+            AddRecord(Property_Key, AttributesActionCost);
 
             Dictionary<string, string> AttributesSententia = new Dictionary<string, string>
             {
-                ["Id"] = "Sententia",
-                ["Label"] = "Action Sententia",
-                ["DataType"] = "System.String"
+                [Id_Key] = "Sententia",
+                [Label_Key] = "Action Sententia",
+                [DataType_Key] = "System.String"
             };
-            AddRecord(PropertyName, AttributesSententia);
+            AddRecord(Property_Key, AttributesSententia);
         }
 
         internal override void AddStyles()
         {
-            writer.WriteStartElement("Style");
-            writer.WriteAttributeString("TargetType", "Link");
-            writer.WriteAttributeString("GroupLabel", "IsInRealize");
-            writer.WriteAttributeString("ValueLabel", "True");
-
-            AddRecord("Condition", new Dictionary<string, string> { ["Expression"] = "IsInRealize = 'True'" });
-            AddRecord("Setter", new Dictionary<string, string> { ["Property"] = "Stroke", ["Value"] = "#FFFF7600" });
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("Style");
-            writer.WriteAttributeString("TargetType", "Node");
-            writer.WriteAttributeString("GroupLabel", "IsInRealize");
-            writer.WriteAttributeString("ValueLabel", "True");
-
-            AddRecord("Condition", new Dictionary<string, string> { ["Expression"] = "IsInRealize = 'True'" });
-            AddRecord("Setter", new Dictionary<string, string> { ["Property"] = "Stroke", ["Value"] = "#FFFF7600" });
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("Style");
-            writer.WriteAttributeString("TargetType", "Link");
-            writer.WriteAttributeString("GroupLabel", "IsInRealize");
-            writer.WriteAttributeString("ValueLabel", "False");
-
-            AddRecord("Condition", new Dictionary<string, string> { ["Expression"] = "IsInRealize = 'False'" });
-            AddRecord("Setter", new Dictionary<string, string> { ["Property"] = "Stroke", ["Value"] = "#FF8E0C10" });
-            writer.WriteEndElement();
+            AddTFStyle(Link_Key, "IsInRealize", true, Stroke_Key, Realization_Colour);
+            AddTFStyle(Node_Key, "IsInRealize", true, Stroke_Key, Realization_Colour);
+            AddTFStyle(Link_Key, "IsInRealize", false, Stroke_Key, Action_Colour);
         }
     }
 }

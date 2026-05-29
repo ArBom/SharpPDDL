@@ -66,8 +66,9 @@ namespace SharpPDDL
                 types.CompleteTypes(act.TakeSingleTypes());
             });
 
-            //Build types tree with class values
-            types.CreateTypesTree();
+            //Build types tree with class values and class diagram
+            string PathOfClassDiagram = ((DiagramTypes & Diagram.Class) != Diagram.None) ? DiagramsPath : null;
+            types.CreateTypesTreeAndDiagram(PathOfClassDiagram);
 
             //Build every action to use in crisscross generator
             Parallel.ForEach(actions, parallelOptions, act =>
@@ -150,7 +151,7 @@ namespace SharpPDDL
         /// </para></example>
         /// </summary>
         /// <param name="name">Name of Domein</param>
-        public DomainPDDL (string name)
+        public DomainPDDL(string name)
         {
             if (AllDomain is null)
                 AllDomain = new Dictionary<string, DomainPDDL>();
@@ -175,6 +176,8 @@ namespace SharpPDDL
 
             this.domainObjects = new ObservableCollection<object>();
             this.domainObjects.CollectionChanged += DomainObjects_CollectionChanged;
+
+            DiagramTypes = Diagram.None;
         }
 
         /// <summary>

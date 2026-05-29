@@ -8,8 +8,8 @@ namespace SharpPDDL
     {
         readonly string DomainName;
         readonly IReadOnlyList<ActionPDDL> actions;
-        List<string> Effects;
-        List<string> Executions;
+        List<string> Effects_Strings;
+        List<string> Executions_Strings;
 
         readonly string AppName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
 
@@ -19,22 +19,29 @@ namespace SharpPDDL
             this.actions = actions;
         }
 
+        protected override string MakeFilePath(string prefix)
+        {
+            return String.Concat(prefix, " (Case Use Diagram)", correctExtension);
+        }
+
         protected override void CreateData()
         {
-            Effects = new List<string>();
-            Executions = new List<string>();
+            Effects_Strings = new List<string>();
+            Executions_Strings = new List<string>();
 
             foreach (ActionPDDL actionPDDL in actions)
             {
-                foreach (EffectPDDL effectPDDL in actionPDDL.Effects)
-                    Effects.Add(effectPDDL.Name);
+                var strings = actionPDDL.DataToCaseUseDiagram();
 
-                foreach (ExpressionExecution expressionExecution in actionPDDL.Executions)
-                    Executions.Add(expressionExecution.Name);
+                foreach (string effectPDDL in strings.Item2)
+                    Effects_Strings.Add(effectPDDL);
+
+                foreach (string Execution in strings.Item4)
+                    Executions_Strings.Add(Execution);
             }
 
-            Effects = Effects.Distinct().ToList();
-            Executions = Executions.Distinct().ToList();
+            Effects_Strings = Effects_Strings.Distinct().ToList();
+            Executions_Strings = Executions_Strings.Distinct().ToList();
         }
 
         protected override string GraphTitle()
@@ -46,54 +53,53 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AttributesPossState = new Dictionary<string, string>
             {
-                ["Id"] = "Action",
-                ["Stroke"] = "#FF8E0C10",
-                ["Background"] = "#FF8E0C10",
+                [Id_Key] = "Action",
+                [Stroke_Key] = Action_Colour,
+                [Background_Key] = Action_Colour,
                 ["NodeRadius"] = "60"
             };
-            AddRecord(CategoryName, AttributesPossState);
+            AddRecord(Category_Key, AttributesPossState);
 
             Dictionary<string, string> AttributesEffect = new Dictionary<string, string>
             {
-                ["Id"] = "Effect",
+                [Id_Key] = "Effect",
                 ["BasedOn"] = "Action"
             };
-            AddRecord(CategoryName, AttributesEffect);
+            AddRecord(Category_Key, AttributesEffect);
 
             Dictionary<string, string> AttributesTypeNode = new Dictionary<string, string>
             {
-                ["Id"] = "Lib",
-                ["Background"] = "#FF0E70C0",
-                ["Stroke"] = "#FF0E70C0",
-                //["Icon"] = "CodeSchema_Class"
+                [Id_Key] = "Lib",
+                [Background_Key] = Class_Colour,
+                [Stroke_Key] = Class_Colour,
             };
-            AddRecord(CategoryName, AttributesTypeNode);
+            AddRecord(Category_Key, AttributesTypeNode);
 
             Dictionary<string, string> AttributesContainsLink = new Dictionary<string, string>
             {
-                ["Id"] = "Contains",
-                ["CanBeDataDriven"] = "False",
-                ["CanLinkedNodesBeDataDriven"] = "True",
-                ["IsContainment"] = "True"
+                [Id_Key] = "Contains",
+                ["CanBeDataDriven"] = Boolean.FalseString,
+                ["CanLinkedNodesBeDataDriven"] = Boolean.TrueString,
+                ["IsContainment"] = Boolean.TrueString
             };
-            AddRecord(CategoryName, AttributesTypeNode);
+            AddRecord(Category_Key, AttributesTypeNode);
 
             Dictionary<string, string> AttributesPrecLink = new Dictionary<string, string>
             {
-                ["Id"] = "PrecoLink",
-                ["CanBeDataDriven"] = "False"
+                [Id_Key] = "PrecoLink",
+                ["CanBeDataDriven"] = Boolean.FalseString
             };
-            AddRecord(CategoryName, AttributesPrecLink);
+            AddRecord(Category_Key, AttributesPrecLink);
 
             Dictionary<string, string> AttributesExec = new Dictionary<string, string>
             {
-                ["Id"] = "Execution",
-                ["Stroke"] = "#FF8E0C10",
+                [Id_Key] = "Execution",
+                [Stroke_Key] = Realization_Colour,
                 ["StrokeDashArray"] = "4 4",
-                ["Background"] = "#00000000",
+                [Background_Key] = "#00000000",
                 ["NodeRadius"] = "60"
             };
-            AddRecord(CategoryName, AttributesExec);
+            AddRecord(Category_Key, AttributesExec);
         }
 
         internal override void AddLinkes()
@@ -102,78 +108,78 @@ namespace SharpPDDL
             {
                 Dictionary<string, string> PrecoAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "PrecoLink",
-                    ["Source"] = "App",
-                    ["Target"] = actionPDDL.Name + "!Preco"
+                    [Category_Key] = "PrecoLink",
+                    [Source_Key] = "App",
+                    [Target_Key] = actionPDDL.Name + "!Preco"
                 };
-                AddRecord(LinkName, PrecoAttributes);
+                AddRecord(Link_Key, PrecoAttributes);
 
                 Dictionary<string, string> MActAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "PrecoLink",
-                    ["Source"] = actionPDDL.Name + "!Preco",
-                    ["Target"] = actionPDDL.Name
+                    [Category_Key] = "PrecoLink",
+                    [Source_Key] = actionPDDL.Name + "!Preco",
+                    [Target_Key] = actionPDDL.Name
                 };
-                AddRecord(LinkName, MActAttributes);
+                AddRecord(Link_Key, MActAttributes);
 
                 Dictionary<string, string> ContAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "Contains",
-                    ["Source"] = "SharpPDDL",
-                    ["Target"] = actionPDDL.Name,
+                    [Category_Key] = "Contains",
+                    [Source_Key] = "SharpPDDL",
+                    [Target_Key] = actionPDDL.Name,
                     ["FetchingParent"] = "SharpPDDL"
                 };
-                AddRecord(LinkName, ContAttributes);
+                AddRecord(Link_Key, ContAttributes);
 
-                foreach (EffectPDDL effectPDDL in actionPDDL.Effects)
+                foreach (string effectPDDLName in actionPDDL.DataToCaseUseDiagram().Item2)
                 {
                     Dictionary<string, string> EffeLinkAttributes = new Dictionary<string, string>
                     {
-                        ["Category"] = "EffeLink",
-                        ["Source"] = actionPDDL.Name,
-                        ["Target"] = effectPDDL.Name + "!E",
+                        [Category_Key] = "EffeLink",
+                        [Source_Key] = actionPDDL.Name,
+                        [Target_Key] = effectPDDLName + "!E",
                         ["StrokeDashArray"] = "4 4",
-                        ["Label"] = "«include»"
+                        [Label_Key] = "«include»"
                     };
 
-                    if (actionPDDL.EffectsUsedAlsoAsExecution.Contains(effectPDDL.Name))
-                        EffeLinkAttributes["IsExec"] = "True";
+                    if (actionPDDL.DataToCaseUseDiagram().Item3.Contains(effectPDDLName))
+                        EffeLinkAttributes["IsExec"] = Boolean.TrueString;
                     else
-                        EffeLinkAttributes["IsExec"] = "False";
+                        EffeLinkAttributes["IsExec"] = Boolean.FalseString;
 
-                    AddRecord(LinkName, EffeLinkAttributes);
+                    AddRecord(Link_Key, EffeLinkAttributes);
 
                     Dictionary<string, string> ContEAttributes = new Dictionary<string, string>
                     {
-                        ["Category"] = "Contains",
-                        ["Source"] = "SharpPDDL",
-                        ["Target"] = effectPDDL.Name + "!E",
+                        [Category_Key] = "Contains",
+                        [Source_Key] = "SharpPDDL",
+                        [Target_Key] = effectPDDLName + "!E",
                         ["FetchingParent"] = "SharpPDDL"
                     };
-                    AddRecord(LinkName, ContEAttributes);
+                    AddRecord(Link_Key, ContEAttributes);
                 }
 
-                foreach (ExpressionExecution execution in actionPDDL.Executions)
+                foreach (string executionName in actionPDDL.DataToCaseUseDiagram().Item4)
                 {
                     Dictionary<string, string> executionLinkAttributes = new Dictionary<string, string>
                     {
-                        ["Category"] = "EffeLink",
-                        ["Source"] = actionPDDL.Name,
-                        ["Target"] = execution.Name + "!Ex",
+                        [Category_Key] = "EffeLink",
+                        [Source_Key] = actionPDDL.Name,
+                        [Target_Key] = executionName + "!Ex",
                         ["StrokeDashArray"] = "4 4",
-                        ["Label"] = "«realization»",
-                        ["IsExec"] = "True"
+                        [Label_Key] = "«realization»",
+                        ["IsExec"] = Boolean.TrueString
                     };
-                    AddRecord(LinkName, executionLinkAttributes);
+                    AddRecord(Link_Key, executionLinkAttributes);
 
                     Dictionary<string, string> ContExAttributes = new Dictionary<string, string>
                     {
-                        ["Category"] = "Contains",
-                        ["Source"] = "SharpPDDL",
-                        ["Target"] = execution.Name + "!Ex",
+                        [Category_Key] = "Contains",
+                        [Source_Key] = "SharpPDDL",
+                        [Target_Key] = executionName + "!Ex",
                         ["FetchingParent"] = "SharpPDDL"
                     };
-                    AddRecord(LinkName, ContExAttributes);
+                    AddRecord(Link_Key, ContExAttributes);
                 }
             }
         }
@@ -182,69 +188,68 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AppAttributes = new Dictionary<string, string>
             {
-                ["Category"] = "Actor",
-                ["Id"] = "App",
+                [Category_Key] = "Actor",
+                [Id_Key] = "App",
                 ["Shape"] = "None",
-                ["Label"] = "웃\n\n" + System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                //["VerticalAlignment"] = "Top",
-                ["Icon"] = @"C:\ProgramData\Microsoft\User Account Pictures\user-48.png"
+                [Label_Key] = "  ⚪\n ╭╈╮\n ╯┃╰\n ╱ ╲\n ҄   ҄\n" + System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                ["FontFamily"] = "Consolas",
+                ["FontWeight"] = "Heavy"
             };
-            AddRecord(NodeName, AppAttributes);
+            AddRecord(Node_Key, AppAttributes);
 
             Dictionary<string, string> SharpPDDLAttributes = new Dictionary<string, string>
             {
-                ["Category"] = "Lib",
-                ["Id"] = "SharpPDDL",
-                ["Label"] = "SharpPDDL",
+                [Category_Key] = "Lib",
+                [Id_Key] = "SharpPDDL",
+                [Label_Key] = "SharpPDDL - " + DomainName,
                 ["Group"] = "Expanded"
             };
-            AddRecord(NodeName, SharpPDDLAttributes);
+            AddRecord(Node_Key, SharpPDDLAttributes);
 
             foreach (ActionPDDL actionPDDL in actions)
             {
-                IEnumerable<string> Precos = actionPDDL.Preconditions.Select(p => p.Name);
-                string PrecoList = "♦ " + String.Join("\n♦ ", Precos);
+                string PrecoList = "♦ " + String.Join("\n♦ ", actionPDDL.DataToCaseUseDiagram().Item1);
 
                 Dictionary<string, string> ActionPrecoAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "ActionPreco",
-                    ["Id"] = actionPDDL.Name + "!Preco",
-                    ["Label"] = PrecoList,
-                    //["StrokeThickness"] = "4",
-                    ["Background"] = "#FF770056"
+                    [Category_Key] = "ActionPreco",
+                    [Id_Key] = actionPDDL.Name + "!Preco",
+                    [Label_Key] = PrecoList,
+                    ["NodeRadius"] = "0",
+                    [Background_Key] = State_Colour
                 };
-                AddRecord(NodeName, ActionPrecoAttributes);
+                AddRecord(Node_Key, ActionPrecoAttributes);
 
                 Dictionary<string, string> ActionAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "Action",
-                    ["Id"] = actionPDDL.Name,
-                    ["Label"] = actionPDDL.Name
+                    [Category_Key] = "Action",
+                    [Id_Key] = actionPDDL.Name,
+                    [Label_Key] = actionPDDL.Name
                 };
-                AddRecord(NodeName, ActionAttributes);
+                AddRecord(Node_Key, ActionAttributes);
             }
 
-            foreach (string effect in Effects)
+            foreach (string effect in Effects_Strings)
             {
                 Dictionary<string, string> EffectAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "Effect",
-                    ["Id"] = effect + "!E",
-                    ["Label"] = effect,
+                    [Category_Key] = "Effect",
+                    [Id_Key] = effect + "!E",
+                    [Label_Key] = effect,
                     ["BasedOn"] = "Action"
                 };
-                AddRecord(NodeName, EffectAttributes);
+                AddRecord(Node_Key, EffectAttributes);
             }
 
-            foreach (string execution in Executions)
+            foreach (string execution in Executions_Strings)
             {
                 Dictionary<string, string> ExecutionsAttributes = new Dictionary<string, string>
                 {
-                    ["Category"] = "Execution",
-                    ["Id"] = execution + "!Ex",
-                    ["Label"] = execution,
+                    [Category_Key] = "Execution",
+                    [Id_Key] = execution + "!Ex",
+                    [Label_Key] = execution,
                 };
-                AddRecord(NodeName, ExecutionsAttributes);
+                AddRecord(Node_Key, ExecutionsAttributes);
             }
         }
 
@@ -252,48 +257,41 @@ namespace SharpPDDL
         {
             Dictionary<string, string> ExecutionProperty = new Dictionary<string, string>
             {
-                ["Id"] = "IsExec",
-                ["DataType"] = "System.Boolean"
+                [Id_Key] = "IsExec",
+                [DataType_Key] = "System.Boolean"
             };
-            AddRecord(PropertyName, ExecutionProperty);
+            AddRecord(Property_Key, ExecutionProperty);
 
             Dictionary<string, string> ShapeProperty = new Dictionary<string, string>
             {
-                ["Id"] = "Shape",
-                ["DataType"] = "System.String"
+                [Id_Key] = "Shape",
+                [DataType_Key] = "System.String"
             };
-            AddRecord(PropertyName, ShapeProperty);
+            AddRecord(Property_Key, ShapeProperty);
 
             Dictionary<string, string> ContainmentProperty = new Dictionary<string, string>
             {
-                ["Id"] = "IsContainment",
-                ["DataType"] = "System.Boolean"
+                [Id_Key] = "IsContainment",
+                [DataType_Key] = "System.Boolean"
             };
-            AddRecord(PropertyName, ContainmentProperty);
+            AddRecord(Property_Key, ContainmentProperty);
 
             Dictionary<string, string> FetchingParentProperty = new Dictionary<string, string>
             {
-                ["Id"] = "FetchingParent",
-                ["DataType"] = "Microsoft.VisualStudio.GraphModel.GraphNodeId"
+                [Id_Key] = "FetchingParent",
+                [DataType_Key] = "Microsoft.VisualStudio.GraphModel.GraphNodeId"
             };
-            AddRecord(PropertyName, FetchingParentProperty);
+            AddRecord(Property_Key, FetchingParentProperty);
         }
 
         protected override string GraphLayout()
         {
-            return "Sugiyama";
+            return "LeftToRight";
         }
 
         internal override void AddStyles()
         {
-            writer.WriteStartElement("Style");
-            writer.WriteAttributeString("TargetType", "Link");
-            writer.WriteAttributeString("GroupLabel", "IsExec");
-            writer.WriteAttributeString("ValueLabel", "True");
-
-            AddRecord("Condition", new Dictionary<string, string> { ["Expression"] = "IsExec = 'True'" });
-            AddRecord("Setter", new Dictionary<string, string> { ["Property"] = "Stroke", ["Value"] = "#FFFF7600" });
-            writer.WriteEndElement();
+            AddTFStyle(Link_Key, "IsExec", true, Stroke_Key, Realization_Colour);
         }
     }
 }

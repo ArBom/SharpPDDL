@@ -65,7 +65,7 @@ namespace SharpPDDL
             }
         }
 
-#region CreateTypesTree_Medhods
+        #region CreateTypesTree_Medhods
         private void CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root)
         {
             Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
@@ -312,18 +312,16 @@ namespace SharpPDDL
             foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                 MoveNodesToList(child, resultList);
         }
-#endregion
+        #endregion
 
-        internal void CreateTypesTree()
-        {          
+        internal void CreateTypesTreeAndDiagram(string PathOfClassDiagram)
+        {
             if (this.allTypes is null)
                 throw new Exception();
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 39, GloCla.ResMan.GetString("Sa4"));
 
-            //TreeNode<SingleTypeOfDomein> Root;
-
-            CreateRootofTree(out TreeNode < SingleTypeOfDomein > Root);
+            CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root);
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);
             TagValues(Root);
@@ -335,7 +333,12 @@ namespace SharpPDDL
 
             this.allTypes = new List<SingleTypeOfDomein>();
             MoveNodesToList(Root, allTypes);
-            Root = null;
+
+            if (PathOfClassDiagram != null)
+            {
+                TypesPDDLVisualization typesPDDLVisualization = new TypesPDDLVisualization(Root);
+                typesPDDLVisualization.MakeGraph(PathOfClassDiagram);
+            }
 
             foreach (var elem in allTypes)
                 elem.CreateValuesKeys();

@@ -30,6 +30,12 @@ namespace SharpPDDL
 
             CheckActions(options);
 
+            if ((DiagramTypes & Diagram.UseCase) != Diagram.None)
+            {
+                ActionsVisualization av = new ActionsVisualization(Name, this.actions);
+                av.MakeGraph(DiagramsPath);
+            }
+
             List<ThumbnailObject> allObjects = new List<ThumbnailObject>();
             foreach (var domainObject in domainObjects)
             {
@@ -59,7 +65,7 @@ namespace SharpPDDL
         }
 
         /// <summary>
-        /// 
+        /// Method defines set of diagrams to generate in time of run and path of them
         /// <example><para>
         /// For example:
         /// <code>
@@ -72,18 +78,51 @@ namespace SharpPDDL
         /// <param name="diagrams">Diagram types to write</param>
         public void GenerateDiagrams(string path, Diagram diagrams)
         {
-            if (String.IsNullOrEmpty(path))
+            if (diagrams == Diagram.None)
             {
+                DiagramsPath = null;
+                DiagramTypes = diagrams;
+                return;
+            }
 
+            string fileName = "UML";
+
+            if (String.IsNullOrEmpty(path))
+                DiagramsPath = fileName;
+            else if (Path.HasExtension(path))
+            {
+                string extension = Path.GetExtension(path);
+                if (extension != DGML.correctExtension)
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Error, 153, GloCla.ResMan.GetString("E37"), extension, DGML.correctExtension);
+
+                DiagramsPath = Path.GetFileNameWithoutExtension(path);
             }
             else
             {
-                bool incorect = Path.HasExtension(path);
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                DiagramsPath = Path.Combine(path, fileName);
             }
 
-            DiagramsPath = path;
+            try
+            {
+                DiagramsPath = Path.GetFullPath(DiagramsPath);
 
-            string dlist = ((Diagram)diagrams).ToString();
+                using (FileStream fs = File.Create
+                (
+                    Path.Combine(Path.GetDirectoryName(DiagramsPath), Path.GetRandomFileName()), 1, FileOptions.DeleteOnClose)
+                );
+            }
+            catch (Exception e)
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 154, GloCla.ResMan.GetString("E38"), DiagramsPath, e.Message);
+                diagrams = Diagram.None;
+                DiagramsPath = null;
+                return;
+            }
+
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 155, GloCla.ResMan.GetString("I16"), ((Diagram)diagrams).ToString(), DiagramsPath, DGML.correctExtension);
             DiagramTypes = diagrams;
         }
 
@@ -94,6 +133,6 @@ namespace SharpPDDL
 
             foreach (ActionPDDL act in this.actions)
                 act.ClearActionDelegates();
-        }    
+        }
     }
 }
