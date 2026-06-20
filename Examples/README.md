@@ -1,6 +1,6 @@
 ## Examples of popular games and puzzles where SharpPDDL could be used to find a solution:
 
-### 7 Bridges of Königsberg:
+### [7 Bridges of KÃ¶nigsberg:](https://github.com/ArBom/SharpPDDL/tree/master/Examples/7%20Bridges%20of%20K%C3%B6nigsberg)
 * detection of problem that cannot be solved and generates finite possible state count
 
 ### [15 puzzles:](https://github.com/ArBom/SharpPDDL/tree/master/Examples/15%20puzzle)
