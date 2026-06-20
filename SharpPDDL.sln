@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Travelling Salesman Problem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Examples\Water pouring puzzle\Water pouring puzzle.csproj", "{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7 Bridges of Königsberg", "Examples\7 Bridges of Königsberg\7 Bridges of Königsberg.csproj", "{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D9EE99A-9BB5-43A8-8522-0581D0728BE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

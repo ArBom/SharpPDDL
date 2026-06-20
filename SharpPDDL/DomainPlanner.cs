@@ -217,7 +217,7 @@ namespace SharpPDDL
                 int UNattHPcount = UNattHP.Count();
 
                 //statistics of unnattainables goals
-                GloCla.Tracer.TraceEvent(TraceEventType.Information, 140, GloCla.ResMan.GetString("I13"), UNattainable.Count(), UNattTHP, UNattHP);
+                GloCla.Tracer.TraceEvent(TraceEventType.Information, 140, GloCla.ResMan.GetString("I13"), UNattainable.Count(), UNattTHP.Count(), UNattHP.Count());
 
                 //enumerate unnattainable top high goals
                 for (int i = 0; i != UNattTHPcount; i++)

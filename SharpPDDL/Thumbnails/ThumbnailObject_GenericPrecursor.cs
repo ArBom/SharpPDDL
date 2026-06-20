@@ -159,19 +159,21 @@ namespace SharpPDDL
 
             foreach (var thisOH in theseObjHandles)
             {
-                object TargetObjLoop = thisOH.Value.Target;
-
                 foreach (var thatOH in thoseObjHandles)
                 {
                     object theseObj = thatOH.Value.Target;
 
                     if (this.ObjHandles[0].Target.Equals(theseObj))
-                    {
                         AnotherThObPrec.ChangeHandle(thatOH.Key, ObjHandles[0]);
-                    }
-                    else if (TargetObjLoop.Equals(theseObj))
+                    else
                     {
-                        ChangeHandle(thisOH.Key, thatOH.Value);
+                        object TargetObjLoop = thisOH.Value.Target;
+
+                        if (TargetObjLoop is null)
+                            continue;
+
+                        if (TargetObjLoop.Equals(theseObj))
+                            ChangeHandle(thisOH.Key, thatOH.Value);
                     }
                 }
             }
@@ -184,7 +186,6 @@ namespace SharpPDDL
                 throw new Exception();
             }
 
-            ObjHandles[NewKey].Free();
             ObjHandles[NewKey] = NewHandle;
             Dict[NewKey] = (IntPtr)NewHandle;
             FigureCheckSum();
@@ -193,8 +194,7 @@ namespace SharpPDDL
         ~ThumbnailObjectPrecursor()
         {
             if (!(ObjHandles is null))
-                foreach (var Handle in ObjHandles)
-                    Handle.Value.Free();
+                ObjHandles[0].Free();
         }
     }
 }

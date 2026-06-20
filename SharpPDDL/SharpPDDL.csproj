@@ -8,11 +8,9 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <Company />
     <Authors>Arkadiusz Bomba</Authors>
-    <PackageReleaseNotes>- Add possibilities of using class' instance as argument at action
-- Aggrandizement the possibility in defining goal by null / no-null value param
-- New feature: diagrams generator</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fix some issues</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/ArBom/SharpPDDL.git</RepositoryUrl>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0.1</Version>
     <PackageTags>GOAP;planning;AI;IIoT</PackageTags>
     <SignAssembly>False</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -24,8 +22,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/ArBom/SharpPDDL</PackageProjectUrl>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
