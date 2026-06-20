@@ -1,4 +1,4 @@
-![thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
+![logo thumbnail](https://github.com/user-attachments/assets/541bf944-0334-4426-87b2-78ce19577ba9)
 
 [![CodeFactor](https://www.codefactor.io/repository/github/arbom/sharppddl/badge/master)](https://www.codefactor.io/repository/github/arbom/sharppddl/overview/master)
 [![.NET class library](https://github.com/ArBom/SharpPDDL/actions/workflows/dotnet.yml/badge.svg)](https://github.com/ArBom/SharpPDDL/actions/workflows/dotnet.yml)
@@ -11,421 +11,199 @@
 
 This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.1 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
 
+One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal.
+
+## How to use (API):
+Include the library namespace with using SharpPDDL.
+
+| Method | What is it doing? |
+|---|---|
+| new DomainPDDL() | Creates the instance of algorithm. |
+| DomainPDDL.AddAction() | Adds action to domain. |
+| DomainPDDL.domainObjects | Objects' collection manned by library. |
+| DomainPDDL.AddGoal() | Adds goal to do. |
+| DomainPDDL.DefineTrace() | Defines TraceSource to do trace the code execution. |
+| DomainPDDL.planGenerated | delegate of List<List<string>> type. It shows a generated plan. |
+| DomainPDDL.SetExecutionOptions() | Defines options of plan realization |
+| DomainPDDL.GenerateDiagrams() | Types of diagram to generate and path of saving them |
+| DomainPDDL.Start() | Starts the algorithm. |
+| new ActionPDDL() | Creates the action to use in domein. |
+| ActionPDDL.AddPrecondition() | Adds precondition of action doing. |
+| ActionPDDL.AddEffect() | Adds effect of action doing. |
+| ActionPDDL.DefineActionCost() | Defines action cost. |
+| ActionPDDL.AddPartOfActionSententia() | Adds description of action in generated plan. |
+| ActionPDDL.AddExecution() | Adds action execution of algorithm realization. |
+| new GoalPDDL() | Creates the goal of algorithm run. |
+| GoalPDDL.AddExpectedObjectState() | Defines a state of one of obj. manned by library as alg. goal. |
+
+## Some easy problem
+
+### Define actions:
+
+The simplest action consists only of the effect of its execution.
+```cs
+ActionPDDL Suppling = new ActionPDDL("Supply the stocks");
+Suppling.AddEffect("Take fresh food", ref person, s => s.HaveFood, true);
+```
+
+Most actions require certain conditions to be met and mode than one effect, e.g. To eat, you must have food
+```cs
+ActionPDDL Eat = new ActionPDDL("Eat");
+Eat.AddPrecondition("Have food", ref person, s => s.HaveFood == true);
+Eat.AddEffect("Replete with food", ref person, s => s.IsFull, true);
+Eat.AddEffect("Less food", ref person, s => s.HaveFood, false);
+```
+It is worth noting at this point that the occurrence of references to the same object (person) indicates that it is Sam who must have food in order to eat it, and it is Sam who is full after consumption
+
+There is a possibility of define an action in which two (or more) different class instances interact with each other
+```cs
+ActionPDDL Feed = new ActionPDDL("Feed the pet");
+Feed.AddPrecondition("Have food", ref person, s => s.HaveFood == true);
+Feed.AddEffect("Feed the dog", ref dog, d => d.IsFull, true);
+Feed.AddEffect("Less food", ref person, s => s.HaveFood, false);
+```
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/166fa72a-e35d-41b4-a91b-68a39ed92a92">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/850f3d5a-6ed9-4de6-9efe-8d0c8b61c34d">
+  <img alt="Easy Case Use" align="left" src="https://github.com/user-attachments/assets/850f3d5a-6ed9-4de6-9efe-8d0c8b61c34d">
+</picture>
+Some kind of all action of domain visualization can be bring up in one case use diagram. Graph like that, generated in time of run, could be help in debug the actions and/or be part of documentation whole programm which uses this library. 
+Standard UML diagram is extended here by block with preconditions of every action. In case of lack of conditions of action realization block include only unnamed decision block symbol. 
+Effects set as realization of action is marked by orange arrow. Any other function added as realization is shown as realization relationship, under the official way of creating diagram like that.
+Diagram path is set at GenerateDiagrams method. Diagram is save as .dgml file, which can be open by Visual Studio with DGML Viewer.
+
+### Define goal:
+
+It's possible to describe goal as state of one...
+```cs
+GoalPDDL FullDogAndSam = new GoalPDDL("Feed both");
+FullDogAndSam.AddExpectedObjectState(Sam_s_Dog, SD => SD.IsFull);
+```
+...or more objects
+```cs
+GoalPDDL FullDogAndSam = new GoalPDDL("Feed both");
+FullDogAndSam.AddExpectedObjectState(Sam_s_Dog, SD => SD.IsFull);
+FullDogAndSam.AddExpectedObjectState(Sam, S => S.IsFull);
+```
+Plan generated to solve 2<sup>nd</sup> goal (Feed both) with use actions of that domain. Assumedly, in the beginning of it Sam was without food on his person.
+```
+Supply the stocks
+Eat
+Supply the stocks
+Feed the pet
+```
+## Little more ambitious examples:
+
+> [!TIP]
+> [Get familiar with ready examples.](https://github.com/ArBom/SharpPDDL/tree/master/Examples)
+
+First use of it could seems a little unintuitive. There is some examples of popular games and puzzles where SharpPDDL could be used.
+
+## How is it works
+
+1. **Building a types tree:** 
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/a2fe898d-b239-44a2-bd4b-a0a7c10aec87">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/705f1bc9-4dd9-4cd9-baef-b153adf7517f">
+  <img alt="Easy tree" align="right" src="https://github.com/user-attachments/assets/705f1bc9-4dd9-4cd9-baef-b153adf7517f">
+</picture>
+Based on the types used to define actions and their members, an types tree is built. This data structure is similar to a class diagram, but contains data about class members that are used in actions only. In case of 2 or more classes inherit from a given member, the values ​​are represented with the same tag during making the solution. This approach allows the same data representation to be used in different actions and different subclasses.
+
+Both Person the class both Dog the class are subclass of Eater. Bool value of IsFull is used to define state of hunger in both cases. If any class contains another one, and it's changing in effect of action, that relationship could be shown at diagram.
+> [!NOTE] 
+>Instances of class used to define action shouldn't be use in other part of program.
+
+In time of create actions library creates class instance with excluding use the class constructor. Therefore...
+
 > [!WARNING]
-> Library is in β version still, it may works little unstable.
+>Classes used to define actions cannot be signed by "abstract" with modifier indicates
 
-One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal. Examples of problems possible to solution by this algorithm:
+This problem occurs in the example of the towers of hanoi example. However, it is possible to inherit from abstract classes as in the case of river crossing problem if the reference to the abstract class is not used in the action description.
 
-<details>
-  <summary>15 puzzle</summary>
+2. **Transform the added objects and goals:** Added objects and goals are transformed into internal library objects with members represented by dictionary. Keys of these are numeric tags generated at above, value in first generation (precursor) of it are read from objects.
 
-Treatment the game: [wiki](https://en.wikipedia.org/wiki/15_puzzle)
+3. **Generate new possible states:**
+Generating new possible states is heart of this algorithm. To do it used  forward reasoning as repeated application of *modus ponens*. Data flow is shown at diagram:
 
-Due to many steps essential to solve the puzzle and complexity of problem final goal was divided for several smaller. In the beginning algorithm realize solution for tile no. 1 and add goal to put correct tiles no 1 and 2. In the end of sub-goal realize is add goal of one tile goal more. Final goal of all tile is reach in time of less then 3 mins.
-
-</details>
-
-<details>
-  <summary>Peg solitaire</summary>
-
-Treatment the game: [wiki](https://en.wikipedia.org/wiki/Peg_solitaire)
-
-In this example used triangular, 15-holes variant as easiest to solve.
-
-Due to shape of game board it needs to use 3 possible action of jump. One of it, the horizontal move is shown below:
-```cs
-Expression<Predicate<Spot>> FullSpot = S => S.Full;
-Expression<Predicate<Spot>> EmptySpot = S => !S.Full;
-
-ActionPDDL HorizontalJump = new ActionPDDL("Horizontal jump");
-
-HorizontalJump.AddPrecondition<Spot, Spot>("Jumping peg exists", ref JumpingPeg, FullSpot);
-HorizontalJump.AddPrecondition<Spot, Spot>("Remove peg exists", ref RemovePeg, FullSpot);
-HorizontalJump.AddPrecondition<Spot, Spot>("Final position of peg is empty", ref FinalPegPos, EmptySpot);
-
-Expression<Predicate<Spot, Spot, Spot>> Horizontalcollinear = ((JP, RP, FPP) => (JP.Row == RP.Row && RP.Row == FPP.Row));
-HorizontalJump.AddPrecondition("The same vertical line", ref JumpingPeg, ref RemovePeg, ref FinalPegPos, Horizontalcollinear);
-
-Expression<Predicate<Spot, Spot>> VerticalClose = ((S1, S2) => ((S1.Column - S2.Column) == 1 || (S1.Column - S2.Column) == -1));
-HorizontalJump.AddPrecondition("Jumper is close", ref JumpingPeg, ref RemovePeg, VerticalClose);
-HorizontalJump.AddPrecondition("Hole is close", ref FinalPegPos, ref RemovePeg, VerticalClose);
-
-HorizontalJump.AddEffect("Jumping Peg Spot is empty", ref JumpingPeg, JP => JP.Full, false);
-HorizontalJump.AddEffect("Remove Peg Spot is empty", ref RemovePeg, RP => RP.Full, false);
-HorizontalJump.AddEffect("Final Peg Spot is full", ref FinalPegPos, RP => RP.Full, true);
-```
-The execution of it uses effects from  above and static voids of Spot class.
-```cs
-HorizontalJump.AddExecution("Reset colours", () => Reset(), false);
-HorizontalJump.AddExecution("Jumping Peg Spot is empty");
-HorizontalJump.AddExecution("Remove Peg Spot is empty");
-HorizontalJump.AddExecution("Final Peg Spot is full");
-HorizontalJump.AddExecution("Draw it", () => Board.Draw(spots), true);
-HorizontalJump.AddExecution("Wait", () => Thread.Sleep(1500), true);
-```
-At this case it's possible to reach 3016 possible states, which is generated in time of about 13s.
-
-![Peg_solitaire_solution](https://github.com/user-attachments/assets/4c7a440f-be36-4bcc-a737-d9266bb88809)
-
-</details>
-
-<details> 
-  <summary>River crossing puzzle</summary>
-  
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem)
-
-Putting a thing to the boat:
-```cs
-    ActionPDDL TakingCabbage = new ActionPDDL("TakingCabbage");
-    TakingCabbage.AddPartOfActionSententia("Take the cabbage.");
-    TakingCabbage.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    TakingCabbage.AddPrecondition("Cabbage is at the bank", ref nextToBank, b => b.IsCabbage);
-    TakingCabbage.AddPrecondition("Boat is empty", ref boat, b => !b.IsCabbage && !b.IsGoat && !b.IsWolf);
-    TakingCabbage.AddEffect("Remove the cabbage from the bank", ref nextToBank, b => b.IsCabbage, false);
-    TakingCabbage.AddEffect("Put the cabbage on the boat", ref boat, b => b.IsCabbage, true);
-    RiverCrossing.AddAction(TakingCabbage);
-```
-
-Putting a thing away:
-```cs
-    ActionPDDL PutCabbageAway = new ActionPDDL("PuttingCabbageAway");
-    PutCabbageAway.AddPartOfActionSententia("Put the cabbage away.");
-    PutCabbageAway.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    PutCabbageAway.AddPrecondition("Goat is on the bank", ref boat, b => b.IsCabbage);
-    PutCabbageAway.AddEffect("Remove the goat from the bank", ref nextToBank, b => b.IsCabbage, true);
-    PutCabbageAway.AddEffect("Add the goat to the boat", ref boat, b => b.IsCabbage, false);
-    RiverCrossing.AddAction(PutCabbageAway);
-```
-
-One need to use the above 3 times. For the cabbage, goat and wolf.
-
-Going to the other river bank:
-```cs
-    ActionPDDL CrossTheRiver = new ActionPDDL("CrossingTheRiver");
-    CrossTheRiver.AddPartOfActionSententia("Cross the river.");
-    CrossTheRiver.AddPrecondition("Boat is near the bank", ref nextToBank, b => b.IsBoat);
-    CrossTheRiver.AddPrecondition("Nothing won't be eaten", ref nextToBank, b => b.IsGoat ? (!b.IsCabbage && !b.IsWolf) : true );
-    RiverBank SecendBank = null;
-    CrossTheRiver.AddEffect("Leave the river bank", ref nextToBank, b => b.IsBoat, false);
-    CrossTheRiver.AddEffect("Go to the other bank", ref SecendBank, b => b.IsBoat, true);
-    RiverCrossing.AddAction(CrossTheRiver);
-```
-
-Generated plan:
-```
-1: Take the goat.
-2: Cross the river.
-3: Put the goat away.
-4: Cross the river.
-5: Take the wolf.
-6: Cross the river.
-7: Put the wolf away.
-8: Take the goat.
-9: Cross the river.
-10: Put the goat away.
-11: Take the cabbage.
-12: Cross the river.
-13: Put the cabbage away.
-14: Cross the river.
-15: Take the goat.
-16: Cross the river.
-17: Put the goat away.
-```
-</details>
-
-<details> 
-  <summary>Tower of Hanoi</summary>
-  
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Tower_of_Hanoi)
-```cs
-public class HanoiObj //It cannot be abstract
-{
-    public int HanoiObjSizeUpSide = 0;
-    public bool IsEmptyUpSide;
-}
-
-public class HanoiBrick : HanoiObj
-{
-    readonly public int Size;
-}
-
-public class HanoiTable : HanoiObj
-{
-    public readonly int no;
-}
-```
 ```mermaid
+flowchart LR
 
-classDiagram
+    Prec@{ shape: f-circ }
+    PGR@{ shape: cyl, label: "PossibleGoalRealization
+    (ConcurrentQueue)" }
 
-namespace Legend {
+    PNCC@{ shape: cyl, label: "PossibleNewCrisscrossCre
+    (SortedSet)" }
 
-    class Class{
-        Its a block representant some class
-    }
+    PTCR@{ shape: cyl, label: "PossibleToCrisscrossReduce
+    (SortedSet)" }
 
-    class Object {
-        Its a block representant some object / class instance
-    }
+    gC@{ shape: diamond, label: "goalChecker" }
 
-}
+    empty@{ shape: cross-circ}
 
-    style Object fill:#391, stroke-style:..
-    style Class fill:#139, stroke-style:..
+    found@{ shape: framed-circle}
 
-namespace HanoiTower {
+    CR@{ shape: fork, label: "crisscrossReducer" }
 
-    class HanoiObj{
-        +int HanoiObjSizeUpSide
-        +bool IsEmptyUpSide
-    }
+    cNPC@{ shape: rectangle, label: "crisscrossNewPossiblesCreator" }
 
-    class HanoiBrick{
-        +int Size
-    }
+    SL@{ shape: win-pane, label: "State List" }
 
-    class HanoiTable {
-        +int no
-    }
-}
-    HanoiObj <|-- HanoiBrick
-    HanoiObj <|-- HanoiTable
+    Prec s2@--> PGR
+    gC s1@-->|Yes| found
 
-    style HanoiObj fill:#139, stroke-style:..
-    style HanoiBrick fill:#139, stroke-style:..
-    style HanoiTable fill:#139, stroke-style:..
+    subgraph CrisscrossGenerator
+        PGR f6@--> gC{goalChecker}
+        gC f1@-->|No| PNCC
+        PNCC f2@--> cNPC
+        cNPC f3@--> PTCR
+        PTCR f4@--> CR
+        CR f5@--> PGR
 
-namespace SharpPDDL {
+        subgraph crisscrossReducer
+            CR s3@--> SL
+            SL s4@--> CR
+        end
+    end
 
-    class Root_TreeNode{
-        ~SingleTypeOfDomain Content
-        ~List~TreeNode~ Children 
-    }
+    PGR --> empty
+    PNCC --> empty
+    PTCR --> empty
 
-    class HanoiObj_SingleTypeOfDomain {
-        ~Type Type : BaseShapes.HanoiObj
-        ~List~ValueOfThumbnail~ CumulativeValues 
-    }
+s1@{ animation: slow }
+s2@{ animation: slow }
+s3@{ animation: slow }
+s4@{ animation: slow }
 
-    class 0_TreeNode{
-        ~SingleTypeOfDomain Content
-        ~List~TreeNode~ Children 
-    }
-
-    class HanoiBrick_SingleTypeOfDomain {
-        ~Type Type : BaseShapes.HanoiObj
-        ~List~ValueOfThumbnail~ CumulativeValues 
-    }
-
-    class 1_TreeNode{
-        ~SingleTypeOfDomain Content
-        ~List~TreeNode~ Children 
-    }
-
-    class HanoiTable_SingleTypeOfDomain {
-        ~Type Type : BaseShapes.HanoiObj
-        ~List~ValueOfThumbnail~ CumulativeValues 
-    }
-}
-    style Root_TreeNode fill:#391, stroke-style:..
-    style 0_TreeNode fill:#391, stroke-style:..
-    style 1_TreeNode fill:#391, stroke-style:..
-    style HanoiObj_SingleTypeOfDomain fill:#391, stroke-style:..
-    style HanoiBrick_SingleTypeOfDomain fill:#391, stroke-style:..
-    style HanoiTable_SingleTypeOfDomain fill:#391, stroke-style:..
-    
-    Root_TreeNode --> "Children[0]" 0_TreeNode
-    Root_TreeNode --> "Children[1]" 1_TreeNode
-    0_TreeNode --> "Content" HanoiBrick_SingleTypeOfDomain
-    1_TreeNode --> "Content" HanoiTable_SingleTypeOfDomain
-    Root_TreeNode --> "Content" HanoiObj_SingleTypeOfDomain
-    HanoiObj_SingleTypeOfDomain ..> "≙" HanoiObj
-    HanoiBrick_SingleTypeOfDomain ..> "≙" HanoiBrick
-    HanoiTable_SingleTypeOfDomain ..> "≙" HanoiTable
-
-    note for HanoiObj_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide"
-    note for HanoiTable_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> // int:no is not use in any action"
-    note for HanoiBrick_SingleTypeOfDomain "CumulativeValues:<br> 1: HanoiObSizeUpSide<br> 2: IsEmptyUpSide<br> 3: Size"
-
-```
-Instances of class used to define action shouldn't be use in other part of program. In time of create actions library create class instance excluding use the class constructor.
-
-For these classes one can define rules in library like "Move brick onto another brick" or "Move brick on table". Preconditions, effect etc. are phrased by library's user as Expressions (System.Linq.Expressions):
-
-```cs
-HanoiBrick MovedBrick = null; //you can take brick...
-HanoiObj ObjBelowMoved = null; //...from table or another brick... 
-HanoiBrick NewStandB = null; //...and put it into bigger brick...
-HanoiTable NewStandT = null; //...or empty table spot.
-
-Expression<Predicate<HanoiObj>> ObjectIsNoUp = (HO => HO.IsEmptyUpSide); //Moved brick have to be empty up side
-Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size)); //you can put smaller brick onto bigger one
-Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB.Size == OBM.HanoiObjSizeUpSide));
-
-ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick"); //1st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandB
-
-moveBrickOnBrick.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
-moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
-
-moveBrickOnBrick.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-moveBrickOnBrick.AddPrecondition("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.IsEmptyUpSide == true
-moveBrickOnBrick.AddPrecondition("Small brick on bigger one", ref MovedBrick, ref NewStandB, PutSmallBrickAtBigger); //MovedBrick.Size < NewStandB.Size
-moveBrickOnBrick.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
-
-moveBrickOnBrick.AddEffect("New stand is full", ref NewStandB, NS => NS.IsEmptyUpSide, false); //NewStandB.IsEmptyUpSide = false
-moveBrickOnBrick.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
-moveBrickOnBrick.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
-moveBrickOnBrick.AddEffect("Consociate Bricks", ref NewStandB, NSB => NSB.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandB.HanoiObjSizeUpSide = MovedBrick.Size
-
-newDomain.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
-
-ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table"); //2st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandT
-
-moveBrickOnTable.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
-moveBrickOnTable.AddPartOfActionSententia(ref NewStandT, "onto table no {0}.", NS => NS.no);
-
-moveBrickOnTable.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.IsEmptyUpSide == true
-moveBrickOnTable.AddPrecondition("New table is empty", ref NewStandT, ObjectIsNoUp); //NewStandT.IsEmptyUpSide == true
-moveBrickOnTable.AddPrecondition("Find brick bottom moved one", ref MovedBrick, ref ObjBelowMoved, FindObjBelongMovd); //MovedBrick.Size == ObjBelowMoved.HanoiObjSizeUpSide
-
-moveBrickOnTable.AddEffect("New stand is full", ref NewStandT, NS => NS.IsEmptyUpSide, false); //NewStandT.IsEmptyUpSide = false
-moveBrickOnTable.AddEffect("Old stand is empty", ref ObjBelowMoved, NS => NS.IsEmptyUpSide, true); //ObjBelowMoved.IsEmptyUpSide = true
-moveBrickOnTable.AddEffect("UnConsociate Objs", ref ObjBelowMoved, OS => OS.HanoiObjSizeUpSide, 0); //ObjBelowMoved.HanoiObjSizeUpSide = 0
-moveBrickOnTable.AddEffect("Consociate Bricks", ref NewStandT, NST => NST.HanoiObjSizeUpSide, ref MovedBrick, MB => MB.Size); //NewStandT.HanoiObjSizeUpSide = MovedBrick.Size
-
-newDomain.AddAction(moveBrickOnTable); //Putting empty brick onto empty table spot
+f1@{ animation: fast }
+f2@{ animation: fast }
+f3@{ animation: fast }
+f4@{ animation: fast }
+f5@{ animation: fast }
+f6@{ animation: fast }
 ```
 
-Solution output for 3-bricks-hanoi-tower problem:
-```
-Transfer bricks onto table no. 3 determined!!! Total Cost: 7
-Move brick on table: Place the 1-size brick onto table no 2.
-Move brick on table: Place the 2-size brick onto table no 1.
-Move brick onto another brick: Place the 1-size brick onto 2-size brick.
-Move brick on table: Place the 3-size brick onto table no 2.
-Move brick on table: Place the 1-size brick onto table no 0.
-Move brick onto another brick: Place the 2-size brick onto 3-size brick.
-Move brick onto another brick: Place the 1-size brick onto 2-size brick.
-```
-</details>
+Forward chaining starts with the data from added objects ⚫ and uses inference rules, defined domain actions, to extract more data until a goal is reached ⊚, or until generate all possible state ⊗ - moment when all buffors of this task are empty and noone subtask is working.
 
-<details> 
-  <summary>Travelling salesman problem</summary>
-   
-Treatment the problem: [wiki](https://en.wikipedia.org/wiki/Travelling_salesman_problem)
+SharpPDDL searches the possible sets of object representation in one possible state until it finds one where the antecedent (action preconditions) are true to do an action. When such a set is found for the action, SharpPDDL conclude the consequent, resulting in the addition of new possible state.
 
-Define the action:
-```cs
-ActionPDDL Travel = new ActionPDDL("Travel");
-City From = null; //Salesman leaves "From" city,
-City To = null; //and goes to "To" city.
+States generated pending this process can be repetitive for different antecedents and different actions. To avoid the state explosion problem the same states are merged into one. In this process the cheapest way to reach state is defined as main root of it.
 
-Travel.AddPartOfActionSententia(ref To, "Go to {0}.", T => T.Name);
+4. **In case of detect possible Goal realization**
 
-Travel.AddPrecondition( // From.SalesmanHere == true
-    "Salesnam is in FROM city now",
-    ref From,
-    F => F.SalesmanHere);
+After detect the possibility of goal realization from states witch fulfiled needment is chosen the cheapest one. At our example state named as WkwEhr is cheaper to reach than C9z8/L.
 
-//Salesman visit city only one time
-Travel.AddPrecondition( // To.Visiting == false
-    "Salesnam havent been in TO city",
-    ref To,
-    F => !F.Visited);
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/1a17235a-3b62-4475-8001-eeb02c3e86f5">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/143d59fc-210e-426b-b540-535f207e30c9">
+  <img alt="Easy states" align="center" src="https://github.com/user-attachments/assets/143d59fc-210e-426b-b540-535f207e30c9">
+</picture>
 
-Travel.AddEffect( // From.SalesmanHere = false
-    "Salesman leaves city",
-    ref From,
-    F => F.SalesmanHere,
-    false);
-
-Travel.AddEffect( // To.SalesmanHere = true
-    "Salesman arrives new city",
-    ref To,
-    T => T.SalesmanHere,
-    true);
-
-Travel.AddEffect( // To.Visited = true
-    "Salesman visit new city",
-    ref To,
-    T => T.Visited,
-    true);
-
-Travel.DefineActionCost(ref From, ref To, (F, T) => CitiesAPI.DistanceAPI(F.PostalCode, T.PostalCode));
-```
-Some DistanceMatrix / Travel action cost:
-
-| Distance | Koszalin | Gniezno | Kraków | Płock | Poznań | Warszawa | Lublin |
-| :---     | :---:    | :---:   | :---:  | :---: | :---:  | :---:    | :---:  |
-| Koszalin | 0        | 245     | 700    | 372   | 250    | 520      | 687    |
-| Gniezno  | 245      | 0       | 456    | 165   | 48     | 293      | 448    |
-| Kraków   | 700      | 456     | 0      | 364   | 458    | 290      | 304    |
-| Płock    | 372      | 165     | 364    | 0     | 227    | 109      | 295    |
-| Poznań   | 250      | 48      | 458    | 227   | 0      | 311      | 478    |
-| Warszawa | 520      | 293     | 290    | 109   | 311    | 0        | 173    |
-| Lublin   | 687      | 448     | 304    | 295   | 478    | 173      | 0      |
-
-```
-SharpPDDL : Visit all cities determined!!! Total Cost: 1806
-Travel: Go to Gniezno. Action cost: 245
-Travel: Go to Poznan. Action cost: 48
-Travel: Go to Plock. Action cost: 227
-Travel: Go to Warszawa. Action cost: 109
-Travel: Go to Lublin. Action cost: 173
-Travel: Go to Kraków. Action cost: 304
-Travel: Go to Koszalin. Action cost: 700
-```
-
-You can make you sure about the solution with another program: [AtoZmath.com](https://cbom.atozmath.com/CBOM/Assignment.aspx?q=tsnn&q1=0%2C245%2C700%2C372%2C250%2C520%2C687%3B245%2C0%2C456%2C165%2C48%2C293%2C448%3B700%2C456%2C0%2C364%2C458%2C290%2C304%3B372%2C165%2C364%2C0%2C227%2C109%2C295%3B250%2C48%2C458%2C227%2C0%2C311%2C478%3B520%2C293%2C290%2C109%2C311%2C0%2C173%3B687%2C448%2C304%2C295%2C478%2C173%2C0%60MIN%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60Koszalin%2CGniezno%2CKrak%C3%B3w%2CP%C5%82ock%2CPozna%C5%84%2CWarszawa%2CLublin%60false%60false&do=1#tblSolution)
-
-</details>
-
-<details> 
-  <summary>Water pouring puzzle</summary>
-  
-Treatment the puzzle: [wiki](https://en.wikipedia.org/wiki/Water_pouring_puzzle) 
-    
-  ```cs
-public class WaterJug
-{
-    public readonly float Capacity;
-    public float flood;
-    ⁝
-}
-```    
-```cs
-DomainPDDL DecantingDomain = new DomainPDDL("Decanting problems"); //In this problem...
-
-ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 arguments:
-WaterJug SourceJug = null; //The jug from which you pour,
-WaterJug DestinationJug = null; // and the jug you pour into.
-
-DecantWater.AddPartOfActionSententia(ref SourceJug, "from {0}-liter jug ", SJ => SJ.Capacity);
-DecantWater.AddPartOfActionSententia(ref DestinationJug, "to the {0}-liter jug.", DJ => DJ.Capacity);
-
-//In the effect of decanting the level in the jug from which you pour is maked smaller after that,...
-DecantWater.AddEffect( //SourceJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? SourceJug.flood - DestinationJug.Capacity + DestinationJug.flood : 0
-    "Reduce source jug flood",
-    ref SourceJug,
-    Source_Jug => Source_Jug.flood,
-    ref DestinationJug,
-    (Source_Jug, Destination_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Source_Jug.flood - Destination_Jug.Capacity + Destination_Jug.flood : 0);
-
-//...the level in the jug you pour into is maked bigger.
-DecantWater.AddEffect( //DestinationJug.flood = DestinationJug.flood + SourceJug.flood >= DestinationJug.Capacity ? DestinationJug.Capacity : DestinationJug.flood + SourceJug.flood
-    "Increase destination jug flood",
-    ref DestinationJug,
-    Destination_Jug => Destination_Jug.flood,
-    ref SourceJug,
-    (Destination_Jug, Source_Jug) => Destination_Jug.flood + Source_Jug.flood >= Destination_Jug.Capacity ? Destination_Jug.Capacity : Destination_Jug.flood + Source_Jug.flood);
-
-//One need to do as fast as possible
-DecantWater.DefineActionCost(ref SourceJug, ref DestinationJug, (S, D) => WaterJug.DecantedWater(S.flood, D.Capacity, D.flood));
-
-DecantingDomain.AddAction(DecantWater);
-```
-![Water_pouring_solution](https://github.com/user-attachments/assets/3e35f26a-d4fe-46c9-a1e2-c4bba66b5225)
-</details>
+Plan is generated by listing states from target state to init state with look at main roots. In next step list is inverted, and consecutive actions are done to change state to the final one. At this example in the begining at state tt27HT is executing "Supply the stock" action to move to state Z6hVCp, next is "Eat" action, etc. Steps from init to final states are marked by orange colour at diagram. 
+To realize the solution one needs to add the execution feature to every ActionPDDL and set the execution options of domain.
 
 ---
 <img align="right" src="https://github.com/user-attachments/assets/85f24e2f-18b7-417f-bd34-4fef48890ee2">
