@@ -25,9 +25,6 @@ namespace SharpPDDL
             DestLambdaListerPDDL.Visit(DestinationFunct);
             string NameOfDestinationMember = DestLambdaListerPDDL.used[0][0];
 
-            if (!Elements[1].usedMembersClass.Exists(m => m == NameOfDestinationMember))
-                Elements[1].usedMembersClass.Add(NameOfDestinationMember);
-
             return NameOfDestinationMember;
         }
 

@@ -128,7 +128,7 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 94, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
-            
+
             Expression CheckAllPreco = VisitLambda(Enumerator.Current);
 
             while (Enumerator.MoveNext())
@@ -261,6 +261,29 @@ namespace SharpPDDL
             if (node.Expression.NodeType == ExpressionType.Constant)
                 return node;
 
+            if (node.Expression.NodeType == ExpressionType.MemberAccess)
+            {
+                MemberInfo NextMember = ((MemberExpression)(node.Expression)).Member;
+                if (!NextMember.ReflectedType.IsClass)
+                {
+                    //todo;
+                    var t = node;
+                    //GloCla.Tracer?.TraceEvent(TraceEventType.Error, , GloCla.ResMan.GetString(""));
+                }
+                else
+                {
+                    if (NextMember.ReflectedType.IsAbstract)
+                    {
+                        //todo;
+                        //GloCla.Tracer?.TraceEvent(TraceEventType.Error, , GloCla.ResMan.GetString(""));
+                    }
+                    else
+                    {
+                        int t = 5;
+                    }
+                }
+            }
+
             SingleTypeOfDomein ParameterModel = IdentifyParameterModel(node);
 
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
@@ -330,7 +353,7 @@ namespace SharpPDDL
             if (node.Left.Type.IsClass || node.Right.Type.IsClass)
                 return Expression.MakeBinary(node.NodeType, left, right);
             else
-                return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);           
+                return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);
         }
     }
 }

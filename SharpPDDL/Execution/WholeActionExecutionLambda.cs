@@ -46,8 +46,29 @@ namespace SharpPDDL
 
                 //Modify source lambda
                 ActualObjectPDDL = ExecutionEffects[i];
-                Expression modified = Visit(ExecutionEffects[i].SourceFunc);
-                Expression ConvertExpression = Expression.Convert(modified, DestinationMemberType);
+
+                Expression ConvertExpression;
+
+                if (ExecutionEffects[i] is EffectPDDLpointer)
+                    switch (ExecutionEffects[i].Elements.Count())
+                    {
+                        case 1:
+                            ConvertExpression = Expression.Constant(null, DestinationMemberType);
+                            break;
+
+                        case 2:
+                            ConvertExpression = _parameters.First(p => p.Name == GloCla.LamdbaParamPrefix + ExecutionEffects[i].Elements[1].AllParamsOfActClassPos);
+                            break;
+
+                        default:
+                            throw new Exception();
+                    }
+                else
+                {
+                    Expression modifiedSourceFunc = Visit(ExecutionEffects[i].SourceFunc);
+                    ConvertExpression = Expression.Convert(modifiedSourceFunc, DestinationMemberType);
+                }
+
                 ExecutionEffectsArray[i] = Expression.Assign(ParamVar, ConvertExpression);
 
                 //Update values

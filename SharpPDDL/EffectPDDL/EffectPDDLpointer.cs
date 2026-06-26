@@ -6,7 +6,13 @@ using System.Reflection;
 
 namespace SharpPDDL
 {
-    class EffectPDDLpointer<T1c, T1p, T2c, T2p> : EffectPDDL
+    internal abstract class EffectPDDLpointer : EffectPDDL
+    {
+        internal EffectPDDLpointer(string Name, Expression DestinationMember, object[] ElementsInOnbjectPDDL)
+            : base(Name, DestinationMember, ElementsInOnbjectPDDL) { }
+    }
+
+    class EffectPDDLpointer<T1c, T1p, T2c, T2p> : EffectPDDLpointer
         where T1p : class
         where T2p : class
         where T1c : class, T1p
@@ -37,7 +43,6 @@ namespace SharpPDDL
             SourceLambdaListerPDDL.Visit(SourceFunc);
 
             Elements[0].usedMembersClass = new List<string>();
-            //Elements[1].usedMembersClass = new List<string>();
 
             if (SourceFunc is Expression<Func<T1p, T2p, ValueType>>)
             {
