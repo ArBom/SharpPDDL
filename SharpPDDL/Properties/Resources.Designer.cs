@@ -1249,6 +1249,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no object in damain. Remember to add it..
+        /// </summary>
+        internal static string V13 {
+            get {
+                return ResourceManager.GetString("V13", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu Plan accepted..
         /// </summary>
         internal static string V2 {

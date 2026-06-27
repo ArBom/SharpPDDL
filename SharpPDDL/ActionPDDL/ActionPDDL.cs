@@ -451,25 +451,25 @@ namespace SharpPDDL
         #region ActionCost
         public void DefineActionCost<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
-            => actionCost.DefineActionCostF(ref In1, CostExpression);
+            => actionCost.DefineActionCostF(Parameters, ref In1, CostExpression);
 
         public void DefineActionCost<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
             where T1 : class
             where T2 : class
-            => actionCost.DefineActionCostF(ref In1, ref In2, CostExpression);
+            => actionCost.DefineActionCostF(Parameters, ref In1, ref In2, CostExpression);
 
         public void DefineActionCost<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
             where T1 : class
             where T2 : class
             where T3 : class
-            => actionCost.DefineActionCostF(ref In1, ref In2, ref In3, CostExpression);
+            => actionCost.DefineActionCostF(Parameters, ref In1, ref In2, ref In3, CostExpression);
 
         public void DefineActionCost<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
              where T1 : class
              where T2 : class
              where T3 : class
              where T4 : class
-            => actionCost.DefineActionCostF(ref In1, ref In2, ref In3, ref In4, CostExpression);
+            => actionCost.DefineActionCostF(Parameters, ref In1, ref In2, ref In3, ref In4, CostExpression);
         #endregion
 
         internal void BuildAction(List<SingleTypeOfDomein> allTypes)

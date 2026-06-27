@@ -28,9 +28,11 @@ namespace SharpPDDL
         internal ActionCost(uint DefaultCost)
             => this.defaultCost = DefaultCost;
 
-        internal void DefineActionCostF<T1>(ref T1 In1, Expression<Func<T1, int>> CostExpression)
+        internal void DefineActionCostF<T1>(List<Parametr> Parameters, ref T1 In1, Expression<Func<T1, int>> CostExpression)
             where T1 : class
         {
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In1);
+
             this.CostExpression = CostExpression;
 
             Args = new List<(object Param, int? IndexInAction)>
@@ -39,10 +41,13 @@ namespace SharpPDDL
             };
         }
 
-        internal void DefineActionCostF<T1, T2>(ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
+        internal void DefineActionCostF<T1, T2>(List<Parametr> Parameters, ref T1 In1, ref T2 In2, Expression<Func<T1, T2, int>> CostExpression)
             where T1 : class
             where T2 : class
         {
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In2);
+
             this.CostExpression = CostExpression;
 
             Args = new List<(object Param, int? IndexInAction)>
@@ -52,11 +57,15 @@ namespace SharpPDDL
             };
         }
 
-        internal void DefineActionCostF<T1, T2, T3>(ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
+        internal void DefineActionCostF<T1, T2, T3>(List<Parametr> Parameters, ref T1 In1, ref T2 In2, ref T3 In3, Expression<Func<T1, T2, T3, int>> CostExpression)
             where T1 : class
             where T2 : class
             where T3 : class
         {
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In2);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In3);
+
             this.CostExpression = CostExpression;
 
             Args = new List<(object Param, int? IndexInAction)>
@@ -67,12 +76,17 @@ namespace SharpPDDL
             };
         }
 
-        internal void DefineActionCostF<T1, T2, T3, T4>(ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
+        internal void DefineActionCostF<T1, T2, T3, T4>(List<Parametr> Parameters, ref T1 In1, ref T2 In2, ref T3 In3, ref T4 In4, Expression<Func<T1, T2, T3, T4, int>> CostExpression)
             where T1 : class
             where T2 : class
             where T3 : class
             where T4 : class
         {
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In1);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In2);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In3);
+            Parametr.GetTheInstance_TryAddToList(Parameters, ref In4);
+
             this.CostExpression = CostExpression;
 
             Args = new List<(object Param, int? IndexInAction)>

@@ -645,6 +645,10 @@
     <value>Object of {0}-type was added to {1} domain.</value>
     <comment>DomeinPDDL; Add obj. to domain objects list; 0-object type 1-domain name</comment>
   </data>
+  <data name="V13" xml:space="preserve">
+    <value>There is no object in damain. Remember to add it.</value>
+    <comment>PossibleState;</comment>
+  </data>
   <data name="V2" xml:space="preserve">
     <value>Plan accepted.</value>
     <comment>PlanImplementor;</comment>

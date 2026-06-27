@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace SharpPDDL
 {
@@ -20,7 +21,14 @@ namespace SharpPDDL
             this.PreviousPossibleState = null;
             this.ChangedThumbnailObjects = NewThumbnailObjects;
             this.ThumbnailObjects = new List<ThumbnailObject>(NewThumbnailObjects);
-            CheckSum = FigureCheckSum();
+
+            if (NewThumbnailObjects.Any())
+                CheckSum = FigureCheckSum();
+            else
+            {
+                CheckSum = GloCla.EmptyName;
+                GloCla.Tracer?.TraceEvent(TraceEventType.Verbose, 156, GloCla.ResMan.GetString("V13"));
+            }
         }
 
         /// <summary>
