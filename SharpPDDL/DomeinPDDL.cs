@@ -61,14 +61,10 @@ namespace SharpPDDL
             this.types = new TypesPDDL();
 
             //Complete types' collecion from every action
-            /*Parallel.ForEach(actions, parallelOptions, act =>
+            Parallel.ForEach(actions, parallelOptions, act =>
             {
                 types.CompleteTypes(act.TakeSingleTypes());
-            });*/
-
-            foreach (var act in actions)
-                types.CompleteTypes(act.TakeSingleTypes());
-
+            });
 
             //Build types tree with class values and class diagram
             string PathOfClassDiagram = ((DiagramTypes & Diagram.Class) != Diagram.None) ? DiagramsPath : null;

@@ -13,7 +13,7 @@ namespace SharpPDDL
         /// </summary>
         protected ushort ValuesIndeksCount = 0;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
-        object locker = new object();
+        readonly object locker = new object();
 
         internal void CompleteTypes(List<SingleType> singleTypes)
         {
@@ -66,25 +66,80 @@ namespace SharpPDDL
         }
 
         #region CreateTypesTree_Medhods
+        private void AddNonValueType()
+        {
+            List<SingleType> NonValueTypes = new List<SingleType>();
+            
+            foreach (SingleTypeOfDomein singleType in this.allTypes)
+            {
+                foreach (Value singleTypeValue in singleType.Values)
+                    if (!singleTypeValue.Type.IsValueType)
+                    {
+                        Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false)
+                        {
+                            IsInUse_ActionCostIn = singleTypeValue.IsInUse_ActionCostIn,
+                            IsInUse_EffectIn = singleTypeValue.IsInUse_EffectIn,
+                            IsInUse_EffectOut = singleTypeValue.IsInUse_EffectOut,
+                            IsInUse_PreconditionIn = singleTypeValue.IsInUse_PreconditionIn
+                        };
+
+                        NonValueTypes.Add(new SingleType(singleTypeValue.Type, new List<Value> { }));
+                    }
+            }
+
+            if (NonValueTypes.Any())
+                CompleteTypes(NonValueTypes);
+        }
+
         private void CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root)
         {
             Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
+            Root.Content = new SingleTypeOfDomein(typeof(object), new List<Value>());
 
             //czy wykorzystano nie wartościowy (value) typ w domenie
             bool AnyNonValueType = false;
 
             foreach (SingleTypeOfDomein singleType in this.allTypes) //Podepnij wszystko pod ten korzeń
             {
-                TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
+                SingleTypeOfDomein ParentV = new SingleTypeOfDomein(typeof(object), new List<Value>());
+                TreeNode<SingleTypeOfDomein> Parent = new TreeNode<SingleTypeOfDomein>
                 {
-                    Root = Root,
-                    Content = singleType
+                    Content = ParentV
                 };
 
-                Root.Children.Add(ToAdd);
+                var types = singleType.Type.InheritedTypes().Types.Reverse().ToList();
+                //var types = singleType.Type.InheritedTypes().Types.ToList();
+                foreach (Type type in types)
+                {
+                    if (type == singleType.Type)
+                    {
+                        TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
+                        {
+                            Root = Parent,
+                            Content = singleType
+                        };
+                        Parent.Children.Add(ToAdd);
+
+                        if (type.BaseType == typeof(object))
+                            Root.Children.Add(ToAdd);
+                    }
+                    else
+                    {
+                        ParentV = new SingleTypeOfDomein(type, new List<Value>());
+                        TreeNode<SingleTypeOfDomein> ParentN = new TreeNode<SingleTypeOfDomein>
+                        {
+                            Content = ParentV
+                        };
+                        Parent.Children.Add(ParentN);
+                        Parent = ParentN;
+
+                        if (type.BaseType == typeof(object))
+                            Root.Children.Add(Parent);
+                    }
+                }
 
                 if (!AnyNonValueType)
-                    foreach (var v in singleType.Values)
+                    foreach (Value v in singleType.Values)
                         if (!v.Type.IsValueType)
                             AnyNonValueType = true;
             }
@@ -92,9 +147,11 @@ namespace SharpPDDL
             //if any value is not value type
             if (AnyNonValueType)
             {
-                Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false);
-                PointerV.IsInUse_PreconditionIn = true;
-                PointerV.IsInUse_EffectIn = true;
+                Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false)
+                {
+                    IsInUse_PreconditionIn = true,
+                    IsInUse_EffectIn = true
+                };
                 SingleTypeOfDomein singleTypeOfRoot = new SingleTypeOfDomein(typeof(object), new List<Value>() { PointerV });
                 Root.Content = singleTypeOfRoot;
             }
@@ -105,82 +162,82 @@ namespace SharpPDDL
 
         private void GetBranchRight(TreeNode<SingleTypeOfDomein> root)
         {
-            for (int i = 0; i < root.Children.Count(); i++) //for every element at root's list...
+            IEnumerable<IGrouping<Type, TreeNode<SingleTypeOfDomein>>> GroupedCh = root.Children.GroupBy(c => c.Content.Type);
+            List<TreeNode<SingleTypeOfDomein>> newRootChild = new List<TreeNode<SingleTypeOfDomein>>();
+
+            foreach (IGrouping<Type, TreeNode<SingleTypeOfDomein>> OneGroupOfCh in GroupedCh)
             {
-                var types = root.Children[i].Content.Type.InheritedTypes().Types; //...take inherited types
-                int currentTypesArg = 0;
-                int maxTypesArg = types.Count() - 1; //Create argument for read the list
-
-                if (!(root.Root is null)) //find argument for last mutual ancistor (with root)
-                    while (types[currentTypesArg] != root.Content.Type)
-                    {
-                        currentTypesArg++;
-                        if (types[currentTypesArg] == typeof(object))
-                            break;
-                    }
-
-                List<TreeNode<SingleTypeOfDomein>> UncheckedYetRootCh = root.Children.GetRange(i, root.Children.Count() - i); //every else elements from root's list put to new list
-
-                for (currentTypesArg++; currentTypesArg <= maxTypesArg; currentTypesArg++)
+                TreeNode<SingleTypeOfDomein> singleTypeOfDomeins = new TreeNode<SingleTypeOfDomein>
                 {
-                    Type findedType = types[currentTypesArg];
-                    List<TreeNode<SingleTypeOfDomein>> littermate = UncheckedYetRootCh.Where(U => U.Content.Type.InheritedTypes().Types.Contains(findedType)).ToList();
+                    Root = root,
+                    Content = OneGroupOfCh.ToList()[0].Content
+                };
 
-                    if (littermate.Count() > 1)
-                    {
-                        TreeNode<SingleTypeOfDomein> newType;
-
-                        if (littermate.Any(l => l.Content.Type == types[currentTypesArg]))
-                            newType = littermate.First(l => l.Content.Type == types[currentTypesArg]);
-                        else
-                        {
-                            SingleTypeOfDomein singleType = new SingleTypeOfDomein(types[currentTypesArg], new List<Value>());
-
-                            newType = new TreeNode<SingleTypeOfDomein>()
-                            {
-                                Root = root,
-                                Content = singleType,
-                            };
-
-                            root.Children.Add(newType);
-                        }
-
-                        foreach (var l in littermate)
-                        {
-                            if (l == newType)
-                                continue;
-
-                            l.Root = newType;
-                            newType.Children.Add(l);
-                            root.Children.Remove(l);
-                        }
-
-                        GetBranchRight(newType);
-                        break;
-                    }
+                foreach (var ListOfOneGroup in OneGroupOfCh.ToList())
+                {
+                    if (ListOfOneGroup.Children.Any())
+                        singleTypeOfDomeins.Children.Add(ListOfOneGroup.Children[0]);
                 }
+
+                newRootChild.Add(singleTypeOfDomeins);
             }
+
+            foreach (var newRootOfGroup in newRootChild)
+                GetBranchRight(newRootOfGroup);
+
+            root.Children = newRootChild;
+
         }
 
         private void PopulateInheritedTypes(TreeNode<SingleTypeOfDomein> node)
         {
             //Go to every end of tree...
             if (node.Children.Any())
-                foreach (TreeNode<SingleTypeOfDomein> Ch in node.Children)
-                    PopulateInheritedTypes(Ch);
+                foreach (TreeNode<SingleTypeOfDomein> nodeChild in node.Children)
+                    PopulateInheritedTypes(nodeChild);
 
-            //...in the end
+            //...in the end of the tree
             else
             {
-                bool SomethingAdded = false;
-                TreeNode<SingleTypeOfDomein> TempNode = node;
-                TreeNode<SingleTypeOfDomein> TempRoot = TempNode.Root;
-
                 //if no value in node's content stop to work here
                 if (!node.Content.Values.Any())
                     return;
 
-                while (!(TempRoot.Content is null))
+                for (int i = node.Content.Values.Count() - 1; i >= 0; i--)
+                {
+                    //take i-th value from node's content
+                    Value TempValue = node.Content.Values[i];
+
+                    //i-th value from node's content moved up
+                    bool MovedUp = false;
+
+                    TreeNode<SingleTypeOfDomein> TempNode = node;
+                    TreeNode<SingleTypeOfDomein> TempRoot = TempNode.Root;
+
+                    while (!(TempRoot is null))
+                    {
+                        //take Fields and Properties of root content
+                        IEnumerable<MemberInfo> RootCorectMembers = TempRoot.Content.Type.GetMember(TempValue.Name).Where(M => M.MemberType == MemberTypes.Field || M.MemberType == MemberTypes.Property);
+
+                        if (RootCorectMembers.Any())
+                        {
+                            TempNode = TempRoot;
+                            TempRoot = TempNode.Root;
+                            MovedUp = true;
+                            continue;
+                        }
+
+                        if (!TempNode.Content.Values.Any(v => v.Name == TempValue.Name))
+                            TempNode.Content.Values.Add(TempValue);
+
+                        break;
+                    }
+
+                    if (MovedUp)
+                        node.Content.Values.Remove(TempValue);
+                }
+
+                /*while (!(TempRoot is null))
                 {
                     //take Fields and Properties of root content
                     IEnumerable<MemberInfo> RootMembers = TempRoot.Content.Type.GetMembers().Where(M => M.MemberType == MemberTypes.Field || M.MemberType == MemberTypes.Property);
@@ -188,8 +245,7 @@ namespace SharpPDDL
                     //for every value of content
                     for (int i = node.Content.Values.Count() - 1; i != 0; i--)
                     {
-                        //take i-th value from node's content
-                        Value TempValue = node.Content.Values[i];
+
 
                         //if its just added - go ahead
                         if (TempRoot.Content.Values.Any(v => v.Name == TempValue.Name))
@@ -203,18 +259,18 @@ namespace SharpPDDL
                         {
                             TempRoot.Content.Values.Add(TempValue);
                             TempNode.Content.Values.Remove(TempValue);
-                            SomethingAdded = true;
+                            //SomethingAdded = true;
                         }
                     }
 
                     //if no value added stop to work here
-                    if (!SomethingAdded)
+                    //if (!SomethingAdded)
                         break;
 
                     //new value of root and actual node
                     TempNode = TempRoot;
                     TempRoot = TempRoot.Root;
-                }
+                }*/
             }
         }
 
@@ -321,6 +377,7 @@ namespace SharpPDDL
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 39, GloCla.ResMan.GetString("Sa4"));
 
+            AddNonValueType();
             CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root);
             GetBranchRight(Root);
             PopulateInheritedTypes(Root);

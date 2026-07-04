@@ -8,7 +8,7 @@ namespace SharpPDDL
     internal class SingleType
     {
         internal readonly Type Type;
-        internal List<Value> Values;
+        internal List<Value> Values = new List<Value>();
 
         protected SingleType(Type type)
         {
@@ -18,7 +18,6 @@ namespace SharpPDDL
         internal SingleType(Type type, IReadOnlyList<Value> values)
         {
             this.Type = type;
-            this.Values = new List<Value>();
 
             if (values is null)
                 return;
@@ -26,7 +25,7 @@ namespace SharpPDDL
             MemberInfo[] AllTypeMembers = type.GetMembers();
 
             foreach (Value value in values)
-                if (AllTypeMembers.Any(allM => allM.Name == value.Name))
+                if (AllTypeMembers.Any(allM => allM.Name == value.Name) || value.Name == "℗")
                     this.Values.Add(value);
         }
     }
@@ -34,7 +33,6 @@ namespace SharpPDDL
     internal class SingleTypeOfDomein : SingleType
     {
         internal List<Value> CumulativeValues;
-        new internal List<Value> Values;
         internal ushort[] ValuesKeys;
         internal bool NeedToTypeCheck = true;
 
