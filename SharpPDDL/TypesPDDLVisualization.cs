@@ -14,14 +14,15 @@ namespace SharpPDDL
 
         protected override string MakeFilePath(string prefix)
         {
-            return String.Concat(prefix, " (Class Diagram)", correctExtension);
+            string ToRet = String.Format(ResVis.GetString("TypFileName"), prefix, correctExtension);
+            return ToRet;
         }
 
         protected override void CreateData() { }
 
         protected override string GraphTitle()
         {
-            return "Types' graph";
+            return ResVis.GetString("TypGraphTitle");
         }
 
         internal override void AddCategories()
@@ -125,6 +126,6 @@ namespace SharpPDDL
 
         internal override void AddStyles() { }
 
-        protected override string GraphLayout() => "BottomToTop";
+        protected override string GraphLayout() => ResVis.GetString("TypGraphLayout");
     }
 }

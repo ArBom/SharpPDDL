@@ -93,8 +93,11 @@ namespace SharpPDDL
 
         private void CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root)
         {
-            Root = new TreeNode<SingleTypeOfDomein>(); //utwórz korzeń drzewa
-            Root.Content = new SingleTypeOfDomein(typeof(object), new List<Value>());
+            //utwórz korzeń drzewa
+            Root = new TreeNode<SingleTypeOfDomein>
+            {
+                Content = new SingleTypeOfDomein(typeof(object), new List<Value>())
+            };
 
             //czy wykorzystano nie wartościowy (value) typ w domenie
             bool AnyNonValueType = false;
@@ -186,7 +189,6 @@ namespace SharpPDDL
                 GetBranchRight(newRootOfGroup);
 
             root.Children = newRootChild;
-
         }
 
         private void PopulateInheritedTypes(TreeNode<SingleTypeOfDomein> node)
@@ -236,41 +238,6 @@ namespace SharpPDDL
                     if (MovedUp)
                         node.Content.Values.Remove(TempValue);
                 }
-
-                /*while (!(TempRoot is null))
-                {
-                    //take Fields and Properties of root content
-                    IEnumerable<MemberInfo> RootMembers = TempRoot.Content.Type.GetMembers().Where(M => M.MemberType == MemberTypes.Field || M.MemberType == MemberTypes.Property);
-
-                    //for every value of content
-                    for (int i = node.Content.Values.Count() - 1; i != 0; i--)
-                    {
-
-
-                        //if its just added - go ahead
-                        if (TempRoot.Content.Values.Any(v => v.Name == TempValue.Name))
-                        {
-                            TempNode.Content.Values.Remove(TempValue);
-                            continue;
-                        }
-
-                        //if its in root too - move it to the root
-                        if (RootMembers.Any(M => M.Name == TempValue.Name))
-                        {
-                            TempRoot.Content.Values.Add(TempValue);
-                            TempNode.Content.Values.Remove(TempValue);
-                            //SomethingAdded = true;
-                        }
-                    }
-
-                    //if no value added stop to work here
-                    //if (!SomethingAdded)
-                        break;
-
-                    //new value of root and actual node
-                    TempNode = TempRoot;
-                    TempRoot = TempRoot.Root;
-                }*/
             }
         }
 

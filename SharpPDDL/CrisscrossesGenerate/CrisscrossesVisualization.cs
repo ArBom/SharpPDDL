@@ -19,10 +19,11 @@ namespace SharpPDDL
             this.FoundedGoalCrisscrosses = FoundedGoalCrisscrosses;
             this.CurrentRealization = CurrentRealization;
         }
-
+        
         protected override string MakeFilePath(string prefix)
         {
-            return String.Concat(prefix, " (State Diagram)", correctExtension);
+            string ToRet = String.Format(ResVis.GetString("CriFileName"), prefix, correctExtension);
+            return ToRet;
         }
 
         protected override void CreateData()
@@ -33,11 +34,11 @@ namespace SharpPDDL
                 states[t.Key] = t.Value;
         }
 
-        protected override string GraphLayout() => "ForceDirected";
+        protected override string GraphLayout() => ResVis.GetString("CriGraphLayout");
 
         protected override string GraphTitle()
         {
-            return "States of " + Owner.Name + " domain";
+            return ResVis.GetString("CriGraphTitle");
         }
 
         internal override void AddCategories()
@@ -111,10 +112,10 @@ namespace SharpPDDL
 
         internal override void AddNodes()
         {
-            string ActionLegendLabel = "Actions List:\n";
+            string ActionLegendLabel = ResVis.GetString("CriActListHead") + "\n";
             for (int i = 0; i != Owner.actions.Count; i++)
             {
-                ActionLegendLabel = ActionLegendLabel + "\n" + i + ": " + Owner.actions[i].Name;
+                ActionLegendLabel = ActionLegendLabel + "\n" + String.Format(ResVis.GetString("CriActListRecord"), i, Owner.actions[i].Name);
             }
 
             Dictionary<string, string> ActionLegendAttributes = new Dictionary<string, string>
@@ -134,19 +135,16 @@ namespace SharpPDDL
                 else
                     Attributes["IsInRealize"] = Boolean.FalseString;
 
+                Attributes[Label_Key] = curr.Key;
+
                 if (curr.Key == root.Content.CheckSum)
                 {
-                    Attributes[Label_Key] = "⚫  " + curr.Key;
+                    Attributes[Label_Key] = String.Format(ResVis.GetString("CriStateStart"), Attributes[Label_Key]);
                     Attributes["IsInRealize"] = Boolean.TrueString;
                 }
-                else if (FoundedGoalCrisscrosses.Contains(curr.Key))
-                {
-                    Attributes[Label_Key] = "🔘  " + curr.Key;
-                }
-                else
-                {
-                    Attributes[Label_Key] = curr.Key;
-                }
+
+                if (FoundedGoalCrisscrosses.Contains(curr.Key))
+                    Attributes[Label_Key] = String.Format(ResVis.GetString("CriStateFinish"), Attributes[Label_Key]);
 
                 Attributes[Category_Key] = "PossState";
 
@@ -162,7 +160,7 @@ namespace SharpPDDL
             Dictionary<string, string> AttributesIsInRealize = new Dictionary<string, string>
             {
                 [Id_Key] = "IsInRealize",
-                [Label_Key] = "IsInRealize",
+                [Label_Key] = ResVis.GetString("CriInRealizeLabelKey"),
                 [DataType_Key] = "System.Boolean"
             };
             AddRecord(Property_Key, AttributesIsInRealize);
@@ -170,7 +168,7 @@ namespace SharpPDDL
             Dictionary<string, string> AttributesCumulativeCost = new Dictionary<string, string>
             {
                 [Id_Key] = "CumulativeCost",
-                [Label_Key] = "Cumulative Cost",
+                [Label_Key] = ResVis.GetString("CriCumCostLabelKey"),
                 [DataType_Key] = "System.UInt32"
             };
             AddRecord(Property_Key, AttributesCumulativeCost);
@@ -178,7 +176,7 @@ namespace SharpPDDL
             Dictionary<string, string> AttributesActionName = new Dictionary<string, string>
             {
                 [Id_Key] = "ActionName",
-                [Label_Key] = "Action Name",
+                [Label_Key] = ResVis.GetString("CriActNaLabelKey"),
                 [DataType_Key] = "System.String"
             };
             AddRecord(Property_Key, AttributesActionName);
@@ -186,7 +184,7 @@ namespace SharpPDDL
             Dictionary<string, string> AttributesActionCost = new Dictionary<string, string>
             {
                 [Id_Key] = "ActionCost",
-                [Label_Key] = "Action Cost",
+                [Label_Key] = ResVis.GetString("CriCostLabelKey"),
                 [DataType_Key] = "System.UInt32"
             };
             AddRecord(Property_Key, AttributesActionCost);
@@ -194,7 +192,7 @@ namespace SharpPDDL
             Dictionary<string, string> AttributesSententia = new Dictionary<string, string>
             {
                 [Id_Key] = "Sententia",
-                [Label_Key] = "Action Sententia",
+                [Label_Key] = ResVis.GetString("CriActSenLabelKey"),
                 [DataType_Key] = "System.String"
             };
             AddRecord(Property_Key, AttributesSententia);

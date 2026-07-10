@@ -21,7 +21,8 @@ namespace SharpPDDL
 
         protected override string MakeFilePath(string prefix)
         {
-            return String.Concat(prefix, " (Case Use Diagram)", correctExtension);
+            string ToRet = String.Format(ResVis.GetString("ActFileName"), prefix, correctExtension);
+            return ToRet;
         }
 
         protected override void CreateData()
@@ -46,7 +47,7 @@ namespace SharpPDDL
 
         protected override string GraphTitle()
         {
-            return "Case Use Diagram";
+            return ResVis.GetString("ActGraphTitle");
         }
 
         internal override void AddCategories()
@@ -139,13 +140,10 @@ namespace SharpPDDL
                         [Source_Key] = actionPDDL.Name,
                         [Target_Key] = effectPDDLName + "!E",
                         ["StrokeDashArray"] = "4 4",
-                        [Label_Key] = "«include»"
+                        [Label_Key] = ResVis.GetString("ActIncludeLabelKey")                      
                     };
 
-                    if (actionPDDL.DataToCaseUseDiagram().Item3.Contains(effectPDDLName))
-                        EffeLinkAttributes["IsExec"] = Boolean.TrueString;
-                    else
-                        EffeLinkAttributes["IsExec"] = Boolean.FalseString;
+                    EffeLinkAttributes["IsExec"] = actionPDDL.DataToCaseUseDiagram().Item3.Contains(effectPDDLName) ? Boolean.TrueString : Boolean.FalseString;
 
                     AddRecord(Link_Key, EffeLinkAttributes);
 
@@ -167,7 +165,7 @@ namespace SharpPDDL
                         [Source_Key] = actionPDDL.Name,
                         [Target_Key] = executionName + "!Ex",
                         ["StrokeDashArray"] = "4 4",
-                        [Label_Key] = "«realization»",
+                        [Label_Key] = ResVis.GetString("ActRealizeLabelKey"),
                         ["IsExec"] = Boolean.TrueString
                     };
                     AddRecord(Link_Key, executionLinkAttributes);
@@ -208,7 +206,8 @@ namespace SharpPDDL
 
             foreach (ActionPDDL actionPDDL in actions)
             {
-                string PrecoList = "♦ " + String.Join("\n♦ ", actionPDDL.DataToCaseUseDiagram().Item1);
+                string PrecoBulletPoint = ResVis.GetString("ActPrecBullet");
+                string PrecoList = PrecoBulletPoint + String.Join("\n" + PrecoBulletPoint, actionPDDL.DataToCaseUseDiagram().Item1);
 
                 Dictionary<string, string> ActionPrecoAttributes = new Dictionary<string, string>
                 {
@@ -286,7 +285,7 @@ namespace SharpPDDL
 
         protected override string GraphLayout()
         {
-            return "LeftToRight";
+            return ResVis.GetString("ActGraphLayout");
         }
 
         internal override void AddStyles()

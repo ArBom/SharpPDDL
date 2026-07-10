@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -17,6 +19,7 @@ namespace SharpPDDL
 
     internal abstract class DGML
     {
+        protected static ResourceManager ResVis = new ResourceManager("SharpPDDL.Properties.ResourcesOfVisualization", Assembly.GetExecutingAssembly());
         protected XmlWriter writer;
         protected abstract string GraphTitle();
         protected abstract string GraphLayout();
