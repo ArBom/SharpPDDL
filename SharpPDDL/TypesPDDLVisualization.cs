@@ -127,5 +127,7 @@ namespace SharpPDDL
         internal override void AddStyles() { }
 
         protected override string GraphLayout() => ResVis.GetString("TypGraphLayout");
+
+        protected override string GraphDirection() => ResVis.GetString("TypGraphDirection");
     }
 }

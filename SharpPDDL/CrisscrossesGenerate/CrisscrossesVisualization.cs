@@ -36,6 +36,8 @@ namespace SharpPDDL
 
         protected override string GraphLayout() => ResVis.GetString("CriGraphLayout");
 
+        protected override string GraphDirection() => ResVis.GetString("CriGraphDirection");
+
         protected override string GraphTitle()
         {
             return ResVis.GetString("CriGraphTitle");

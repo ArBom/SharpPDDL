@@ -11,7 +11,7 @@ namespace SharpPDDL
         /// <summary>
         /// 0 value occur in program run only for pointer of object with name: "℗"
         /// </summary>
-        protected ushort ValuesIndeksCount = 0;
+        protected ushort ValuesIndeksCount = 1;
         internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
         readonly object locker = new object();
 
@@ -45,20 +45,23 @@ namespace SharpPDDL
                 //in the other case update values of Parameter
                 foreach (Value value in singleType.Values)
                 {
+                    //check whether this value was added before...
                     bool AnyValueOfName;
-
                     lock (allTypes[ToTagAllTypesIndex.Value])
                         AnyValueOfName = allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name);
 
+                    //...if so, set InUse_ props...
                     if (AnyValueOfName)
                     {
-                        int ToTagIndex = allTypes[ToTagAllTypesIndex.Value].Values.FindIndex(v => v.Name == value.Name);
-                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_EffectIn = value.IsInUse_EffectIn;
-                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_EffectOut = value.IsInUse_EffectOut;
-                        allTypes[ToTagAllTypesIndex.Value].Values[ToTagIndex].IsInUse_PreconditionIn = value.IsInUse_PreconditionIn;
+                        Value ToTagV = allTypes[ToTagAllTypesIndex.Value].Values.Find(aV => aV.Name == value.Name);
+                        ToTagV.IsInUse_EffectIn = value.IsInUse_EffectIn;
+                        ToTagV.IsInUse_EffectOut = value.IsInUse_EffectOut;
+                        ToTagV.IsInUse_ActionCostIn = value.IsInUse_ActionCostIn;
+                        ToTagV.IsInUse_PreconditionIn = value.IsInUse_PreconditionIn;
                         continue;
                     }
 
+                    //...or add it first time
                     lock (allTypes[ToTagAllTypesIndex.Value])
                         allTypes[ToTagAllTypesIndex.Value].Values.Add(value);
                 }
@@ -68,25 +71,30 @@ namespace SharpPDDL
         #region CreateTypesTree_Medhods
         private void AddNonValueType()
         {
+            //create temp list to add
             List<SingleType> NonValueTypes = new List<SingleType>();
             
+            //for every past type...
             foreach (SingleTypeOfDomein singleType in this.allTypes)
             {
+                //...check every single value...
                 foreach (Value singleTypeValue in singleType.Values)
+                    //...if it's class or any other non-value type it is
                     if (!singleTypeValue.Type.IsValueType)
                     {
-                        Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false)
+                        Value PointerV = new Value(GloCla.PointerVName, typeof(IntPtr), typeof(object), false)
                         {
                             IsInUse_ActionCostIn = singleTypeValue.IsInUse_ActionCostIn,
                             IsInUse_EffectIn = singleTypeValue.IsInUse_EffectIn,
-                            IsInUse_EffectOut = singleTypeValue.IsInUse_EffectOut,
-                            IsInUse_PreconditionIn = singleTypeValue.IsInUse_PreconditionIn
+                            IsInUse_PreconditionIn = singleTypeValue.IsInUse_PreconditionIn,
                         };
 
-                        NonValueTypes.Add(new SingleType(singleTypeValue.Type, new List<Value> { }));
+                        //if so add it to temp list, but without _OUTPUTS cause its static, and it influence next optimization
+                        NonValueTypes.Add(new SingleType(singleTypeValue.Type, new List<Value> { PointerV }));
                     }
             }
 
+            //add whole temp list to past types
             if (NonValueTypes.Any())
                 CompleteTypes(NonValueTypes);
         }
@@ -99,10 +107,8 @@ namespace SharpPDDL
                 Content = new SingleTypeOfDomein(typeof(object), new List<Value>())
             };
 
-            //czy wykorzystano nie wartościowy (value) typ w domenie
-            bool AnyNonValueType = false;
-
-            foreach (SingleTypeOfDomein singleType in this.allTypes) //Podepnij wszystko pod ten korzeń
+            //Podepnij wszystko pod ten korzeń
+            foreach (SingleTypeOfDomein singleType in this.allTypes)
             {
                 SingleTypeOfDomein ParentV = new SingleTypeOfDomein(typeof(object), new List<Value>());
                 TreeNode<SingleTypeOfDomein> Parent = new TreeNode<SingleTypeOfDomein>
@@ -110,11 +116,12 @@ namespace SharpPDDL
                     Content = ParentV
                 };
 
-                var types = singleType.Type.InheritedTypes().Types.Reverse().ToList();
-                //var types = singleType.Type.InheritedTypes().Types.ToList();
+                //make a list af inherited types...
+                IEnumerable<Type> types = singleType.Type.InheritedTypes().Types.Reverse();
+                //...and create 'concatenation' of their
                 foreach (Type type in types)
-                {
-                    if (type == singleType.Type)
+                {                   
+                    if (type == singleType.Type) //case of end, but no-object type
                     {
                         TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
                         {
@@ -126,7 +133,7 @@ namespace SharpPDDL
                         if (type.BaseType == typeof(object))
                             Root.Children.Add(ToAdd);
                     }
-                    else
+                    else //case of inner type
                     {
                         ParentV = new SingleTypeOfDomein(type, new List<Value>());
                         TreeNode<SingleTypeOfDomein> ParentN = new TreeNode<SingleTypeOfDomein>
@@ -136,56 +143,60 @@ namespace SharpPDDL
                         Parent.Children.Add(ParentN);
                         Parent = ParentN;
 
+                        //close to object-type end (Root)
                         if (type.BaseType == typeof(object))
                             Root.Children.Add(Parent);
                     }
                 }
-
-                if (!AnyNonValueType)
-                    foreach (Value v in singleType.Values)
-                        if (!v.Type.IsValueType)
-                            AnyNonValueType = true;
             }
-
-            //if any value is not value type
-            if (AnyNonValueType)
-            {
-                Value PointerV = new Value("℗", typeof(IntPtr), typeof(object), false)
-                {
-                    IsInUse_PreconditionIn = true,
-                    IsInUse_EffectIn = true
-                };
-                SingleTypeOfDomein singleTypeOfRoot = new SingleTypeOfDomein(typeof(object), new List<Value>() { PointerV });
-                Root.Content = singleTypeOfRoot;
-            }
-            else
-                //cause 0-key value is for pointer only
-                ValuesIndeksCount++;
         }
 
         private void GetBranchRight(TreeNode<SingleTypeOfDomein> root)
         {
+            //group branches by next type
             IEnumerable<IGrouping<Type, TreeNode<SingleTypeOfDomein>>> GroupedCh = root.Children.GroupBy(c => c.Content.Type);
+            //create the child list for next branch step
             List<TreeNode<SingleTypeOfDomein>> newRootChild = new List<TreeNode<SingleTypeOfDomein>>();
-
+            
+            //for every group...
             foreach (IGrouping<Type, TreeNode<SingleTypeOfDomein>> OneGroupOfCh in GroupedCh)
             {
+                //...create new root / head...
                 TreeNode<SingleTypeOfDomein> singleTypeOfDomeins = new TreeNode<SingleTypeOfDomein>
                 {
                     Root = root,
-                    Content = OneGroupOfCh.ToList()[0].Content
+                    Content = OneGroupOfCh.First().Content
                 };
 
-                foreach (var ListOfOneGroup in OneGroupOfCh.ToList())
+                //...add closser types..
+                foreach (TreeNode<SingleTypeOfDomein> ListOfOneGroup in OneGroupOfCh)
                 {
+                    //...and rest of 'concatenations'
                     if (ListOfOneGroup.Children.Any())
                         singleTypeOfDomeins.Children.Add(ListOfOneGroup.Children[0]);
+
+                    //Set values of new root/head
+                    foreach (Value v in ListOfOneGroup.Content.Values)
+                    {
+                        //Update IsInUse_ tags...
+                        if (singleTypeOfDomeins.Content.Values.Any(va => va.Name == v.Name))
+                        {
+                            Value toTagV = singleTypeOfDomeins.Content.Values.First(va => va.Name == v.Name);
+                            toTagV.IsInUse_EffectIn = v.IsInUse_EffectIn;
+                            toTagV.IsInUse_EffectOut = v.IsInUse_EffectOut;
+                            toTagV.IsInUse_ActionCostIn = v.IsInUse_ActionCostIn;
+                            toTagV.IsInUse_PreconditionIn = v.IsInUse_PreconditionIn;
+                        }
+                        else //...or copy if there wasnt be before
+                            singleTypeOfDomeins.Content.Values.Add(v);
+                    }
                 }
 
                 newRootChild.Add(singleTypeOfDomeins);
             }
 
-            foreach (var newRootOfGroup in newRootChild)
+            //do it again in great depth
+            foreach (TreeNode<SingleTypeOfDomein> newRootOfGroup in newRootChild)
                 GetBranchRight(newRootOfGroup);
 
             root.Children = newRootChild;
@@ -235,6 +246,7 @@ namespace SharpPDDL
                         break;
                     }
 
+                    //if the i-th value from node's content was moved up remove it
                     if (MovedUp)
                         node.Content.Values.Remove(TempValue);
                 }
@@ -243,29 +255,34 @@ namespace SharpPDDL
 
         private void TagValues(TreeNode<SingleTypeOfDomein> node)
         {
+            //do it in great depth
             if (node.Children.Any())
                 foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                     TagValues(child);
 
+            //from the end of branch
             if (node.Content != null)
             {
                 TreeNode<SingleTypeOfDomein> tempNode = node;
+                //go to root
                 while (tempNode.Root != null)
                 {
-                    if (tempNode.Root.Content is null)
+                    if (tempNode.Root.Content is null) //todo is it necessary?
                     {
                         tempNode = tempNode.Root;
                         continue;
                     }
 
+                    //update every value's IsItUse_ tag at root
                     foreach (Value v in tempNode.Content.Values)
                     {
                         if (tempNode.Root.Content.Values.Any(aV => aV.Name == v.Name))
                         {
-                            int ToTagIndex = tempNode.Root.Content.Values.FindIndex(aV => aV.Name == v.Name);
-                            tempNode.Root.Content.Values[ToTagIndex].IsInUse_EffectIn = v.IsInUse_EffectIn;
-                            tempNode.Root.Content.Values[ToTagIndex].IsInUse_EffectOut = v.IsInUse_EffectOut;
-                            tempNode.Root.Content.Values[ToTagIndex].IsInUse_PreconditionIn = v.IsInUse_PreconditionIn;
+                            Value ToTagV = tempNode.Root.Content.Values.Find(aV => aV.Name == v.Name);
+                            ToTagV.IsInUse_EffectIn = v.IsInUse_EffectIn;
+                            ToTagV.IsInUse_EffectOut = v.IsInUse_EffectOut;
+                            ToTagV.IsInUse_ActionCostIn = v.IsInUse_ActionCostIn;
+                            ToTagV.IsInUse_PreconditionIn = v.IsInUse_PreconditionIn;
                         }
                     }
 
@@ -276,16 +293,17 @@ namespace SharpPDDL
 
         private void CumulateValues(TreeNode<SingleTypeOfDomein> node)
         {
-            if (node.Content != null)
-                node.Content.CumulativeValues = new List<Value>(node.Content.Values);
-
+            //if root exists...
             if (node.Root?.Content != null)
             {
+                //...take CumulativeValues from it...
                 node.Content.CumulativeValues = new List<Value>(node.Root.Content.CumulativeValues);
-                var newValues = node.Content.Values.Where(v => !node.Content.CumulativeValues.Any(cv => cv.Name == v.Name));
+                IEnumerable<Value> newValues = node.Content.Values.Where(v => !node.Content.CumulativeValues.Any(cv => cv.Name == v.Name));
+                //...and add itself values
                 node.Content.CumulativeValues.AddRange(newValues);
             }
 
+            //do it again for child
             foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
                 CumulateValues(child);
         }
@@ -307,6 +325,13 @@ namespace SharpPDDL
                 {
                     foreach (Value childValue in node.Content.Values)
                     {
+                        if (childValue.Name == GloCla.PointerVName)
+                        {
+                            childValue.ValueOfIndexesKey = 0;
+                            ChangeAtChildren(node, childValue, 0);
+                            continue;
+                        }
+
                         if (node.Content.CumulativeValues.Any(cv => cv.Name == childValue.Name && cv.ValueOfIndexesKey != 0))
                             continue;
 

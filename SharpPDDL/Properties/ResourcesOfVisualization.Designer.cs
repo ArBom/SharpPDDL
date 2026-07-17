@@ -72,6 +72,15 @@ namespace SharpPDDL.Properties {
         /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu LeftToRight.
         /// </summary>
+        internal static string ActGraphDirection {
+            get {
+                return ResourceManager.GetString("ActGraphDirection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu LeftToRight.
+        /// </summary>
         internal static string ActGraphLayout {
             get {
                 return ResourceManager.GetString("ActGraphLayout", resourceCulture);
@@ -178,6 +187,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu LeftToRight.
+        /// </summary>
+        internal static string CriGraphDirection {
+            get {
+                return ResourceManager.GetString("CriGraphDirection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu ForceDirected.
         /// </summary>
         internal static string CriGraphLayout {
@@ -228,6 +246,15 @@ namespace SharpPDDL.Properties {
         internal static string TypFileName {
             get {
                 return ResourceManager.GetString("TypFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu BottomToTop.
+        /// </summary>
+        internal static string TypGraphDirection {
+            get {
+                return ResourceManager.GetString("TypGraphDirection", resourceCulture);
             }
         }
         

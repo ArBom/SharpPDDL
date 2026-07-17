@@ -71,11 +71,13 @@ namespace SharpPDDL
 
         protected void ReadAllVals()
         {
+            if (Model.CumulativeValues.Any(cv => cv.Name == GloCla.PointerVName || !cv.Type.IsValueType))
+                ObjHandles = new Dictionary<ushort, GCHandle>();
+
             foreach (Value VOT in Model.CumulativeValues)
             {
-                if (VOT.ValueOfIndexesKey == 0)
-                {
-                    ObjHandles = new Dictionary<ushort, GCHandle>();
+                if (VOT.Name == GloCla.PointerVName)
+                {                   
                     GCHandle ObjHandle = GCHandle.Alloc(_OriginalObj, GCHandleType.Normal);
                     IntPtr Addr = (IntPtr)ObjHandle;
                     ObjHandles.Add(0, ObjHandle);
@@ -151,7 +153,7 @@ namespace SharpPDDL
 
         internal void TryToChangeHandle(ThumbnailObjectPrecursor<object> AnotherThObPrec)
         {
-            if (this.ObjHandles is null)
+            if (this.ObjHandles is null || AnotherThObPrec.ObjHandles is null)
                 return;
 
             var theseObjHandles = this.ObjHandles.ToList();
@@ -163,18 +165,20 @@ namespace SharpPDDL
                 {
                     object theseObj = thatOH.Value.Target;
 
-                    if (this.ObjHandles[0].Target.Equals(theseObj))
-                        AnotherThObPrec.ChangeHandle(thatOH.Key, ObjHandles[0]);
-                    else
-                    {
-                        object TargetObjLoop = thisOH.Value.Target;
-
-                        if (TargetObjLoop is null)
+                    if (this.ObjHandles.ContainsKey(0))
+                        if (this.ObjHandles[0].Target.Equals(theseObj))
+                        {
+                            AnotherThObPrec.ChangeHandle(thatOH.Key, this.ObjHandles[0]);
                             continue;
+                        }
 
-                        if (TargetObjLoop.Equals(theseObj))
-                            ChangeHandle(thisOH.Key, thatOH.Value);
-                    }
+                    object TargetObjLoop = thisOH.Value.Target;
+
+                    if (TargetObjLoop is null)
+                        continue;
+
+                    if (TargetObjLoop.Equals(theseObj))
+                        ChangeHandle(thisOH.Key, thatOH.Value);
                 }
             }
         }
@@ -193,8 +197,13 @@ namespace SharpPDDL
 
         ~ThumbnailObjectPrecursor()
         {
-            if (!(ObjHandles is null))
-                ObjHandles[0].Free();
+            if (ObjHandles is null)
+                return;
+
+            if (this.ObjHandles.ContainsKey(0))
+                this.ObjHandles[0].Free();
+
+            this.ObjHandles = null;
         }
     }
 }

@@ -23,12 +23,14 @@ namespace SharpPDDL
         protected XmlWriter writer;
         protected abstract string GraphTitle();
         protected abstract string GraphLayout();
+        protected abstract string GraphDirection();
 
-        void OpenGraph(string title, string Layout)
+        void OpenGraph(string title, string Direction, string Layout)
         {
             writer.WriteStartElement("DirectedGraph", @"http://schemas.microsoft.com/vs/2009/dgml");
             writer.WriteAttributeString("Title", title);
             writer.WriteAttributeString("Layout", Layout);
+            writer.WriteAttributeString("GraphDirection", Direction);
         }
 
         protected abstract void CreateData();
@@ -113,7 +115,7 @@ namespace SharpPDDL
             string ch_path = MakeFilePath(path);
             writer = XmlWriter.Create(ch_path, settings);
 
-            OpenGraph(GraphTitle(), GraphLayout());
+            OpenGraph(GraphTitle(), GraphDirection(), GraphLayout());
 
             OpenNodes();
             AddNodes();

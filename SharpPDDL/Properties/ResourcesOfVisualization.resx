@@ -121,6 +121,9 @@
     <value>{0} (Case Use Diagram){1}</value>
     <comment>ActionsVisualization; name of file; 0-added by user prefix, 1-extension</comment>
   </data>
+  <data name="ActGraphDirection" xml:space="preserve">
+    <value>LeftToRight</value>
+  </data>
   <data name="ActGraphLayout" xml:space="preserve">
     <value>LeftToRight</value>
     <comment>ActionsVisualization; Layout of graph</comment>
@@ -169,6 +172,9 @@
     <value>{0} (State Diagram){1}</value>
     <comment>CrisscrossesVisualization; name of file; 0-added by user prefix, 1-extension</comment>
   </data>
+  <data name="CriGraphDirection" xml:space="preserve">
+    <value>LeftToRight</value>
+  </data>
   <data name="CriGraphLayout" xml:space="preserve">
     <value>ForceDirected</value>
     <comment>CrisscrossesVisualization; Layout of graph</comment>
@@ -192,6 +198,9 @@
   <data name="TypFileName" xml:space="preserve">
     <value>{0} (Class Diagram){1}</value>
     <comment>TypesPDDLVisualization; Graph Title; 0-name of graph owner</comment>
+  </data>
+  <data name="TypGraphDirection" xml:space="preserve">
+    <value>BottomToTop</value>
   </data>
   <data name="TypGraphLayout" xml:space="preserve">
     <value>BottomToTop</value>

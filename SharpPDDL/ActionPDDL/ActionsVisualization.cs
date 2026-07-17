@@ -83,7 +83,7 @@ namespace SharpPDDL
                 ["CanLinkedNodesBeDataDriven"] = Boolean.TrueString,
                 ["IsContainment"] = Boolean.TrueString
             };
-            AddRecord(Category_Key, AttributesTypeNode);
+            AddRecord(Category_Key, AttributesContainsLink);
 
             Dictionary<string, string> AttributesPrecLink = new Dictionary<string, string>
             {
@@ -283,10 +283,9 @@ namespace SharpPDDL
             AddRecord(Property_Key, FetchingParentProperty);
         }
 
-        protected override string GraphLayout()
-        {
-            return ResVis.GetString("ActGraphLayout");
-        }
+        protected override string GraphLayout() => ResVis.GetString("ActGraphLayout");
+
+        protected override string GraphDirection() => ResVis.GetString("ActGraphDirection");
 
         internal override void AddStyles()
         {
