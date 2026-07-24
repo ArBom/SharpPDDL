@@ -79,7 +79,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu LeftToRight.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Sugiyama.
         /// </summary>
         internal static string ActGraphLayout {
             get {
@@ -259,7 +259,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu BottomToTop.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Sugiyama.
         /// </summary>
         internal static string TypGraphLayout {
             get {
@@ -273,6 +273,69 @@ namespace SharpPDDL.Properties {
         internal static string TypGraphTitle {
             get {
                 return ResourceManager.GetString("TypGraphTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Pointer ℗.
+        /// </summary>
+        internal static string TypPointer {
+            get {
+                return ResourceManager.GetString("TypPointer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Used as cost funct. input.
+        /// </summary>
+        internal static string TypVCostInLabelKey {
+            get {
+                return ResourceManager.GetString("TypVCostInLabelKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Used as effect input.
+        /// </summary>
+        internal static string TypVEffInLabelKey {
+            get {
+                return ResourceManager.GetString("TypVEffInLabelKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Used as effect output.
+        /// </summary>
+        internal static string TypVEffOutLabelKey {
+            get {
+                return ResourceManager.GetString("TypVEffOutLabelKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal number.
+        /// </summary>
+        internal static string TypVNr {
+            get {
+                return ResourceManager.GetString("TypVNr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Used as precondition input.
+        /// </summary>
+        internal static string TypVPreInLabelKey {
+            get {
+                return ResourceManager.GetString("TypVPreInLabelKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Type.
+        /// </summary>
+        internal static string TypVTypeLabelKey {
+            get {
+                return ResourceManager.GetString("TypVTypeLabelKey", resourceCulture);
             }
         }
     }

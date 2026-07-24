@@ -58,10 +58,10 @@ namespace SharpPDDL
                 {
                     if (singleType.Values.Exists(t => t.Name == valueP.Name))
                     {
-                        int ToTagIndex = singleType.Values.FindIndex(t => t.Name == valueP.Name);
-                        singleType.Values[ToTagIndex].IsInUse_EffectIn = valueP.IsInUse_EffectIn;
-                        singleType.Values[ToTagIndex].IsInUse_EffectOut = valueP.IsInUse_EffectOut;
-                        singleType.Values[ToTagIndex].IsInUse_PreconditionIn = valueP.IsInUse_PreconditionIn;
+                        Value ToTag = singleType.Values.Find(t => t.Name == valueP.Name);
+                        ToTag.IsInUse_EffectIn = valueP.IsInUse_EffectIn;
+                        ToTag.IsInUse_EffectOut = valueP.IsInUse_EffectOut;
+                        ToTag.IsInUse_PreconditionIn = valueP.IsInUse_PreconditionIn;
 
                         continue;
                     }

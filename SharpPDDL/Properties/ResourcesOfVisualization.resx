@@ -123,9 +123,10 @@
   </data>
   <data name="ActGraphDirection" xml:space="preserve">
     <value>LeftToRight</value>
+    <comment>ActionsVisualization; direction of the Case Use Diagram</comment>
   </data>
   <data name="ActGraphLayout" xml:space="preserve">
-    <value>LeftToRight</value>
+    <value>Sugiyama</value>
     <comment>ActionsVisualization; Layout of graph</comment>
   </data>
   <data name="ActGraphTitle" xml:space="preserve">
@@ -174,6 +175,7 @@
   </data>
   <data name="CriGraphDirection" xml:space="preserve">
     <value>LeftToRight</value>
+    <comment>CrisscrossesVisualization; direction of the State Diagram</comment>
   </data>
   <data name="CriGraphLayout" xml:space="preserve">
     <value>ForceDirected</value>
@@ -201,13 +203,42 @@
   </data>
   <data name="TypGraphDirection" xml:space="preserve">
     <value>BottomToTop</value>
+    <comment>TypesPDDLVisualization; direction of the Class Diagram</comment>
   </data>
   <data name="TypGraphLayout" xml:space="preserve">
-    <value>BottomToTop</value>
+    <value>Sugiyama</value>
     <comment>TypesPDDLVisualization; Layout of graph</comment>
   </data>
   <data name="TypGraphTitle" xml:space="preserve">
     <value>Types' graph</value>
     <comment>TypesPDDLVisualization; Graph Title</comment>
+  </data>
+  <data name="TypPointer" xml:space="preserve">
+    <value>Pointer ℗</value>
+    <comment>TypesPDDLVisualization; name of pointer value</comment>
+  </data>
+  <data name="TypVCostInLabelKey" xml:space="preserve">
+    <value>Used as cost funct. input</value>
+    <comment>TypesPDDLVisualization; label key of using value as cost in</comment>
+  </data>
+  <data name="TypVEffInLabelKey" xml:space="preserve">
+    <value>Used as effect input</value>
+    <comment>TypesPDDLVisualization; label key of using value as effect in</comment>
+  </data>
+  <data name="TypVEffOutLabelKey" xml:space="preserve">
+    <value>Used as effect output</value>
+    <comment>TypesPDDLVisualization; label key of using value as effect out</comment>
+  </data>
+  <data name="TypVNr" xml:space="preserve">
+    <value>Internal number</value>
+    <comment>TypesPDDLVisualization; label key of value internal number</comment>
+  </data>
+  <data name="TypVPreInLabelKey" xml:space="preserve">
+    <value>Used as precondition input</value>
+    <comment>TypesPDDLVisualization; label key of using value as precondition in</comment>
+  </data>
+  <data name="TypVTypeLabelKey" xml:space="preserve">
+    <value>Type</value>
+    <comment>TypesPDDLVisualization; label key of value type</comment>
   </data>
 </root>
