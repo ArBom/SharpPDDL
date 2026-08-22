@@ -5,18 +5,20 @@
 [![LoC](https://raw.githubusercontent.com/ArBom/SharpPDDL/refs/heads/loc/badge.svg)](https://github.com/ArBom/SharpPDDL/blob/master/.github/workflows/loc.yml)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ArBom/SharpPDDL?style=plastic&logo&color=4bc721)
 [![NuGet Version](https://img.shields.io/nuget/vpre/SharpPDDL?style=plastic&logo=nuget&label=NuGet&color=004880&cacheSeconds=7200)](https://www.nuget.org/packages/SharpPDDL)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=12)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/SharpPDDL?style=plastic&color=004880)](https://nugettrends.com/packages?ids=SharpPDDL&months=24)
 
 ---
 
-This is the class library based on PDDL intellection and in effect it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It uses only C# 7.1 standard library. Values inside classes using to find solution have to be ValueType only (most numeric, like: int, short etc., char, bool).
-
-One can to use previously defined classes which are using in other part of one's programm. At this version library can return the plan of doing and execute it to realize the goal.
+This is the class library based on PDDL intellection, but it uses C# language to explain a problem. In effect of them it's a implementation of GOAP (Goal Oriented Action Planning) algorithm. It was made as decision-maker and optimizer. It uses only C# 7.2 standard library, without third party dependencies. Values inside classes using to find a solution have to be a ValueType only (most numeric, like: int, short etc., char, bool), or be the another class added to domain problem. You can to use previously defined classes which are using in other part of your program. 
 
 ## How to use (API):
-Include the library namespace with using SharpPDDL.
+Include the library namespace with
+```cs
+using SharpPDDL
+```
+and use methods of it.
 
-| Method | What is it doing? |
+| Method | What does it do? |
 |---|---|
 | new DomainPDDL() | Creates the instance of algorithm. |
 | DomainPDDL.AddAction() | Adds action to domain. |
@@ -40,28 +42,30 @@ Include the library namespace with using SharpPDDL.
 
 ### Define actions:
 
-The simplest action consists only of the effect of its execution.
+The simplest action consists only of the effect of its execution without preconditions:
 ```cs
 ActionPDDL Suppling = new ActionPDDL("Supply the stocks");
 Suppling.AddEffect("Take fresh food", ref person, s => s.HaveFood, true);
 ```
 
-Most actions require certain conditions to be met and mode than one effect, e.g. To eat, you must have food
+Most actions require some conditions to be meet and make more than one effect, e.g. to eat, one have to have food. In the effect one is full, but have no food. 
 ```cs
 ActionPDDL Eat = new ActionPDDL("Eat");
 Eat.AddPrecondition("Have food", ref person, s => s.HaveFood == true);
 Eat.AddEffect("Replete with food", ref person, s => s.IsFull, true);
 Eat.AddEffect("Less food", ref person, s => s.HaveFood, false);
 ```
-It is worth noting at this point that the occurrence of references to the same object (person) indicates that it is Sam who must have food in order to eat it, and it is Sam who is full after consumption
+It is worth noting at this point that the occurrence of references to the same object (person) indicates that it is person who have to have food in order to eat it, and it is person who is full after consumption.
 
-There is a possibility of define an action in which two (or more) different class instances interact with each other
+There is a possibility of define an action in which two (or more) different class instances interact with each other:
 ```cs
 ActionPDDL Feed = new ActionPDDL("Feed the pet");
 Feed.AddPrecondition("Have food", ref person, s => s.HaveFood == true);
 Feed.AddEffect("Feed the dog", ref dog, d => d.IsFull, true);
 Feed.AddEffect("Less food", ref person, s => s.HaveFood, false);
 ```
+
+Person is the owner of the food who is left over it. Dog (the another object) is full up.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/166fa72a-e35d-41b4-a91b-68a39ed92a92">
@@ -86,7 +90,7 @@ GoalPDDL FullDogAndSam = new GoalPDDL("Feed both");
 FullDogAndSam.AddExpectedObjectState(Sam_s_Dog, SD => SD.IsFull);
 FullDogAndSam.AddExpectedObjectState(Sam, S => S.IsFull);
 ```
-Plan generated to solve 2<sup>nd</sup> goal (Feed both) with use actions of that domain. Assumedly, in the beginning of it Sam was without food on his person.
+Plan generated to solve the other goal (Feed both) with use actions of that domain. Assumedly, in the beginning of it Sam was without food on his person.
 ```
 Supply the stocks
 Eat
@@ -186,7 +190,7 @@ f5@{ animation: fast }
 f6@{ animation: fast }
 ```
 
-Forward chaining starts with the data from added objects ⚫ and uses inference rules, defined domain actions, to extract more data until a goal is reached ⊚, or until generate all possible state ⊗ - moment when all buffors of this task are empty and noone subtask is working.
+Forward chaining starts with the data from added objects ⬤ and uses inference rules, defined domain actions, to extract more data until a goal is reached ⊚, or until generate all possible state ⊗ - moment when all buffors of this task are empty and none subtask is working.
 
 SharpPDDL searches the possible sets of object representation in one possible state until it finds one where the antecedent (action preconditions) are true to do an action. When such a set is found for the action, SharpPDDL conclude the consequent, resulting in the addition of new possible state.
 
