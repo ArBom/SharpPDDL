@@ -9,15 +9,16 @@ namespace SharpPDDL
 {
     internal class GoalLambdaPDDL<T> : ExpressionVisitor where T : class
     {
-        private readonly ParameterExpression _parameter = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix);
+        private List<ParameterExpression> parameters = new List<ParameterExpression> { Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix) };
+        private readonly GoalPDDL Owner;
         readonly Type OryginalObjectType;
         readonly T OryginalObject;
-        private readonly List<SingleTypeOfDomein> allTypes;
+        private readonly DomainPDDL GoalOwner;
         readonly Expression CheckingTheParametr;
         internal LambdaExpression ModifeidLambda;
         readonly ICollection<Expression<Predicate<T>>> GoalExpectations;
 
-        public GoalLambdaPDDL(ICollection<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, T oryginalObject)
+        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, ICollection<Expression<Predicate<T>>> GoalExpectations, T oryginalObject)
         {
             if (oryginalObject is null)
             {
@@ -26,7 +27,8 @@ namespace SharpPDDL
                 throw new Exception(ExceptionMess);
             }
 
-            this.allTypes = allTypes;
+            this.GoalOwner = GoalOwner;
+            this.Owner = Owner;
             this.OryginalObjectType = oryginalObject.GetType();
             this.OryginalObject = oryginalObject;
             this.GoalExpectations = GoalExpectations;
@@ -39,12 +41,12 @@ namespace SharpPDDL
         {
             //Checking Oryginal Object Type
             PropertyInfo keyOfOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOfOriginalObjType);
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0], keyOfOriginalObjType);
             Expression TypeIs = Expression.Equal(ThObOryginalType, Expression.Constant(OryginalObjectType));
 
             //Checking equals of objects
             PropertyInfo keyOfOriginalObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
-            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(_parameter, keyOfOriginalObj);
+            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(parameters[0], keyOfOriginalObj);
             ConstantExpression ConOrygObj = Expression.Constant(OryginalObject, typeof(T));
             Expression Equals = Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConOrygObj, ThObPrecursor);
 
@@ -52,9 +54,10 @@ namespace SharpPDDL
             return Expression.AndAlso(TypeIs, Equals);
         }
 
-        public GoalLambdaPDDL(ICollection<Expression<Predicate<T>>> GoalExpectations, List<SingleTypeOfDomein> allTypes, Type oryginalObjectType)
+        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, ICollection<Expression<Predicate<T>>> GoalExpectations, Type oryginalObjectType)
         {
-            this.allTypes = allTypes;
+            this.GoalOwner = GoalOwner;
+            this.Owner = Owner;
             this.OryginalObjectType = oryginalObjectType;
             this.OryginalObject = null;
             this.GoalExpectations = GoalExpectations;
@@ -67,7 +70,7 @@ namespace SharpPDDL
         {
             //Checking the Oryginal Object Type of _parameter is like expected
             PropertyInfo keyOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_parameter, keyOriginalObjType);
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0], keyOriginalObjType);
             Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
 
             //Checking is the Oryginal Object Type of _parameter is assignable from expected
@@ -80,14 +83,14 @@ namespace SharpPDDL
 
         protected void CheckConstructorParam()
         {
-            if (allTypes is null)
+            if (GoalOwner.types.allTypes is null)
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C24"));
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 89, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
 
-            if (!allTypes.Any())
+            if (!GoalOwner.types.allTypes.Any())
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C25"));
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 90, ExceptionMess);
@@ -135,7 +138,7 @@ namespace SharpPDDL
                 CheckAllPreco = Expression.AndAlso(CheckAllPreco, VisitLambda(Enumerator.Current));
 
             //To poniższe jest wykorzystywane dalej
-            ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, CheckAllPreco), _parameter);
+            ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, CheckAllPreco), parameters[0]);
 
             try
             {
@@ -169,7 +172,7 @@ namespace SharpPDDL
             Type originalObjTypeCand = node.Expression.Type;
             do
             {
-                IEnumerator<SingleTypeOfDomein> ModelsEnum = allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
+                IEnumerator<SingleTypeOfDomein> ModelsEnum = GoalOwner.types.allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
 
                 if (ModelsEnum.MoveNext())
                     ParameterModel = ModelsEnum.Current;
@@ -196,7 +199,7 @@ namespace SharpPDDL
             PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
 
             //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
-            IndexExpression IndexAccessExpr = Expression.MakeIndex(_parameter, TO_indekser, argument);
+            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameters[0], TO_indekser, argument);
 
             if (NodeType.IsValueType)
             {
@@ -299,7 +302,7 @@ namespace SharpPDDL
             {
                 //it will be check constant value of it
                 MemberInfo keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
-                Expression OrygObj = Expression.MakeMemberAccess(_parameter, keyOrygObj);
+                Expression OrygObj = Expression.MakeMemberAccess(parameters[0], keyOrygObj);
                 UnaryExpression Converted = Expression.Convert(OrygObj, ParameterModel.Type);
                 Expression staticExValue;
 

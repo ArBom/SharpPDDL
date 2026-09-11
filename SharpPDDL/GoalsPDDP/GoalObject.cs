@@ -11,12 +11,13 @@ namespace SharpPDDL
         object OriginalObj { get; set; }
         Type OriginalObjType { get; }
         Delegate GoalPDDL { get; }
-        LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner);
+        LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner, GoalPDDL Owner);
         DomainPDDL NewPDDLdomain { get; }
         bool MigrateIntheEnd { get; }
     }
 
-    internal class GoalObject<T> : IGoalObject where T : class
+    internal class GoalObject<T> : IGoalObject
+        where T : class
     {
         private T _OriginalObj;
         public object OriginalObj
@@ -67,14 +68,14 @@ namespace SharpPDDL
             this.MigrateAccordingtoConstructor = MigrateIt;
         }
 
-        public LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner)
+        public LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner, GoalPDDL Owner)
         {
             GoalLambdaPDDL<T> goalLambdaPDDL;
 
             if (_OriginalObj is null)
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, GoalOwner.types.allTypes, _OriginalObjType);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, Expectations, _OriginalObjType);
             else
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(Expectations, GoalOwner.types.allTypes, _OriginalObj);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, Expectations, _OriginalObj);
 
             _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(NewPDDLdomain) : false;
 

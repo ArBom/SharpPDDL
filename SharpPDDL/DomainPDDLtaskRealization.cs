@@ -112,7 +112,10 @@ namespace SharpPDDL
                 using (FileStream fs = File.Create
                 (
                     Path.Combine(Path.GetDirectoryName(DiagramsPath), Path.GetRandomFileName()), 1, FileOptions.DeleteOnClose)
-                );
+                )
+                {
+                    //intentionally blank
+                };
             }
             catch (Exception e)
             {
