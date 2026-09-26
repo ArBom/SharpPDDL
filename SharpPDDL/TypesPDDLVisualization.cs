@@ -33,7 +33,7 @@ namespace SharpPDDL
             {
                 [Id_Key] = "TypeConnect",
                 [Stroke_Key] = "#FF00A600",
-                ["StrokeDashArray"] = "2 0",
+                ["StrokeDashArray"] = "2 0"
             };
             AddRecord(Category_Key, AttributesTypeConnect);
 
@@ -42,7 +42,6 @@ namespace SharpPDDL
                 [Id_Key] = "InsideTypeConnect",
                 [Stroke_Key] = "Grey",
                 [Background_Key] = "Grey"
-
             };
             AddRecord(Category_Key, AttributesInsideTypeConnect);
 
@@ -143,7 +142,7 @@ namespace SharpPDDL
             {
                 [Category_Key] = TypeNode.Content.Type.FullName == "System.Object" ? "ObjTypeNode" : "TypeNode",
                 [Id_Key] = TypeNode.Content.Type.ToString(),
-                [Label_Key] = TypeNode.Content.Type.Name,
+                [Label_Key] = TypeNode.Content.Type.Name
             };
 
             if (TypeNode.Content.CumulativeValues.Any())

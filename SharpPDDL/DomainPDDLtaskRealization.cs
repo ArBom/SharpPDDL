@@ -115,7 +115,7 @@ namespace SharpPDDL
                 )
                 {
                     //intentionally blank
-                };
+                }
             }
             catch (Exception e)
             {

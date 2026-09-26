@@ -208,9 +208,9 @@ namespace SharpPDDL
                 throw new Exception(ExceptionMess);
             }
 
-            foreach (IGoalObject GoalObjects in GoalObjects)
+            for (int i = 0; i != GoalObjects.Count(); i++)
             {
-                _ = GoalObjects.BuildGoalPDDP(GoalOwner, this);
+                _ = GoalObjects[i].BuildGoalPDDP(GoalOwner, this);
             }
         }
 
