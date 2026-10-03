@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace SharpPDDL
 {
@@ -20,7 +18,7 @@ namespace SharpPDDL
         public Type OriginalObjType => _OryginalObjType;
 
         readonly LambdaExpression InLambda;
-        public Delegate GoalPDDL => InLambda.Compile();
+        public Delegate GoalPDDL { get; private set; }
 
         readonly DomainPDDL _NewPDDLdomain;
         public DomainPDDL NewPDDLdomain => _NewPDDLdomain;
@@ -39,13 +37,15 @@ namespace SharpPDDL
 
         public LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner, GoalPDDL Owner)
         {
-            ParameterExpression _param = InLambda.Parameters[0];
+            ParameterExpression _param = Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix);
             //Checking the Oryginal Object Type of _parameter is like expected
-            PropertyInfo keyOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
+            PropertyInfo keyOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
             MemberExpression ThObOryginalType = Expression.MakeMemberAccess(_param, keyOriginalObjType);
             Expression TypeIs = Expression.TypeIs(ThObOryginalType, _OryginalObjType);
             BinaryExpression NewLambdaBody = Expression.AndAlso(TypeIs, InLambda.Body);
             LambdaExpression ToRet = Expression.Lambda(NewLambdaBody, _param);
+            GoalPDDL = ToRet.Compile();
+
             return ToRet;
         }
     }

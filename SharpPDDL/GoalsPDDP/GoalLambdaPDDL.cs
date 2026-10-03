@@ -277,7 +277,11 @@ namespace SharpPDDL
             Expression nodeExpression = node.Expression;
             Expression NodePrefix = VisitMember((MemberExpression)nodeExpression);
 
-            string newParamName = nodeExpression.ToString().Replace('.', '_');
+            string newParamName = nodeExpression.ToString();
+            int DotFound = newParamName.IndexOf(".");
+            newParamName = GloCla.LamdbaParamPrefix + newParamName.Remove(0, DotFound);
+
+            newParamName = newParamName.Replace('.', '_');
 
             //used for object added to domain - representand by thumbnail
             ParameterExpression newParamInside = Expression.Parameter(typeof(ThumbnailObject), newParamName);
@@ -293,15 +297,10 @@ namespace SharpPDDL
                 parameters.Add(newParamInside);
                 Expression constTrue = Expression.Constant(true, typeof(bool));
                 Type newParamOutsideType = Expression.Parameter(((MemberExpression)node).Expression.Type).Type;
-                ConstantExpression TypeExpr = Expression.Constant(newParamOutsideType, typeof(Type));
-
-                MemberInfo keyOrygObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObjType");
-                Expression OrygObjType = Expression.MakeMemberAccess(newParamInside, keyOrygObjType);
-                BinaryExpression checkType = Expression.MakeBinary(ExpressionType.Equal, OrygObjType, TypeExpr);
 
                 LambdaExpression LambdaRetTrue = Expression.Lambda(constTrue, newParamOutside);
 
-                GoalObjectMember goalObjectMember = new GoalObjectMember(null, ((MemberExpression)node).Member.ReflectedType, GoalOwner, LambdaRetTrue, false);
+                GoalObjectMember goalObjectMember = new GoalObjectMember(null, newParamOutsideType, GoalOwner, LambdaRetTrue, false);
                 Owner.GoalObjects.Add(goalObjectMember);
                 TheOtherParamNr = Owner.GoalObjects.IndexOf(goalObjectMember);
             }
@@ -310,11 +309,12 @@ namespace SharpPDDL
 
             ParameterExpression FirstParam = (ParameterExpression)((IndexExpression)RemoveConvert(NodePrefix)).Object;
             ParameterExpression[] parameterExpressions = { FirstParam, parameters[TheOtherParamNr] };
+            int FirstParamNr = parameters.IndexOf(FirstParam);
 
             UnaryExpression NewParamInsideValueFromModel = ValueFromModel(0, nodeExpression.Type, newParamInside);
             BinaryExpression binaryExpression = Expression.Equal(NodePrefix, NewParamInsideValueFromModel);
             LambdaExpression labelExpression = Expression.Lambda(binaryExpression, parameterExpressions);
-            int FirstParamNr = parameters.IndexOf(FirstParam);
+
             Owner.concatenatedConditions.Add(new ConcatenatedCondition(labelExpression, FirstParamNr, TheOtherParamNr));
 
             SingleTypeOfDomein ParameterModel = IdentifyParameterModel(node);

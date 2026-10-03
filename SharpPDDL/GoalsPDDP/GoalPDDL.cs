@@ -212,6 +212,9 @@ namespace SharpPDDL
             {
                 _ = GoalObjects[i].BuildGoalPDDP(GoalOwner, this);
             }
+
+            foreach (ConcatenatedCondition concatenatedCondition in concatenatedConditions)
+                concatenatedCondition.BuildGoalPDDP();
         }
 
         ~GoalPDDL()
