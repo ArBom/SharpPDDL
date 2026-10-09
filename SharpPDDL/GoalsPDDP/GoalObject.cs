@@ -71,11 +71,12 @@ namespace SharpPDDL
         public LambdaExpression BuildGoalPDDP(DomainPDDL GoalOwner, GoalPDDL Owner)
         {
             GoalLambdaPDDL<T> goalLambdaPDDL;
+            int ThisGoalObjPos = Owner.GoalObjects.IndexOf(this);
 
             if (_OriginalObj is null)
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, Expectations, _OriginalObjType);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, ThisGoalObjPos, Expectations, _OriginalObjType);
             else
-                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, Expectations, _OriginalObj);
+                goalLambdaPDDL = new GoalLambdaPDDL<T>(GoalOwner, Owner, ThisGoalObjPos, Expectations, _OriginalObj);
 
             _MigrateIntheEnd = MigrateAccordingtoConstructor ? !GoalOwner.Equals(NewPDDLdomain) : false;
 

@@ -9,7 +9,9 @@ namespace SharpPDDL
 {
     internal class GoalLambdaPDDL<T> : ExpressionVisitor where T : class
     {
-        private List<ParameterExpression> parameters = new List<ParameterExpression> { Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix) };
+        //private List<ParameterExpression> parameters = new List<ParameterExpression> { Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix) };
+        private List<(ParameterExpression InternalParam, int ExtNo)> parameters = new List<(ParameterExpression InternalParam, int ExtNo)> { (Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix), 0) };
+        //readonly int ThisGoalObjPos;
         private readonly GoalPDDL Owner;
         readonly Type OryginalObjectType;
         readonly T OryginalObject;
@@ -18,7 +20,7 @@ namespace SharpPDDL
         internal LambdaExpression ModifeidLambda;
         readonly ICollection<Expression<Predicate<T>>> GoalExpectations;
 
-        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, ICollection<Expression<Predicate<T>>> GoalExpectations, T oryginalObject)
+        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, int ThisGoalObjPos, ICollection<Expression<Predicate<T>>> GoalExpectations, T oryginalObject)
         {
             if (oryginalObject is null)
             {
@@ -29,6 +31,7 @@ namespace SharpPDDL
 
             this.GoalOwner = GoalOwner;
             this.Owner = Owner;
+            parameters = new List<(ParameterExpression InternalParam, int ExtNo)> { (Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix), ThisGoalObjPos) };
             this.OryginalObjectType = oryginalObject.GetType();
             this.OryginalObject = oryginalObject;
             this.GoalExpectations = GoalExpectations;
@@ -41,12 +44,12 @@ namespace SharpPDDL
         {
             //Checking Oryginal Object Type
             PropertyInfo keyOfOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0], keyOfOriginalObjType);
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0].InternalParam, keyOfOriginalObjType);
             Expression TypeIs = Expression.Equal(ThObOryginalType, Expression.Constant(OryginalObjectType));
 
             //Checking equals of objects
             PropertyInfo keyOfOriginalObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObj");
-            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(parameters[0], keyOfOriginalObj);
+            MemberExpression ThObPrecursor = Expression.MakeMemberAccess(parameters[0].InternalParam, keyOfOriginalObj);
             ConstantExpression ConOrygObj = Expression.Constant(OryginalObject, typeof(T));
             Expression Equals = Expression.Call(typeof(Object).GetMethod("Equals", new Type[] { typeof(object), typeof(object) }), ConOrygObj, ThObPrecursor);
 
@@ -54,10 +57,11 @@ namespace SharpPDDL
             return Expression.AndAlso(TypeIs, Equals);
         }
 
-        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, ICollection<Expression<Predicate<T>>> GoalExpectations, Type oryginalObjectType)
+        public GoalLambdaPDDL(DomainPDDL GoalOwner, GoalPDDL Owner, int ThisGoalObjPos, ICollection<Expression<Predicate<T>>> GoalExpectations, Type oryginalObjectType)
         {
             this.GoalOwner = GoalOwner;
             this.Owner = Owner;
+            parameters = new List<(ParameterExpression InternalParam, int ExtNo)> { (Expression.Parameter(typeof(ThumbnailObject), GloCla.LamdbaParamPrefix), ThisGoalObjPos) };
             this.OryginalObjectType = oryginalObjectType;
             this.OryginalObject = null;
             this.GoalExpectations = GoalExpectations;
@@ -70,7 +74,7 @@ namespace SharpPDDL
         {
             //Checking the Oryginal Object Type of _parameter is like expected
             PropertyInfo keyOriginalObjType = typeof(ThumbnailObject).GetTypeInfo().DeclaredProperties.First(df => df.Name == "OriginalObjType");
-            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0], keyOriginalObjType);
+            MemberExpression ThObOryginalType = Expression.MakeMemberAccess(parameters[0].InternalParam, keyOriginalObjType);
             Expression TypeIs = Expression.TypeIs(ThObOryginalType, OryginalObjectType);
 
             //Checking is the Oryginal Object Type of _parameter is assignable from expected
@@ -138,7 +142,7 @@ namespace SharpPDDL
                 CheckAllPreco = Expression.AndAlso(CheckAllPreco, VisitLambda(Enumerator.Current));
 
             //Try to compile it and return
-            ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, CheckAllPreco), parameters[0]);
+            ModifeidLambda = Expression.Lambda(Expression.AndAlso(CheckingTheParametr, CheckAllPreco), parameters[0].InternalParam);
 
             try
             {
@@ -199,7 +203,7 @@ namespace SharpPDDL
             PropertyInfo TO_indekser = typeof(ThumbnailObject).GetProperty("Item");
 
             //Make expression: from new parameter of ThumbnailObject type (parameterExpression) use indekser (TO_indekser) and take from it ValueType element with key (arguments), like frontal Member name
-            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameters[0], TO_indekser, argument);
+            IndexExpression IndexAccessExpr = Expression.MakeIndex(parameters[0].InternalParam, TO_indekser, argument);
 
             if (NodeType.IsValueType)
             {
@@ -279,7 +283,7 @@ namespace SharpPDDL
 
             string newParamName = nodeExpression.ToString();
             int DotFound = newParamName.IndexOf(".");
-            newParamName = GloCla.LamdbaParamPrefix + newParamName.Remove(0, DotFound);
+            newParamName = GloCla.LamdbaParamPrefix + parameters[0].ExtNo + newParamName.Remove(0, DotFound);
 
             newParamName = newParamName.Replace('.', '_');
 
@@ -292,9 +296,8 @@ namespace SharpPDDL
             //Index nr of the other param at list
             int TheOtherParamNr;
 
-            if (!parameters.Any(p => p.Name == newParamName))
+            if (!parameters.Any(p => p.InternalParam.Name == newParamName))
             {
-                parameters.Add(newParamInside);
                 Expression constTrue = Expression.Constant(true, typeof(bool));
                 Type newParamOutsideType = Expression.Parameter(((MemberExpression)node).Expression.Type).Type;
 
@@ -303,20 +306,18 @@ namespace SharpPDDL
                 GoalObjectMember goalObjectMember = new GoalObjectMember(null, newParamOutsideType, GoalOwner, LambdaRetTrue, false);
                 Owner.GoalObjects.Add(goalObjectMember);
                 TheOtherParamNr = Owner.GoalObjects.IndexOf(goalObjectMember);
+                parameters.Add((newParamInside, TheOtherParamNr));
             }
             else
-                TheOtherParamNr = parameters.FindIndex(p => p.Name == newParamName);
+                TheOtherParamNr = parameters.First(p => p.InternalParam.Name == newParamName).ExtNo;
 
             ParameterExpression FirstParam = (ParameterExpression)((IndexExpression)RemoveConvert(NodePrefix)).Object;
-            ParameterExpression[] parameterExpressions = { FirstParam, parameters[TheOtherParamNr] };
-            int FirstParamNr = parameters.IndexOf(FirstParam);
+            ParameterExpression[] parameterExpressions = { FirstParam, parameters.First(p => p.InternalParam.Name == newParamName).InternalParam };
 
             UnaryExpression NewParamInsideValueFromModel = ValueFromModel(0, nodeExpression.Type, newParamInside);
             BinaryExpression binaryExpression = Expression.Equal(NodePrefix, NewParamInsideValueFromModel);
             LambdaExpression labelExpression = Expression.Lambda(binaryExpression, parameterExpressions);
-
-            Owner.concatenatedConditions.Add(new ConcatenatedCondition(labelExpression, FirstParamNr, TheOtherParamNr));
-
+            Owner.concatenatedConditions.Add(new ConcatenatedCondition(labelExpression, parameters.First().ExtNo, TheOtherParamNr));
             SingleTypeOfDomein ParameterModel = IdentifyParameterModel(node);
 
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
@@ -348,8 +349,8 @@ namespace SharpPDDL
 
             //it will be check constant value of it
             string ParamName = ((ParameterExpression)(node.Expression)).Name;
-            ParameterExpression DefaultParam = parameters.FirstOrDefault(p => p.Name == ParamName);
-            DefaultParam = DefaultParam is null ? parameters[0] : DefaultParam; 
+            ParameterExpression DefaultParam = parameters.FirstOrDefault(p => p.InternalParam.Name == ParamName).InternalParam;
+            DefaultParam = DefaultParam is null ? parameters[0].InternalParam : DefaultParam; 
 
             MemberInfo keyOrygObj = typeof(ThumbnailObject).GetTypeInfo().DeclaredMembers.First(df => df.Name == "OriginalObj");
             Expression OrygObj = Expression.MakeMemberAccess(DefaultParam, keyOrygObj);
@@ -458,21 +459,21 @@ namespace SharpPDDL
             Expression left = Visit(node.Left);
             Expression right = Visit(node.Right);
 
-            string LParam = ParamName(left);
-            string RParam = ParamName(right);
+            string LParamN = ParamName(left);
+            string RParamN = ParamName(right);
 
-            if (LParam != RParam)
+            if (LParamN != RParamN)
             {
-                int LParamNr = parameters.FindIndex(p => p.Name == LParam);
-                int RParamNr = parameters.FindIndex(p => p.Name == RParam);
+                (ParameterExpression InternalParam, int ExtNo) LParam = parameters.First(p => p.InternalParam.Name == LParamN);
+                (ParameterExpression InternalParam, int ExtNo) RParam = parameters.First(p => p.InternalParam.Name == RParamN);
 
                 BinaryExpression newret = Expression.MakeBinary(node.NodeType, left, right);
 
-                ParameterExpression[] parameterExpressions = { parameters[LParamNr], parameters[RParamNr] };
+                ParameterExpression[] parameterExpressions = { LParam.InternalParam, RParam.InternalParam };
 
                 LambdaExpression labelExpression = Expression.Lambda(newret, parameterExpressions);
 
-                Owner.concatenatedConditions.Add(new ConcatenatedCondition(labelExpression, LParamNr, RParamNr));
+                Owner.concatenatedConditions.Add(new ConcatenatedCondition(labelExpression, LParam.ExtNo, RParam.ExtNo));
 
                 return Expression.Constant(true, typeof(bool));
             }
