@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water pouring puzzle", "Exa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7 Bridges of Königsberg", "Examples\7 Bridges of Königsberg\7 Bridges of Königsberg.csproj", "{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gripper", "Examples\Gripper\Gripper.csproj", "{538433E4-ADEA-4859-B96A-FBA0ACA9FF58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDCDB5B3-BEF5-4D1B-856E-D68C27B60D65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{538433E4-ADEA-4859-B96A-FBA0ACA9FF58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538433E4-ADEA-4859-B96A-FBA0ACA9FF58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538433E4-ADEA-4859-B96A-FBA0ACA9FF58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538433E4-ADEA-4859-B96A-FBA0ACA9FF58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
