@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using SharpPDDL;
 
@@ -32,6 +33,7 @@ namespace Water_pouring_puzzle
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             DomainPDDL DecantingDomain = new DomainPDDL("Decanting problems"); //In this problem...
 
             ActionPDDL DecantWater = new ActionPDDL("Decant water"); //...you need one action with 2 parameters:

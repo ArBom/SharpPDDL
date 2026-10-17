@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace _15_puzzle
 {
@@ -40,6 +41,7 @@ namespace _15_puzzle
 
         public static void DrawBoard (IEnumerable<Tile> tiles)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             Console.CursorVisible = false;
 
             int LeftPos = 1;

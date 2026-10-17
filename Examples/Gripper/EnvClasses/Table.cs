@@ -24,12 +24,12 @@ namespace Gripper.EnvClasses
 
             if (Content is Ball)
             {
-                Console.SetCursorPosition(Spot * 7 + 3, 5);
+                Console.SetCursorPosition((Spot * 7) + 3, 5);
                 Content.Draw();
             }
             else if (Content is Box)
             {
-                Console.SetCursorPosition(Spot * 7 + 1, 4);
+                Console.SetCursorPosition((Spot * 7) + 1, 4);
                 Content.Draw();
             }
         }

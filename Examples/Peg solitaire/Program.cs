@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading;
 using SharpPDDL;
 
@@ -39,6 +40,7 @@ namespace Peg_solitaire
                     else             
                         spots.Add(new Spot(j, i));
 
+            Console.OutputEncoding = Encoding.UTF8;
             Board.Draw(spots);
             Console.WriteLine();
 
