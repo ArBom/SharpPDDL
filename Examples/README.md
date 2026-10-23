@@ -7,6 +7,11 @@
 * queue of goals (goals are added one-by-one, after reach the previous one)
 * added implementation of the execution of solution
 
+### [Gripper:](https://github.com/ArBom/SharpPDDL/tree/master/Examples/Gripper)
+* the goal definition takes cognisance of properties of 2 associated objects
+* generate diagram:
+    * class diagram
+
 ### [Peg solitaire:](https://github.com/ArBom/SharpPDDL/tree/master/Examples/Peg%20solitaire)
 * added implementation of the execution of solution
 
