@@ -135,7 +135,8 @@ namespace SharpPDDL
                 crisscrossReducer.IndexedStates = NewIndexedStates;
 
                 Task transcribeOne = TranscribeOne(cancellationToken);
-                crisscrossReducer.Start(cancellationToken);
+                //todo
+                //crisscrossReducer.Start(cancellationToken);
                 transcribeOne.Wait();
 
                 if (cancellationToken.IsCancellationRequested)

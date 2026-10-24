@@ -153,8 +153,8 @@ namespace SharpPDDL
                     CheckingGoalRealizationARE?.Set();
                 }
 
-                NoNewData?.BeginInvoke(null, null);
                 IsWaiting = true;
+                NoNewData?.Invoke();
             }
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 67, GloCla.ResMan.GetString("Sp8"), Task.CurrentId);

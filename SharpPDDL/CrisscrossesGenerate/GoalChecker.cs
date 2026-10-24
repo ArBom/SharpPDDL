@@ -79,7 +79,7 @@ namespace SharpPDDL
                         if (!(possibleStatesCrisscross.Content is null))
                             PossibleGoalRealization.Enqueue(possibleStatesCrisscross);
 
-                        continue;
+                        break;
                     }
 
                     if (!possibleStatesCrisscross.Children.Any())
@@ -89,8 +89,9 @@ namespace SharpPDDL
                             BuildingNewCrisscrossARE.Set();
                         }
                 }
-                NoNewData.BeginInvoke(null, null);
+
                 IsWaiting = true;
+                NoNewData?.Invoke();
             }
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 69, GloCla.ResMan.GetString("Sp9"), Task.CurrentId);

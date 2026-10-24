@@ -219,8 +219,9 @@ namespace SharpPDDL
 
                     BuildNewStateForCrisscross(stateToCheck);
                 }
-                NoNewData.BeginInvoke(null, null);
+
                 IsWaiting = true;
+                NoNewData?.Invoke();
             }
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 65, GloCla.ResMan.GetString("Sp7"), Task.CurrentId);

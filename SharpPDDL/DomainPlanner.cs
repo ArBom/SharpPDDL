@@ -121,7 +121,7 @@ namespace SharpPDDL
 
         private void FoundSolsVoid(KeyValuePair<Crisscross, List<GoalPDDL>> Found)
         {
-            FoundedCrisscrosses[Found.Key] = Found.Value;
+            FoundedCrisscrosses[Found.Key] = new List<GoalPDDL>(Found.Value);
             string StartChecksum = CurrentBuilded.Content.CheckSum;
 
             foreach (GoalPDDL goalPDDL in Found.Value)
@@ -423,9 +423,9 @@ namespace SharpPDDL
                 CurrentBuilded = transcriber.NewOne;
             }
 
+            Stopping.Wait();
             RemoveGoals(Found.Value);
 
-            Stopping.Wait();
             if (Owner.domainGoals.Any())
                 CurrentBuilder.ReStart();
         }
