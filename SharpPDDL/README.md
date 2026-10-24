@@ -28,12 +28,13 @@ Include the library namespace with `using SharpPDDL` and use methods of it.
 > **TIP**
 > First time of use of it would seem to be a little unintuitive. Get familiar with ready examples.
 
-* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/15%20puzzle)
-* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/River%20crossing%20puzzle)
-* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Hanoi%20Tower)
-* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Travelling%20Salesman%20Problem)
-* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Peg%20solitaire)
-* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/ce383af1c5fae2b43e919244990bbfa8100dfbc8/Examples/Water%20pouring%20puzzle)
+* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/15%20puzzle)
+* [Gripper](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Gripper)
+* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/River%20crossing%20puzzle)
+* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Hanoi%20Tower)
+* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Travelling%20Salesman%20Problem)
+* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Peg%20solitaire)
+* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Water%20pouring%20puzzle)
 
 ---
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
