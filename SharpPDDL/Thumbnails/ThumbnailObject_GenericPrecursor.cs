@@ -19,6 +19,11 @@ namespace SharpPDDL
 
         internal override object OriginalObj => this._OriginalObj;
 
+        /// <summary>
+        /// refresh the ThumbnailObject as new precursor
+        /// </summary>
+        /// <param name="thumbnailObject">previous version of returned ThumbnailObject</param>
+        /// <param name="IsBroken">Some unexpected value in previous version</param>
         internal ThumbnailObjectPrecursor(ThumbnailObject thumbnailObject, bool IsBroken)
         {
             this.Model = ((ThumbnailObjectPrecursor<TOriginalObj>)thumbnailObject.Precursor).Model;
@@ -36,9 +41,14 @@ namespace SharpPDDL
 
             FigureCheckSum();
 
-            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), BitConverter.ToString(CheckSum));
         }
 
+        /// <summary>
+        /// Create a Thumbnail (Precursor) from oryginal object
+        /// </summary>
+        /// <param name="originalObj">Oryginal object - source of thumbnail</param>
+        /// <param name="allTypes">types used in domain</param>
         internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
@@ -66,74 +76,82 @@ namespace SharpPDDL
 
             FigureCheckSum();
 
-            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), CheckSum);
+            GloCla.Tracer?.TraceEvent(TraceEventType.Information, 37, GloCla.ResMan.GetString("I4"), OriginalObjType.ToString(), BitConverter.ToString(CheckSum));
+        }
+
+        private ValueType HandleNonValueMember(object ToHandle, ushort index)
+        {
+            //If member is empty now - return zero
+            if (ToHandle is null)
+                return IntPtr.Zero;
+
+            //Make handle of member
+            GCHandle OryginalObjField = GCHandle.Alloc(ToHandle, GCHandleType.Normal);
+            //Add it to collection of handled members
+            ObjHandles.Add(index, OryginalObjField);
+            //return "pointer"
+            IntPtr ToRet = (IntPtr)OryginalObjField;
+            return ToRet;
+        }
+
+        private ValueType ReadValueOfField(Value VOT)
+        {
+            //Take FieldInfo of reading value
+            FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
+
+            if (myFieldInfo is null)
+                myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
+
+            //read value from oryginal object...
+            object ObjField = myFieldInfo.GetValue(OriginalObj);
+
+            //return value if it is ValueType
+            if (VOT.Type.IsValueType)
+                return (ValueType)ObjField;
+
+            //of handle it and return "pointer" if it is non-ValueType
+            return HandleNonValueMember(ObjField, VOT.ValueOfIndexesKey);
+        }
+
+        private ValueType ReadValueOfProperty(Value VOT)
+        {
+            //Take PropertyInfo of reading value
+            PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
+
+            if (propertyInfo is null)
+                propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
+
+            //read value from oryginal object...
+            object ObjProperty = propertyInfo.GetValue(OriginalObj);
+
+            //return value if it is ValueType
+            if (VOT.Type.IsValueType)
+                return (ValueType)ObjProperty;
+
+            //of handle it and return "pointer" if it is non-ValueType
+            return HandleNonValueMember(ObjProperty, VOT.ValueOfIndexesKey);
         }
 
         protected void ReadAllVals()
         {
+            //create collection of handled members if it will be in use
             if (Model.CumulativeValues.Any(cv => cv.Name == GloCla.PointerVName || !cv.Type.IsValueType))
                 ObjHandles = new Dictionary<ushort, GCHandle>();
 
+            //read all value based on model values list
             foreach (Value VOT in Model.CumulativeValues)
             {
-                if (VOT.Name == GloCla.PointerVName)
-                {                   
-                    GCHandle ObjHandle = GCHandle.Alloc(_OriginalObj, GCHandleType.Normal);
-                    IntPtr Addr = (IntPtr)ObjHandle;
-                    ObjHandles.Add(0, ObjHandle);
-                    Dict.Add(VOT.ValueOfIndexesKey, Addr);
-
-                    continue;
-                }
-
                 ValueType value;
 
-                if (VOT.IsField)
-                {
-                    FieldInfo myFieldInfo = this.OriginalObjType.GetField(VOT.Name);
-
-                    if (myFieldInfo is null)
-                        myFieldInfo = this.OriginalObjType.GetField(VOT.Name, BindingFlags.Instance);
-
-                    object ObjField = myFieldInfo.GetValue(OriginalObj);
-
-                    if (VOT.Type.IsValueType)
-                        value = (ValueType)ObjField;
-                    else
-                    {
-                        if (ObjField is null)
-                            value = IntPtr.Zero;
-                        else
-                        {
-                            GCHandle OryginalObjField = GCHandle.Alloc(ObjField);
-                            value = (IntPtr)OryginalObjField;
-                            ObjHandles.Add(VOT.ValueOfIndexesKey, OryginalObjField);
-                        }
-                    }
-                }
+                if (VOT.Name == GloCla.PointerVName)
+                    //read pointer of oryginal object and use it as value
+                    value = HandleNonValueMember(_OriginalObj, 0);
+                else if (VOT.IsField)
+                    //read value of field member
+                    value = ReadValueOfField(VOT);
                 else
-                {
-                    PropertyInfo propertyInfo = this.OriginalObjType.GetProperty(VOT.Name);
-
-                    if (propertyInfo is null)
-                        propertyInfo = this.OriginalObjType.GetProperty(VOT.Name, BindingFlags.Instance);
-
-                    object ObjProperty = propertyInfo.GetValue(OriginalObj);
-
-                    if (VOT.Type.IsValueType)
-                        value = (ValueType)ObjProperty;
-                    else
-                    {
-                        if (ObjProperty is null)
-                            value = IntPtr.Zero;
-                        else
-                        {
-                            GCHandle OryginalObjField = GCHandle.Alloc(ObjProperty);
-                            value = (IntPtr)OryginalObjField;
-                            ObjHandles.Add(VOT.ValueOfIndexesKey, OryginalObjField);
-                        }
-                    }
-                }
+                    //read value of property member
+                    value = ReadValueOfProperty(VOT);
 
                 Dict.Add(VOT.ValueOfIndexesKey, value);
             }
