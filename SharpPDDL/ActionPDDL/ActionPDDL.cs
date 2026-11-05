@@ -521,6 +521,7 @@ namespace SharpPDDL
                 }
                 catch (InvalidOperationException)
                 {
+                    //todo;
                     continue;
                 }
 
@@ -537,8 +538,7 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 50, GloCla.ResMan.GetString("W5"), Name);
             }
 
-            ActionSententiaLamdba actionSententiaLamdba = new ActionSententiaLamdba(allTypes, Parameters, ActionSententia);
-            InstantActionSententia = actionSententiaLamdba.InstantFunct;
+            InstantActionSententia = ActionSententiaLamdba.BuildActionSententiaLamdba(allTypes, this.Parameters, ActionSententia);
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 49, GloCla.ResMan.GetString("Sp5"), Name);
         }

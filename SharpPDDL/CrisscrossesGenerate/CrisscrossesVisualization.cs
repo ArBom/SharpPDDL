@@ -104,8 +104,19 @@ namespace SharpPDDL
                     Attributes["ActionName"] = Owner.actions[l.ActionNr].Name;
                     Attributes["ActionCost"] = l.ActionCost.ToString();
 
-                    string Sententia = (string)Owner.actions[l.ActionNr].InstantActionSententia?.DynamicInvoke(l.ActionArgThOb);
-                    Attributes["Sententia"] = Sententia;
+                    try
+                    {
+                        string Sententia = (string)Owner.actions[l.ActionNr].InstantActionSententia?.DynamicInvoke(l.ActionArgThOb);
+                        Attributes["Sententia"] = Sententia;
+                    }
+                    catch(ArgumentException)
+                    {
+                        //todo;
+                    }
+                    catch(Exception e)
+                    {
+                        //todo;
+                    }
 
                     AddRecord(Link_Key, Attributes);
                 }

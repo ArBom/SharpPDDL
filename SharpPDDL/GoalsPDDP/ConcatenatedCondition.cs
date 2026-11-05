@@ -33,6 +33,7 @@ namespace SharpPDDL
             }
             catch (Exception e)
             {
+                //todo;
                 /*string ExceptionMess = String.Format(GloCla.ResMan.GetString("C29"), e.ToString());
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 106, ExceptionMess);
                 throw new Exception(ExceptionMess);*/

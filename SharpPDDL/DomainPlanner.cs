@@ -307,11 +307,26 @@ namespace SharpPDDL
                 CrisscrossChildrenCon CCCOfLoop = PlanList[i];
                 ThumbnailObject[] arg = CCCOfLoop.ActionArgThOb;
 
+                string Sententia = String.Empty;
+
+                try
+                {
+                    Sententia = (string)Owner.actions[CCCOfLoop.ActionNr].InstantActionSententia.DynamicInvoke(arg);
+                }
+                catch (ArgumentException)
+                {
+                    //todo;
+                }
+                catch (Exception e)
+                {
+                    //todo;
+                }
+
                 Plan.Add(new List<string>
                     {
                         String.Format(GloCla.ResMan.GetString("Txt1"),
                         Owner.actions[CCCOfLoop.ActionNr].Name),
-                        (string)Owner.actions[CCCOfLoop.ActionNr].InstantActionSententia.DynamicInvoke(arg),
+                        Sententia,
                         String.Format(GloCla.ResMan.GetString("Txt2"), CCCOfLoop.ActionCost)
                 });
 
