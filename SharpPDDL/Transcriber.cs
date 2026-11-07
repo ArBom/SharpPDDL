@@ -35,10 +35,8 @@ namespace SharpPDDL
             foreach (ThumbnailObject TO in NewRoot.Content.ThumbnailObjects)
                 NewThumbnailObjects.Add(new ThumbnailObjectPrecursor<object>(TO, false) as ThumbnailObject);
 
-            NewOne = new Crisscross
-            {
-                Content = new PossibleState(NewThumbnailObjects)
-            };
+            PossibleState NewOneContent = new PossibleState(NewThumbnailObjects);
+            NewOne = new Crisscross(NewOneContent);
 
             NotTranscribedChildYet = new SortedSet<KeyValuePair<Crisscross, List<CrisscrossChildrenCon>>>(new TupleCo())
             {

@@ -12,10 +12,8 @@ namespace SharpPDDL
 
         internal CrisscrossRefEnum(ref Crisscross creator)
         {
-            Crisscross MinusOnePos = new Crisscross
-            {
-                Children = new List<CrisscrossChildrenCon> { new CrisscrossChildrenCon(creator, -1, new ThumbnailObject[0], 0) }
-            };
+            Crisscross MinusOnePos = new Crisscross(null);
+            MinusOnePos.Children.Add(new CrisscrossChildrenCon(creator, -1, new ThumbnailObject[0], 0));
 
             Chains = new List<ChainStruct>
             {
@@ -46,13 +44,13 @@ namespace SharpPDDL
                     //  continue;
 
                     //Avoid the loopping
-                    if (Chain_chainInd.Content.Equals(Chain_chainInd.Children[i].Child.Root?.Content))
+                    if (Chain_chainInd.Content.Equals(Chain_chainInd[i].Root?.Content))
                     {
                         if (Chains.Count == chainInd + 1)
                             Chains.Add(new ChainStruct(null, 0));
 
                         Chains[chainInd].ChainChildNo = i;
-                        Chains[chainInd + 1].Chain = Chain_chainInd.Children[i].Child;
+                        Chains[chainInd + 1].Chain = Chain_chainInd[i];
                         Chains[chainInd + 1].ChainChildNo = 0;
                         chainInd++;
                         return true;
@@ -72,13 +70,13 @@ namespace SharpPDDL
 
             for (int i = Chains_DeepIndeks_1.ChainChildNo + 1; i != Chains_DeepIndeks_1.Chain.Children.Count; i++)
             {
-                if (Chains_DeepIndeks_1.Chain.Children[i].Child.Root is null)
+                if (Chains_DeepIndeks_1.Chain[i].Root is null)
                     continue;
 
-                if (Object.ReferenceEquals(Chains_DeepIndeks_1.Chain.Content, Chains_DeepIndeks_1.Chain.Children[i].Child.Root.Content))
+                if (Object.ReferenceEquals(Chains_DeepIndeks_1.Chain.Content, Chains_DeepIndeks_1.Chain[i].Root.Content))
                 {
                     Chains[DeepIndeks - 1].ChainChildNo = i;
-                    Chains[DeepIndeks].Chain = Chains_DeepIndeks_1.Chain.Children[i].Child;
+                    Chains[DeepIndeks].Chain = Chains_DeepIndeks_1.Chain[i];
                     chainInd = DeepIndeks;
                     return true;
                 }

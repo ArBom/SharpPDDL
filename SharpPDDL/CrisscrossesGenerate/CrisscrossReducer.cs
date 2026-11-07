@@ -104,7 +104,7 @@ namespace SharpPDDL
                 if (crisscrossRefEnum.Current.Content.Compare(ref crisscrossToMerge.Content))
                 {
                     if (crisscrossRefEnum.Current.Root is null)
-                        Crisscross.MergeK(ref states, ref crisscrossToMerge);
+                        Crisscross.MergeK(states, ref crisscrossToMerge);
                     else
                         Crisscross.Merge(ref crisscrossRefEnum.Current, ref crisscrossToMerge);
 

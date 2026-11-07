@@ -1,4 +1,6 @@
-﻿namespace SharpPDDL
+﻿using System;
+
+namespace SharpPDDL
 {
     internal struct CrisscrossChildrenCon
     {
@@ -31,6 +33,14 @@
                 ToRet[i] = ActionArgThOb[i].OriginalObj;
 
             return ToRet;
+        }
+
+        internal bool CheckChildMainRoot(Crisscross AnnexedA)
+        {
+            if (Child.Root is null)
+                return false;
+
+            return Object.Equals(Child.Root, AnnexedA);
         }
     }
 }

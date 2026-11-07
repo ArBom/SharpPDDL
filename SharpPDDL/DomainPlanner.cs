@@ -31,11 +31,7 @@ namespace SharpPDDL
             this.Owner = Owner;
             FoundSols += FoundSolsVoid;
             currentMinCumulativeCostUpdate += CheckingIfGenerateActionList;
-            CurrentBuilded = new Crisscross
-            {
-                Content = Owner.CurrentState
-            };
-
+            CurrentBuilded = new Crisscross(Owner.CurrentState);
             DomainExecutor = new Executor(Owner);
             CurrentBuilder = new CrisscrossGenerator(CurrentBuilded, Owner, FoundSols, currentMinCumulativeCostUpdate);
             FoundedGoals = new Dictionary<FoungingGoalDetail, SortedSet<Crisscross>>();

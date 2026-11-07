@@ -187,7 +187,7 @@ namespace SharpPDDL
 
             for (int i = 0; i != crisscross.Children.Count; i++)
             {
-                Crisscross ty = crisscross.Children[i].Child;
+                Crisscross ty = crisscross[i];
                 crisscrossReducer.MergeCrisscross(ref ty);
             }
         }

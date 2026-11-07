@@ -50,7 +50,9 @@ namespace SharpPDDL
                 BindingFlags.NonPublic |
                 BindingFlags.Instance);                
 
-            FieldInfo ContentF = typeof(Crisscross).GetField("Content");
+            FieldInfo ContentF = typeof(Crisscross).GetField("Content",
+                BindingFlags.NonPublic |
+                BindingFlags.Instance);
 
             FieldInfo ThumbnailObjectsF = typeof(PossibleState).GetField("ThumbnailObjects",
                 BindingFlags.NonPublic |
