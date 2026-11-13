@@ -227,10 +227,16 @@ namespace SharpPDDL
 
         private void RemoveFoundedGoal(GoalPDDL goalPDDL)
         {
-            if (!FoundedGoals.Any(FG => FG.Key.GoalPDDL.Equals(goalPDDL)))
-                return;
+            KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> toRem;
 
-            KeyValuePair<FoungingGoalDetail, SortedSet<Crisscross>> toRem = FoundedGoals.First(FG => FG.Key.GoalPDDL.Equals(goalPDDL));
+            try
+            {
+                toRem = FoundedGoals.First(FG => FG.Key.GoalPDDL.Equals(goalPDDL));
+            }
+            catch
+            {
+                return;
+            }
 
             List<Crisscross> ToRemFromFoundedCrisscrosses = new List<Crisscross>();
 

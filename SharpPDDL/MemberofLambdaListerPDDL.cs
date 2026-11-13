@@ -77,10 +77,13 @@ namespace SharpPDDL
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
 
+            ParameterExpression t;
             //Find parameter with memberExpressionName name...
-            ParameterExpression t = _parameters.First(p => p.Name == memberExpressionName);
-
-            if (t is null)
+            try
+            {
+                t = _parameters.First(p => p.Name == memberExpressionName);
+            }
+            catch
             {
                 //there is no argument -> something went wrong
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 17, GloCla.ResMan.GetString("C1"), memberExpressionName, node.ToString());

@@ -91,10 +91,14 @@ namespace SharpPDDL
             //its name of member of Parameter: Parameter => lambda(Parameter.Member) ; in these example string("Member")
             string MemberName = node.Member.Name;
 
-            //intersect
-            SingleTypeOfDomein ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type).First();
+            SingleTypeOfDomein ParameterModel;
 
-            if (ParameterModel is null)
+            //intersect
+            try
+            {
+                ParameterModel = allTypes.Where(t => t.Type == node.Expression.Type).First();
+            }
+            catch
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("E8"), node.Expression.Type.ToString());
                 GloCla.Tracer?.TraceEvent(TraceEventType.Error, 43, ExceptionMess);

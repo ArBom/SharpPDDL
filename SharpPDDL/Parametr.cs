@@ -140,9 +140,6 @@ namespace SharpPDDL
             parametrPreconditionLambda = null;
         }
 
-        internal void RemoveUnuseValue()
-        {
-            values.RemoveAll(x => !x.IsInUse);
-        }
+        internal void RemoveUnuseValue() => values.RemoveAll(x => !x.IsInUse);
     }
 }
