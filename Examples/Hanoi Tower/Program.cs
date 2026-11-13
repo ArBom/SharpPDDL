@@ -73,10 +73,10 @@ namespace Hanoi_Tower
             Expression<Predicate<HanoiBrick, HanoiBrick>> PutSmallBrickAtBigger = ((MB, NSB) => (MB.Size < NSB.Size)); //you can put smaller brick onto bigger one
             Expression<Predicate<HanoiBrick, HanoiObj>> FindObjBelongMovd = ((MB, OBM) => (MB == OBM.HanoiBrickUpSide)); //the MB is directly above the OMB
 
-            ActionPDDL moveBrickOnBrick = new ActionPDDL("Move brick onto another brick"); //1st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandB
+            ActionPDDL moveBrickOnBrick = new ActionPDDL("Move the brick onto the another brick"); //1st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandB
 
             moveBrickOnBrick.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
-            moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto {0}-size brick.", MB => MB.Size);
+            moveBrickOnBrick.AddPartOfActionSententia(ref NewStandB, "onto the {0}-size brick.", MB => MB.Size);
 
             moveBrickOnBrick.AddPrecondition("Moved brick is no up", ref MovedBrick, ObjectIsNoUp); //MovedBrick.HanoiBrickUpSide == null
             moveBrickOnBrick.AddPrecondition("New stand is empty", ref NewStandB, ObjectIsNoUp); //NewStandB.HanoiBrickUpSide == null
@@ -88,7 +88,7 @@ namespace Hanoi_Tower
 
             newDomein.AddAction(moveBrickOnBrick); //Putting empty brick onto bigger one
 
-            ActionPDDL moveBrickOnTable = new ActionPDDL("Move brick on table"); //2st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandT
+            ActionPDDL moveBrickOnTable = new ActionPDDL("Move the brick onto the table"); //2st action with 3 parameters: MovedBrick, ObjBelowMoved, NewStandT
 
             moveBrickOnTable.AddPartOfActionSententia(ref MovedBrick, "Place the {0}-size brick ", MB => MB.Size);
             moveBrickOnTable.AddPartOfActionSententia(ref NewStandT, "onto table no {0}.", NS => NS.no);

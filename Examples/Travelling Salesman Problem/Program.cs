@@ -23,7 +23,7 @@ namespace Travelling_Salesman_Problem
         static void PrintPlan(List<List<string>> plan)
         {
             for (int i = 0; i != plan.Count; i++)
-                Console.WriteLine(plan[i][0] + plan[i][1] + plan[i][2]);
+                Console.WriteLine(plan[i][0] + plan[i][1] + " " + plan[i][2]);
         }
 
         static void Main(string[] args)
