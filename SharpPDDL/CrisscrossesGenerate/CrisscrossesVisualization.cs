@@ -94,9 +94,9 @@ namespace SharpPDDL
                 foreach (var l in curr.Value.Children)
                 {
                     if (CurrentRealization.Any(CR => CR.Equals(l)))
-                        Attributes["IsInRealize"] = Boolean.TrueString;
+                        Attributes[IsExec_Key] = Boolean.TrueString;
                     else
-                        Attributes["IsInRealize"] = Boolean.FalseString;
+                        Attributes[IsExec_Key] = Boolean.FalseString;
 
                     Attributes[Source_Key] = curr.Key;
                     Attributes[Target_Key] = l.Child.Content.CheckSum;
@@ -144,16 +144,16 @@ namespace SharpPDDL
             foreach (var curr in states)
             {
                 if (CurrentRealization.Any(CR => CR.Child.Content.CheckSum == curr.Key))
-                    Attributes["IsInRealize"] = Boolean.TrueString;
+                    Attributes[IsExec_Key] = Boolean.TrueString;
                 else
-                    Attributes["IsInRealize"] = Boolean.FalseString;
+                    Attributes[IsExec_Key] = Boolean.FalseString;
 
                 Attributes[Label_Key] = curr.Key;
 
                 if (curr.Key == root.Content.CheckSum)
                 {
                     Attributes[Label_Key] = String.Format(ResVis.GetString("CriStateStart"), Attributes[Label_Key]);
-                    Attributes["IsInRealize"] = Boolean.TrueString;
+                    Attributes[IsExec_Key] = Boolean.TrueString;
                 }
 
                 if (FoundedGoalCrisscrosses.Contains(curr.Key))
@@ -172,7 +172,7 @@ namespace SharpPDDL
         {
             Dictionary<string, string> AttributesIsInRealize = new Dictionary<string, string>
             {
-                [Id_Key] = "IsInRealize",
+                [Id_Key] = IsExec_Key,
                 [Label_Key] = ResVis.GetString("CriInRealizeLabelKey"),
                 [DataType_Key] = "System.Boolean"
             };
@@ -213,9 +213,9 @@ namespace SharpPDDL
 
         internal override void AddStyles()
         {
-            AddTFStyle(Link_Key, "IsInRealize", true, Stroke_Key, Realization_Colour);
-            AddTFStyle(Node_Key, "IsInRealize", true, Stroke_Key, Realization_Colour);
-            AddTFStyle(Link_Key, "IsInRealize", false, Stroke_Key, Action_Colour);
+            AddTFStyle(Link_Key, IsExec_Key, true, Stroke_Key, Realization_Colour);
+            AddTFStyle(Node_Key, IsExec_Key, true, Stroke_Key, Realization_Colour);
+            AddTFStyle(Link_Key, IsExec_Key, false, Stroke_Key, Action_Colour);
         }
     }
 }

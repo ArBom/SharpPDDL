@@ -78,7 +78,7 @@ namespace SharpPDDL
 
             Dictionary<string, string> AttributesContainsLink = new Dictionary<string, string>
             {
-                [Id_Key] = "Contains",
+                [Id_Key] = Contains_Key,
                 ["CanBeDataDriven"] = Boolean.FalseString,
                 ["CanLinkedNodesBeDataDriven"] = Boolean.TrueString,
                 ["IsContainment"] = Boolean.TrueString
@@ -125,7 +125,7 @@ namespace SharpPDDL
 
                 Dictionary<string, string> ContAttributes = new Dictionary<string, string>
                 {
-                    [Category_Key] = "Contains",
+                    [Category_Key] = Contains_Key,
                     [Source_Key] = "SharpPDDL",
                     [Target_Key] = actionPDDL.Name,
                     ["FetchingParent"] = "SharpPDDL"
@@ -143,13 +143,13 @@ namespace SharpPDDL
                         [Label_Key] = ResVis.GetString("ActIncludeLabelKey")                      
                     };
 
-                    EffeLinkAttributes["IsExec"] = actionPDDL.DataToCaseUseDiagram().Item3.Contains(effectPDDLName) ? Boolean.TrueString : Boolean.FalseString;
+                    EffeLinkAttributes[IsExec_Key] = actionPDDL.DataToCaseUseDiagram().Item3.Contains(effectPDDLName) ? Boolean.TrueString : Boolean.FalseString;
 
                     AddRecord(Link_Key, EffeLinkAttributes);
 
                     Dictionary<string, string> ContEAttributes = new Dictionary<string, string>
                     {
-                        [Category_Key] = "Contains",
+                        [Category_Key] = Contains_Key,
                         [Source_Key] = "SharpPDDL",
                         [Target_Key] = effectPDDLName + "!E",
                         ["FetchingParent"] = "SharpPDDL"
@@ -166,13 +166,13 @@ namespace SharpPDDL
                         [Target_Key] = executionName + "!Ex",
                         ["StrokeDashArray"] = "4 4",
                         [Label_Key] = ResVis.GetString("ActRealizeLabelKey"),
-                        ["IsExec"] = Boolean.TrueString
+                        [IsExec_Key] = Boolean.TrueString
                     };
                     AddRecord(Link_Key, executionLinkAttributes);
 
                     Dictionary<string, string> ContExAttributes = new Dictionary<string, string>
                     {
-                        [Category_Key] = "Contains",
+                        [Category_Key] = Contains_Key,
                         [Source_Key] = "SharpPDDL",
                         [Target_Key] = executionName + "!Ex",
                         ["FetchingParent"] = "SharpPDDL"
@@ -256,7 +256,7 @@ namespace SharpPDDL
         {
             Dictionary<string, string> ExecutionProperty = new Dictionary<string, string>
             {
-                [Id_Key] = "IsExec",
+                [Id_Key] = IsExec_Key,
                 [DataType_Key] = "System.Boolean"
             };
             AddRecord(Property_Key, ExecutionProperty);
@@ -289,7 +289,7 @@ namespace SharpPDDL
 
         internal override void AddStyles()
         {
-            AddTFStyle(Link_Key, "IsExec", true, Stroke_Key, Realization_Colour);
+            AddTFStyle(Link_Key, IsExec_Key, true, Stroke_Key, Realization_Colour);
         }
     }
 }

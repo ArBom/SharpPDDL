@@ -63,6 +63,7 @@ namespace SharpPDDL
         protected const string Source_Key = "Source";
         protected const string Stroke_Key = "Stroke";
         protected const string Target_Key = "Target";
+        protected const string IsExec_Key = "IsExec";
 
         protected const string Class_Colour = "#FF0E70C0";
         protected const string State_Colour = "#FF770056";

@@ -71,7 +71,7 @@ namespace SharpPDDL
 
             Dictionary<string, string> AttributesContainsLink = new Dictionary<string, string>
             {
-                [Id_Key] = "Contains",
+                [Id_Key] = Contains_Key,
                 ["CanBeDataDriven"] = Boolean.FalseString,
                 ["CanLinkedNodesBeDataDriven"] = Boolean.TrueString,
                 ["IsContainment"] = Boolean.TrueString
@@ -117,7 +117,7 @@ namespace SharpPDDL
             {
                 Dictionary<string, string> ContExAttributes = new Dictionary<string, string>
                 {
-                    [Category_Key] = "Contains",
+                    [Category_Key] = Contains_Key,
                     [Source_Key] = TypesNode.Content.Type.ToString(),
                     [Target_Key] = TypesNode.Content.Type.ToString() + "!" + mem.ValueOfIndexesKey,
                     ["FetchingParent"] = TypesNode.Content.Type.ToString()
