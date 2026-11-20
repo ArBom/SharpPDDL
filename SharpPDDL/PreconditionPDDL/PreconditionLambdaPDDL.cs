@@ -14,9 +14,9 @@ namespace SharpPDDL
         private ReadOnlyCollection<ParameterExpression> OldParameters;
         public Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> ModifeidLambda;
         private readonly int[] ParamsIndexesInAction;
-        private readonly List<SingleTypeOfDomein> allTypes;
+        private readonly IEnumerable<SingleTypeOfDomein> allTypes;
 
-        public PreconditionLambdaModif(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction)
+        public PreconditionLambdaModif(IEnumerable<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction)
         {
             if (allTypes is null)
             {

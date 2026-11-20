@@ -135,7 +135,7 @@ namespace SharpPDDL
             }
         }
 
-        internal void BuildActionCost(List<SingleTypeOfDomein> allTypes, int InstantActionParamCount)
+        internal void BuildActionCost(IEnumerable<SingleTypeOfDomein> allTypes, int InstantActionParamCount)
         {
             if (CostExpression is null)
             {

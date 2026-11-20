@@ -49,7 +49,7 @@ namespace SharpPDDL
         /// </summary>
         /// <param name="originalObj">Oryginal object - source of thumbnail</param>
         /// <param name="allTypes">types used in domain</param>
-        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IReadOnlyList<SingleTypeOfDomein> allTypes) : base()
+        internal ThumbnailObjectPrecursor(TOriginalObj originalObj, IEnumerable<SingleTypeOfDomein> allTypes) : base()
         {
             this.Parent = null;
             this._OriginalObj = originalObj;

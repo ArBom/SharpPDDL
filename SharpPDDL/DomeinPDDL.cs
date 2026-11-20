@@ -66,20 +66,29 @@ namespace SharpPDDL
                 types.CompleteTypes(act.TakeSingleTypes());
             });
 
-            //Build types tree with class values and class diagram
-            string PathOfClassDiagram = ((DiagramTypes & Diagram.Class) != Diagram.None) ? DiagramsPath : null;
-            types.CreateTypesTreeAndDiagram(PathOfClassDiagram);
+            //Build types tree with class values
+            types.CreateTypesTree();
+
+            //Convert all types of domain tree to faster read-only-list
+            IReadOnlyList<SingleTypeOfDomein> AllTypes = types.TypesOfDomain.ToList().AsReadOnly();
 
             //Build every action to use in crisscross generator
             Parallel.ForEach(actions, parallelOptions, act =>
             {
-                act.BuildAction(types.allTypes);
+                act.BuildAction(AllTypes);
             });
 
             //Sort action by name to make the same order every app run
             actions.Sort(new ActionByNameCo());
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 6, GloCla.ResMan.GetString("Sp0"), this.Name);
+
+            //Build class diagram
+            if ((DiagramTypes & Diagram.Class) != Diagram.None)
+            {
+                TypesPDDLVisualization typesPDDLVisualization = new TypesPDDLVisualization(types.TypesOfDomain);
+                typesPDDLVisualization.MakeGraph(DiagramsPath);
+            }
         }
 
         private void CheckExistActionName(string Name)
@@ -256,7 +265,7 @@ namespace SharpPDDL
 
                 if (!(DomainPlanner.OneUnuseObjects is null))
                 {
-                    ThumbnailObjectPrecursor<object> TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.allTypes);
+                    ThumbnailObjectPrecursor<object> TempNewOne = new ThumbnailObjectPrecursor<object>(Obj, types.TypesOfDomain);
 
                     if (!(TempNewOne.ValuesIndeksesKeys is null))
                         foreach (ThumbnailObjectPrecursor<object> thumbnailObject in CurrentState.ThumbnailObjects.Where(TO => TO is ThumbnailObjectPrecursor<object>))

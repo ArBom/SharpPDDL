@@ -21,7 +21,7 @@ namespace SharpPDDL
         /// </returns>
         internal Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> CheckPDDP;
 
-        internal virtual Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(List<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
+        internal virtual Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>> BuildCheckPDDP(IEnumerable<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> Parameters)
         {
             CompleteClassPos(Parameters);
             int[] ParamsIndexesInAction = Elements.Select(el => el.AllParamsOfActClassPos.Value).ToArray();

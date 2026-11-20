@@ -104,7 +104,7 @@ namespace SharpPDDL
             }
         }
 
-        private static Expression WorkOne((int, string, Expression[]) actionSententiaI, IReadOnlyList<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> parameters, IReadOnlyList<ParameterExpression> _parameters)
+        private static Expression WorkOne((int, string, Expression[]) actionSententiaI, IEnumerable<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> parameters, IReadOnlyList<ParameterExpression> _parameters)
         {
             int ParamNo = actionSententiaI.Item1;
             Type paramType = parameters[ParamNo].Type;
@@ -146,7 +146,7 @@ namespace SharpPDDL
             return textC;
         }
 
-        internal static Delegate BuildActionSententiaLamdba(IReadOnlyList<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> parameters, IReadOnlyList<(int, string, Expression[])> actionSententia)
+        internal static Delegate BuildActionSententiaLamdba(IEnumerable<SingleTypeOfDomein> allTypes, IReadOnlyList<Parametr> parameters, IReadOnlyList<(int, string, Expression[])> actionSententia)
         {
             //part of parameter checking and generate new parameters of func
             Expression CheckAllParams = CheckAllParam(parameters, out IReadOnlyList<ParameterExpression> _parameters);

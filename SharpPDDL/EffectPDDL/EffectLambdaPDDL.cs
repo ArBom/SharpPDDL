@@ -14,10 +14,10 @@ namespace SharpPDDL
         private ReadOnlyCollection<ParameterExpression> OldParameters;
         public Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>> ModifiedFunct;
         private readonly int[] ParamsIndexesInAction;
-        readonly List<SingleTypeOfDomein> allTypes;
+        readonly IEnumerable<SingleTypeOfDomein> allTypes;
         readonly Expression FuncOutKey = null;
 
-        public EffectLambdaPDDL(List<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction, ushort funcOutKey)
+        public EffectLambdaPDDL(IEnumerable<SingleTypeOfDomein> allTypes, int[] paramsIndexesInAction, ushort funcOutKey)
         {
             if (allTypes is null)
             {

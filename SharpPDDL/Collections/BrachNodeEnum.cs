@@ -19,7 +19,7 @@ namespace SharpPDDL
 
                 if (e.Root.Children.Count != ++IndeksOfE)
                 {
-                    e = e.Root.Children[IndeksOfE];
+                    current = e.Root.Children[IndeksOfE];
                     return true;
                 }
                 else

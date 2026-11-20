@@ -105,7 +105,7 @@ namespace SharpPDDL
             Parameters.Add(TempParametr);
         }
 
-        internal void Init1ArgPrecondition(List<SingleTypeOfDomein> allTypes, int i)
+        internal void Init1ArgPrecondition(IEnumerable<SingleTypeOfDomein> allTypes, int i)
         {
             SingleTypeOfDomein ThisSingleTypeOfDomein = allTypes.First(t => t.Type == Type);
 

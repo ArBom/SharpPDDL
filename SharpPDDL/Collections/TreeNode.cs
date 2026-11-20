@@ -126,13 +126,15 @@ namespace SharpPDDL
             return Position(ToRet);
         }
 
-        internal void AddAbove(TreeNode<T> newParent)
+        internal void AddAbove(T newParent)
         {
             int index = this.Root.Children.IndexOf(this);
-            newParent.Root = this.Root;
-            newParent.Children.Add(this);
-            this.Root.Children[index] = newParent;
-            this.Root = newParent;
+            TreeNode<T> newRoot = new TreeNode<T>();
+            newRoot.Content = newParent;
+            newRoot.Root = this.Root;
+            newRoot.Children.Add(this);
+            this.Root.Children[index] = newRoot;
+            this.Root = newRoot;
         }
 
         private void MoveNodesToList(TreeNode<T> node, List<T> resultList)

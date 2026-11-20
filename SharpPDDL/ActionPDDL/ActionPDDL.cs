@@ -472,7 +472,7 @@ namespace SharpPDDL
             => actionCost.DefineActionCostF(Parameters, ref In1, ref In2, ref In3, ref In4, CostExpression);
         #endregion
 
-        internal void BuildAction(List<SingleTypeOfDomein> allTypes)
+        internal void BuildAction(IEnumerable<SingleTypeOfDomein> allTypes)
         {
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 48, GloCla.ResMan.GetString("Sa5"), Name);
 

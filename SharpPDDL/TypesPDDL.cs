@@ -12,31 +12,31 @@ namespace SharpPDDL
         /// 0 value occur in program run only for pointer of object with name: "℗"
         /// </summary>
         protected ushort ValuesIndeksCount = 1;
-        internal List<SingleTypeOfDomein> allTypes = new List<SingleTypeOfDomein>();
-        readonly object locker = new object();
+        internal TreeNode<SingleTypeOfDomein> TypesOfDomain = new TreeNode<SingleTypeOfDomein>
+            {
+                Content = new SingleTypeOfDomein(typeof(object), new List<Value>())
+            };
+        readonly private object locker = new object();
 
-        internal void CompleteTypes(List<SingleType> singleTypes)
+        internal void CompleteTypes(IEnumerable<SingleType> singleTypes)
         {
             foreach (SingleType singleType in singleTypes)
             {
-                int? ToTagAllTypesIndex = null;
+                SingleTypeOfDomein ToTag;
 
                 //If its some type was added before...
                 lock (locker)
                 {
-                    if (allTypes.Any())
+                    //...try to find the same type added before
+                    try
                     {
-                        //...try to find the same type added before
-                        var SingleTypeInLists = allTypes.Any(st => st.Type == singleType.Type);
-                        if (SingleTypeInLists)
-                            ToTagAllTypesIndex = allTypes.FindIndex(st => st.Type == singleType.Type);
+                        ToTag = TypesOfDomain.First(st => st.Type == singleType.Type);
                     }
-
                     //if it didnt find the same type added before...
-                    if (ToTagAllTypesIndex is null)
+                    catch
                     {
                         //...add it now...
-                        allTypes.Add(new SingleTypeOfDomein(singleType));
+                        TypesOfDomain.Add(new SingleTypeOfDomein(singleType));
                         //...and work with another
                         continue;
                     }
@@ -47,13 +47,13 @@ namespace SharpPDDL
                 {
                     //check whether this value was added before...
                     bool AnyValueOfName;
-                    lock (allTypes[ToTagAllTypesIndex.Value])
-                        AnyValueOfName = allTypes[ToTagAllTypesIndex.Value].Values.Any(v => v.Name == value.Name);
+                    lock (ToTag.Values)
+                        AnyValueOfName = ToTag.Values.Any(v => v.Name == value.Name);
 
                     //...if so, set InUse_ props...
                     if (AnyValueOfName)
                     {
-                        Value ToTagV = allTypes[ToTagAllTypesIndex.Value].Values.Find(aV => aV.Name == value.Name);
+                        Value ToTagV = ToTag.Values.Find(aV => aV.Name == value.Name);
                         ToTagV.IsInUse_EffectIn = value.IsInUse_EffectIn;
                         ToTagV.IsInUse_EffectOut = value.IsInUse_EffectOut;
                         ToTagV.IsInUse_ActionCostIn = value.IsInUse_ActionCostIn;
@@ -62,8 +62,8 @@ namespace SharpPDDL
                     }
 
                     //...or add it first time
-                    lock (allTypes[ToTagAllTypesIndex.Value])
-                        allTypes[ToTagAllTypesIndex.Value].Values.Add(value);
+                    lock (ToTag.Values)
+                        ToTag.Values.Add(value);
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace SharpPDDL
             List<SingleType> NonValueTypes = new List<SingleType>();
             
             //for every past type...
-            foreach (SingleTypeOfDomein singleType in this.allTypes)
+            foreach (SingleTypeOfDomein singleType in this.TypesOfDomain)
             {
                 //...check every single value...
                 foreach (Value singleTypeValue in singleType.Values)
@@ -99,53 +99,25 @@ namespace SharpPDDL
                 CompleteTypes(NonValueTypes);
         }
 
-        private void CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root)
+        private void CreateRootofTree()
         {
-            //utwórz korzeń drzewa
-            Root = new TreeNode<SingleTypeOfDomein>
+            //Podepnij wszystko pod korzeń
+            for (int i = 0; i != this.TypesOfDomain.Children.Count; i++)
             {
-                Content = new SingleTypeOfDomein(typeof(object), new List<Value>())
-            };
-
-            //Podepnij wszystko pod ten korzeń
-            foreach (SingleTypeOfDomein singleType in this.allTypes)
-            {
-                SingleTypeOfDomein ParentV = new SingleTypeOfDomein(typeof(object), new List<Value>());
-                TreeNode<SingleTypeOfDomein> Parent = new TreeNode<SingleTypeOfDomein>
-                {
-                    Content = ParentV
-                };
+                //Take el. to work with it
+                TreeNode<SingleTypeOfDomein> firstGenEl = this.TypesOfDomain.Children[i];
 
                 //make a list af inherited types...
-                IEnumerable<Type> types = singleType.Type.InheritedTypes().Types.Reverse();
+                IEnumerable<Type> types = firstGenEl.Content.Type.InheritedTypes().Types.Reverse();
                 //...and create 'concatenation' of their
                 foreach (Type type in types)
                 {                   
-                    if (type == singleType.Type) //case of end, but no-object type
-                    {
-                        TreeNode<SingleTypeOfDomein> ToAdd = new TreeNode<SingleTypeOfDomein>()
-                        {
-                            Root = Parent,
-                            Content = singleType
-                        };
-                        Parent.Children.Add(ToAdd);
-
-                        if (type.BaseType == typeof(object))
-                            Root.Children.Add(ToAdd);
-                    }
+                    if (type == firstGenEl.Content.Type) //case of end, but no-object type
+                        continue;
                     else //case of inner type
                     {
-                        ParentV = new SingleTypeOfDomein(type, new List<Value>());
-                        TreeNode<SingleTypeOfDomein> ParentN = new TreeNode<SingleTypeOfDomein>
-                        {
-                            Content = ParentV
-                        };
-                        Parent.Children.Add(ParentN);
-                        Parent = ParentN;
-
-                        //close to object-type end (Root)
-                        if (type.BaseType == typeof(object))
-                            Root.Children.Add(Parent);
+                        SingleTypeOfDomein ToAddAbove = new SingleTypeOfDomein(type, new List<Value>());
+                        firstGenEl.AddAbove(ToAddAbove);
                     }
                 }
             }
@@ -264,15 +236,10 @@ namespace SharpPDDL
             if (node.Content != null)
             {
                 TreeNode<SingleTypeOfDomein> tempNode = node;
+
                 //go to root
                 while (tempNode.Root != null)
                 {
-                    if (tempNode.Root.Content is null) //todo is it necessary?
-                    {
-                        tempNode = tempNode.Root;
-                        continue;
-                    }
-
                     //update every value's IsItUse_ tag at root
                     foreach (Value v in tempNode.Content.Values)
                     {
@@ -308,7 +275,7 @@ namespace SharpPDDL
                 CumulateValues(child);
         }
 
-        private void CompleteValuesIndekses(TreeNode<SingleTypeOfDomein> Root)
+        private void CompleteValuesIndekses()
         {
             #region NestedVoid_CompleteValuesIndekses
             void ChangeAtChildren(TreeNode<SingleTypeOfDomein> node, Value childValue, ushort ValuesIndeksCount)
@@ -346,50 +313,29 @@ namespace SharpPDDL
             }
             #endregion
 
-            if (Root is null)
+            if (TypesOfDomain is null)
                 throw new Exception();
 
-            CompleteValues(Root);
-        }
-
-        private void MoveNodesToList(TreeNode<SingleTypeOfDomein> node, List<SingleTypeOfDomein> resultList)
-        {
-            if (node.Content != null)
-                resultList.Add(node.Content);
-
-            foreach (TreeNode<SingleTypeOfDomein> child in node.Children)
-                MoveNodesToList(child, resultList);
+            CompleteValues(TypesOfDomain);
         }
         #endregion
 
-        internal void CreateTypesTreeAndDiagram(string PathOfClassDiagram)
+        internal void CreateTypesTree()
         {
-            if (this.allTypes is null)
-                throw new Exception();
-
             GloCla.Tracer?.TraceEvent(TraceEventType.Start, 39, GloCla.ResMan.GetString("Sa4"));
 
             AddNonValueType();
-            CreateRootofTree(out TreeNode<SingleTypeOfDomein> Root);
-            GetBranchRight(Root);
-            PopulateInheritedTypes(Root);
-            TagValues(Root);
-            CumulateValues(Root);
-            CompleteValuesIndekses(Root);
+            CreateRootofTree();
+            GetBranchRight(TypesOfDomain);
+            PopulateInheritedTypes(TypesOfDomain);
+            TagValues(TypesOfDomain);
+            CumulateValues(TypesOfDomain);
+            CompleteValuesIndekses();
 
-            if (Root.Children.Count() == 1)
-                Root.Children[0].Content.NeedToTypeCheck = false;
+            if (TypesOfDomain.Children.Count() == 1)
+                TypesOfDomain.Children[0].Content.NeedToTypeCheck = false;
 
-            this.allTypes = new List<SingleTypeOfDomein>();
-            MoveNodesToList(Root, allTypes);
-
-            if (PathOfClassDiagram != null)
-            {
-                TypesPDDLVisualization typesPDDLVisualization = new TypesPDDLVisualization(Root);
-                typesPDDLVisualization.MakeGraph(PathOfClassDiagram);
-            }
-
-            foreach (var elem in allTypes)
+            foreach (var elem in TypesOfDomain)
                 elem.CreateValuesKeys();
 
             GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 40, GloCla.ResMan.GetString("Sp4"));

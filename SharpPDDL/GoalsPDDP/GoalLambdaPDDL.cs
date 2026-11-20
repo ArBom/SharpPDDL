@@ -87,14 +87,14 @@ namespace SharpPDDL
 
         protected void CheckConstructorParam()
         {
-            if (GoalOwner.types.allTypes is null)
+            if (GoalOwner.types.TypesOfDomain is null)
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C24"));
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 89, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
 
-            if (!GoalOwner.types.allTypes.Any())
+            if (!GoalOwner.types.TypesOfDomain.Any())
             {
                 string ExceptionMess = String.Format(GloCla.ResMan.GetString("C25"));
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 90, ExceptionMess);
@@ -176,7 +176,7 @@ namespace SharpPDDL
             Type originalObjTypeCand = node.Expression.Type;
             do
             {
-                IEnumerator<SingleTypeOfDomein> ModelsEnum = GoalOwner.types.allTypes.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
+                IEnumerator<SingleTypeOfDomein> ModelsEnum = GoalOwner.types.TypesOfDomain.Where(t => t.Type == originalObjTypeCand).GetEnumerator();
 
                 if (ModelsEnum.MoveNext())
                     ParameterModel = ModelsEnum.Current;

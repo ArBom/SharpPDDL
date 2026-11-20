@@ -13,7 +13,7 @@ namespace SharpPDDL
         static private Predicate<ThumbnailObject> LambdaOfEq(object value)
             => PSTO => PSTO.OriginalObj.Equals(value);
 
-        internal static Delegate ActionCheckerDel(String ActionName, List<EffectPDDL> Effects, List<SingleTypeOfDomein> allTypes)
+        internal static Delegate ActionCheckerDel(String ActionName, List<EffectPDDL> Effects, IEnumerable<SingleTypeOfDomein> allTypes)
         {
             ParameterExpression Input_parameter = Expression.Parameter(typeof(CrisscrossChildrenCon), "input");
             LabelTarget retLabel = Expression.Label(typeof(bool));

@@ -13,13 +13,13 @@ namespace SharpPDDL
         private readonly ConstantExpression DefaultCost;
         private readonly ReadOnlyCollection<ParameterExpression> _parameters;
         private readonly IReadOnlyList<(object Param, int? IndexInAction)> Args;
-        private readonly ReadOnlyCollection<SingleTypeOfDomein> allTypes;
+        private readonly IEnumerable<SingleTypeOfDomein> allTypes;
         private ReadOnlyCollection<ParameterExpression> OldParameters;
         internal Delegate ToRet;
 
-        internal ActionCostLambda(List<SingleTypeOfDomein> allTypes, IReadOnlyList<(object Param, int? IndexInAction)> Args, int InstantActionParamCount, uint defaultCost)
+        internal ActionCostLambda(IEnumerable<SingleTypeOfDomein> allTypes, IReadOnlyList<(object Param, int? IndexInAction)> Args, int InstantActionParamCount, uint defaultCost)
         {
-            this.allTypes = new ReadOnlyCollection<SingleTypeOfDomein>(allTypes);
+            this.allTypes = allTypes;
             this.Args = Args;
 
             List<ParameterExpression> param = new List<ParameterExpression>();
