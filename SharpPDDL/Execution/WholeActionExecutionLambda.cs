@@ -9,9 +9,14 @@ namespace SharpPDDL
 {
     internal class WholeActionExecutionLambda : ExpressionVisitor
     {
-        ObjectPDDL ActualObjectPDDL;
-        List<ParameterExpression> LambdaParameters;
-        List<ParameterExpression> _parameters = new List<ParameterExpression>();
+        private ObjectPDDL ActualObjectPDDL;
+        private List<ParameterExpression> LambdaParameters;
+        private List<ParameterExpression> _parameters = new List<ParameterExpression>();
+
+        private List<Expression> ExecutionEffectsArray1 = new List<Expression>();
+        private List<Expression> ExecutionEffectsArray2 = new List<Expression>();
+        private List<Expression> ExecutionEffectsArray3 = new List<Expression>();
+        private List<Expression> ExecutionEffectsArray4 = new List<Expression>();
 
         internal readonly Delegate InstantExecutionPDDL;
 
@@ -20,99 +25,26 @@ namespace SharpPDDL
             foreach (ExpressionExecution execution in executions)
                 execution.CompleteClassPos(Parameters);
 
-            IReadOnlyList<ExpressionExecution> OldDataExecutions = executions.Where(e => !e.WorkWithNewValues).ToList();
-            IReadOnlyList<ExpressionExecution> NewDataExecutions = executions.Where(e => e.WorkWithNewValues).ToList();
-
             for (int i = 0; i != Parameters.Count; i++)
             {
                 ParameterExpression Param = Expression.Parameter(Parameters[i].Type, GloCla.LamdbaParamPrefix + i);
                 _parameters.Add(Param);
             }
 
-            List<ParameterExpression> ParametersVar = new List<ParameterExpression>();
+            IEnumerable<ParameterExpression> ParametersVar = ModifyExecutionEffects(Parameters, ExecutionEffects);
 
-            int UsingVar = ExecutionEffects.Count;
-            int ExecutionEffectsArraySize = (2 * UsingVar) + executions.Count;
-
-            Expression[] ExecutionEffectsArray = new Expression[ExecutionEffectsArraySize];
-            for (int i = 0; i != UsingVar; i++)
+            foreach (ExpressionExecution Execution in executions)
             {
-                //Create internal parameters
-                int AllParamsDestPos = ExecutionEffects[i].Elements[0].AllParamsOfActClassPos.Value;
-                string DestinationMemberName = ExecutionEffects[i].DestinationMemberName;
-                Type DestinationMemberType = Parameters[AllParamsDestPos].values.First(v => v.Name == DestinationMemberName).Type;
-                ParameterExpression ParamVar = Expression.Variable(DestinationMemberType, _parameters[AllParamsDestPos].Name + "_" + DestinationMemberName);
-                ParametersVar.Add(ParamVar);
+                ActualObjectPDDL = Execution;
+                Expression toadd = Visit(Execution.Func);
 
-                //Modify source lambda
-                ActualObjectPDDL = ExecutionEffects[i];
-
-                Expression ConvertExpression;
-
-                if (ExecutionEffects[i] is EffectPDDLpointer)
-                    switch (ExecutionEffects[i].Elements.Count())
-                    {
-                        case 1:
-                            ConvertExpression = Expression.Constant(null, DestinationMemberType);
-                            break;
-
-                        case 2:
-                            ConvertExpression = _parameters.First(p => p.Name == GloCla.LamdbaParamPrefix + ExecutionEffects[i].Elements[1].AllParamsOfActClassPos);
-                            break;
-
-                        default:
-                            throw new Exception();
-                    }
+                if (Execution.WorkWithNewValues)
+                    ExecutionEffectsArray4.Add(toadd);
                 else
-                {
-                    Expression modifiedSourceFunc = Visit(ExecutionEffects[i].SourceFunc);
-                    ConvertExpression = Expression.Convert(modifiedSourceFunc, DestinationMemberType);
-                }
-
-                ExecutionEffectsArray[i] = Expression.Assign(ParamVar, ConvertExpression);
-
-                //Update values
-                MemberInfo DestinationMemberInfo = Parameters[AllParamsDestPos].Type.GetMember(DestinationMemberName).First(m => (m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property));
-                MemberExpression DestinationMemberAccess = Expression.MakeMemberAccess(_parameters[AllParamsDestPos], DestinationMemberInfo);
-                ExecutionEffectsArray[UsingVar + i + OldDataExecutions.Count] = Expression.Assign(DestinationMemberAccess, ParamVar);
+                    ExecutionEffectsArray2.Add(toadd);
             }
 
-            for (int i = 0; i != OldDataExecutions.Count; i++)
-            {
-                ActualObjectPDDL = OldDataExecutions[i];
-                ExecutionEffectsArray[UsingVar + i] = Visit(OldDataExecutions[i].Func);
-            }
-
-            for (int i = 0; i != NewDataExecutions.Count; i++)
-            {
-                ActualObjectPDDL = NewDataExecutions[i];
-                ExecutionEffectsArray[(2 * UsingVar) + OldDataExecutions.Count + i ] = Visit(NewDataExecutions[i].Func);
-            }
-
-            BlockExpression ExecutingExpression = Expression.Block(
-               ParametersVar,
-               ExecutionEffectsArray
-            );
-
-            LambdaExpression lambdaExpression;
-
-            if (ExecutionPrecondition.Any())
-            {
-                ActualObjectPDDL = ExecutionPrecondition[0];
-                Expression Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[0].func), ExecutingExpression, Expression.Throw(Expression.Constant(new PrecondExecutionException(Name, ExecutionPrecondition[0].Name))));
-                if (ExecutionPrecondition.Count > 1)
-                {
-                    for (int i = 1; i != ExecutionPrecondition.Count; i++)
-                    {
-                        ActualObjectPDDL = ExecutionPrecondition[i];
-                        Checking = Expression.IfThenElse(Visit(ExecutionPrecondition[i].func), Checking, Expression.Throw(Expression.Constant(new PrecondExecutionException(Name, ExecutionPrecondition[i].Name))));
-                    }
-                }
-
-                lambdaExpression = Expression.Lambda(Checking, Name, _parameters);
-            }
-            else
-                lambdaExpression = Expression.Lambda(ExecutingExpression, Name, _parameters);
+            LambdaExpression lambdaExpression = MergeItAll(ParametersVar, ExecutionPrecondition, Name);
 
             try
             {
@@ -124,6 +56,80 @@ namespace SharpPDDL
                 GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 86, ExceptionMess);
                 throw new Exception(ExceptionMess);
             }
+        }
+
+        protected LambdaExpression MergeItAll(IEnumerable<ParameterExpression> ParametersVar, IReadOnlyList<PreconditionPDDL> ExecutionPrecondition, string Name)
+        {
+            BlockExpression ExecutingExpression = Expression.Block(
+                ParametersVar,
+                ExecutionEffectsArray1.Concat(ExecutionEffectsArray2).Concat(ExecutionEffectsArray3).Concat(ExecutionEffectsArray4)
+            );
+
+            Expression IfTrue = ExecutingExpression;
+            foreach (PreconditionPDDL preconditionPDDL in ExecutionPrecondition)
+            {
+                ActualObjectPDDL = preconditionPDDL;
+                Expression Test = Visit(preconditionPDDL.func);
+                UnaryExpression IfFalse = Expression.Throw(Expression.Constant(new PrecondExecutionException(Name, preconditionPDDL.Name)));
+                IfTrue = Expression.IfThenElse(Test, IfTrue, IfFalse);
+            }
+            return Expression.Lambda(IfTrue, Name, _parameters);
+        }
+
+        protected void ModifyExEffSourceL(EffectPDDL effectPDDL, ParameterExpression ParamVar)
+        {
+            ActualObjectPDDL = effectPDDL;
+
+            Expression ConvertExpression;
+
+            if (effectPDDL is EffectPDDLpointer)
+            {
+                switch (effectPDDL.Elements.Count())
+                {
+                    case 1:
+                        ConvertExpression = Expression.Constant(null, ParamVar.Type);
+                        break;
+
+                    case 2:
+                        ConvertExpression = _parameters.First(p => p.Name == GloCla.LamdbaParamPrefix + effectPDDL.Elements[1].AllParamsOfActClassPos);
+                        break;
+
+                    default:
+                        throw new Exception();
+                }
+            }
+            else
+            {
+                Expression modifiedSourceFunc = Visit(effectPDDL.SourceFunc);
+                ConvertExpression = Expression.Convert(modifiedSourceFunc, ParamVar.Type);
+            }
+
+            ExecutionEffectsArray1.Add(Expression.Assign(ParamVar, ConvertExpression));
+        }
+
+        protected IEnumerable<ParameterExpression> ModifyExecutionEffects(IReadOnlyList<Parametr> Parameters, IEnumerable<EffectPDDL> ExecutionEffects)
+        {
+            List<ParameterExpression> ParametersVar = new List<ParameterExpression>();
+
+            foreach (EffectPDDL effectPDDL in ExecutionEffects)
+            {
+                //Create internal parameters
+                int AllParamsDestPos = effectPDDL.Elements.First().AllParamsOfActClassPos.Value;
+                string DestinationMemberName = effectPDDL.DestinationMemberName;
+                Type DestinationMemberType = Parameters[AllParamsDestPos].values.First(v => v.Name == DestinationMemberName).Type;
+                ParameterExpression ParamVar = Expression.Variable(DestinationMemberType, _parameters[AllParamsDestPos].Name + "_" + DestinationMemberName);
+                ParametersVar.Add(ParamVar);
+
+                //Modify source lambda
+                ModifyExEffSourceL(effectPDDL, ParamVar);
+
+                //Update values
+                MemberInfo DestinationMemberInfo = Parameters[AllParamsDestPos].Type.GetMember(DestinationMemberName).First(m => (m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property));
+                MemberExpression DestinationMemberAccess = Expression.MakeMemberAccess(_parameters[AllParamsDestPos], DestinationMemberInfo);
+                ExecutionEffectsArray3.Add(Expression.Assign(DestinationMemberAccess, ParamVar));
+            }
+
+            return ParametersVar;
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
