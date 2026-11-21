@@ -12,9 +12,37 @@ namespace SharpPDDL
         public readonly Delegate InstantFunct;
         public readonly Delegate InstantFunctSimplified;
 
+        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        {
+            // Parameters
+            BinaryExpression CheckAllParam = BuildNewParameters(parameters);
+
+            // Preconditions
+            RebuildPreco(preconditions, out Expression CheckAllPreco, out Expression CheckAllPrecoSimplified);
+
+            // Effects
+            ListInitExpression ListOfEfects = RebuildEffect(parameters, effects);
+
+            // Build Lambdas
+            LambdaExpression WholeFuncLambda = WholeFunc(CheckAllParam, CheckAllPreco, ListOfEfects);
+            LambdaExpression WholeFuncSimplifiedLambda = FBlockSimplified(CheckAllPrecoSimplified, ListOfEfects);
+
+            try
+            {
+                InstantFunct = WholeFuncLambda.Compile();
+                InstantFunctSimplified = WholeFuncSimplifiedLambda.Compile();
+            }
+            catch (Exception e)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C7"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 45, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
+        }
+
         private BinaryExpression BuildNewParameters(IReadOnlyList<Parametr> OldParameters)
         {
-            List<BinaryExpression> ChecksParam = new List<BinaryExpression>();
+            List<BinaryExpression> ChecksParams = new List<BinaryExpression>();
             _parameters = new List<ParameterExpression>();
 
             for (int i = 0; i != OldParameters.Count; i++)
@@ -27,63 +55,49 @@ namespace SharpPDDL
                     continue;
 
                 BinaryExpression VisitedCheckType = (BinaryExpression)Visit(OldParameters[i].CheckType);
-                ChecksParam.Add(VisitedCheckType);
+                ChecksParams.Add(VisitedCheckType);
             }
 
             BinaryExpression CheckAllParam = null;
-            if (ChecksParam.Any())
+            foreach (BinaryExpression CheckParam in ChecksParams)
             {
-                CheckAllParam = ChecksParam[0];
-
-                if (ChecksParam.Count >= 2)
-                    for (int a = 1; a != ChecksParam.Count; a++)
-                        CheckAllParam = Expression.AndAlso(CheckAllParam, ChecksParam[a]);
+                if (CheckAllParam is null)
+                    CheckAllParam = CheckParam;
+                else
+                    CheckAllParam = Expression.AndAlso(CheckAllParam, CheckParam);
             }
-
             return CheckAllParam;
         }
 
         private void RebuildPreco(IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, out Expression CheckAllPreco, out Expression CheckAllPrecoSimplified)
         {
-            List<Expression> ChecksPrecondition = new List<Expression>();
-            List<Expression> ChecksPreconditionSimplified = new List<Expression>();
+            CheckAllPreco = null;
+            CheckAllPrecoSimplified = null;
+
             foreach (var preconditionPDDL in preconditions)
             {
-                var preconditionWithNewParam = VisitLambda(preconditionPDDL);
-                ChecksPrecondition.Add(preconditionWithNewParam);
+                Expression preconditionWithNewParam = VisitLambda(preconditionPDDL);
+
+                if (CheckAllPreco is null)
+                    CheckAllPreco = preconditionWithNewParam;
+                else
+                    CheckAllPreco = Expression.AndAlso(CheckAllPreco, preconditionWithNewParam);
 
                 if (preconditionPDDL.Parameters[1].Name.StartsWith(GloCla.EmptyName))
                     continue;
 
-                ChecksPreconditionSimplified.Add(preconditionWithNewParam);
+                if (CheckAllPrecoSimplified is null)
+                    CheckAllPrecoSimplified = preconditionWithNewParam;
+                else
+                    CheckAllPrecoSimplified = Expression.AndAlso(CheckAllPrecoSimplified, preconditionWithNewParam);
             }
-            
-            if (ChecksPrecondition.Any())
-            {
-                CheckAllPreco = ChecksPrecondition[0];
-                for (int a = 1; a != ChecksPrecondition.Count; a++)
-                    CheckAllPreco = Expression.AndAlso(CheckAllPreco, ChecksPrecondition[a]);
-            }
-            else
-                CheckAllPreco = Expression.Constant(true);
-
-            if (ChecksPreconditionSimplified.Any())
-            {
-                CheckAllPrecoSimplified = ChecksPreconditionSimplified[0];
-                for (int a = 1; a != ChecksPreconditionSimplified.Count; a++)
-                    CheckAllPrecoSimplified = Expression.AndAlso(CheckAllPrecoSimplified, ChecksPreconditionSimplified[a]);
-            }
-            else
-                CheckAllPrecoSimplified = Expression.Constant(true);
         }
 
         private ListInitExpression RebuildEffect(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
         {
             List<Expression>[] EffectsPais = new List<Expression>[parameters.Count];
             for (int i = 0; i != parameters.Count; i++)
-            {
                 EffectsPais[i] = new List<Expression>();
-            }
 
             foreach (var effect in effects)
             {
@@ -110,46 +124,46 @@ namespace SharpPDDL
             return ListOfEfects;
         }
 
-        public ActionLambdaPDDL(IReadOnlyList<Parametr> parameters, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, ThumbnailObject, bool>>> preconditions, IReadOnlyList<Expression<Func<ThumbnailObject, ThumbnailObject, KeyValuePair<ushort, ValueType>>>> effects)
+        LambdaExpression WholeFunc(BinaryExpression CheckAllParam, Expression CheckAllPreco, ListInitExpression ListOfEfects)
         {
-            // Parameters
-            BinaryExpression CheckAllParam = BuildNewParameters(parameters);
-
-            // Preconditions
-            RebuildPreco(preconditions, out Expression CheckAllPreco, out Expression CheckAllPrecoSimplified);
-
-            // Effects
-            ListInitExpression ListOfEfects = RebuildEffect(parameters, effects);
-
-            // Merge it all below
             ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));
             LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
-            ConditionalExpression WholeParamBody = Expression.IfThenElse(CheckAllPreco, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
-            ConditionalExpression WholeParamBodySimplified = Expression.IfThenElse(CheckAllPrecoSimplified, Expression.Return(retLabelTarget, ListOfEfects), Expression.Return(retLabelTarget, empty));
+            GotoExpression returnEmpty = Expression.Return(retLabelTarget, empty);
+            GotoExpression returnEList = Expression.Return(retLabelTarget, ListOfEfects);
 
-            ConditionalExpression WholeFunctBody;
+            Expression WholeParamBody;
+            if (CheckAllPreco is null)
+                WholeParamBody = returnEList;
+            else
+                WholeParamBody = Expression.IfThenElse(CheckAllPreco, returnEList, returnEmpty);
+
+            Expression WholeFunctBody;
             if (CheckAllParam is null)
                 WholeFunctBody = WholeParamBody;
             else
-                WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, Expression.Return(retLabelTarget, empty));
+                WholeFunctBody = Expression.IfThenElse(CheckAllParam, WholeParamBody, returnEmpty);
 
             BlockExpression FBlock = Expression.Block(WholeFunctBody, Expression.Label(retLabelTarget, empty));
+
+            return Expression.Lambda(FBlock, _parameters);
+        }
+
+        LambdaExpression FBlockSimplified(Expression CheckAllPrecoSimplified, ListInitExpression ListOfEfects)
+        {
+            ConstantExpression empty = Expression.Constant(null, typeof(List<List<KeyValuePair<ushort, ValueType>>>));
+            LabelTarget retLabelTarget = Expression.Label(typeof(List<List<KeyValuePair<ushort, ValueType>>>), null);
+            GotoExpression returnEmpty = Expression.Return(retLabelTarget, empty);
+            GotoExpression returnEList = Expression.Return(retLabelTarget, ListOfEfects);
+
+            Expression WholeParamBodySimplified;
+            if (CheckAllPrecoSimplified is null)
+                WholeParamBodySimplified = returnEList;
+            else
+                WholeParamBodySimplified = Expression.IfThenElse(CheckAllPrecoSimplified, returnEList, returnEmpty);
+
             BlockExpression FBlockSimplified = Expression.Block(WholeParamBodySimplified, Expression.Label(retLabelTarget, empty));
 
-            LambdaExpression WholeFunc = Expression.Lambda(FBlock, _parameters);
-            LambdaExpression WholeFuncSimplified = Expression.Lambda(FBlockSimplified, _parameters);
-
-            try
-            {
-                InstantFunct = WholeFunc.Compile();
-                InstantFunctSimplified = WholeFuncSimplified.Compile();
-            }
-            catch (Exception e)
-            {
-                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C7"), e.ToString());
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 45, ExceptionMess);
-                throw new Exception(ExceptionMess);
-            }
+            return Expression.Lambda(FBlockSimplified, _parameters);
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
