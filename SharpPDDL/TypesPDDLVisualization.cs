@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace SharpPDDL
 {
@@ -251,5 +252,9 @@ namespace SharpPDDL
         protected override string GraphLayout() => ResVis.GetString("TypGraphLayout");
 
         protected override string GraphDirection() => ResVis.GetString("TypGraphDirection");
+
+        protected override void InfoAboutStart() => GloCla.Tracer?.TraceEvent(TraceEventType.Start, 160, GloCla.ResMan.GetString("Sa11"));
+
+        protected override void InfoAboutEnd() => GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 161, GloCla.ResMan.GetString("Sp11"));
     }
 }

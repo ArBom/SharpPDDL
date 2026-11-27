@@ -82,6 +82,7 @@ namespace SharpPDDL
             {
                 DiagramsPath = null;
                 DiagramTypes = diagrams;
+                GloCla.Tracer?.TraceEvent(TraceEventType.Information, 156, GloCla.ResMan.GetString("I17"));
                 return;
             }
 
@@ -100,7 +101,15 @@ namespace SharpPDDL
             else
             {
                 if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch
+                    {
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 158, GloCla.ResMan.GetString("W21"), path, fileName);
+                        DiagramsPath = fileName;
+                    }
 
                 DiagramsPath = Path.Combine(path, fileName);
             }

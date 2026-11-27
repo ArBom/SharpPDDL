@@ -118,7 +118,7 @@ namespace SharpPDDL
             }
             catch
             {
-                //todo;
+                GloCla.Tracer.TraceEvent(TraceEventType.Error, 170, GloCla.ResMan.GetString("W27"), ParamNo);
                 return textC;
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -44,7 +45,17 @@ namespace SharpPDDL
             Expression TypeIs = Expression.TypeIs(ThObOryginalType, _OryginalObjType);
             BinaryExpression NewLambdaBody = Expression.AndAlso(TypeIs, InLambda.Body);
             LambdaExpression ToRet = Expression.Lambda(NewLambdaBody, _param);
-            GoalPDDL = ToRet.Compile();
+
+            try
+            {
+                GoalPDDL = ToRet.Compile();
+            }
+            catch (Exception e)
+            {
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C48"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 174, ExceptionMess);
+                throw new Exception(ExceptionMess);
+            }
 
             return ToRet;
         }

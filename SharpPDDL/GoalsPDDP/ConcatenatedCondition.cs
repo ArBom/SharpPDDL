@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace SharpPDDL
 {
     internal class ConcatenatedCondition
     {
-        LambdaExpression expression;
+        readonly LambdaExpression expression;
         internal readonly int Thumbnail1;
         internal readonly int Thumbnail2;
         internal readonly int BiggerThumbnail;
@@ -33,10 +34,9 @@ namespace SharpPDDL
             }
             catch (Exception e)
             {
-                //todo;
-                /*string ExceptionMess = String.Format(GloCla.ResMan.GetString("C29"), e.ToString());
-                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 106, ExceptionMess);
-                throw new Exception(ExceptionMess);*/
+                string ExceptionMess = String.Format(GloCla.ResMan.GetString("C47"), e.ToString());
+                GloCla.Tracer?.TraceEvent(TraceEventType.Critical, 173, ExceptionMess);
+                throw new Exception(ExceptionMess);
             }
 
             return expression;

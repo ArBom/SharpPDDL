@@ -521,7 +521,7 @@ namespace SharpPDDL
                 }
                 catch (InvalidOperationException)
                 {
-                    //todo;
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 172, GloCla.ResMan.GetString("W22"), Name, EffectAsExecution);
                     continue;
                 }
 
@@ -534,13 +534,11 @@ namespace SharpPDDL
                 InstantExecution = p.InstantExecutionPDDL;
             }
             else
-            {
                 GloCla.Tracer?.TraceEvent(TraceEventType.Warning, 50, GloCla.ResMan.GetString("W5"), Name);
-            }
 
             InstantActionSententia = ActionSententiaLamdba.BuildActionSententiaLamdba(allTypes, this.Parameters, ActionSententia);
 
-            GloCla.Tracer?.TraceEvent(TraceEventType.Start, 49, GloCla.ResMan.GetString("Sp5"), Name);
+            GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 49, GloCla.ResMan.GetString("Sp5"), Name);
         }
 
         internal void ClearActionDelegates()

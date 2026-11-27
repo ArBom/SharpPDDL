@@ -68,8 +68,7 @@ namespace SharpPDDL
 
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
             {
-                if (!(CurrentBuilderStopping is null))
-                    CurrentBuilderStopping.Wait();
+                CurrentBuilderStopping?.Wait();
 
                 foreach (var RemGoal in e.OldItems)
                 {
@@ -283,8 +282,7 @@ namespace SharpPDDL
                         continue;
 
                     //move oryginal obj. to new domain if its needed
-                    if (!(goalObject.NewPDDLdomain is null))
-                        goalObject.NewPDDLdomain.domainObjects.Add(goalObject.OriginalObj);
+                    goalObject.NewPDDLdomain?.domainObjects.Add(goalObject.OriginalObj);
 
                     //remove it from here
                     Owner.domainObjects.Remove(goalObject.OriginalObj);
@@ -317,11 +315,11 @@ namespace SharpPDDL
                 }
                 catch (ArgumentException)
                 {
-                    //todo;
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Error, 168, GloCla.ResMan.GetString("W25"));
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    //todo;
+                    GloCla.Tracer?.TraceEvent(TraceEventType.Error, 169, GloCla.ResMan.GetString("W26"));
                 }
 
                 Plan.Add(new List<string>
@@ -355,9 +353,7 @@ namespace SharpPDDL
                         continue;
 
                     if (eqComp.Equals(newSotredSet[FoundGoal.Content.CheckSum], FoundGoal))
-                    {
                         valueOfNewFoundedGoals.Add(newSotredSet[FoundGoal.Content.CheckSum]);
-                    }
                     else
                     {
                         continue;
@@ -433,8 +429,7 @@ namespace SharpPDDL
 
                 RefreshFoundedDicts(transcriber.NewIndexedStates, transcriber.NewOne);
 
-                if (DiagramCreate != null)
-                    DiagramCreate.Wait(CancellationDomein);
+                DiagramCreate?.Wait(CancellationDomein);
 
                 CurrentBuilded.Dispose();
                 CurrentBuilded = transcriber.NewOne;

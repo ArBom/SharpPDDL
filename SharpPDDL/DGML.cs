@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Resources;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -34,6 +36,8 @@ namespace SharpPDDL
         }
 
         protected abstract void CreateData();
+        protected abstract void InfoAboutStart();
+        protected abstract void InfoAboutEnd();
 
         internal static readonly string correctExtension = ".dgml";
         protected abstract string MakeFilePath(string prefix);
@@ -105,16 +109,25 @@ namespace SharpPDDL
 
         internal void MakeGraph(string path)
         {
+            InfoAboutStart();
             CreateData();
 
             var settings = new XmlWriterSettings
             {
                 Indent = true,
-                IndentChars = " ",
+                IndentChars = " "
             };
 
             string ch_path = MakeFilePath(path);
-            writer = XmlWriter.Create(ch_path, settings);
+            try
+            {
+                writer = XmlWriter.Create(ch_path, settings);
+            }
+            catch (Exception)
+            {
+                GloCla.Tracer?.TraceEvent(TraceEventType.Error, 159, GloCla.ResMan.GetString("E39"));
+                return;
+            }
 
             OpenGraph(GraphTitle(), GraphDirection(), GraphLayout());
 
@@ -140,6 +153,7 @@ namespace SharpPDDL
 
             writer.Flush();
             writer.Close();
+            InfoAboutEnd();
         }
     }
 }

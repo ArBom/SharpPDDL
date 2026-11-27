@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SharpPDDL
@@ -291,5 +292,8 @@ namespace SharpPDDL
         {
             AddTFStyle(Link_Key, IsExec_Key, true, Stroke_Key, Realization_Colour);
         }
+
+        protected override void InfoAboutStart() => GloCla.Tracer?.TraceEvent(TraceEventType.Start, 162, GloCla.ResMan.GetString("Sa12"));
+        protected override void InfoAboutEnd() => GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 163, GloCla.ResMan.GetString("Sp12"));
     }
 }

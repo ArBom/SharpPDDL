@@ -28,13 +28,13 @@ Include the library namespace with `using SharpPDDL` and use methods of it.
 > **TIP**
 > First time of use of it would seem to be a little unintuitive. Get familiar with ready examples.
 
-* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/15%20puzzle)
-* [Gripper](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Gripper)
-* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/River%20crossing%20puzzle)
-* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Hanoi%20Tower)
-* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Travelling%20Salesman%20Problem)
-* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Peg%20solitaire)
-* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/c7b580b9ff255348ab31e27cc0b7aa2d641b4d2f/Examples/Water%20pouring%20puzzle)
+* [15 puzzle](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/15%20puzzle)
+* [Gripper](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/Gripper)
+* [River crossing puzzle](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/River%20crossing%20puzzle)
+* [Tower of Hanoi](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/Hanoi%20Tower)
+* [Travelling salesman problem](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/Travelling%20Salesman%20Problem)
+* [Triangular peg solitaire](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/Peg%20solitaire)
+* [Water pouring puzzle](https://github.com/ArBom/SharpPDDL/tree/4b6258f94352f976f60a1cc9a3fc0fe894d1e8a6/Examples/Water%20pouring%20puzzle)
 
 ---
 License: [Creative Commons Attribution-NonCommercial-ShareAlike4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)

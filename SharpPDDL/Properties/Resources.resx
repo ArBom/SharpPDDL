@@ -198,7 +198,7 @@
     <comment>GoalLambdaPDDL; wrong class constructor argument (null)</comment>
   </data>
   <data name="C27" xml:space="preserve">
-    <value>Unexpected error in time of goal function building</value>
+    <value>Unexpected error in time of goal function building.</value>
     <comment>GoalLambdaPDDL;</comment>
   </data>
   <data name="C28" xml:space="preserve">
@@ -502,7 +502,7 @@
     <comment>DomeinPDDL; wrong type of added object; 0-type of added object</comment>
   </data>
   <data name="I3" xml:space="preserve">
-    <value>New instance of {0} type initialized</value>
+    <value>New instance of {0} type initialized without constructor for SharpPDDL internal purposes.</value>
     <comment>Parametr; successful init; 0-class type</comment>
   </data>
   <data name="I4" xml:space="preserve">
@@ -518,7 +518,7 @@
     <comment>CrisscrossGenerator; //commented in normal // it take to many time of program run</comment>
   </data>
   <data name="I7" xml:space="preserve">
-    <value>all possible state probably generated</value>
+    <value>All possible state probably generated</value>
     <comment>DomainPlanner;</comment>
   </data>
   <data name="I8" xml:space="preserve">
@@ -764,5 +764,73 @@
   <data name="W9" xml:space="preserve">
     <value>Precondition funct is without parameter. Its constant result of that.</value>
     <comment>PreconditionLambdaModif;</comment>
+  </data>
+  <data name="I17" xml:space="preserve">
+    <value>There is no any diagram to generate.</value>
+    <comment>DomeinPDDL; there is no diagram to gen.</comment>
+  </data>
+  <data name="W21" xml:space="preserve">
+    <value>Path to save diagram {0} is inaccessible. It will be save at {1} folder of app</value>
+    <comment> DomainPDDL; inaccessible path ;0-inaccessible path, 1-new path</comment>
+  </data>
+  <data name="E39" xml:space="preserve">
+    <value>Unable to create diagram file in specified path. Canceling this task.</value>
+    <comment>DGML; Exception of file creating</comment>
+  </data>
+  <data name="Sa11" xml:space="preserve">
+    <value>Started the class diagram build.</value>
+    <comment>TypesPDDLVisualization; </comment>
+  </data>
+  <data name="Sp11" xml:space="preserve">
+    <value>Finished the class diagram build.</value>
+    <comment>TypesPDDLVisualization;</comment>
+  </data>
+  <data name="Sa12" xml:space="preserve">
+    <value>Started the case use diagram build</value>
+    <comment>ActionVisualization;</comment>
+  </data>
+  <data name="Sp12" xml:space="preserve">
+    <value>Finished the case use diagram build.</value>
+    <comment>ActionVisualization;</comment>
+  </data>
+  <data name="Sa13" xml:space="preserve">
+    <value>Started the states diagram build</value>
+    <comment>PossibleState;</comment>
+  </data>
+  <data name="Sp13" xml:space="preserve">
+    <value>Finished the states diagram build</value>
+    <comment>PossibleState;</comment>
+  </data>
+  <data name="W22" xml:space="preserve">
+    <value>There is no effect '{1}'-named at {0} the action. It could generate problem of action execution. Check typo.</value>
+    <comment>ActionPDDL; ;0-Action name, 1-incorrect effect name</comment>
+  </data>
+  <data name="W23" xml:space="preserve">
+    <value>Internal error in time of State Diag. gen. - wrong arg. type of action sententia.</value>
+    <comment>CrisscrossesVisualization;</comment>
+  </data>
+  <data name="W24" xml:space="preserve">
+    <value>Internal error in time of gen. action sententia for State Diagram</value>
+    <comment>CrisscrossesVisualization;</comment>
+  </data>
+  <data name="W25" xml:space="preserve">
+    <value>Internal error in time of plan gen. - wrong arg. type of action sententia.</value>
+    <comment>DomainPlanner;</comment>
+  </data>
+  <data name="W26" xml:space="preserve">
+    <value>Internal error in time of gen. action sententia for Plan</value>
+    <comment>DomainPlanner;</comment>
+  </data>
+  <data name="W27" xml:space="preserve">
+    <value>An issue occurred while sententia change. {0}-th part will shown without values. </value>
+    <comment>ActionSententiaLamdba; There is no correct type in AllTypes; 0-line with error</comment>
+  </data>
+  <data name="C47" xml:space="preserve">
+    <value>Unexpected error in time of 2-arg. goal function building: {0}</value>
+    <comment>ConcatenatedCondition; ; 0-error txt</comment>
+  </data>
+  <data name="C48" xml:space="preserve">
+    <value>Unexpected error in time of goal member building: {0}</value>
+    <comment>GoalObjectMember; ; 0-error txt</comment>
   </data>
 </root>

@@ -19,7 +19,7 @@ namespace SharpPDDL.Properties {
     // przez narzędzie, takie jak ResGen lub Visual Studio.
     // Aby dodać lub usunąć składową, edytuj plik ResX, a następnie ponownie uruchom narzędzie ResGen
     // z opcją /str lub ponownie utwórz projekt VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -241,7 +241,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of goal function building.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of goal function building..
         /// </summary>
         internal static string C27 {
             get {
@@ -435,6 +435,24 @@ namespace SharpPDDL.Properties {
         internal static string C46 {
             get {
                 return ResourceManager.GetString("C46", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of 2-arg. goal function building: {0}.
+        /// </summary>
+        internal static string C47 {
+            get {
+                return ResourceManager.GetString("C47", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unexpected error in time of goal member building: {0}.
+        /// </summary>
+        internal static string C48 {
+            get {
+                return ResourceManager.GetString("C48", resourceCulture);
             }
         }
         
@@ -781,6 +799,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Unable to create diagram file in specified path. Canceling this task..
+        /// </summary>
+        internal static string E39 {
+            get {
+                return ResourceManager.GetString("E39", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu You cannot to create goal without name or with empty name..
         /// </summary>
         internal static string E4 {
@@ -916,6 +943,15 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no any diagram to generate..
+        /// </summary>
+        internal static string I17 {
+            get {
+                return ResourceManager.GetString("I17", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         /// Wyszukuje zlokalizowany ciąg podobny do ciągu {0} is not a class type, so it will be remove from domain objects..
         /// </summary>
         internal static string I2 {
@@ -925,7 +961,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu New instance of {0} type initialized.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu New instance of {0} type initialized without constructor for SharpPDDL internal purposes..
         /// </summary>
         internal static string I3 {
             get {
@@ -961,7 +997,7 @@ namespace SharpPDDL.Properties {
         }
         
         /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu all possible state probably generated.
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu All possible state probably generated.
         /// </summary>
         internal static string I7 {
             get {
@@ -1011,6 +1047,33 @@ namespace SharpPDDL.Properties {
         internal static string Sa10 {
             get {
                 return ResourceManager.GetString("Sa10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Started the class diagram build..
+        /// </summary>
+        internal static string Sa11 {
+            get {
+                return ResourceManager.GetString("Sa11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Started the case use diagram build.
+        /// </summary>
+        internal static string Sa12 {
+            get {
+                return ResourceManager.GetString("Sa12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Started the states diagram build.
+        /// </summary>
+        internal static string Sa13 {
+            get {
+                return ResourceManager.GetString("Sa13", resourceCulture);
             }
         }
         
@@ -1110,6 +1173,33 @@ namespace SharpPDDL.Properties {
         internal static string Sp10 {
             get {
                 return ResourceManager.GetString("Sp10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Finished the class diagram build..
+        /// </summary>
+        internal static string Sp11 {
+            get {
+                return ResourceManager.GetString("Sp11", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Finished the case use diagram build..
+        /// </summary>
+        internal static string Sp12 {
+            get {
+                return ResourceManager.GetString("Sp12", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Finished the states diagram build.
+        /// </summary>
+        internal static string Sp13 {
+            get {
+                return ResourceManager.GetString("Sp13", resourceCulture);
             }
         }
         
@@ -1452,6 +1542,69 @@ namespace SharpPDDL.Properties {
         internal static string W20 {
             get {
                 return ResourceManager.GetString("W20", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Path to save diagram {0} is inaccessible. It will be save at {1} folder of app.
+        /// </summary>
+        internal static string W21 {
+            get {
+                return ResourceManager.GetString("W21", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu There is no effect &apos;{1}&apos;-named at {0} the action. It could generate problem of action execution. Check typo..
+        /// </summary>
+        internal static string W22 {
+            get {
+                return ResourceManager.GetString("W22", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal error in time of State Diag. gen. - wrong arg. type of action sententia..
+        /// </summary>
+        internal static string W23 {
+            get {
+                return ResourceManager.GetString("W23", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal error in time of gen. action sententia for State Diagram.
+        /// </summary>
+        internal static string W24 {
+            get {
+                return ResourceManager.GetString("W24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal error in time of plan gen. - wrong arg. type of action sententia..
+        /// </summary>
+        internal static string W25 {
+            get {
+                return ResourceManager.GetString("W25", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu Internal error in time of gen. action sententia for Plan.
+        /// </summary>
+        internal static string W26 {
+            get {
+                return ResourceManager.GetString("W26", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        /// Wyszukuje zlokalizowany ciąg podobny do ciągu An issue occurred while sententia change. {0}-th part will shown without values. .
+        /// </summary>
+        internal static string W27 {
+            get {
+                return ResourceManager.GetString("W27", resourceCulture);
             }
         }
         

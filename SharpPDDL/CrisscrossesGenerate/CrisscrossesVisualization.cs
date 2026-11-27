@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System;
 
 namespace SharpPDDL
 {
@@ -8,9 +9,9 @@ namespace SharpPDDL
     {
         readonly DomainPDDL Owner;
         readonly Crisscross root;
-        List<string> FoundedGoalCrisscrosses;
-        Dictionary<string, Crisscross> states;
-        List<CrisscrossChildrenCon> CurrentRealization;
+        private readonly IReadOnlyList<string> FoundedGoalCrisscrosses;
+        private Dictionary<string, Crisscross> states;
+        private readonly IReadOnlyList<CrisscrossChildrenCon> CurrentRealization;
 
         internal CrisscrossesVisualization(DomainPDDL Owner, Crisscross root, List<string> FoundedGoalCrisscrosses, List<CrisscrossChildrenCon> CurrentRealization)
         {
@@ -111,11 +112,11 @@ namespace SharpPDDL
                     }
                     catch(ArgumentException)
                     {
-                        //todo;
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Error, 166, GloCla.ResMan.GetString("W23"));
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
-                        //todo;
+                        GloCla.Tracer?.TraceEvent(TraceEventType.Error, 167, GloCla.ResMan.GetString("W24"));
                     }
 
                     AddRecord(Link_Key, Attributes);
@@ -217,5 +218,9 @@ namespace SharpPDDL
             AddTFStyle(Node_Key, IsExec_Key, true, Stroke_Key, Realization_Colour);
             AddTFStyle(Link_Key, IsExec_Key, false, Stroke_Key, Action_Colour);
         }
+
+        protected override void InfoAboutStart() => GloCla.Tracer?.TraceEvent(TraceEventType.Start, 164, GloCla.ResMan.GetString("Sa13"));
+
+        protected override void InfoAboutEnd() => GloCla.Tracer?.TraceEvent(TraceEventType.Stop, 165, GloCla.ResMan.GetString("Sp13"));
     }
 }
